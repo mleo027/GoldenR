@@ -11,6 +11,7 @@ import {
     MoreOutlined,
     SnippetsOutlined,
     TagOutlined,
+    ThunderboltOutlined,
     UnorderedListOutlined,
 } from '@ant-design/icons';
 import { useTabsActions, useActiveTab } from '../../store/useTabs';
@@ -40,6 +41,8 @@ interface PathProps {
     /** 为 true 时不渲染 Run（由 SectionHeader 尾部单独挂载） */
     hideRunButton?: boolean;
     layout?: PathBarLayout;
+    /** 在地址栏 action 组中显示快速填充入口 */
+    onQuickFill?: () => void;
 }
 
 interface PathRunButtonProps {
@@ -102,6 +105,7 @@ export default function Path({
     showScriptBadge = false,
     hideRunButton = false,
     layout = 'full',
+    onQuickFill,
 }: PathProps) {
     const { modal } = App.useApp();
     const { activeTab } = useActiveTab();
@@ -248,10 +252,18 @@ export default function Path({
 
     const showInlineActions = layout === 'full';
     const showOverflowMenu = layout !== 'full';
-    const showInlineQueueTimeout = layout !== 'tight';
 
     const overflowMenuItems = useMemo((): MenuProps['items'] => {
         const items: NonNullable<MenuProps['items']> = [];
+
+        if (onQuickFill) {
+            items.push({
+                key: 'quick-fill',
+                label: '快速填充入参',
+                icon: <ThunderboltOutlined />,
+                onClick: onQuickFill,
+            });
+        }
 
         if (isCodeEditorMode) {
             items.push({
@@ -297,6 +309,7 @@ export default function Path({
         handleGenerateTestScript,
         hasCopyableContent,
         isCodeEditorMode,
+        onQuickFill,
     ]);
 
     return (
@@ -334,6 +347,47 @@ export default function Path({
 
                 <div className="path-command-divider" aria-hidden />
 
+                <>
+                    <Tooltip title="Queue">
+                        <span className="path-field-tooltip-wrap">
+                            <Input
+                                value={addressParts.queue}
+                                onChange={(e) => handleAddressPartChange('queue', e.target.value)}
+                                onPressEnter={run}
+                                onBlur={flushPending}
+                                placeholder="req1"
+                                size="small"
+                                className="path-field-input path-field-queue"
+                                variant="borderless"
+                                prefix={
+                                    <span className="path-field-prefix path-field-prefix--icon-only">
+                                        <UnorderedListOutlined className="path-field-icon" />
+                                    </span>
+                                }
+                            />
+                        </span>
+                    </Tooltip>
+                    <Tooltip title="Timeout (s)">
+                        <span className="path-field-tooltip-wrap">
+                            <Input
+                                value={addressParts.timeout}
+                                onChange={(e) => handleAddressPartChange('timeout', e.target.value)}
+                                onPressEnter={run}
+                                onBlur={flushPending}
+                                placeholder={DEFAULT_KCBP_TIMEOUT}
+                                size="small"
+                                className="path-field-input path-field-timeout"
+                                variant="borderless"
+                                prefix={
+                                    <span className="path-field-prefix path-field-prefix--icon-only">
+                                        <ClockCircleOutlined className="path-field-icon" />
+                                    </span>
+                                }
+                            />
+                        </span>
+                    </Tooltip>
+                </>
+
                 <Tooltip title="Msgtype">
                     <span className="path-field-tooltip-wrap">
                         <Input
@@ -341,7 +395,7 @@ export default function Path({
                             onChange={(e) => handleAddressPartChange('msgtype', e.target.value)}
                             onPressEnter={run}
                             onBlur={flushPending}
-                            placeholder="150501"
+                            placeholder=""
                             size="small"
                             className="path-field-input path-field-msgtype"
                             variant="borderless"
@@ -353,55 +407,20 @@ export default function Path({
                         />
                     </span>
                 </Tooltip>
-                {showInlineQueueTimeout ? (
-                    <>
-                        <Tooltip title="Queue">
-                            <span className="path-field-tooltip-wrap">
-                                <Input
-                                    value={addressParts.queue}
-                                    onChange={(e) =>
-                                        handleAddressPartChange('queue', e.target.value)
-                                    }
-                                    onPressEnter={run}
-                                    onBlur={flushPending}
-                                    placeholder="req1"
-                                    size="small"
-                                    className="path-field-input path-field-queue"
-                                    variant="borderless"
-                                    prefix={
-                                        <span className="path-field-prefix path-field-prefix--icon-only">
-                                            <UnorderedListOutlined className="path-field-icon" />
-                                        </span>
-                                    }
-                                />
-                            </span>
-                        </Tooltip>
-                        <Tooltip title="Timeout (s)">
-                            <span className="path-field-tooltip-wrap">
-                                <Input
-                                    value={addressParts.timeout}
-                                    onChange={(e) =>
-                                        handleAddressPartChange('timeout', e.target.value)
-                                    }
-                                    onPressEnter={run}
-                                    onBlur={flushPending}
-                                    placeholder={DEFAULT_KCBP_TIMEOUT}
-                                    size="small"
-                                    className="path-field-input path-field-timeout"
-                                    variant="borderless"
-                                    prefix={
-                                        <span className="path-field-prefix path-field-prefix--icon-only">
-                                            <ClockCircleOutlined className="path-field-icon" />
-                                        </span>
-                                    }
-                                />
-                            </span>
-                        </Tooltip>
-                    </>
-                ) : null}
 
                 {showInlineActions ? (
                     <div className="path-actions shrink-0 flex items-center gap-1">
+                        {onQuickFill ? (
+                            <Tooltip title="快速填充入参">
+                                <Button
+                                    type="text"
+                                    size="small"
+                                    icon={<ThunderboltOutlined />}
+                                    className="path-helper-btn"
+                                    onClick={onQuickFill}
+                                />
+                            </Tooltip>
+                        ) : null}
                         {isCodeEditorMode ? (
                             <Tooltip title="格式化脚本 (Ctrl+Shift+F)">
                                 <Button
@@ -457,46 +476,6 @@ export default function Path({
                                     className="path-overflow-panel"
                                     onClick={(event) => event.stopPropagation()}
                                 >
-                                    {layout === 'tight' ? (
-                                        <div className="path-overflow-fields">
-                                            <label className="path-overflow-field">
-                                                <span className="path-overflow-field-label">
-                                                    Queue
-                                                </span>
-                                                <Input
-                                                    value={addressParts.queue}
-                                                    onChange={(e) =>
-                                                        handleAddressPartChange(
-                                                            'queue',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    onPressEnter={run}
-                                                    onBlur={flushPending}
-                                                    placeholder="req1"
-                                                    size="small"
-                                                />
-                                            </label>
-                                            <label className="path-overflow-field">
-                                                <span className="path-overflow-field-label">
-                                                    Timeout (s)
-                                                </span>
-                                                <Input
-                                                    value={addressParts.timeout}
-                                                    onChange={(e) =>
-                                                        handleAddressPartChange(
-                                                            'timeout',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    onPressEnter={run}
-                                                    onBlur={flushPending}
-                                                    placeholder={DEFAULT_KCBP_TIMEOUT}
-                                                    size="small"
-                                                />
-                                            </label>
-                                        </div>
-                                    ) : null}
                                     <Menu items={overflowMenuItems} />
                                 </div>
                             )}

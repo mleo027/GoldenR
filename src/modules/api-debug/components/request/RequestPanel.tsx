@@ -4,9 +4,7 @@ import {
     CaretDownOutlined,
     CaretRightOutlined,
     FormOutlined,
-    ThunderboltOutlined,
 } from '@ant-design/icons';
-import { Tooltip } from 'antd';
 import Path, { PathRunButton } from '../editor/Path';
 import ParamEdit from '../editor/ParamEdit';
 import EditorModeToggle from '../editor/EditorModeToggle';
@@ -23,6 +21,7 @@ import { paramsEqual } from '@/hooks/useStableHandlerMap';
 import { UI_DEBOUNCE_MS } from '@/constants/ui';
 import type { ParamItem } from '../../types/workspace';
 import { parseKcbpAddress, serializeKcbpAddress } from '../../utils/kcbp/kcbpAddress';
+import { resolveMsgtypeFromParams } from '../../utils/workspace/caseLabel';
 
 interface RequestPanelProps {
     paramsCollapsed?: boolean;
@@ -34,7 +33,7 @@ export default function RequestPanel({
     onToggleParamsCollapse,
 }: RequestPanelProps) {
     const { activeTab } = useActiveTab();
-    const { updateTabUndoable } = useTabsActions();
+    const { updateTab, updateTabUndoable } = useTabsActions();
 
     const commitParams = useCallback(
         (params: ParamItem[]) => {
@@ -55,6 +54,16 @@ export default function RequestPanel({
 
     const paramsDraftRef = useRef(paramsDraft);
     paramsDraftRef.current = paramsDraft;
+
+    useEffect(() => {
+        const parts = parseKcbpAddress(activeTab.address);
+        if (parts.msgtype.trim()) return;
+
+        const msgtype = resolveMsgtypeFromParams(activeTab.params);
+        if (!msgtype) return;
+
+        updateTab({ address: serializeKcbpAddress({ ...parts, msgtype }) });
+    }, [activeTab.address, activeTab.id, activeTab.params, updateTab]);
 
     useEffect(() => registerTabDraftFlusher(flushPending), [flushPending]);
 
@@ -108,7 +117,7 @@ export default function RequestPanel({
                 actions={<EditorModeToggle compact={compactTrailing} />}
                 endActions={<PathRunButton compact={compactTrailing} />}
             >
-                <Path hideRunButton layout={layout} />
+                <Path hideRunButton layout={layout} onQuickFill={() => setQuickFillOpen(true)} />
             </SectionHeader>
 
             <div className="param-section-toggle">
@@ -123,16 +132,6 @@ export default function RequestPanel({
                     <span>请求参数</span>
                 </button>
                 <span className="param-section-toggle-actions">
-                    <Tooltip title="快速填充入参">
-                        <button
-                            type="button"
-                            className="param-section-toggle-mode"
-                            aria-label="快速填充入参"
-                            onClick={() => setQuickFillOpen(true)}
-                        >
-                            <ThunderboltOutlined />
-                        </button>
-                    </Tooltip>
                     <span className="param-section-toggle-count">{paramsDraft.length}</span>
                 </span>
             </div>

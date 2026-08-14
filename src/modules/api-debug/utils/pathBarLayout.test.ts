@@ -7,13 +7,8 @@ describe('resolvePathBarLayout', () => {
         expect(resolvePathBarLayout(PATH_BAR_LAYOUT_WIDTH.compact + 100)).toBe('full');
     });
 
-    it('returns compact between tight and compact breakpoints', () => {
+    it('returns compact below the compact breakpoint', () => {
         expect(resolvePathBarLayout(PATH_BAR_LAYOUT_WIDTH.compact - 1)).toBe('compact');
-        expect(resolvePathBarLayout(PATH_BAR_LAYOUT_WIDTH.tight)).toBe('compact');
-    });
-
-    it('returns tight below tight breakpoint', () => {
-        expect(resolvePathBarLayout(PATH_BAR_LAYOUT_WIDTH.tight - 1)).toBe('tight');
-        expect(resolvePathBarLayout(320)).toBe('tight');
+        expect(resolvePathBarLayout(1)).toBe('compact');
     });
 });

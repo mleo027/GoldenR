@@ -1,7 +1,7 @@
 import { forwardRef, type ReactNode } from 'react';
 import { Typography } from 'antd';
 
-type RequestHeaderLayout = 'full' | 'compact' | 'tight';
+type RequestHeaderLayout = 'full' | 'compact';
 
 interface SectionHeaderProps {
     icon: ReactNode;
@@ -20,12 +20,7 @@ const SectionHeader = forwardRef<HTMLDivElement, SectionHeaderProps>(function Se
     { icon, iconClassName, title, children, actions, endActions, compact = false, layout },
     ref,
 ) {
-    const layoutClass =
-        layout === 'tight'
-            ? ' section-header--layout-tight'
-            : layout === 'compact'
-              ? ' section-header--layout-compact'
-              : '';
+    const layoutClass = layout === 'compact' ? ' section-header--layout-compact' : '';
 
     return (
         <div

@@ -1,8 +1,9 @@
 import { Tooltip } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined, SettingOutlined } from '@ant-design/icons';
 import { useAppEnv } from '../../store/useAppEnv';
 import type { AppModuleDefinition } from '../registry/types';
 import { usePlatformShell } from './usePlatformShell';
+import { useSettingsModal } from './useSettingsModal';
 import { modKeyLabel } from './platformCommandItems';
 
 interface ActivityBarProps {
@@ -13,6 +14,7 @@ interface ActivityBarProps {
 export default function ActivityBar({ modules, onOpenCommandPalette }: ActivityBarProps) {
     const { env, updateEnv } = useAppEnv();
     const { sidebarVisible, setSidebarVisible, toggleSidebar } = usePlatformShell();
+    const { open, openSettings } = useSettingsModal();
 
     const handleModuleClick = (moduleId: string) => {
         if (moduleId === env.activeModuleId) {
@@ -57,6 +59,19 @@ export default function ActivityBar({ modules, onOpenCommandPalette }: ActivityB
                     >
                         <span className="activity-bar-icon">
                             <SearchOutlined />
+                        </span>
+                    </button>
+                </Tooltip>
+                <Tooltip title="设置 (Ctrl+,)" placement="right" open={open ? false : undefined}>
+                    <button
+                        type="button"
+                        className={`activity-bar-item activity-bar-item-settings${open ? ' activity-bar-item-active' : ''}`}
+                        aria-label="设置"
+                        aria-pressed={open}
+                        onClick={openSettings}
+                    >
+                        <span className="activity-bar-icon">
+                            <SettingOutlined />
                         </span>
                     </button>
                 </Tooltip>

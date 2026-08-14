@@ -24,7 +24,7 @@ export const CONTENT_EDGE_INSET_PX = 10;
 export const LAYOUT_MIN_WIDTH_PX = {
     window: 1024,
     sidebar: 240,
-    mainPanel: 680,
+    mainPanel: 720,
     pathBar: 640,
 } as const;
 

@@ -110,10 +110,24 @@ function getBridgeScriptPath(): string {
     throw new Error(`KCBP bridge script not found: ${candidates.join(' | ')}`);
 }
 
+function getBundledNodeExecutable(): string | null {
+    if (!app.isPackaged) return null;
+
+    const nodeName = process.platform === 'win32' ? 'node.exe' : 'node';
+    const bundled = path.join(process.resourcesPath, 'node', nodeName);
+    return fs.existsSync(bundled) ? bundled : null;
+}
+
 function getNodeExecutable(): string {
     if (process.env.KCBP_NODE_PATH?.trim()) {
         return process.env.KCBP_NODE_PATH.trim();
     }
+
+    const bundledNode = getBundledNodeExecutable();
+    if (bundledNode) {
+        return bundledNode;
+    }
+
     if (process.env.npm_node_execpath?.trim()) {
         return process.env.npm_node_execpath.trim();
     }

@@ -90,8 +90,8 @@ export default function CaseScriptPanel() {
             <div
                 ref={headerRef}
                 className={`case-script-header section-header section-header--compact flex items-center gap-2 pl-2.5 pr-0 border-b border-[var(--color-border-light)] shrink-0${
-                    layout === 'tight' ? ' section-header--layout-tight' : ''
-                }${layout === 'compact' ? ' section-header--layout-compact' : ''}`}
+                    layout === 'compact' ? ' section-header--layout-compact' : ''
+                }`}
             >
                 <div className="section-header-path-wrap ui-scroll flex-1 min-w-0">
                     <Path showScriptBadge hideRunButton layout={layout} />

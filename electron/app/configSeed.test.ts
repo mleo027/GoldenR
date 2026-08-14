@@ -57,11 +57,12 @@ describe('seedPortableConfigs', () => {
     it('keeps the packaged config manifest explicit', () => {
         expect(PORTABLE_CONFIG_FILES).toEqual([
             'app.json',
-            'settings.json',
-            'project.json',
-            'db.json',
             'api-debug.env.json',
+            'project.json',
+            'settings.json',
+            'db.json',
             'param-suggest-rules.json',
+            'kcbp.env.json',
         ]);
     });
 });

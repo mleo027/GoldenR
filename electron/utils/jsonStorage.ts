@@ -30,17 +30,6 @@ async function replaceFileAtomically(tempPath: string, absPath: string): Promise
     await fs.unlink(tempPath).catch(() => undefined);
 }
 
-export function resolveJsonPath(
-    filePath: string,
-    getAppRootDir: () => string,
-    getLegacyDataDir: () => string,
-    fromUserData = false,
-): string {
-    if (path.isAbsolute(filePath)) return filePath;
-    const baseDir = fromUserData ? getLegacyDataDir() : getAppRootDir();
-    return path.join(baseDir, filePath);
-}
-
 export async function readJsonFileAt(absPath: string): Promise<unknown | null> {
     try {
         const content = await fs.readFile(absPath, 'utf-8');

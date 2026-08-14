@@ -1,14 +1,8 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { PERSISTED_CONFIG_FILES } from '../../src/config/registry';
 
-export const PORTABLE_CONFIG_FILES = [
-    'app.json',
-    'settings.json',
-    'project.json',
-    'db.json',
-    'api-debug.env.json',
-    'param-suggest-rules.json',
-] as const;
+export const PORTABLE_CONFIG_FILES = PERSISTED_CONFIG_FILES;
 
 export async function seedPortableConfigs(
     bundledDir: string,

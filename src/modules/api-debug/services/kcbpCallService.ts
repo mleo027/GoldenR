@@ -2,10 +2,16 @@ import type { ParamItem, ResponseData, TabData, EditorMode } from '../types/work
 import type { KcbpRequestOptions, KcbpResponseData } from '../../../types/kcbp';
 import type { DbScriptQueryRequest, DbScriptQueryResponse } from '@/shared/suggest/types';
 import { requireElectronAPI } from '../../../lib/electron';
-import { parseKcbpAddress, splitHost, type KcbpAddressParts } from '../utils/kcbp/kcbpAddress';
+import {
+    parseKcbpAddress,
+    serializeKcbpAddress,
+    splitHost,
+    type KcbpAddressParts,
+} from '../utils/kcbp/kcbpAddress';
 import { extractMissingParamFromKcbpResponse, mergeParamIntoList } from '../utils/kcbp/kcbpParams';
 import { buildKcbpFields } from '../utils/kcbp/kcbpFields';
 import { parseKcbpResponseStatus } from '../utils/kcbp/kcbpResponse';
+import { resolveMsgtypeFromParams } from '../utils/workspace/caseLabel';
 import {
     executeCaseScript,
     fieldsToParams,
@@ -36,6 +42,8 @@ import { applyKcxpEnvironmentToAddress } from '../utils/workspace/kcxpEnvironmen
 import type { KcxpEnvironment } from '../types/kcxp';
 
 export type KcbpInvokeMode = EditorMode | 'tcd';
+
+export const KCBP_MSGTYPE_REQUIRED_MESSAGE = '请先填写 Msgtype 后再调用';
 
 export function toGridRows(data: unknown[]): Record<string, unknown>[] {
     return data.map((item) => {
@@ -216,13 +224,19 @@ export async function invokeKcbpCall(
     options: InvokeKcbpCallOptions = {},
 ): Promise<KcbpCallOutcome> {
     const electronDeps = options.electronDeps;
-    const effectiveAddress =
+    let effectiveAddress =
         options.effectiveAddress ??
         (options.kcxpEnvironment
             ? applyKcxpEnvironmentToAddress(tab.address, options.kcxpEnvironment)
             : tab.address);
     const addressParts = parseKcbpAddress(effectiveAddress);
-    const msgtype = addressParts.msgtype.trim() || tab.name;
+    const msgtype = addressParts.msgtype.trim() || resolveMsgtypeFromParams(tab.params);
+    if (!msgtype) {
+        throw new Error(KCBP_MSGTYPE_REQUIRED_MESSAGE);
+    }
+    if (!addressParts.msgtype.trim()) {
+        effectiveAddress = serializeKcbpAddress({ ...addressParts, msgtype });
+    }
 
     if (editorMode === 'ui') {
         const { fields, binaryFields } = buildKcbpFields(tab.params);
@@ -233,6 +247,7 @@ export async function invokeKcbpCall(
             binaryFields,
             tab.params,
             electronDeps,
+            effectiveAddress,
         );
         return {
             ...outcome,

@@ -6,6 +6,7 @@ import {
     PlusOutlined,
     CloseOutlined,
     CopyOutlined,
+    EditOutlined,
     SearchOutlined,
     StarOutlined,
     ImportOutlined,
@@ -218,6 +219,7 @@ const CaseSidebar = forwardRef<CaseSidebarHandle>(function CaseSidebar(_props, r
             {
                 key: 'rename',
                 label: '重命名',
+                icon: <EditOutlined />,
                 onClick: () => startRename({ type: 'case', projectIndex, caseIndex }),
             },
             {
@@ -257,6 +259,7 @@ const CaseSidebar = forwardRef<CaseSidebarHandle>(function CaseSidebar(_props, r
             {
                 key: 'rename',
                 label: '重命名项目',
+                icon: <EditOutlined />,
                 onClick: () => startRename({ type: 'project', projectIndex }),
             },
             { type: 'divider' },

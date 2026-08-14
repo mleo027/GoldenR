@@ -45,6 +45,7 @@ tmp/
 .tmp-*
 settings.json*.tmp
 /query
+resources/node/
 
 # Local backup archive
 _backup_plan_20260814.zip

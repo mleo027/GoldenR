@@ -4,10 +4,18 @@ import { useTabsActions, useActiveTab } from './useTabs';
 import { useRunLogActions } from './useRunLog';
 import { useApiDebugEnv } from './useApiDebugEnv';
 import { getElectronAPI } from '../../../lib/electron';
-import { getKcbpCallFeedback, invokeKcbpCall } from '../services/kcbpCallService';
+import {
+    getKcbpCallFeedback,
+    invokeKcbpCall,
+    KCBP_MSGTYPE_REQUIRED_MESSAGE,
+} from '../services/kcbpCallService';
 import { isKcbpCancelled } from '../utils/kcbp/kcbpCancel';
 import { flushAllTabDrafts } from '../utils/workspace/tabDraftRegistry';
-import { getCaseLabel, parseMsgtypeFromAddress } from '../utils/workspace/caseLabel';
+import {
+    getCaseLabel,
+    parseMsgtypeFromAddress,
+    resolveMsgtypeFromParams,
+} from '../utils/workspace/caseLabel';
 import { KcbpCallContext } from './KcbpCallContext';
 import { useResponseActions } from './useResponse';
 import { useScriptConsoleActions } from './useScriptConsole';
@@ -58,13 +66,24 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
             cancelInFlight();
         }
 
+        const tab = activeTabRef.current;
+        const resolvedMsgtype =
+            parseMsgtypeFromAddress(tab.address).trim() || resolveMsgtypeFromParams(tab.params);
+        if (!resolvedMsgtype) {
+            message.warning(KCBP_MSGTYPE_REQUIRED_MESSAGE);
+            return;
+        }
+
         flushAllTabDrafts();
 
-        const tab = activeTabRef.current;
         const caseIndex = activeCaseIndexRef.current;
         const callId = ++callGenerationRef.current;
         const caseName = getCaseLabel(tab, caseIndex);
-        const msgtype = parseMsgtypeFromAddress(tab.address) || tab.name.trim() || '未知接口';
+        const msgtype =
+            resolvedMsgtype ||
+            parseMsgtypeFromAddress(tab.address) ||
+            tab.name.trim() ||
+            '未知接口';
         const editorMode = editorModeRef.current;
 
         runningCaseIdRef.current = caseId;

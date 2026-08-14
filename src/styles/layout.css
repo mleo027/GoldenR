@@ -34,7 +34,7 @@
 }
 
 .layout-panel-main {
-    min-width: 680px;
+    min-width: 720px;
 }
 
 .section-header {
@@ -65,14 +65,6 @@
 
 .section-header--layout-compact {
     gap: 8px;
-}
-
-.section-header--layout-tight .section-header-title {
-    display: none;
-}
-
-.section-header--layout-tight .section-header-leading {
-    gap: 0;
 }
 
 .panel-resize-handle-vertical {

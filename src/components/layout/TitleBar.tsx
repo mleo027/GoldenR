@@ -1,13 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button, Space, Tooltip } from 'antd';
-import {
-    SettingOutlined,
-    CloseOutlined,
-    MinusOutlined,
-    BorderOutlined,
-    BlockOutlined,
-} from '@ant-design/icons';
-import { useSettingsModal } from '../../platform/shell/useSettingsModal';
+import { CloseOutlined, MinusOutlined, BorderOutlined, BlockOutlined } from '@ant-design/icons';
 import { TITLE_BAR_SLOT_ID } from '../../platform/shell/TitleBarSlotPortal';
 import GoldenApiLogo from '../ui/GoldenApiLogo';
 
@@ -23,7 +16,6 @@ export default function TitleBar({
     breadcrumb,
     useTitleBarSlot = false,
 }: TitleBarProps) {
-    const { open, openSettings } = useSettingsModal();
     const [isMaximized, setIsMaximized] = useState(false);
 
     useEffect(() => {
@@ -67,15 +59,6 @@ export default function TitleBar({
                 className="title-bar-actions"
                 style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
             >
-                <Tooltip title="设置 (Ctrl+,)" placement="bottom" open={open ? false : undefined}>
-                    <Button
-                        type="text"
-                        size="small"
-                        icon={<SettingOutlined />}
-                        onClick={openSettings}
-                        className={`!p-1.5 settings-trigger-btn${open ? ' settings-trigger-btn-active' : ''}`}
-                    />
-                </Tooltip>
                 <Tooltip title="最小化" placement="bottom">
                     <Button
                         type="text"

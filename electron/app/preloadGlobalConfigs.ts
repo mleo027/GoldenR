@@ -5,7 +5,7 @@ import {
 } from '../services/kcbp/kcbpRuntimeConfigStore';
 
 export async function preloadGlobalConfigs(ctx: ElectronAppContext): Promise<void> {
-    const userDataDir = ctx.getApiServerUserDataDir();
+    const userDataDir = ctx.getConfigDir();
     setKcbpRuntimeConfigUserDataDir(userDataDir);
     await loadKcbpRuntimeConfig();
 }

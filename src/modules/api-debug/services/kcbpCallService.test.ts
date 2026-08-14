@@ -167,6 +167,36 @@ describe('invokeKcbpCall', () => {
         expect(outcome.response.code).toBe('0');
     });
 
+    it('rejects before calling when msgtype is empty', async () => {
+        const emptyMsgtypeTab = {
+            ...tab,
+            address: '127.0.0.1:21000',
+            name: '接口名称',
+        };
+
+        await expect(invokeKcbpCall(emptyMsgtypeTab, 'ui')).rejects.toThrow(
+            '请先填写 Msgtype 后再调用',
+        );
+        expect(mockCallKcbp).not.toHaveBeenCalled();
+    });
+
+    it('uses funcid or g_funcid param as msgtype when address msgtype is empty', async () => {
+        const funcIdTab = {
+            ...tab,
+            address: '127.0.0.1:21000',
+            name: '接口名称',
+            params: [
+                { name: 'g_funcid', value: '150501', type: 'string' },
+                { name: 'market', value: '1', type: 'string' },
+            ] as ParamItem[],
+        };
+
+        const outcome = await invokeKcbpCall(funcIdTab, 'ui');
+
+        expect(mockCallKcbp.mock.calls[0][0].param.msgtype).toBe('150501');
+        expect(outcome.msgtype).toBe('150501');
+    });
+
     it('runs UI mode with file params via @file: prefix', async () => {
         const fileTab = {
             ...tab,

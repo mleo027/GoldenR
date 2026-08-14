@@ -1,6 +1,17 @@
 # 数据持久化
 
-Golden API Debug 的本地数据主要保存在 Electron `userData` 目录，部分开发期样例数据放在项目根目录。
+Golden API Debug 的本地数据由配置中心统一管理。
+
+## 配置中心
+
+| 运行方式 | 配置文件目录               |
+| -------- | -------------------------- |
+| 安装版   | Electron `userData` 根目录 |
+| portable | portable exe 所在目录      |
+| 开发模式 | 项目根目录                 |
+
+所有持久化配置文件都通过 `src/config/registry.ts` 登记，并由
+`electron/config/configPaths.ts` 统一解析路径。旧版 `userData/data` 下的配置会在启动时迁移到新的配置中心目录。
 
 ## 主要文件
 
@@ -34,11 +45,12 @@ Golden API Debug 的本地数据主要保存在 Electron `userData` 目录，部
 
 ## 相关代码
 
-| 数据                             | 代码入口                                           |
-| -------------------------------- | -------------------------------------------------- |
-| `app.json`                       | `src/store/appEnvData.ts`                          |
-| `api-debug.env.json`             | `src/modules/api-debug/store/apiDebugEnvData.ts`   |
-| `project.json` / `settings.json` | `src/modules/api-debug/store/tabsData.ts`          |
-| `db.json` / 提示规则             | `src/modules/api-debug/store/paramSuggestData.ts`  |
-| `kcbp.env.json`                  | `electron/services/kcbp/kcbpRuntimeConfigStore.ts` |
-| 退出前 flush                     | `src/lib/persistFlush.ts`                          |
+| 数据                             | 代码入口                                                    |
+| -------------------------------- | ----------------------------------------------------------- |
+| `app.json`                       | `src/store/appEnvData.ts`                                   |
+| `api-debug.env.json`             | `src/modules/api-debug/store/apiDebugEnvData.ts`            |
+| `project.json` / `settings.json` | `src/modules/api-debug/store/tabsData.ts`                   |
+| `db.json` / 提示规则             | `src/modules/api-debug/store/paramSuggestData.ts`           |
+| `kcbp.env.json`                  | `electron/services/kcbp/kcbpRuntimeConfigStore.ts`          |
+| 配置中心路径                     | `src/config/registry.ts` / `electron/config/configPaths.ts` |
+| 退出前 flush                     | `src/lib/persistFlush.ts`                                   |

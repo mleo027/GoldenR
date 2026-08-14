@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { TabData } from '../../types/workspace';
-import { shouldResortCasesForUpdate, sortCasesByMsgtype } from './caseLabel';
+import {
+    resolveMsgtypeFromParams,
+    shouldResortCasesForUpdate,
+    sortCasesByMsgtype,
+} from './caseLabel';
 
 function mockCase(msgtype: string, name = '接口'): TabData {
     return {
@@ -30,6 +34,30 @@ describe('sortCasesByMsgtype', () => {
         const sorted = sortCasesByMsgtype([mockCase('150501'), favorite]);
 
         expect(sorted[0].id).toBe('999999');
+    });
+});
+
+describe('resolveMsgtypeFromParams', () => {
+    it('resolves funcid or g_funcid from enabled params', () => {
+        expect(
+            resolveMsgtypeFromParams([{ name: 'funcid', value: '410411', type: 'string' }]),
+        ).toBe('410411');
+        expect(
+            resolveMsgtypeFromParams([{ name: 'g_funcid', value: '150501', type: 'string' }]),
+        ).toBe('150501');
+    });
+
+    it('prefers g_funcid and ignores disabled params', () => {
+        expect(
+            resolveMsgtypeFromParams([
+                { name: 'funcid', value: '410411', type: 'string' },
+                { name: 'g_funcid', value: '150501', type: 'string' },
+                { name: 'funcid2', value: '999999', type: 'string' },
+            ]),
+        ).toBe('150501');
+        expect(
+            resolveMsgtypeFromParams([{ name: 'funcid', value: '410411', type: 'disabled' }]),
+        ).toBe('');
     });
 });
 

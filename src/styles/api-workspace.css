@@ -105,7 +105,7 @@
 }
 
 .path-command-bar .path-field-queue {
-    width: 72px;
+    width: 144px;
     flex: 0 0 auto;
 }
 
@@ -130,26 +130,6 @@
     border-radius: var(--radius-control);
     background: var(--color-bg-card);
     box-shadow: var(--shadow-popover, 0 6px 16px rgba(15, 23, 42, 0.12));
-}
-
-.path-overflow-fields {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 8px 12px;
-    border-bottom: 1px solid var(--color-border-light);
-}
-
-.path-overflow-field {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.path-overflow-field-label {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--color-text-muted);
 }
 
 .path-overflow-panel .ant-menu {

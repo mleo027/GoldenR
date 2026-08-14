@@ -21,6 +21,22 @@ export function parseMsgtypeFromAddress(address: string): string {
 /** @deprecated use parseMsgtypeFromAddress */
 export const parseFuncIdFromAddress = parseMsgtypeFromAddress;
 
+const FUNC_ID_PARAM_KEYS = new Set(['funcid', 'g_funcid']);
+
+export function resolveMsgtypeFromParams(params: TabData['params']): string {
+    const valuesByKey = new Map<string, string>();
+
+    for (const param of params) {
+        if (param.type === 'disabled') continue;
+
+        const key = param.name.trim().toLowerCase();
+        if (!FUNC_ID_PARAM_KEYS.has(key) || valuesByKey.has(key)) continue;
+        valuesByKey.set(key, param.value.trim());
+    }
+
+    return valuesByKey.get('g_funcid') || valuesByKey.get('funcid') || '';
+}
+
 export function getDefaultCaseName(index: number): string {
     return `接口 ${index + 1}`;
 }
@@ -28,7 +44,7 @@ export function getDefaultCaseName(index: number): string {
 function resolveCaseMsgtype(tab: TabData): string {
     const fromAddress = parseMsgtypeFromAddress(tab.address);
     if (fromAddress) return fromAddress;
-    return tab.params.find((param) => param.name.trim() === 'g_funcid')?.value.trim() || '';
+    return resolveMsgtypeFromParams(tab.params);
 }
 
 export function getCaseMsgtype(tab: TabData): string {
@@ -61,7 +77,7 @@ export function sortCasesByMsgtype(cases: TabData[]): TabData[] {
 }
 
 function getFuncIdParam(params: TabData['params']): string {
-    return params.find((param) => param.name.trim() === 'g_funcid')?.value.trim() ?? '';
+    return resolveMsgtypeFromParams(params);
 }
 
 /** 仅当 favorite / name / msgtype 相关字段变化时需要重新排序 */

@@ -1,4 +1,4 @@
-import { useRef, useState, type RefObject } from 'react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
 import {
     PanelGroup,
     Panel,
@@ -9,15 +9,27 @@ import RequestPanel from '../components/request/RequestPanel';
 import ResponsePanel from '../components/response/ResponsePanel';
 import CaseScriptPanel from '../components/editor/CaseScriptPanel';
 import { useApiDebugEnv } from '../store/useApiDebugEnv';
+import { useKcbpCall } from '../hooks/useKcbpCall';
 
 export default function Tab() {
     const { env } = useApiDebugEnv();
+    const { loading } = useKcbpCall();
     const requestPanelRef = useRef<ImperativePanelHandle>(null);
     const responsePanelRef = useRef<ImperativePanelHandle>(null);
+    const prevLoadingRef = useRef(loading);
     const [paramsCollapsed, setParamsCollapsed] = useState(false);
     const [responseCollapsed, setResponseCollapsed] = useState(false);
 
     const isScriptMode = env.editorMode === 'script';
+
+    useEffect(() => {
+        if (prevLoadingRef.current && !loading) {
+            requestPanelRef.current?.resize(50);
+            responsePanelRef.current?.resize(50);
+            setResponseCollapsed(false);
+        }
+        prevLoadingRef.current = loading;
+    }, [loading]);
 
     const handleToggleParamsCollapse = () => {
         const panel = requestPanelRef.current;
