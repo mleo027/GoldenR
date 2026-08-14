@@ -1,12 +1,32 @@
-import { BrowserWindow, dialog, ipcMain } from 'electron';
+import {
+    BrowserWindow,
+    dialog,
+    ipcMain,
+    type OpenDialogOptions,
+    type SaveDialogOptions,
+} from 'electron';
 import { readFile, stat, writeFile } from 'node:fs/promises';
 import { decodeIniBuffer } from '../readIniText';
+
+async function showOpenDialog(
+    win: BrowserWindow | null | undefined,
+    options: OpenDialogOptions,
+): Promise<Electron.OpenDialogReturnValue> {
+    return win ? dialog.showOpenDialog(win, options) : dialog.showOpenDialog(options);
+}
+
+async function showSaveDialog(
+    win: BrowserWindow | null | undefined,
+    options: SaveDialogOptions,
+): Promise<Electron.SaveDialogReturnValue> {
+    return win ? dialog.showSaveDialog(win, options) : dialog.showSaveDialog(options);
+}
 
 export function registerImportExportIpc(): void {
     ipcMain.handle('import:openFile', async (event, format: 'json' | 'ini') => {
         const win = BrowserWindow.fromWebContents(event.sender);
         const isJson = format === 'json';
-        const result = await dialog.showOpenDialog(win ?? undefined, {
+        const result = await showOpenDialog(win, {
             title: isJson ? '导入接口 JSON' : '导入接口 INI',
             filters: isJson
                 ? [{ name: 'JSON', extensions: ['json'] }]
@@ -37,7 +57,7 @@ export function registerImportExportIpc(): void {
 
     ipcMain.handle('param:openFile', async (event) => {
         const win = BrowserWindow.fromWebContents(event.sender);
-        const result = await dialog.showOpenDialog(win ?? undefined, {
+        const result = await showOpenDialog(win, {
             title: '选择入参文件',
             properties: ['openFile'],
         });
@@ -82,7 +102,7 @@ export function registerImportExportIpc(): void {
                 ? defaultFilename
                 : `${defaultFilename}.csv`;
 
-            const result = await dialog.showSaveDialog(win ?? undefined, {
+            const result = await showSaveDialog(win, {
                 title: '导出 CSV',
                 defaultPath,
                 filters: [{ name: 'CSV', extensions: ['csv'] }],
@@ -111,7 +131,7 @@ export function registerImportExportIpc(): void {
                 ? defaultFilename
                 : `${defaultFilename}.html`;
 
-            const result = await dialog.showSaveDialog(win ?? undefined, {
+            const result = await showSaveDialog(win, {
                 title: '导出 HTML 报告',
                 defaultPath,
                 filters: [{ name: 'HTML', extensions: ['html'] }],

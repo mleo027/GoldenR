@@ -1,4 +1,3 @@
-import { constants as fsConstants } from 'fs';
 import { randomBytes } from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
@@ -26,7 +25,7 @@ async function replaceFileAtomically(tempPath: string, absPath: string): Promise
     }
 
     // Windows 上 rename 覆盖已有文件可能 EPERM（目标被占用或 watcher 短暂锁定）
-    await fs.copyFile(tempPath, absPath, fsConstants.COPYFILE_F_REPLACE_EXISTING);
+    await fs.copyFile(tempPath, absPath);
     await fs.unlink(tempPath).catch(() => undefined);
 }
 
