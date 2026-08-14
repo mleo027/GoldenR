@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { execSync, spawn } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -33,7 +33,15 @@ try {
         });
     }
 } finally {
-    child.kill();
+    if (process.platform === 'win32' && child.pid) {
+        try {
+            execSync(`taskkill /pid ${child.pid} /T /F`, { stdio: 'ignore' });
+        } catch {
+            // Process may already be gone.
+        }
+    } else {
+        child.kill();
+    }
 }
 
 if (!passed) {
