@@ -73,7 +73,7 @@ export function TabsProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const handleBeforeUnload = () => {
-            flushAllPersistedState();
+            void flushAllPersistedState().catch(console.error);
         };
         window.addEventListener('beforeunload', handleBeforeUnload);
         return () => window.removeEventListener('beforeunload', handleBeforeUnload);

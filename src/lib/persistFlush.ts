@@ -4,8 +4,16 @@ import { getElectronAPI } from './electron';
 
 export async function flushAllPersistedState(): Promise<void> {
     await flushPendingAppEnvSaveAsync();
-    for (const module of APP_MODULES) {
-        await module.flushPersistedState?.();
+    const results = await Promise.allSettled(
+        APP_MODULES.map(async (module) => {
+            await module.flushPersistedState?.();
+        }),
+    );
+    const errors = results
+        .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
+        .map((result) => result.reason);
+    if (errors.length > 0) {
+        throw new Error(`Persisted state flush failed: ${errors.map(String).join('; ')}`);
     }
 }
 

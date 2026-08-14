@@ -107,9 +107,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
         getUserDataDir: (): Promise<string> => invoke('app:getUserDataDir'),
         onFlushStorage: (callback: () => void | Promise<void>) => {
             const handler = (_event: Electron.IpcRendererEvent, requestId: string) => {
-                void Promise.resolve(callback()).then(() => {
-                    ipcRenderer.send('app:flush-storage-complete', requestId);
-                });
+                void Promise.resolve(callback())
+                    .then(() => {
+                        ipcRenderer.send('app:flush-storage-complete', requestId);
+                    })
+                    .catch((error: unknown) => {
+                        const message = error instanceof Error ? error.message : String(error);
+                        ipcRenderer.send('app:flush-storage-complete', requestId, message);
+                    });
             };
             ipcRenderer.on('app:flush-storage', handler);
             return () => ipcRenderer.removeListener('app:flush-storage', handler);

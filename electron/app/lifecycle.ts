@@ -28,9 +28,12 @@ export function registerAppLifecycle(): void {
         }
     });
 
-    ipcMain.on('app:flush-storage-complete', (event, requestId: string) => {
+    ipcMain.on('app:flush-storage-complete', (event, requestId: string, errorMessage?: string) => {
         const win = BrowserWindow.fromWebContents(event.sender);
         if (!win) return;
+        if (errorMessage) {
+            console.error(`App flush failed for request ${requestId}: ${errorMessage}`);
+        }
         flushCoordinator.complete(win.id, requestId);
     });
 

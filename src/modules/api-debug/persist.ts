@@ -5,7 +5,9 @@ import { flushAllTabDrafts } from './utils/workspace/tabDraftRegistry';
 
 export async function flushApiDebugPersistedState(): Promise<void> {
     flushAllTabDrafts();
-    await flushPendingSavesAsync();
-    await flushPendingApiDebugEnvSaveAsync();
-    await flushPendingParamSuggestSaveAsync();
+    await Promise.all([
+        flushPendingSavesAsync(),
+        flushPendingApiDebugEnvSaveAsync(),
+        flushPendingParamSuggestSaveAsync(),
+    ]);
 }
