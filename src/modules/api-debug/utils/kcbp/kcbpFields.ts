@@ -11,6 +11,11 @@ export function isFileParamValue(value: string): boolean {
     return value.trimStart().startsWith(FILE_PARAM_PREFIX);
 }
 
+export function isFilePickerTriggerValue(value: string): boolean {
+    const trimmed = value.trim();
+    return trimmed === '@file' || trimmed === '@file:';
+}
+
 export function parseFileParamPath(value: string): string | null {
     const trimmed = value.trim();
     if (!trimmed.startsWith(FILE_PARAM_PREFIX)) return null;

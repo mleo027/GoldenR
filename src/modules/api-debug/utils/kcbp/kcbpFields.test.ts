@@ -6,6 +6,7 @@ import {
     FILE_PARAM_PREFIX,
     formatFileParamValue,
     isFileParamValue,
+    isFilePickerTriggerValue,
     parseFileParamPath,
 } from './kcbpFields';
 
@@ -49,6 +50,15 @@ describe('kcbpFields @file: prefix', () => {
         expect(parseFileParamPath('@file:D:/data/a.zip')).toBe('D:/data/a.zip');
         expect(isFileParamValue('@file:D:/data/a.zip')).toBe(true);
         expect(isFileParamValue('D:/data/a.zip')).toBe(false);
+    });
+
+    it('detects when a file picker should be opened automatically', () => {
+        expect(isFilePickerTriggerValue('@file')).toBe(true);
+        expect(isFilePickerTriggerValue('@file:')).toBe(true);
+        expect(isFilePickerTriggerValue(' @file: ')).toBe(true);
+        expect(isFilePickerTriggerValue('@file:D:/data/a.zip')).toBe(false);
+        expect(isFilePickerTriggerValue('@filex')).toBe(false);
+        expect(isFilePickerTriggerValue('')).toBe(false);
     });
 
     it('buildEnabledParamFields returns text fields only', () => {

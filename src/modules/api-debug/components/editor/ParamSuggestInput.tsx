@@ -5,6 +5,8 @@ import { SearchOutlined } from '@ant-design/icons';
 import type { ParamItem } from '../../types/workspace';
 import type { DbSuggestOption } from '../../types/paramSuggest';
 import { useParamSuggestions } from '../../hooks/useParamSuggestions';
+import { getElectronAPI } from '../../../../lib/electron';
+import { formatFileParamValue, isFilePickerTriggerValue } from '../../utils/kcbp/kcbpFields';
 
 interface ParamSuggestInputProps {
     fieldName: string;
@@ -106,6 +108,7 @@ function ParamSuggestInput({
     const focusedRef = useRef(false);
     const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const commitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const filePickerInFlightRef = useRef(false);
     const onChangeRef = useRef(onChange);
     onChangeRef.current = onChange;
 
@@ -151,6 +154,32 @@ function ParamSuggestInput({
         }, PARENT_COMMIT_MS);
     }, []);
 
+    const openFilePickerForValue = useCallback(
+        (triggerValue: string) => {
+            if (filePickerInFlightRef.current || !isFilePickerTriggerValue(triggerValue)) return;
+
+            const api = getElectronAPI();
+            if (!api?.openParamFile) return;
+
+            filePickerInFlightRef.current = true;
+            void api
+                .openParamFile()
+                .then((result) => {
+                    if (!result.opened) return;
+                    const next = formatFileParamValue(result.filePath);
+                    setLocalValue(next);
+                    setKeyword(next);
+                    commitToParent(next, true);
+                    setOpen(false);
+                })
+                .catch(() => undefined)
+                .finally(() => {
+                    filePickerInFlightRef.current = false;
+                });
+        },
+        [commitToParent],
+    );
+
     const placeholder = useMemo(() => {
         if (placeholderProp !== undefined) return placeholderProp;
         if (!hasRule) return '';
@@ -185,8 +214,9 @@ function ParamSuggestInput({
             setKeyword(next);
             commitToParent(next);
             setOpen(true);
+            openFilePickerForValue(next);
         },
-        [commitToParent],
+        [commitToParent, openFilePickerForValue],
     );
 
     const handlePick = useCallback(
