@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Golden API Debug 调用操作流程</title>
+<style>
+body{margin:0;background:#f8f9fa;color:#212529;font-family:system-ui,-apple-system,sans-serif}
+main{display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px;box-sizing:border-box}
+figure{margin:0;max-width:100%;overflow:auto}
+figcaption{padding:0 0 12px;font-size:14px;color:#495057}
+svg{max-width:100%;height:auto;background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+</style>
+</head>
+<body>
+<main>
+<figure>
+<figcaption>Golden API Debug 调用操作流程 · 从启动到导出</figcaption>
+<svg xmlns="http://www.w3.org/2000/svg" width="696" height="1203" viewBox="-28 -95 696 1203">
+<defs>
+    <marker id="fc-1-arrow" markerWidth="8" markerHeight="6"
+      refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <polygon points="0 0, 8 3, 0 6, 1.5 3" fill="#495057"/>
+    </marker>
+    <style>
+      @keyframes ai-fc-flow { to { stroke-dashoffset: -26; } }
+      .ai-fc-edge { animation: ai-fc-flow 1.2s linear infinite; }
+    </style>
+  </defs>
+<text x="320" y="-61" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="#495057">Golden API Debug 调用操作流程</text>
+<text x="320" y="-42" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" fill="#868e96">从启动到导出</text>
+<g class="flowchart">
+
+<g class="edge" data-from="start" data-to="env">
+<path d="M430,80 L430,110 Q430,120 430,130 L430,160" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="edge" data-from="env" data-to="workspace">
+<path d="M430,220 L430,250 Q430,260 430,270 L430,300" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="edge" data-from="workspace" data-to="edit">
+<path d="M430,360 L430,390 Q430,400 430,410 L430,440" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="edge" data-from="edit" data-to="text">
+<path d="M382.85714285714283,500 L328.43661487732106,534.6312450780684 Q320,540 320,550 L320,580" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="edge" data-from="edit" data-to="file">
+<path d="M477.14285714285717,500 L531.5633851226789,534.6312450780684 Q540,540 540,550 L540,580" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="edge" data-from="text" data-to="call">
+<path d="M320,640 L320,670 Q320,680 328.43661487732106,685.3687549219316 L382.85714285714283,720" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="edge" data-from="file" data-to="call">
+<path d="M540,640 L540,670 Q540,680 531.5633851226789,685.3687549219316 L477.14285714285717,720" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="edge" data-from="call" data-to="response">
+<path d="M382.85714285714283,780 L328.43661487732106,814.6312450780684 Q320,820 320,830 L320,860" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="edge" data-from="response" data-to="log">
+<path d="M240,915.4545454545455 L109.52925780013263,956.9679634272305 Q100,960 100,970 L100,1000" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="edge" data-from="response" data-to="export">
+<path d="M320,920 L320,950 Q320,960 320,970 L320,1000" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="edge" data-from="response" data-to="fix">
+<path d="M371.42857142857144,920 L431.3622109910157,954.9612897447591 Q440,960 448.1923192051904,965.7346234436333 L497.14285714285717,1000" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="edge" data-from="fix" data-to="call">
+<path d="M544.2857142857143,1000 L548.5857864376269,969.8994949366116 Q550,960 550,950 L550,900 Q550,890 550,880 L550,830 Q550,820 541.3622109910157,814.9612897447591 L481.42857142857144,780" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 5" class="ai-fc-edge" marker-end="url(#fc-1-arrow)"/>
+
+</g>
+<g class="node node-process" data-id="start">
+<rect x="350" y="20" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="430" y="40.2" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">启动 Golden API</text>
+<text x="430" y="59.8" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">Debug</text>
+</g>
+<g class="node node-process" data-id="env">
+<rect x="350" y="160" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="430" y="190" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">检查当前配置</text>
+</g>
+<g class="node node-process" data-id="workspace">
+<rect x="350" y="300" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="430" y="330" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">打开工程与接口用例</text>
+</g>
+<g class="node node-process" data-id="edit">
+<rect x="350" y="440" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="430" y="470" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">编辑请求地址与入参</text>
+</g>
+<g class="node node-process" data-id="text">
+<rect x="240" y="580" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="320" y="610" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">普通 Key/Value 入参</text>
+</g>
+<g class="node node-process" data-id="file">
+<rect x="460" y="580" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="540" y="610" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">输入 @file 自动选择文件</text>
+</g>
+<g class="node node-process" data-id="call">
+<rect x="350" y="720" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="430" y="750" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">发起 KCBP 调用</text>
+</g>
+<g class="node node-process" data-id="response">
+<rect x="240" y="860" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="320" y="890" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">查看响应结果</text>
+</g>
+<g class="node node-process" data-id="log">
+<rect x="20" y="1000" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="100" y="1030" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">查看运行日志/脚本控制台</text>
+</g>
+<g class="node node-process" data-id="export">
+<rect x="240" y="1000" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="320" y="1030" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">导出 CSV/HTML</text>
+</g>
+<g class="node node-process" data-id="fix">
+<rect x="460" y="1000" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="540" y="1030" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">失败时回填或修正入参</text>
+</g>
+</g>
+</svg>
+</figure>
+</main>
+</body>
+</html>

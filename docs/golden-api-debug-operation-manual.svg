@@ -1,0 +1,263 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1312" height="2319" viewBox="-656 -153 1312 2319">
+
+<text x="0" y="-119" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="#495057">Golden API Debug 操作手册</text>
+<text x="0" y="-100" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" fill="#868e96">功能点总览</text>
+<g class="mindmap">
+<path d="M88,956.8 C129.4,956.8 138.6,156 180,156" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,156 C385,156 395,0 440,0" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,156 C385,156 395,104 440,104" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,156 C385,156 395,208 440,208" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,156 C385,156 395,312 440,312" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M88,956.8 C129.4,956.8 138.6,572 180,572" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,572 C385,572 395,416 440,416" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,572 C385,572 395,520 440,520" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,572 C385,572 395,624 440,624" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,572 C385,572 395,728 440,728" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-88,956.8 C-129.4,956.8 -138.6,156 -180,156" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,156 C-385,156 -395,0 -440,0" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,156 C-385,156 -395,104 -440,104" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,156 C-385,156 -395,208 -440,208" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,156 C-385,156 -395,312 -440,312" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M88,956.8 C129.4,956.8 138.6,988 180,988" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,988 C385,988 395,832 440,832" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,988 C385,988 395,936 440,936" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,988 C385,988 395,1040 440,1040" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,988 C385,988 395,1144 440,1144" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-88,956.8 C-129.4,956.8 -138.6,572 -180,572" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,572 C-385,572 -395,416 -440,416" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,572 C-385,572 -395,520 -440,520" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,572 C-385,572 -395,624 -440,624" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,572 C-385,572 -395,728 -440,728" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M88,956.8 C129.4,956.8 138.6,1352 180,1352" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,1352 C385,1352 395,1248 440,1248" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,1352 C385,1352 395,1352 440,1352" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,1352 C385,1352 395,1456 440,1456" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M88,956.8 C129.4,956.8 138.6,1716 180,1716" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,1716 C385,1716 395,1560 440,1560" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,1716 C385,1716 395,1664 440,1664" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,1716 C385,1716 395,1768 440,1768" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M340,1716 C385,1716 395,1872 440,1872" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-88,956.8 C-129.4,956.8 -138.6,936 -180,936" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,936 C-385,936 -395,832 -440,832" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,936 C-385,936 -395,936 -440,936" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,936 C-385,936 -395,1040 -440,1040" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-88,956.8 C-129.4,956.8 -138.6,1300 -180,1300" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,1300 C-385,1300 -395,1144 -440,1144" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,1300 C-385,1300 -395,1248 -440,1248" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,1300 C-385,1300 -395,1352 -440,1352" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,1300 C-385,1300 -395,1456 -440,1456" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-88,956.8 C-129.4,956.8 -138.6,1820 -180,1820" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,1820 C-385,1820 -395,1560 -440,1560" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,1820 C-385,1820 -395,1664 -440,1664" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,1820 C-385,1820 -395,1768 -440,1768" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,1820 C-385,1820 -395,1872 -440,1872" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,1820 C-385,1820 -395,1976 -440,1976" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<path d="M-340,1820 C-385,1820 -395,2080 -440,2080" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
+<g class="node node-terminal" data-id="GoldenAPI">
+<rect x="-88" y="923.8" width="176" height="66" rx="6" ry="6" fill="#ebfbee" stroke="#51cf66" stroke-width="2.8"/>
+<text x="0" y="946.3" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#2f9e44">Golden API Debug</text>
+<text x="0" y="967.3" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#2f9e44">操作手册</text>
+</g>
+<g class="node node-process" data-id="start">
+<rect x="180" y="126" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="260" y="156" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">启动与部署</text>
+</g>
+<g class="node node-decision" data-id="setup">
+<rect x="440" y="-30" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="0" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">Setup 安装版</text>
+</g>
+<g class="node node-decision" data-id="portable">
+<rect x="440" y="74" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="104" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">Portable 便携版</text>
+</g>
+<g class="node node-decision" data-id="config">
+<rect x="440" y="178" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="208" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">当前配置随包带入</text>
+</g>
+<g class="node node-decision" data-id="persist">
+<rect x="440" y="282" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="312" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">便携版配置持久化</text>
+</g>
+<g class="node node-process" data-id="workspace">
+<rect x="180" y="542" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="260" y="572" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">工作区管理</text>
+</g>
+<g class="node node-decision" data-id="projects">
+<rect x="440" y="386" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="416" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">项目管理</text>
+</g>
+<g class="node node-decision" data-id="cases">
+<rect x="440" y="490" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="520" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">用例树</text>
+</g>
+<g class="node node-decision" data-id="tabs">
+<rect x="440" y="594" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="624" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">多页签</text>
+</g>
+<g class="node node-decision" data-id="drafts">
+<rect x="440" y="698" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="728" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">草稿与撤销</text>
+</g>
+<g class="node node-process" data-id="request">
+<rect x="-340" y="126" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="-260" y="156" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">请求调用</text>
+</g>
+<g class="node node-decision" data-id="address">
+<rect x="-600" y="-30" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="0" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">Host/Queue/功能号</text>
+</g>
+<g class="node node-decision" data-id="params">
+<rect x="-600" y="74" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="104" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">Key/Value 编辑</text>
+</g>
+<g class="node node-decision" data-id="fill">
+<rect x="-600" y="178" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="208" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">快速填充入参</text>
+</g>
+<g class="node node-decision" data-id="call">
+<rect x="-600" y="282" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="312" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">KCBP 调用/取消</text>
+</g>
+<g class="node node-process" data-id="file">
+<rect x="180" y="958" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="260" y="988" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">文件入参</text>
+</g>
+<g class="node node-decision" data-id="picker">
+<rect x="440" y="802" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="832" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">输入 @file 自动选择文件</text>
+</g>
+<g class="node node-decision" data-id="path">
+<rect x="440" y="906" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="936" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">回填 @file:绝对路径</text>
+</g>
+<g class="node node-decision" data-id="size">
+<rect x="440" y="1010" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="1040" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">文件大小提示</text>
+</g>
+<g class="node node-decision" data-id="datasize">
+<rect x="440" y="1114" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="1144" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">自动填写 datasize</text>
+</g>
+<g class="node node-process" data-id="script">
+<rect x="-340" y="542" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="-260" y="572" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">脚本自动化</text>
+</g>
+<g class="node node-decision" data-id="generate">
+<rect x="-600" y="386" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="416" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">UI 模式生成脚本</text>
+</g>
+<g class="node node-decision" data-id="api">
+<rect x="-600" y="490" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="510.2" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">call/query 等脚本</text>
+<text x="-520" y="529.8" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">API</text>
+</g>
+<g class="node node-decision" data-id="assert">
+<rect x="-600" y="594" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="624" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">断言与变量</text>
+</g>
+<g class="node node-decision" data-id="console">
+<rect x="-600" y="698" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="728" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">脚本控制台与运行日志</text>
+</g>
+<g class="node node-process" data-id="response">
+<rect x="180" y="1322" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="260" y="1352" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">响应查看</text>
+</g>
+<g class="node node-decision" data-id="grid">
+<rect x="440" y="1218" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="1248" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">数据表格</text>
+</g>
+<g class="node node-decision" data-id="fullscreen">
+<rect x="440" y="1322" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="1352" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">全屏查看</text>
+</g>
+<g class="node node-decision" data-id="export">
+<rect x="440" y="1426" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="1456" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">导出 CSV/HTML</text>
+</g>
+<g class="node node-process" data-id="io">
+<rect x="180" y="1686" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="260" y="1716" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">导入导出</text>
+</g>
+<g class="node node-decision" data-id="json">
+<rect x="440" y="1530" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="1560" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">KUAB JSON</text>
+</g>
+<g class="node node-decision" data-id="ini">
+<rect x="440" y="1634" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="1664" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">Config.ini</text>
+</g>
+<g class="node node-decision" data-id="csv">
+<rect x="440" y="1738" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="1768" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">CSV 导出</text>
+</g>
+<g class="node node-decision" data-id="html">
+<rect x="440" y="1842" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="520" y="1872" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">HTML 报告</text>
+</g>
+<g class="node node-process" data-id="suggest">
+<rect x="-340" y="906" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="-260" y="936" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">参数提示</text>
+</g>
+<g class="node node-decision" data-id="db">
+<rect x="-600" y="802" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="832" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">SQL Server 连接</text>
+</g>
+<g class="node node-decision" data-id="rules">
+<rect x="-600" y="906" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="936" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">param-suggest-rules.json</text>
+</g>
+<g class="node node-decision" data-id="sql">
+<rect x="-600" y="1010" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="1040" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">字段规则与 SQL 分析</text>
+</g>
+<g class="node node-process" data-id="settings">
+<rect x="-340" y="1270" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="-260" y="1300" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">设置</text>
+</g>
+<g class="node node-decision" data-id="appearance">
+<rect x="-600" y="1114" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="1144" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">外观/深色模式</text>
+</g>
+<g class="node node-decision" data-id="kcbp">
+<rect x="-600" y="1218" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="1248" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">KCBP 运行时</text>
+</g>
+<g class="node node-decision" data-id="env">
+<rect x="-600" y="1322" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="1352" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">请求环境</text>
+</g>
+<g class="node node-decision" data-id="ruleConfig">
+<rect x="-600" y="1426" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="1456" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">数据库/提示规则</text>
+</g>
+<g class="node node-process" data-id="persistence">
+<rect x="-340" y="1790" width="160" height="60" rx="6" ry="6" fill="#e7f5ff" stroke="#339af0" stroke-width="2"/>
+<text x="-260" y="1820" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#1971c2">配置持久化</text>
+</g>
+<g class="node node-decision" data-id="appJson">
+<rect x="-600" y="1530" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="1560" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">app.json</text>
+</g>
+<g class="node node-decision" data-id="settingsJson">
+<rect x="-600" y="1634" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="1664" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">settings.json</text>
+</g>
+<g class="node node-decision" data-id="projectJson">
+<rect x="-600" y="1738" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="1768" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">project.json</text>
+</g>
+<g class="node node-decision" data-id="dbJson">
+<rect x="-600" y="1842" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="1872" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">db.json</text>
+</g>
+<g class="node node-decision" data-id="envJson">
+<rect x="-600" y="1946" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="1976" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">api-debug.env.json</text>
+</g>
+<g class="node node-decision" data-id="rulesJson">
+<rect x="-600" y="2050" width="160" height="60" rx="6" ry="6" fill="#fff7e6" stroke="#f59f00" stroke-width="2"/>
+<text x="-520" y="2080" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" fill="#e67700">param-suggest-rules.json</text>
+</g>
+</g>
+</svg>

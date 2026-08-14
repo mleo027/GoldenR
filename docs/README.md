@@ -1,5 +1,6 @@
 # Golden API Debug 文档
 
+- [操作手册](./golden-api-debug-operation-manual.md)
 - [接口调试](./request-and-response.md)
 - [导入导出](./import-export.md)
 - [脚本自动化](./script-automation.md)
