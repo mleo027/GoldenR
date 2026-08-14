@@ -187,6 +187,72 @@ describe('invokeKcbpCall', () => {
         expect(outcome.response.code).toBe('0');
     });
 
+    it('runs script mode with injected execution ports', async () => {
+        const injectedCall = vi.fn().mockResolvedValue(successRaw);
+        const injectedQuery = vi.fn().mockResolvedValue({ rows: [], columns: [] });
+        const scriptTab = {
+            ...tab,
+            script: `async function main(ctx) {
+  await call({ g_funcid: ctx.msgtype, market: '1' });
+  return test.pass('script ok');
+}`,
+        };
+
+        const outcome = await invokeKcbpCall(scriptTab, 'script', {
+            electronDeps: {
+                callKcbp: injectedCall,
+                queryScriptSql: injectedQuery,
+            },
+        });
+
+        expect(injectedCall).toHaveBeenCalledTimes(1);
+        expect(mockCallKcbp).not.toHaveBeenCalled();
+        expect(outcome.scriptTest?.passed).toBe(true);
+    });
+
+    it('runs nested tcd flow with injected execution ports', async () => {
+        const injectedCall = vi.fn().mockResolvedValue(successRaw);
+        const injectedQuery = vi.fn().mockResolvedValue({ rows: [], columns: [] });
+        const childCase: TcdCaseTab = {
+            id: 'child-case',
+            name: 'Child',
+            address: '127.0.0.1:21000/150502',
+            params: [],
+            script: `async function main(ctx) {
+  await call({ g_funcid: '150502', market: '1' });
+  return test.pass('child ok');
+}`,
+        };
+        const parentTab = {
+            ...tab,
+            script: `async function main(ctx) {
+  flow.set('token', 'abc');
+  const child = await flow.runCase('150502', { fundid: '8' });
+  test.expect(flow.get('token') === 'abc', 'flow state');
+  test.expect(String(child.code) === '0', 'child response');
+  return test.pass('parent ok');
+}`,
+        };
+
+        const outcome = await invokeKcbpCall(parentTab, 'tcd', {
+            caseIndex: buildCaseIndex([
+                {
+                    id: 'p1',
+                    name: 'P',
+                    cases: [childCase],
+                },
+            ]),
+            electronDeps: {
+                callKcbp: injectedCall,
+                queryScriptSql: injectedQuery,
+            },
+        });
+
+        expect(injectedCall).toHaveBeenCalledTimes(1);
+        expect(mockCallKcbp).not.toHaveBeenCalled();
+        expect(outcome.scriptTest?.passed).toBe(true);
+    });
+
     it('rejects before calling when msgtype is empty', async () => {
         const emptyMsgtypeTab = {
             ...tab,
