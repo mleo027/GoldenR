@@ -1,4 +1,5 @@
 import { Typography } from 'antd';
+import GoldenApiLogo from '../../ui/GoldenApiLogo';
 import { PLATFORM_SHORTCUT } from '@/platform/shell/platformShortcuts';
 import { modKeyLabel } from '@/platform/shell/platformCommandItems';
 
@@ -30,9 +31,7 @@ export default function AboutSettings() {
                 Golden API Debug — 独立 API 调试工具
             </Typography.Paragraph>
             <div className="settings-about-card">
-                <div className="settings-about-logo" aria-hidden>
-                    G
-                </div>
+                <GoldenApiLogo size={52} className="settings-about-logo" title="Golden API Debug" />
                 <div className="settings-about-meta">
                     <div className="settings-about-name">Golden API Debug</div>
                     <div className="settings-about-tagline">KCBP 接口调试</div>
