@@ -2,8 +2,9 @@ import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTabsActions, useActiveTab } from './useTabs';
 import { useRunLogActions } from './useRunLog';
 import { useApiDebugEnv } from './useApiDebugEnv';
-import { getElectronAPI } from '../../../lib/electron';
 import {
+    canInvokeKcbp,
+    cancelKcbpCall,
     getKcbpCallFeedback,
     invokeKcbpCall,
     KCBP_MSGTYPE_REQUIRED_MESSAGE,
@@ -55,7 +56,7 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
         callGenerationRef.current += 1;
         runningCaseIdRef.current = null;
         setRunningCaseId(null);
-        void getElectronAPI()?.kcbp.cancel?.();
+        cancelKcbpCall();
     }, []);
 
     const cancel = useCallback(() => {
@@ -70,7 +71,7 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
             return;
         }
 
-        if (!getElectronAPI()?.kcbp.call) {
+        if (!canInvokeKcbp()) {
             notify('error', '当前运行环境不支持 KCBP 调用');
             return;
         }

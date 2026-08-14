@@ -171,6 +171,22 @@ describe('invokeKcbpCall', () => {
         expect(outcome.response.code).toBe('0');
     });
 
+    it('uses injected execution ports without the electron global', async () => {
+        const injectedCall = vi.fn().mockResolvedValue(successRaw);
+        const injectedQuery = vi.fn().mockResolvedValue({ rows: [], columns: [] });
+        const outcome = await invokeKcbpCall(tab, 'ui', {
+            electronDeps: {
+                callKcbp: injectedCall,
+                queryScriptSql: injectedQuery,
+            },
+        });
+
+        expect(injectedCall).toHaveBeenCalledTimes(1);
+        expect(injectedQuery).not.toHaveBeenCalled();
+        expect(mockCallKcbp).not.toHaveBeenCalled();
+        expect(outcome.response.code).toBe('0');
+    });
+
     it('rejects before calling when msgtype is empty', async () => {
         const emptyMsgtypeTab = {
             ...tab,

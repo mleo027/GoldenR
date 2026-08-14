@@ -1,7 +1,7 @@
 import type { ParamItem, ResponseData, TabData, EditorMode } from '../types/workspace';
 import type { KcbpRequestOptions, KcbpResponseData } from '../../../types/kcbp';
 import type { DbScriptQueryRequest, DbScriptQueryResponse } from '@/shared/suggest/types';
-import { requireElectronAPI } from '../../../lib/electron';
+import { getElectronAPI, requireElectronAPI } from '../../../lib/electron';
 import {
     parseKcbpAddress,
     serializeKcbpAddress,
@@ -45,6 +45,14 @@ export type KcbpInvokeMode = EditorMode | 'tcd';
 
 export const KCBP_MSGTYPE_REQUIRED_MESSAGE = '请先填写 Msgtype 后再调用';
 
+export function canInvokeKcbp(): boolean {
+    return Boolean(getElectronAPI()?.kcbp.call);
+}
+
+export function cancelKcbpCall(): void {
+    void getElectronAPI()?.kcbp.cancel?.();
+}
+
 export function toGridRows(data: unknown[]): Record<string, unknown>[] {
     return data.map((item) => {
         if (item && typeof item === 'object' && !Array.isArray(item)) {
@@ -84,6 +92,23 @@ export function buildKcbpRequest(
 export interface TcdElectronDeps {
     callKcbp: (payload: KcbpRequestOptions) => Promise<KcbpResponseData>;
     queryScriptSql: (request: DbScriptQueryRequest) => Promise<DbScriptQueryResponse>;
+}
+
+export interface KcbpCallPort {
+    call(payload: KcbpRequestOptions): Promise<KcbpResponseData>;
+}
+
+export interface KcbpControlPort {
+    cancel(): Promise<boolean>;
+}
+
+export interface SqlQueryPort {
+    queryScript(request: DbScriptQueryRequest): Promise<DbScriptQueryResponse>;
+}
+
+export interface ApiDebugExecutionPorts {
+    call: KcbpCallPort['call'];
+    queryScript: SqlQueryPort['queryScript'];
 }
 
 export interface InvokeKcbpCallOptions {
