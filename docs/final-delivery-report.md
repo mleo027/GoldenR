@@ -63,6 +63,8 @@ Legacy 迁移、备份写入、重复迁移幂等行为均有测试覆盖。
 - `npm run test:coverage` 通过，当前全局覆盖率约 Statements 53%、Lines 53%。
 - `npx vite build` 通过。
 - `npm run test:unit`、`test:integration`、`test:smoke`、`smoke:preview` 可运行。
+- `npm run smoke:dev` 通过：Renderer 开发模式页面 HTTP 200。
+- `npm run smoke:preview` 通过：打包产物页面 HTTP 200。
 
 ## 构建结果
 
