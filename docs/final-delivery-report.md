@@ -58,9 +58,9 @@ Legacy 迁移、备份写入、重复迁移幂等行为均有测试覆盖。
 
 当前自动化门禁：
 
-- `npm run check` 通过：81 个测试文件、376 个测试。
+- `npm run check` 通过：83 个测试文件、383 个测试。
 - `npm run test:api` 通过：KCBP 43、Import 9、Script 17、Suggest 65、Persist 15、Core 41。
-- `npm run test:coverage` 通过，当前全局覆盖率约 Statements 58%、Lines 59%。
+- `npm run test:coverage` 通过，当前全局覆盖率约 Statements 60%、Lines 62%。
 - `npx vite build` 通过。
 - `npm run test:unit`、`test:integration`、`test:smoke`、`smoke:preview` 可运行。
 - `npm run smoke:dev` 通过：Renderer 开发模式页面 HTTP 200。
