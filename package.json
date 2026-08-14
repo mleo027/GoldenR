@@ -65,6 +65,14 @@
         "to": "adapter"
       }
     ],
+    "extraFiles": [
+      "app.json",
+      "settings.json",
+      "project.json",
+      "db.json",
+      "api-debug.env.json",
+      "param-suggest-rules.json"
+    ],
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
