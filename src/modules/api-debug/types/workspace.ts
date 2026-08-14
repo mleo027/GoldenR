@@ -73,13 +73,4 @@ export interface ParamItem {
     type: ParamFieldType;
 }
 
-export interface ResponseData {
-    code: string | number;
-    message: string;
-    data: Record<string, unknown>[];
-    calledAt?: number;
-    stats?: {
-        timecost: number;
-        rows: number;
-    };
-}
+export type { ResponseData } from '@/shared/test/response';

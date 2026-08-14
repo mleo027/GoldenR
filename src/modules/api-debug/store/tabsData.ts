@@ -17,6 +17,7 @@ import { sanitizeOpenCaseIds } from '../utils/workspace/openCaseTabs';
 import { normalizeParamList } from '../utils/workspace/paramItem';
 import { resolveCaseScript } from '../utils/script/apiScript';
 import { UI_DEBOUNCE_MS } from '../../../constants/ui';
+import { getElectronAPI } from '../../../lib/electron';
 const SAVE_DEBOUNCE_MS = UI_DEBOUNCE_MS.save;
 
 const defaultSettings = (): AppSettings => ({
@@ -150,16 +151,17 @@ function hydrateProjectsFromFile(data: ProjectFileData): ProjectData[] {
 }
 
 async function readJson(fileName: string, fromUserData = false): Promise<unknown> {
-    if (!window.electronAPI) return null;
+    const api = getElectronAPI();
+    if (!api) return null;
     try {
-        return await window.electronAPI.readJsonFile(fileName, fromUserData);
+        return await api.readJsonFile(fileName, fromUserData);
     } catch {
         return null;
     }
 }
 
 export async function loadWorkspace(): Promise<PersistedWorkspace | null> {
-    if (!window.electronAPI) return null;
+    if (!getElectronAPI()) return null;
 
     const projectResult = await readJson(PROJECT_FILE, false);
     const settingsResult = await readJson(SETTINGS_FILE, false);
@@ -192,10 +194,11 @@ function scheduleProjectSave(projects: ProjectData[]): void {
     pendingProjects = projects;
     if (projectSaveTimer) clearTimeout(projectSaveTimer);
     projectSaveTimer = setTimeout(() => {
-        if (pendingProjects && window.electronAPI) {
-            window.electronAPI
-                .writeJsonFile(PROJECT_FILE, toProjectFileData(pendingProjects))
-                .catch(console.error);
+        const api = getElectronAPI();
+        if (pendingProjects && api) {
+            api.writeJsonFile(PROJECT_FILE, toProjectFileData(pendingProjects)).catch(
+                console.error,
+            );
         }
         pendingProjects = null;
         projectSaveTimer = null;
@@ -206,10 +209,9 @@ function scheduleSettingsSave(data: AppSettings): void {
     pendingSettingsData = data;
     if (settingsSaveTimer) clearTimeout(settingsSaveTimer);
     settingsSaveTimer = setTimeout(() => {
-        if (pendingSettingsData && window.electronAPI) {
-            window.electronAPI
-                .writeJsonFile(SETTINGS_FILE, pendingSettingsData)
-                .catch(console.error);
+        const api = getElectronAPI();
+        if (pendingSettingsData && api) {
+            api.writeJsonFile(SETTINGS_FILE, pendingSettingsData).catch(console.error);
         }
         pendingSettingsData = null;
         settingsSaveTimer = null;
@@ -229,8 +231,9 @@ function flushProjectSaveSync(): void {
         clearTimeout(projectSaveTimer);
         projectSaveTimer = null;
     }
-    if (pendingProjects && window.electronAPI) {
-        void window.electronAPI.writeJsonFile(PROJECT_FILE, toProjectFileData(pendingProjects));
+    const api = getElectronAPI();
+    if (pendingProjects && api) {
+        void api.writeJsonFile(PROJECT_FILE, toProjectFileData(pendingProjects));
         pendingProjects = null;
     }
 }
@@ -240,8 +243,9 @@ function flushSettingsSaveSync(): void {
         clearTimeout(settingsSaveTimer);
         settingsSaveTimer = null;
     }
-    if (pendingSettingsData && window.electronAPI) {
-        void window.electronAPI.writeJsonFile(SETTINGS_FILE, pendingSettingsData);
+    const api = getElectronAPI();
+    if (pendingSettingsData && api) {
+        void api.writeJsonFile(SETTINGS_FILE, pendingSettingsData);
         pendingSettingsData = null;
     }
 }

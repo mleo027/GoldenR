@@ -22,6 +22,7 @@ import {
 import { fetchParamSuggestions } from '../../services/paramSuggestService';
 import { useParamSuggest } from '../../store/useParamSuggest';
 import { PARAM_SUGGEST_RULES_FILE } from '../../constants/paramSuggest';
+import { getElectronAPI } from '../../../../lib/electron';
 import { filterRulesByFieldSearch } from '../../utils/suggest/paramSuggestRuleDisplay';
 import ParamSuggestFieldSidebar from './ParamSuggestFieldSidebar';
 import ParamSuggestRuleTable from './ParamSuggestRuleTable';
@@ -178,8 +179,9 @@ export default function ParamSuggestRulesSettings() {
     const handleExportRules = useCallback(async () => {
         const payload: ParamSuggestRulesFile = { rules };
         const text = JSON.stringify(payload, null, 2);
-        if (window.electronAPI) {
-            await window.electronAPI.writeJsonFile('param-suggest-rules.json', payload);
+        const api = getElectronAPI();
+        if (api) {
+            await api.writeJsonFile(PARAM_SUGGEST_RULES_FILE, payload);
             message.success('已导出到 param-suggest-rules.json');
             return;
         }

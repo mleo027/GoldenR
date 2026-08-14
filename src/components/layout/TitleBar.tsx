@@ -3,6 +3,7 @@ import { Button, Space, Tooltip } from 'antd';
 import { CloseOutlined, MinusOutlined, BorderOutlined, BlockOutlined } from '@ant-design/icons';
 import { TITLE_BAR_SLOT_ID } from '../../platform/shell/TitleBarSlotPortal';
 import GoldenApiLogo from '../ui/GoldenApiLogo';
+import { getElectronAPI } from '@/lib/electron';
 
 interface TitleBarProps {
     moduleLabel: string;
@@ -19,11 +20,12 @@ export default function TitleBar({
     const [isMaximized, setIsMaximized] = useState(false);
 
     useEffect(() => {
-        if (!window.electronAPI?.isWindowMaximized) return;
+        const api = getElectronAPI();
+        if (!api?.isWindowMaximized) return;
 
-        void window.electronAPI.isWindowMaximized().then(setIsMaximized);
+        void api.isWindowMaximized().then(setIsMaximized);
 
-        const unsubscribe = window.electronAPI.onWindowMaximizedChange?.(setIsMaximized);
+        const unsubscribe = api.onWindowMaximizedChange?.(setIsMaximized);
         return () => unsubscribe?.();
     }, []);
 
@@ -64,7 +66,7 @@ export default function TitleBar({
                         type="text"
                         size="small"
                         icon={<MinusOutlined />}
-                        onClick={() => window.electronAPI?.minimizeWindow?.()}
+                        onClick={() => getElectronAPI()?.minimizeWindow?.()}
                         className="!p-1.5 window-control-btn"
                     />
                 </Tooltip>
@@ -74,7 +76,7 @@ export default function TitleBar({
                         size="small"
                         icon={isMaximized ? <BlockOutlined /> : <BorderOutlined />}
                         onClick={() => {
-                            void window.electronAPI?.toggleMaximizeWindow?.().then(setIsMaximized);
+                            void getElectronAPI()?.toggleMaximizeWindow?.().then(setIsMaximized);
                         }}
                         className="!p-1.5 window-control-btn"
                     />

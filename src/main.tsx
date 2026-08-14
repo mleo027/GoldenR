@@ -5,10 +5,11 @@ import App from './App.tsx';
 import { setupPersistFlushListener } from './lib/persistFlush';
 import { preloadKcbpRuntimeConfig } from './lib/kcbpRuntimeConfigClient';
 import { preloadAppEnv } from './store/appEnvData';
+import { getElectronAPI } from './lib/electron';
 
 setupPersistFlushListener();
 
-if (window.electronAPI) {
+if (getElectronAPI()) {
     preloadAppEnv();
     preloadKcbpRuntimeConfig();
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createDefaultKcbpRuntimeConfig } from '@/config/kcbp/defaults';
+import { createDefaultKcbpRuntimeConfig } from './defaults';
 import { validateKcbpRuntimeConfig } from './validateConfig';
 
 describe('validateKcbpRuntimeConfig', () => {

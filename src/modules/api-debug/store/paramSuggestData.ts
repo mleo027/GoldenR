@@ -11,6 +11,7 @@ import {
 } from '../constants/paramSuggest';
 import { normalizeParamFieldRules } from '../utils/suggest/paramSuggestResolve';
 import { UI_DEBOUNCE_MS } from '../../../constants/ui';
+import { getElectronAPI } from '../../../lib/electron';
 
 const SAVE_DEBOUNCE_MS = UI_DEBOUNCE_MS.save;
 
@@ -37,9 +38,10 @@ function isParamSuggestRulesFile(value: unknown): value is ParamSuggestRulesFile
 }
 
 async function readJson(fileName: string): Promise<unknown> {
-    if (!window.electronAPI) return null;
+    const api = getElectronAPI();
+    if (!api) return null;
     try {
-        return await window.electronAPI.readJsonFile(fileName, false);
+        return await api.readJsonFile(fileName, false);
     } catch {
         return null;
     }
@@ -76,8 +78,9 @@ function scheduleDbConfigSave(config: DbConnectionConfig): void {
     pendingDbConfig = config;
     if (dbSaveTimer) clearTimeout(dbSaveTimer);
     dbSaveTimer = setTimeout(() => {
-        if (pendingDbConfig && window.electronAPI) {
-            window.electronAPI.writeJsonFile(DB_CONFIG_FILE, pendingDbConfig).catch(console.error);
+        const api = getElectronAPI();
+        if (pendingDbConfig && api) {
+            api.writeJsonFile(DB_CONFIG_FILE, pendingDbConfig).catch(console.error);
         }
         pendingDbConfig = null;
         dbSaveTimer = null;
@@ -88,10 +91,9 @@ function scheduleRulesSave(rulesFile: ParamSuggestRulesFile): void {
     pendingRules = rulesFile;
     if (rulesSaveTimer) clearTimeout(rulesSaveTimer);
     rulesSaveTimer = setTimeout(() => {
-        if (pendingRules && window.electronAPI) {
-            window.electronAPI
-                .writeJsonFile(PARAM_SUGGEST_RULES_FILE, pendingRules)
-                .catch(console.error);
+        const api = getElectronAPI();
+        if (pendingRules && api) {
+            api.writeJsonFile(PARAM_SUGGEST_RULES_FILE, pendingRules).catch(console.error);
         }
         pendingRules = null;
         rulesSaveTimer = null;
@@ -113,8 +115,9 @@ export async function persistParamSuggestRulesNow(rules: ParamFieldRule[]): Prom
     }
     pendingRules = null;
 
-    if (window.electronAPI) {
-        await window.electronAPI.writeJsonFile(PARAM_SUGGEST_RULES_FILE, { rules });
+    const api = getElectronAPI();
+    if (api) {
+        await api.writeJsonFile(PARAM_SUGGEST_RULES_FILE, { rules });
         await reloadMainProcessSuggestConfig();
     }
 }
@@ -126,8 +129,9 @@ export async function persistDbConfigNow(config: DbConnectionConfig): Promise<vo
     }
     pendingDbConfig = null;
 
-    if (window.electronAPI) {
-        await window.electronAPI.writeJsonFile(DB_CONFIG_FILE, config);
+    const api = getElectronAPI();
+    if (api) {
+        await api.writeJsonFile(DB_CONFIG_FILE, config);
         await reloadMainProcessSuggestConfig();
     }
 }
@@ -142,13 +146,14 @@ export function flushPendingParamSuggestSave(): void {
         rulesSaveTimer = null;
     }
 
-    if (window.electronAPI) {
+    const api = getElectronAPI();
+    if (api) {
         if (pendingDbConfig) {
-            void window.electronAPI.writeJsonFile(DB_CONFIG_FILE, pendingDbConfig);
+            void api.writeJsonFile(DB_CONFIG_FILE, pendingDbConfig);
             pendingDbConfig = null;
         }
         if (pendingRules) {
-            void window.electronAPI.writeJsonFile(PARAM_SUGGEST_RULES_FILE, pendingRules);
+            void api.writeJsonFile(PARAM_SUGGEST_RULES_FILE, pendingRules);
             pendingRules = null;
         }
     }
@@ -164,20 +169,22 @@ export async function flushPendingParamSuggestSaveAsync(): Promise<void> {
         rulesSaveTimer = null;
     }
 
-    if (window.electronAPI) {
+    const api = getElectronAPI();
+    if (api) {
         if (pendingDbConfig) {
-            await window.electronAPI.writeJsonFile(DB_CONFIG_FILE, pendingDbConfig);
+            await api.writeJsonFile(DB_CONFIG_FILE, pendingDbConfig);
             pendingDbConfig = null;
         }
         if (pendingRules) {
-            await window.electronAPI.writeJsonFile(PARAM_SUGGEST_RULES_FILE, pendingRules);
+            await api.writeJsonFile(PARAM_SUGGEST_RULES_FILE, pendingRules);
             pendingRules = null;
         }
     }
 }
 
 export async function reloadMainProcessSuggestConfig(): Promise<void> {
-    if (window.electronAPI?.reloadSuggestConfig) {
-        await window.electronAPI.reloadSuggestConfig();
+    const api = getElectronAPI();
+    if (api?.reloadSuggestConfig) {
+        await api.reloadSuggestConfig();
     }
 }

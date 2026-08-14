@@ -1,12 +1,14 @@
 import type { ElectronAPI } from '../types/electron';
 
 export function getElectronAPI(): ElectronAPI | undefined {
+    if (typeof window === 'undefined') return undefined;
     return window.electronAPI;
 }
 
 export function requireElectronAPI(): ElectronAPI {
-    if (!window.electronAPI) {
+    const api = getElectronAPI();
+    if (!api) {
         throw new Error('Electron API 不可用');
     }
-    return window.electronAPI;
+    return api;
 }

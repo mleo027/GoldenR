@@ -1,5 +1,5 @@
 import type { ParamItem, ResponseData } from '../../types/workspace';
-import type { ScriptTestApi } from '../../types/scriptTest';
+import type { CaseScriptQueryFn, ScriptTestApi } from '@/shared/test/types';
 import type { ScriptConsoleApi } from './scriptConsole';
 import type { VarsScriptApi } from '@/shared/test/variables/createVarsApi';
 import type { AssertScriptApi } from '@/shared/test/assert/createAssertApi';
@@ -18,11 +18,6 @@ export type CallFieldValue = string | { file: string };
 export type CaseCallFields = Record<string, CallFieldValue>;
 
 export type CaseCallFn = (fields: CaseCallFields) => Promise<ResponseData>;
-
-export type CaseScriptQueryFn = (
-    sql: string,
-    params?: Record<string, string | number>,
-) => Promise<Record<string, unknown>[]>;
 
 export interface FlowScriptApi {
     set(key: string, value: unknown): void;

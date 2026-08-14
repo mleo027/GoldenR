@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
-import { message } from 'antd';
 import { useTabsActions, useActiveTab } from './useTabs';
 import { useRunLogActions } from './useRunLog';
 import { useApiDebugEnv } from './useApiDebugEnv';
@@ -17,6 +16,11 @@ import {
     resolveMsgtypeFromParams,
 } from '../utils/workspace/caseLabel';
 import { KcbpCallContext } from './KcbpCallContext';
+import {
+    KcbpFeedbackBridgeContext,
+    type KcbpFeedbackHandler,
+    type KcbpFeedbackLevel,
+} from './kcbpFeedbackContext';
 import { useResponseActions } from './useResponse';
 import { useScriptConsoleActions } from './useScriptConsole';
 
@@ -33,10 +37,19 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
     const activeTabRef = useRef(activeTab);
     const activeCaseIndexRef = useRef(activeCaseIndex);
     const editorModeRef = useRef(env.editorMode);
+    const feedbackRef = useRef<KcbpFeedbackHandler | null>(null);
 
     activeTabRef.current = activeTab;
     activeCaseIndexRef.current = activeCaseIndex;
     editorModeRef.current = env.editorMode;
+
+    const registerFeedback = useCallback((handler: KcbpFeedbackHandler | null) => {
+        feedbackRef.current = handler;
+    }, []);
+
+    const notify = useCallback((level: KcbpFeedbackLevel, content: string) => {
+        feedbackRef.current?.({ level, content });
+    }, []);
 
     const cancelInFlight = useCallback(() => {
         callGenerationRef.current += 1;
@@ -58,7 +71,7 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
         }
 
         if (!getElectronAPI()?.callKcbp) {
-            message.error('当前运行环境不支持 KCBP 调用');
+            notify('error', '当前运行环境不支持 KCBP 调用');
             return;
         }
 
@@ -70,7 +83,7 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
         const resolvedMsgtype =
             parseMsgtypeFromAddress(tab.address).trim() || resolveMsgtypeFromParams(tab.params);
         if (!resolvedMsgtype) {
-            message.warning(KCBP_MSGTYPE_REQUIRED_MESSAGE);
+            notify('warning', KCBP_MSGTYPE_REQUIRED_MESSAGE);
             return;
         }
 
@@ -105,7 +118,7 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
             }
 
             const feedback = getKcbpCallFeedback(outcome);
-            message[feedback.level](feedback.message);
+            notify(feedback.level, feedback.message);
 
             pushLog({
                 caseName,
@@ -138,7 +151,7 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
                     ranAt: Date.now(),
                 });
             }
-            message.error(errorMessage);
+            notify('error', errorMessage);
 
             pushLog({
                 caseName,
@@ -153,7 +166,7 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
                 setRunningCaseId(null);
             }
         }
-    }, [cancelInFlight, pushLog, setResponse, setScriptConsole, updateTab]);
+    }, [cancelInFlight, notify, pushLog, setResponse, setScriptConsole, updateTab]);
 
     const value = useMemo(
         () => ({
@@ -164,5 +177,11 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
         [runningCaseId, run, cancel],
     );
 
-    return <KcbpCallContext.Provider value={value}>{children}</KcbpCallContext.Provider>;
+    const feedbackBridge = useMemo(() => ({ register: registerFeedback }), [registerFeedback]);
+
+    return (
+        <KcbpFeedbackBridgeContext.Provider value={feedbackBridge}>
+            <KcbpCallContext.Provider value={value}>{children}</KcbpCallContext.Provider>
+        </KcbpFeedbackBridgeContext.Provider>
+    );
 }

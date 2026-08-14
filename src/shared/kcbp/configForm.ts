@@ -1,5 +1,5 @@
-import { createDefaultKcbpRuntimeConfig } from '@/config/kcbp/defaults';
 import type { KcbpRuntimeConfig } from './types';
+import { createDefaultKcbpRuntimeConfig } from './defaults';
 
 function splitLines(value: string | string[] | undefined): string[] {
     if (Array.isArray(value)) {

@@ -1,7 +1,6 @@
-import type { ResponseData } from '@/modules/api-debug/types/workspace';
-import type { ScriptTestApi } from '@/modules/api-debug/types/scriptTest';
-import type { CaseScriptQueryFn } from '@/modules/api-debug/utils/script/apiScript';
 import { amountDelta as calcAmountDelta } from '../lib/builtin';
+import type { ResponseData } from '../response';
+import type { CaseScriptQueryFn, ScriptTestApi } from '../types';
 
 export interface AssertScriptApi {
     eq: (actual: unknown, expected: unknown, message: string) => void;

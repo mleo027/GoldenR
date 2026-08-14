@@ -13,6 +13,7 @@ import { ParamSuggestProvider } from '../store/paramSuggestStore';
 import { ApiDebugEnvProvider } from '../store/apiDebugEnvStore';
 import { RunLogProvider } from '../store/runLogStore';
 import ApiDebugUndoFlush from '../components/ApiDebugUndoFlush';
+import { KcbpFeedbackSync } from '../components/feedback/KcbpFeedbackSync';
 
 export function ApiDebugProviders({ children }: { children: ReactNode }) {
     return (
@@ -24,7 +25,10 @@ export function ApiDebugProviders({ children }: { children: ReactNode }) {
                         <ScriptConsoleProvider>
                             <ResponseLifecycleSync />
                             <RunLogProvider>
-                                <KcbpCallProvider>{children}</KcbpCallProvider>
+                                <KcbpCallProvider>
+                                    <KcbpFeedbackSync />
+                                    {children}
+                                </KcbpCallProvider>
                             </RunLogProvider>
                         </ScriptConsoleProvider>
                     </ResponseProvider>

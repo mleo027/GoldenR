@@ -3,6 +3,7 @@ import { DEFAULT_APP_ENV } from '../constants/appEnv';
 import { APP_ENV_FILE, SETTINGS_FILE } from '@/config/files';
 import { UI_DEBOUNCE_MS } from '../constants/ui';
 import { resolveActiveModuleId } from '../platform/registry/helpers';
+import { getElectronAPI } from '../lib/electron';
 const LEGACY_SETTINGS_BACKUP_FILE = 'settings.preferences.legacy-migrated.json';
 const SAVE_DEBOUNCE_MS = UI_DEBOUNCE_MS.save;
 
@@ -46,17 +47,19 @@ function toPersistedAppEnv(env: AppEnv): AppEnv {
 }
 
 async function readJson(fileName: string): Promise<unknown> {
-    if (!window.electronAPI) return null;
+    const api = getElectronAPI();
+    if (!api) return null;
     try {
-        return await window.electronAPI.readJsonFile(fileName, false);
+        return await api.readJsonFile(fileName, false);
     } catch {
         return null;
     }
 }
 
 async function writeJson(fileName: string, data: unknown): Promise<void> {
-    if (!window.electronAPI) return;
-    await window.electronAPI.writeJsonFile(fileName, data);
+    const api = getElectronAPI();
+    if (!api) return;
+    await api.writeJsonFile(fileName, data);
 }
 
 function stripLegacyPreferences(settings: unknown): unknown {
@@ -111,8 +114,9 @@ function scheduleAppEnvSave(env: AppEnv): void {
     pendingEnv = toPersistedAppEnv(env);
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
-        if (pendingEnv && window.electronAPI) {
-            window.electronAPI.writeJsonFile(APP_ENV_FILE, pendingEnv).catch(console.error);
+        const api = getElectronAPI();
+        if (pendingEnv && api) {
+            api.writeJsonFile(APP_ENV_FILE, pendingEnv).catch(console.error);
         }
         pendingEnv = null;
         saveTimer = null;
@@ -128,8 +132,9 @@ export function flushPendingAppEnvSave(): void {
         clearTimeout(saveTimer);
         saveTimer = null;
     }
-    if (pendingEnv && window.electronAPI) {
-        void window.electronAPI.writeJsonFile(APP_ENV_FILE, pendingEnv);
+    const api = getElectronAPI();
+    if (pendingEnv && api) {
+        void api.writeJsonFile(APP_ENV_FILE, pendingEnv);
         pendingEnv = null;
     }
 }
@@ -139,8 +144,9 @@ export async function flushPendingAppEnvSaveAsync(): Promise<void> {
         clearTimeout(saveTimer);
         saveTimer = null;
     }
-    if (pendingEnv && window.electronAPI) {
-        await window.electronAPI.writeJsonFile(APP_ENV_FILE, pendingEnv);
+    const api = getElectronAPI();
+    if (pendingEnv && api) {
+        await api.writeJsonFile(APP_ENV_FILE, pendingEnv);
         pendingEnv = null;
     }
 }
