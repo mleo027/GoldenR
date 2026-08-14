@@ -11,7 +11,7 @@ export function preloadKcbpRuntimeConfig(): Promise<KcbpRuntimeConfig> {
     }
     if (!loadPromise) {
         loadPromise = requireElectronAPI()
-            .kcbpRuntime.getConfig()
+            .kcbp.runtime.getConfig()
             .then((config) => {
                 cachedConfig = config;
                 return config;
@@ -26,7 +26,7 @@ export function getKcbpRuntimeConfig(): Promise<KcbpRuntimeConfig> {
 
 export function saveKcbpRuntimeConfig(config: KcbpRuntimeConfig): Promise<KcbpRuntimeConfig> {
     return requireElectronAPI()
-        .kcbpRuntime.saveConfig(config)
+        .kcbp.runtime.saveConfig(config)
         .then((saved) => {
             cachedConfig = saved;
             return saved;
@@ -34,9 +34,9 @@ export function saveKcbpRuntimeConfig(config: KcbpRuntimeConfig): Promise<KcbpRu
 }
 
 export function pickKcbpRuntimeDirectory(defaultPath?: string) {
-    return requireElectronAPI().kcbpRuntime.pickDirectory(defaultPath);
+    return requireElectronAPI().kcbp.runtime.pickDirectory(defaultPath);
 }
 
 export function pickKcbpRuntimeFile(defaultPath?: string) {
-    return requireElectronAPI().kcbpRuntime.pickFile(defaultPath);
+    return requireElectronAPI().kcbp.runtime.pickFile(defaultPath);
 }

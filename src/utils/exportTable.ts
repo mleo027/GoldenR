@@ -66,8 +66,8 @@ export async function exportTableToCsv(
     const content = buildCsvContent(data);
     const electronAPI = getElectronAPI();
 
-    if (electronAPI?.saveCsvFile) {
-        const result = await electronAPI.saveCsvFile(content, filename);
+    if (electronAPI?.importExport.saveCsv) {
+        const result = await electronAPI.importExport.saveCsv(content, filename);
         if (!result.saved) {
             return { saved: false, reason: 'cancelled' };
         }

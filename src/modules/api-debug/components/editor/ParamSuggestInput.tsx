@@ -159,10 +159,10 @@ function ParamSuggestInput({
             if (filePickerInFlightRef.current || !isFilePickerTriggerValue(triggerValue)) return;
 
             const api = getElectronAPI();
-            if (!api?.openParamFile) return;
+            if (!api?.importExport.openParamFile) return;
 
             filePickerInFlightRef.current = true;
-            void api
+            void api.importExport
                 .openParamFile()
                 .then((result) => {
                     if (!result.opened) return;

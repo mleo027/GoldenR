@@ -21,11 +21,11 @@ export default function TitleBar({
 
     useEffect(() => {
         const api = getElectronAPI();
-        if (!api?.isWindowMaximized) return;
+        if (!api?.window.isMaximized) return;
 
-        void api.isWindowMaximized().then(setIsMaximized);
+        void api.window.isMaximized().then(setIsMaximized);
 
-        const unsubscribe = api.onWindowMaximizedChange?.(setIsMaximized);
+        const unsubscribe = api.window.onMaximizedChange?.(setIsMaximized);
         return () => unsubscribe?.();
     }, []);
 
@@ -66,7 +66,7 @@ export default function TitleBar({
                         type="text"
                         size="small"
                         icon={<MinusOutlined />}
-                        onClick={() => getElectronAPI()?.minimizeWindow?.()}
+                        onClick={() => getElectronAPI()?.window.minimize?.()}
                         className="!p-1.5 window-control-btn"
                     />
                 </Tooltip>
@@ -76,7 +76,7 @@ export default function TitleBar({
                         size="small"
                         icon={isMaximized ? <BlockOutlined /> : <BorderOutlined />}
                         onClick={() => {
-                            void getElectronAPI()?.toggleMaximizeWindow?.().then(setIsMaximized);
+                            void getElectronAPI()?.window.toggleMaximize?.().then(setIsMaximized);
                         }}
                         className="!p-1.5 window-control-btn"
                     />

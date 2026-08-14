@@ -17,7 +17,7 @@ export function useProjectImport({ projects, importCases }: UseProjectImportOpti
     const runImport = useCallback(
         async (projectIndex: number, format: ImportFileFormat) => {
             const api = getElectronAPI();
-            if (!api?.openImportFile) {
+            if (!api?.importExport.openImportFile) {
                 message.error('当前环境不支持文件导入');
                 return;
             }
@@ -26,7 +26,7 @@ export function useProjectImport({ projects, importCases }: UseProjectImportOpti
             if (!project) return;
 
             try {
-                const result = await api.openImportFile(format);
+                const result = await api.importExport.openImportFile(format);
                 if (!result.opened) return;
 
                 const hostTemplate = getProjectHostTemplate(project);

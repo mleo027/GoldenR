@@ -16,8 +16,12 @@ const mockQueryScriptSql = vi.fn();
 
 vi.mock('../../../lib/electron', () => ({
     requireElectronAPI: () => ({
-        callKcbp: mockCallKcbp,
-        queryScriptSql: mockQueryScriptSql,
+        kcbp: {
+            call: mockCallKcbp,
+        },
+        database: {
+            queryScript: mockQueryScriptSql,
+        },
     }),
 }));
 

@@ -34,7 +34,7 @@ export default function ParamFileHint({ value, disabled = false }: ParamFileHint
         }
 
         const api = getElectronAPI();
-        if (!api?.statParamFile) {
+        if (!api?.importExport.statParamFile) {
             setChecking(false);
             setExists(null);
             setSize(null);
@@ -49,7 +49,7 @@ export default function ParamFileHint({ value, disabled = false }: ParamFileHint
         setError(null);
 
         const timer = window.setTimeout(() => {
-            void api
+            void api.importExport
                 .statParamFile(filePath)
                 .then((result) => {
                     if (cancelled) return;

@@ -209,8 +209,7 @@ async function invokeKcbpWithFields(
     const callAddress = addressOverride ?? tab.address;
     const addressParts = parseKcbpAddress(callAddress);
     const payload = buildKcbpRequest(addressParts, msgtype, fields, binaryFields);
-    const callKcbp =
-        electronDeps?.callKcbp ?? requireElectronAPI().callKcbp.bind(requireElectronAPI());
+    const callKcbp = electronDeps?.callKcbp ?? requireElectronAPI().kcbp.call;
     const raw = await callKcbp(payload);
     return buildKcbpCallOutcome({ params: baseParams }, callAddress, tab.name, raw);
 }
@@ -350,8 +349,7 @@ export async function invokeKcbpCall(
 
     const query = async (sql: string, params?: Record<string, string | number>) => {
         const queryScriptSql =
-            electronDeps?.queryScriptSql ??
-            requireElectronAPI().queryScriptSql.bind(requireElectronAPI());
+            electronDeps?.queryScriptSql ?? requireElectronAPI().database.queryScript;
         const result = await queryScriptSql({ sql, params });
         if (result.error) {
             throw new Error(result.error);

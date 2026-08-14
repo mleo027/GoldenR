@@ -7,7 +7,7 @@ export function useUserDataDir(): string | null {
     useEffect(() => {
         let cancelled = false;
         void getElectronAPI()
-            ?.getUserDataDir?.()
+            ?.app.getUserDataDir?.()
             .then((value) => {
                 if (!cancelled) setDir(value);
             });

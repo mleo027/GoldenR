@@ -5,7 +5,9 @@ const mockSaveCsvFile = vi.fn();
 
 vi.mock('../lib/electron', () => ({
     getElectronAPI: () => ({
-        saveCsvFile: mockSaveCsvFile,
+        importExport: {
+            saveCsv: mockSaveCsvFile,
+        },
     }),
 }));
 

@@ -11,9 +11,9 @@ export function flushAllPersistedState(): void {
 
 export function setupPersistFlushListener(): void {
     const api = getElectronAPI();
-    if (!api?.onFlushStorage) return;
+    if (!api?.app.onFlushStorage) return;
 
-    api.onFlushStorage(() => {
+    api.app.onFlushStorage(() => {
         flushAllPersistedState();
     });
 }

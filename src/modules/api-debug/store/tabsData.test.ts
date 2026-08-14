@@ -16,8 +16,10 @@ afterEach(() => {
 function stubElectronApi(files: Record<string, unknown>) {
     vi.stubGlobal('window', {
         electronAPI: {
-            readJsonFile: vi.fn(async (filePath: string) => files[filePath] ?? null),
-            writeJsonFile: vi.fn(async () => undefined),
+            config: {
+                read: vi.fn(async (fileName: string) => files[fileName] ?? null),
+                write: vi.fn(async () => undefined),
+            },
         },
     });
 }

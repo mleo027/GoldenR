@@ -1,5 +1,6 @@
 import type { ApiDebugEnv } from '../types';
 import { API_DEBUG_ENV_FILE, APP_ENV_FILE } from '@/config/files';
+import type { ConfigStorageFileName } from '@/shared/config/files';
 import { DEFAULT_API_DEBUG_ENV } from '@/config/api-debug/defaults';
 import { UI_DEBOUNCE_MS } from '../../../constants/ui';
 import {
@@ -60,20 +61,20 @@ export function mergeApiDebugEnv(partial?: Partial<ApiDebugEnv>): ApiDebugEnv {
     };
 }
 
-async function readJson(fileName: string): Promise<unknown> {
+async function readJson(fileName: ConfigStorageFileName): Promise<unknown> {
     const api = getElectronAPI();
     if (!api) return null;
     try {
-        return await api.readJsonFile(fileName, false);
+        return await api.config.read(fileName, false);
     } catch {
         return null;
     }
 }
 
-async function writeJson(fileName: string, data: unknown): Promise<void> {
+async function writeJson(fileName: ConfigStorageFileName, data: unknown): Promise<void> {
     const api = getElectronAPI();
     if (!api) return;
-    await api.writeJsonFile(fileName, data);
+    await api.config.write(fileName, data);
 }
 
 function stripLegacyApiDebugFields(appEnv: unknown): unknown {
@@ -123,7 +124,7 @@ function scheduleApiDebugEnvSave(env: ApiDebugEnv): void {
     saveTimer = setTimeout(() => {
         const api = getElectronAPI();
         if (pendingEnv && api) {
-            api.writeJsonFile(API_DEBUG_ENV_FILE, pendingEnv).catch(console.error);
+            api.config.write(API_DEBUG_ENV_FILE, pendingEnv).catch(console.error);
         }
         pendingEnv = null;
         saveTimer = null;
@@ -141,7 +142,7 @@ export function flushPendingApiDebugEnvSave(): void {
     }
     const api = getElectronAPI();
     if (pendingEnv && api) {
-        void api.writeJsonFile(API_DEBUG_ENV_FILE, pendingEnv);
+        void api.config.write(API_DEBUG_ENV_FILE, pendingEnv);
         pendingEnv = null;
     }
 }

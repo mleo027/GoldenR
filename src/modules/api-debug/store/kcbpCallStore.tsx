@@ -55,7 +55,7 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
         callGenerationRef.current += 1;
         runningCaseIdRef.current = null;
         setRunningCaseId(null);
-        void getElectronAPI()?.cancelKcbp?.();
+        void getElectronAPI()?.kcbp.cancel?.();
     }, []);
 
     const cancel = useCallback(() => {
@@ -70,7 +70,7 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
             return;
         }
 
-        if (!getElectronAPI()?.callKcbp) {
+        if (!getElectronAPI()?.kcbp.call) {
             notify('error', '当前运行环境不支持 KCBP 调用');
             return;
         }

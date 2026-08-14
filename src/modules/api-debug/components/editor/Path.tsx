@@ -52,7 +52,7 @@ interface PathRunButtonProps {
 
 export function PathRunButton({ compact = false }: PathRunButtonProps) {
     const { loading, run, cancel } = useKcbpCall();
-    const canRun = Boolean(getElectronAPI()?.callKcbp);
+    const canRun = Boolean(getElectronAPI()?.kcbp.call);
     const [elapsedSec, setElapsedSec] = useState(0);
 
     useEffect(() => {

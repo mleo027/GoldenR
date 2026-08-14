@@ -1,6 +1,7 @@
 import type { AppEnv } from '../types';
 import { DEFAULT_APP_ENV } from '../constants/appEnv';
 import { APP_ENV_FILE, SETTINGS_FILE } from '@/config/files';
+import type { ConfigStorageFileName } from '@/shared/config/files';
 import { UI_DEBOUNCE_MS } from '../constants/ui';
 import { resolveActiveModuleId } from '../platform/registry/helpers';
 import { getElectronAPI } from '../lib/electron';
@@ -46,20 +47,20 @@ function toPersistedAppEnv(env: AppEnv): AppEnv {
     return mergeAppEnv(env);
 }
 
-async function readJson(fileName: string): Promise<unknown> {
+async function readJson(fileName: ConfigStorageFileName): Promise<unknown> {
     const api = getElectronAPI();
     if (!api) return null;
     try {
-        return await api.readJsonFile(fileName, false);
+        return await api.config.read(fileName, false);
     } catch {
         return null;
     }
 }
 
-async function writeJson(fileName: string, data: unknown): Promise<void> {
+async function writeJson(fileName: ConfigStorageFileName, data: unknown): Promise<void> {
     const api = getElectronAPI();
     if (!api) return;
-    await api.writeJsonFile(fileName, data);
+    await api.config.write(fileName, data);
 }
 
 function stripLegacyPreferences(settings: unknown): unknown {
@@ -116,7 +117,7 @@ function scheduleAppEnvSave(env: AppEnv): void {
     saveTimer = setTimeout(() => {
         const api = getElectronAPI();
         if (pendingEnv && api) {
-            api.writeJsonFile(APP_ENV_FILE, pendingEnv).catch(console.error);
+            api.config.write(APP_ENV_FILE, pendingEnv).catch(console.error);
         }
         pendingEnv = null;
         saveTimer = null;
@@ -134,7 +135,7 @@ export function flushPendingAppEnvSave(): void {
     }
     const api = getElectronAPI();
     if (pendingEnv && api) {
-        void api.writeJsonFile(APP_ENV_FILE, pendingEnv);
+        void api.config.write(APP_ENV_FILE, pendingEnv);
         pendingEnv = null;
     }
 }
@@ -146,7 +147,7 @@ export async function flushPendingAppEnvSaveAsync(): Promise<void> {
     }
     const api = getElectronAPI();
     if (pendingEnv && api) {
-        await api.writeJsonFile(APP_ENV_FILE, pendingEnv);
+        await api.config.write(APP_ENV_FILE, pendingEnv);
         pendingEnv = null;
     }
 }

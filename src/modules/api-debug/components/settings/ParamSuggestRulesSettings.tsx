@@ -181,7 +181,7 @@ export default function ParamSuggestRulesSettings() {
         const text = JSON.stringify(payload, null, 2);
         const api = getElectronAPI();
         if (api) {
-            await api.writeJsonFile(PARAM_SUGGEST_RULES_FILE, payload);
+            await api.config.write(PARAM_SUGGEST_RULES_FILE, payload);
             message.success('已导出到 param-suggest-rules.json');
             return;
         }

@@ -16,6 +16,7 @@ import { sortCasesByMsgtype, resolveCaseIndexById } from '../utils/workspace/cas
 import { sanitizeOpenCaseIds } from '../utils/workspace/openCaseTabs';
 import { normalizeParamList } from '../utils/workspace/paramItem';
 import { resolveCaseScript } from '../utils/script/apiScript';
+import type { ConfigStorageFileName } from '@/shared/config/files';
 import { UI_DEBOUNCE_MS } from '../../../constants/ui';
 import { getElectronAPI } from '../../../lib/electron';
 const SAVE_DEBOUNCE_MS = UI_DEBOUNCE_MS.save;
@@ -150,11 +151,11 @@ function hydrateProjectsFromFile(data: ProjectFileData): ProjectData[] {
     }));
 }
 
-async function readJson(fileName: string, fromUserData = false): Promise<unknown> {
+async function readJson(fileName: ConfigStorageFileName, fromUserData = false): Promise<unknown> {
     const api = getElectronAPI();
     if (!api) return null;
     try {
-        return await api.readJsonFile(fileName, fromUserData);
+        return await api.config.read(fileName, fromUserData);
     } catch {
         return null;
     }
@@ -196,9 +197,7 @@ function scheduleProjectSave(projects: ProjectData[]): void {
     projectSaveTimer = setTimeout(() => {
         const api = getElectronAPI();
         if (pendingProjects && api) {
-            api.writeJsonFile(PROJECT_FILE, toProjectFileData(pendingProjects)).catch(
-                console.error,
-            );
+            api.config.write(PROJECT_FILE, toProjectFileData(pendingProjects)).catch(console.error);
         }
         pendingProjects = null;
         projectSaveTimer = null;
@@ -211,7 +210,7 @@ function scheduleSettingsSave(data: AppSettings): void {
     settingsSaveTimer = setTimeout(() => {
         const api = getElectronAPI();
         if (pendingSettingsData && api) {
-            api.writeJsonFile(SETTINGS_FILE, pendingSettingsData).catch(console.error);
+            api.config.write(SETTINGS_FILE, pendingSettingsData).catch(console.error);
         }
         pendingSettingsData = null;
         settingsSaveTimer = null;
@@ -233,7 +232,7 @@ function flushProjectSaveSync(): void {
     }
     const api = getElectronAPI();
     if (pendingProjects && api) {
-        void api.writeJsonFile(PROJECT_FILE, toProjectFileData(pendingProjects));
+        void api.config.write(PROJECT_FILE, toProjectFileData(pendingProjects));
         pendingProjects = null;
     }
 }
@@ -245,7 +244,7 @@ function flushSettingsSaveSync(): void {
     }
     const api = getElectronAPI();
     if (pendingSettingsData && api) {
-        void api.writeJsonFile(SETTINGS_FILE, pendingSettingsData);
+        void api.config.write(SETTINGS_FILE, pendingSettingsData);
         pendingSettingsData = null;
     }
 }

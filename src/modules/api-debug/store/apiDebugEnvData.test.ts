@@ -10,10 +10,12 @@ afterEach(() => {
 
 function createElectronApiMock(files: Record<string, unknown>) {
     return {
-        readJsonFile: vi.fn(async (filePath: string) => files[filePath] ?? null),
-        writeJsonFile: vi.fn(async (filePath: string, data: unknown) => {
-            files[filePath] = data;
-        }),
+        config: {
+            read: vi.fn(async (fileName: string) => files[fileName] ?? null),
+            write: vi.fn(async (fileName: string, data: unknown) => {
+                files[fileName] = data;
+            }),
+        },
     };
 }
 
