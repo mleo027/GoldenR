@@ -2,6 +2,8 @@ import js from '@eslint/js';
 import globals from 'globals';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
+import react from 'eslint-plugin-react';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
 import tseslint from 'typescript-eslint';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,11 +29,24 @@ export default tseslint.config(
         },
         plugins: {
             '@typescript-eslint': tseslint.plugin,
+            react,
+            'jsx-a11y': jsxA11y,
             'react-hooks': reactHooks,
             'react-refresh': reactRefresh,
         },
+        settings: {
+            react: {
+                version: 'detect',
+            },
+        },
         rules: {
             ...reactRules,
+            'react/jsx-key': 'error',
+            'react/button-has-type': 'error',
+            'react/no-unknown-property': 'error',
+            'jsx-a11y/alt-text': 'error',
+            'jsx-a11y/label-has-associated-control': 'error',
+            'jsx-a11y/anchor-is-valid': 'error',
             // Keep the baseline strict and consistent across renderer and main
             // process code. These rules are intentionally autofix-safe.
             'no-var': 'error',

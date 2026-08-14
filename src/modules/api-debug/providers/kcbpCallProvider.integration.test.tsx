@@ -24,8 +24,12 @@ function Harness() {
     const { loading, run, cancel } = useKcbpCall();
     return (
         <div>
-            <button onClick={() => void run()}>run</button>
-            <button onClick={cancel}>cancel</button>
+            <button type="button" onClick={() => void run()}>
+                run
+            </button>
+            <button type="button" onClick={cancel}>
+                cancel
+            </button>
             <span>{loading ? 'loading' : 'idle'}</span>
         </div>
     );

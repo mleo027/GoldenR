@@ -19,9 +19,16 @@ function Harness() {
 
     return (
         <div>
-            <button onClick={() => addProject()}>add-project</button>
-            <button onClick={() => addCase(activeProjectIndex)}>add-case</button>
-            <button onClick={() => renameCase(activeProjectIndex, lastCaseIndex, 'renamed')}>
+            <button type="button" onClick={() => addProject()}>
+                add-project
+            </button>
+            <button type="button" onClick={() => addCase(activeProjectIndex)}>
+                add-case
+            </button>
+            <button
+                type="button"
+                onClick={() => renameCase(activeProjectIndex, lastCaseIndex, 'renamed')}
+            >
                 rename-case
             </button>
             <span data-testid="project-count">{state.projects.length}</span>
