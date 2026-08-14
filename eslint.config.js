@@ -14,7 +14,7 @@ const reactRules = {
 };
 
 export default tseslint.config(
-    { ignores: ['dist', 'dist-electron', 'node_modules'] },
+    { ignores: ['dist', 'dist-electron', 'node_modules', 'coverage'] },
     {
         files: ['**/*.{ts,tsx}'],
         extends: [js.configs.recommended, ...tseslint.configs.recommended],
@@ -26,10 +26,26 @@ export default tseslint.config(
             },
         },
         plugins: {
+            '@typescript-eslint': tseslint.plugin,
             'react-hooks': reactHooks,
             'react-refresh': reactRefresh,
         },
-        rules: reactRules,
+        rules: {
+            ...reactRules,
+            // Keep the baseline strict and consistent across renderer and main
+            // process code. These rules are intentionally autofix-safe.
+            'no-var': 'error',
+            'prefer-const': ['error', { destructuring: 'all' }],
+            'no-throw-literal': 'error',
+            'no-debugger': 'error',
+            'no-eval': 'error',
+            'no-unsafe-optional-chaining': 'error',
+            'no-promise-executor-return': 'error',
+            '@typescript-eslint/no-floating-promises': [
+                'error',
+                { ignoreVoid: true, ignoreIIFE: false, allowForKnownSafeCalls: [] },
+            ],
+        },
     },
     {
         files: ['src/shared/**/*.{ts,tsx}'],
