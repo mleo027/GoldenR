@@ -1,9 +1,6 @@
 import { app } from 'electron';
 import path from 'path';
-import {
-    assertPersistedConfigFileName,
-    isPersistedConfigFileName,
-} from '../../src/config/registry';
+import { resolveConfigStoragePath } from './configPathResolver';
 
 /**
  * 配置中心目录：
@@ -27,11 +24,5 @@ export function getBundledConfigDir(): string {
 }
 
 export function resolveConfigPath(fileName: string): string {
-    if (path.isAbsolute(fileName)) {
-        return path.resolve(fileName);
-    }
-    if (!isPersistedConfigFileName(fileName)) {
-        throw new Error(`Unknown config file: ${fileName}`);
-    }
-    return path.join(getConfigDir(), assertPersistedConfigFileName(fileName));
+    return resolveConfigStoragePath(getConfigDir(), fileName);
 }

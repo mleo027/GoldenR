@@ -21,15 +21,38 @@ export const PERSISTED_CONFIG_FILES = [
     'kcbp.env.json',
 ] as const;
 
+/** 旧版本迁移时备份的配置文件名，允许 Renderer 通过配置 IPC 写入。 */
+export const LEGACY_CONFIG_BACKUP_FILES = [
+    'app.api-debug.legacy-migrated.json',
+    'settings.preferences.legacy-migrated.json',
+] as const;
+
+export const CONFIG_STORAGE_FILES = [
+    ...PERSISTED_CONFIG_FILES,
+    ...LEGACY_CONFIG_BACKUP_FILES,
+] as const;
+
 export type PersistedConfigFileName = (typeof PERSISTED_CONFIG_FILES)[number];
+export type ConfigStorageFileName = (typeof CONFIG_STORAGE_FILES)[number];
 
 export function isPersistedConfigFileName(fileName: string): fileName is PersistedConfigFileName {
     return (PERSISTED_CONFIG_FILES as readonly string[]).includes(fileName);
 }
 
+export function isConfigStorageFileName(fileName: string): fileName is ConfigStorageFileName {
+    return (CONFIG_STORAGE_FILES as readonly string[]).includes(fileName);
+}
+
 export function assertPersistedConfigFileName(fileName: string): PersistedConfigFileName {
     if (!isPersistedConfigFileName(fileName)) {
         throw new Error(`Unknown persisted config file: ${fileName}`);
+    }
+    return fileName;
+}
+
+export function assertConfigStorageFileName(fileName: string): ConfigStorageFileName {
+    if (!isConfigStorageFileName(fileName)) {
+        throw new Error(`Unknown config storage file: ${fileName}`);
     }
     return fileName;
 }
