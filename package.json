@@ -1,0 +1,121 @@
+{
+  "name": "golden-api-debug",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Golden API Debug standalone KCBP API debugger",
+  "author": "Your Name",
+  "main": "dist-electron/main.js",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run generate:icon && tsc && vite build && electron-builder",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:related": "vitest related --run",
+    "test:api": "npm run test:kcbp && npm run test:import && npm run test:script && npm run test:suggest && npm run test:persist && npm run test:core",
+    "test:kcbp": "node scripts/run-unit-tests.mjs kcbp",
+    "test:import": "node scripts/run-unit-tests.mjs import",
+    "test:script": "node scripts/run-unit-tests.mjs script",
+    "test:suggest": "node scripts/run-unit-tests.mjs suggest",
+    "test:persist": "node scripts/run-unit-tests.mjs persist",
+    "test:core": "node scripts/run-unit-tests.mjs core",
+    "scan:encoding": "node scripts/scan-garbled-strings.mjs",
+    "check": "npm run lint && npm run format:check && npm run scan:encoding && npm run typecheck && npm run test",
+    "preview": "vite preview",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\" \"electron/**/*.{ts,json}\" \"docs/**/*.md\" \"AGENTS.md\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\" \"electron/**/*.{ts,json}\" \"docs/**/*.md\" \"AGENTS.md\"",
+    "generate:icon": "node scripts/generate-icon.mjs"
+  },
+  "build": {
+    "appId": "com.yourcompany.golden-api-debug",
+    "productName": "Golden API Debug",
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
+    },
+    "electronVersion": "36.3.1",
+    "asar": true,
+    "asarUnpack": [
+      "dist-electron/kcbpWorker.cjs",
+      "dist-electron/kcbpBridge.cjs"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "publish": null,
+    "extraResources": [
+      {
+        "from": "electron/adapter",
+        "to": "adapter"
+      }
+    ],
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "!dist/win-unpacked/**/*",
+      "!dist/*.exe",
+      "!dist/*.exe.blockmap",
+      "!dist/builder-debug.yml",
+      "!node_modules/**/*"
+    ],
+    "npmRebuild": false,
+    "buildDependenciesFromSource": false
+  },
+  "dependencies": {
+    "@codemirror/lang-javascript": "^6.2.5",
+    "@codemirror/lang-sql": "^6.10.0",
+    "@codemirror/language": "^6.12.3",
+    "@codemirror/state": "^6.6.0",
+    "@codemirror/view": "^6.43.1",
+    "@tailwindcss/vite": "^4.1.7",
+    "@uiw/react-codemirror": "^4.25.10",
+    "antd": "^5.25.2",
+    "iconv-lite": "^0.7.2",
+    "mssql": "^12.5.5",
+    "rc-virtual-list": "^3.19.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-resizable-panels": "^3.0.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.0",
+    "@resvg/resvg-js": "^2.6.2",
+    "@tailwindcss/postcss": "^4.1.7",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.4.1",
+    "autoprefixer": "^10.4.21",
+    "electron": "^36.3.1",
+    "electron-builder": "^26.0.12",
+    "eslint": "^9.25.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "png-to-ico": "^3.0.1",
+    "postcss": "^8.5.3",
+    "prettier": "^3.5.3",
+    "rollup-plugin-visualizer": "^7.0.1",
+    "tailwindcss": "^4.1.7",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.30.1",
+    "vite": "^6.3.5",
+    "vite-plugin-electron": "^0.29.0",
+    "vitest": "^4.1.9"
+  }
+}

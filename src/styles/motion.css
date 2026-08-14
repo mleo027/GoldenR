@@ -1,0 +1,42 @@
+/* 微交互与过渡 */
+.ui-card {
+    transition:
+        box-shadow var(--transition-normal),
+        border-color var(--transition-normal);
+}
+
+.param-section-body {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    max-height: 2000px;
+    opacity: 1;
+    transition:
+        max-height var(--transition-collapse),
+        opacity var(--transition-normal),
+        flex var(--transition-collapse);
+}
+
+.param-section-body-collapsed {
+    flex: 0 0 0;
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.param-section-toggle {
+    transition: background-color var(--transition-fast);
+}
+
+.case-project,
+.case-item {
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+/* 勿对 Modal 的 transform 加 transition，会与 antd zoom / centered 动画冲突导致首开卡顿、点击后位移 */
+.ant-dropdown,
+.ant-tooltip {
+    transition: opacity var(--transition-fast) !important;
+}

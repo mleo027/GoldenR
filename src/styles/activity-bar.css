@@ -1,0 +1,190 @@
+.activity-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 56px;
+    flex-shrink: 0;
+    padding: 8px 0;
+    gap: 4px;
+    background: var(--color-bg-card);
+    border-right: 1px solid var(--color-border-subtle);
+    min-height: 0;
+}
+
+.activity-bar-scroll {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-height: 0;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.activity-bar-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    padding-top: 4px;
+    border-top: 1px solid var(--color-border-light);
+    width: 100%;
+}
+
+.activity-bar-item:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.activity-bar-item-command {
+    color: var(--color-text-muted);
+}
+
+.activity-bar-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition:
+        background 0.15s ease,
+        color 0.15s ease;
+    position: relative;
+}
+
+.activity-bar-item:hover {
+    background: var(--color-bg-subtle);
+    color: var(--color-text-primary);
+}
+
+.activity-bar-item-active {
+    color: var(--color-primary);
+    background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+}
+
+.activity-bar-item-active::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 8px;
+    bottom: 8px;
+    width: 3px;
+    border-radius: 0 2px 2px 0;
+    background: var(--color-primary);
+}
+
+.activity-bar-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.platform-shell-main {
+    min-width: 0;
+}
+
+.module-host {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.module-host-panel {
+    display: none;
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.module-host-panel-active {
+    display: flex;
+}
+
+.module-settings-portal {
+    display: none;
+}
+
+.platform-command-results {
+    margin-top: 12px;
+    max-height: 360px;
+    overflow-y: auto;
+}
+
+.platform-command-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.platform-command-group {
+    padding: 8px 12px 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.platform-command-item {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: var(--color-text-primary);
+    text-align: left;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.platform-command-item:hover,
+.platform-command-item--active {
+    background: var(--color-bg-subtle);
+    color: var(--color-primary);
+}
+
+.platform-command-empty {
+    margin: 24px 0;
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 13px;
+}
+
+.platform-command-palette .ant-modal-content {
+    padding: 12px;
+}
+
+.platform-command-palette .ant-modal-body {
+    padding: 0;
+}
+
+.platform-kbd-group {
+    display: inline-flex;
+    align-items: center;
+}
+
+.platform-kbd {
+    min-width: 20px;
+    padding: 2px 6px;
+    border: 1px solid var(--color-border-light);
+    border-radius: 4px;
+    background: var(--color-bg-subtle);
+    color: var(--color-text-muted);
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: center;
+}

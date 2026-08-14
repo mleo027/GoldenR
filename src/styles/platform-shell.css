@@ -1,0 +1,31 @@
+.platform-module-layout,
+.platform-module-panels {
+    min-width: 0;
+}
+
+.platform-module-layout {
+    height: 100%;
+    min-height: 0;
+}
+
+.platform-module-panels {
+    height: 100%;
+    min-height: 0;
+    padding: var(--platform-page-gutter);
+    gap: var(--platform-page-gutter);
+}
+
+.platform-module-panels--sidebar-collapsed {
+    gap: 0;
+}
+
+.platform-agent-layout {
+    height: 100%;
+    min-height: 0;
+    align-self: stretch;
+}
+
+.platform-shell-main {
+    height: 100%;
+    min-height: 0;
+}

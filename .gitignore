@@ -1,0 +1,59 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-electron
+dist-ssr
+dist-smoke
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment
+.env
+.env.local
+
+# Local persistence (app root)
+app.json
+project.json
+settings.json
+workspace.json
+tabs.json
+db.json
+api-debug.env.json
+exchange-workspace.json
+knowledge-nav.json
+
+# Scratch / temp
+tmp/
+.tmp-*
+settings.json*.tmp
+/query
+
+# Local backup archive
+_backup_plan_20260814.zip
+
+# Tooling artifacts
+coverage/
+*.tsbuildinfo
+.eslintcache
+
+# Cursor MCP debugging screenshots (local only)
+.cursor-mcp-screenshot.png
+.cursor-mcp-screenshot.png.encrypted

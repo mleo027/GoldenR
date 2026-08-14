@@ -1,0 +1,19 @@
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    font-family:
+        -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+#root {
+    height: 100%;
+    width: 100%;
+}
+
+.param-table .ant-table-cell {
+    white-space: normal !important;
+    word-break: break-all;
+}

@@ -1,0 +1,141 @@
+.panel-resize-handle {
+    position: relative;
+    flex-shrink: 0;
+    transition: background-color 0.15s ease;
+}
+
+/* react-resizable-panels：Panel 需占满 PanelGroup 高度，子卡片 h-full 才生效 */
+.layout-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.layout-panel > .ui-card,
+.layout-panel > .platform-shell-main {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.layout-panel-sidebar {
+    min-width: 240px;
+}
+
+.layout-panel-sidebar-collapsed {
+    min-width: 0 !important;
+    max-width: 0 !important;
+    overflow: hidden;
+    flex: 0 0 0 !important;
+}
+
+.layout-panel-main {
+    min-width: 680px;
+}
+
+.section-header {
+    min-width: 0;
+    background: var(--color-bg-card);
+}
+
+.section-header--compact {
+    min-height: 0;
+    padding-block: 0;
+}
+
+.section-header-path-wrap {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+.section-header-trailing {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 10px;
+}
+
+.section-header--layout-compact {
+    gap: 8px;
+}
+
+.section-header--layout-tight .section-header-title {
+    display: none;
+}
+
+.section-header--layout-tight .section-header-leading {
+    gap: 0;
+}
+
+.panel-resize-handle-vertical {
+    height: 2px;
+    background: var(--color-border-light);
+    cursor: row-resize;
+}
+
+.panel-resize-handle-vertical:hover {
+    background: var(--color-primary-muted);
+}
+
+.panel-resize-handle-vertical .panel-resize-handle-indicator {
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 12px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+}
+
+.panel-resize-handle-vertical:hover .panel-resize-handle-indicator {
+    opacity: 1;
+}
+
+.panel-resize-handle-indicator-bar {
+    width: 32px;
+    height: 4px;
+    margin-inline: auto;
+    border-radius: var(--radius-pill);
+    background: var(--color-primary-muted);
+}
+
+.app-compact .section-header:not(.section-header--compact) {
+    min-height: 46px;
+    padding-block: 4px;
+}
+
+.app-compact .case-project,
+.app-compact .case-item {
+    padding-block: 5px;
+}
+
+.app-compact .param-table .ant-table-thead > tr > th,
+.app-compact .param-table .ant-table-tbody > tr > td {
+    padding-block: 2px !important;
+}
+
+.app-compact .response-table .ant-table-cell {
+    padding-block: 6px !important;
+}
+
+.app-compact .title-bar {
+    height: 32px;
+}
+
+.app-compact .settings-modal-nav-item {
+    min-height: 30px;
+    padding-block: 6px;
+}
+
+.app-compact .settings-panel-row {
+    padding-block: 8px;
+}

@@ -1,0 +1,386 @@
+/* Golden API UI primitives — Linear/Raycast style (internal ga-* classes) */
+
+/* --- Card --- */
+.ga-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    transition:
+        box-shadow var(--duration-fast) var(--ease-out),
+        border-color var(--duration-fast) var(--ease-out);
+}
+
+.ga-card--sidebar {
+    background: var(--surface-sidebar);
+    border: none;
+    box-shadow: inset 0 0 0 1px var(--color-border-light);
+}
+
+.ga-card--workspace {
+    border: none;
+    box-shadow:
+        inset 0 0 0 1px var(--color-border-light),
+        var(--shadow-card);
+}
+
+.ga-card--default {
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.ga-card--panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-height: 0;
+    min-width: 0;
+    position: relative;
+}
+
+.ga-card--accent-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--color-primary);
+    border-radius: var(--radius-card) 0 0 var(--radius-card);
+    z-index: 1;
+}
+
+.ga-card__header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+    padding: 16px var(--spacing-panel);
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.ga-card__header--split {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.ga-card__header-main {
+    min-width: 0;
+    flex: 1;
+}
+
+.ga-card__title {
+    margin: 0;
+    font-size: var(--font-title);
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--color-text-title);
+    letter-spacing: -0.01em;
+}
+
+.ga-card__desc {
+    margin: 4px 0 0;
+    max-width: 560px;
+    font-size: var(--font-caption);
+    line-height: 1.6;
+    color: var(--color-text-muted);
+}
+
+.ga-card__header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.ga-card__body {
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+}
+
+.ga-card__body--padded {
+    padding: var(--spacing-panel);
+}
+
+.ga-card--sidebar.ga-card--padded,
+.ga-card--default.ga-card--padded {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 12px;
+}
+
+.ga-card--workspace {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* --- Button --- */
+.ga-btn.ant-btn {
+    font-size: var(--font-body);
+    font-weight: 500;
+    border-radius: var(--radius-control);
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        border-color var(--duration-fast) var(--ease-out),
+        box-shadow var(--duration-fast) var(--ease-out),
+        transform var(--duration-fast) var(--ease-out),
+        opacity var(--duration-fast) var(--ease-out);
+}
+
+.ga-btn--md.ant-btn {
+    height: var(--control-height-md);
+    padding-inline: 14px;
+    font-size: var(--font-body);
+}
+
+.ga-btn--sm.ant-btn {
+    height: var(--control-height-sm);
+    padding-inline: 10px;
+    font-size: var(--font-caption);
+}
+
+.ga-btn--primary.ant-btn-primary:not(:disabled):hover {
+    box-shadow: var(--shadow-btn-hover);
+}
+
+.ga-btn--primary.ant-btn-primary:not(:disabled):active {
+    transform: scale(0.98);
+}
+
+.ga-btn--secondary.ant-btn-default:not(:disabled):hover {
+    background: var(--color-bg-hover);
+    border-color: var(--color-border-hover);
+}
+
+.ga-btn--ghost.ant-btn-text:not(:disabled):hover {
+    background: var(--color-bg-hover);
+}
+
+.ga-btn--danger.ant-btn-dangerous:not(:disabled):hover {
+    background: var(--color-error-bg);
+}
+
+.ga-btn:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+}
+
+.ga-btn.ant-btn-icon-only.ga-btn--md {
+    width: var(--control-height-md);
+    padding-inline: 0;
+}
+
+.ga-btn.ant-btn-icon-only.ga-btn--sm {
+    width: var(--control-height-sm);
+    padding-inline: 0;
+}
+
+/* --- Input / TextArea --- */
+.ga-input.ant-input,
+.ga-input.ant-input-affix-wrapper {
+    border-radius: var(--radius-control);
+    border-color: var(--color-input-border);
+    font-size: var(--font-body);
+    transition:
+        border-color var(--duration-fast) var(--ease-out),
+        box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.ga-input--md.ant-input,
+.ga-input--md.ant-input-affix-wrapper {
+    min-height: var(--control-height-md);
+}
+
+.ga-input--sm.ant-input,
+.ga-input--sm.ant-input-affix-wrapper {
+    min-height: var(--control-height-sm);
+    font-size: var(--font-caption);
+}
+
+.ga-input.ant-input:hover,
+.ga-input.ant-input-affix-wrapper:hover {
+    border-color: var(--color-input-border-hover);
+}
+
+.ga-input.ant-input:focus,
+.ga-input.ant-input-affix-wrapper-focused {
+    border-color: var(--color-primary);
+    box-shadow: var(--focus-ring);
+}
+
+.ga-textarea.ant-input {
+    border-radius: var(--radius-control);
+    font-size: var(--font-body);
+    line-height: 1.5;
+    resize: vertical;
+}
+
+.ga-textarea.ant-input:hover {
+    border-color: var(--color-input-border-hover);
+}
+
+.ga-textarea.ant-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: var(--focus-ring);
+}
+
+/* --- Modal --- */
+.ga-modal.app-modal .ant-modal-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* --- Drawer --- */
+.ga-drawer .ant-drawer-mask {
+    backdrop-filter: blur(4px);
+    background: var(--drawer-backdrop) !important;
+}
+
+.ga-drawer .ant-drawer-content {
+    background: var(--surface-elevated);
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
+}
+
+.ga-drawer .ant-drawer-header {
+    flex-shrink: 0;
+    padding: 16px var(--spacing-panel);
+    border-bottom: 1px solid var(--color-border-light);
+    background: var(--surface-elevated);
+}
+
+.ga-drawer .ant-drawer-title {
+    font-size: var(--font-title);
+    font-weight: 600;
+    color: var(--color-text-title);
+    letter-spacing: -0.01em;
+}
+
+.ga-drawer .ant-drawer-body {
+    padding: 16px var(--spacing-panel);
+    background: var(--surface-elevated);
+}
+
+.ga-drawer .ant-drawer-footer {
+    flex-shrink: 0;
+    padding: 12px var(--spacing-panel);
+    border-top: 1px solid var(--color-border-light);
+    background: var(--surface-elevated);
+}
+
+.ga-drawer__desc {
+    margin: 4px 0 0;
+    font-size: var(--font-caption);
+    line-height: 1.5;
+    color: var(--color-text-muted);
+    font-weight: 400;
+}
+
+.ga-drawer .ant-drawer-close {
+    color: var(--color-text-muted);
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+.ga-drawer .ant-drawer-close:hover {
+    color: var(--color-text-body);
+    background: var(--color-bg-hover);
+}
+
+/* --- Empty --- */
+.ga-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    text-align: center;
+}
+
+.ga-empty__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 14px;
+    border-radius: var(--radius-card);
+    background: linear-gradient(145deg, var(--color-primary-subtle), var(--color-bg-subtle));
+    border: 1px solid var(--color-border-light);
+    font-size: 26px;
+    color: var(--color-primary);
+    box-shadow: var(--shadow-card);
+}
+
+.ga-empty__title {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-title);
+}
+
+.ga-empty__desc {
+    margin: 0;
+    max-width: 320px;
+    font-size: var(--font-caption);
+    line-height: 1.6;
+    color: var(--color-text-muted);
+}
+
+.ga-empty__action {
+    margin-top: 16px;
+}
+
+.ga-empty__prompts {
+    margin-top: 12px;
+}
+
+.ga-empty--compact {
+    padding: 24px 16px;
+}
+
+.ga-empty--compact .ga-empty__icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+.ga-empty--compact .ga-empty__title {
+    font-size: 13px;
+}
+
+.ga-empty--compact .ga-empty__desc {
+    font-size: 11px;
+}
+
+/* --- Alert --- */
+.ga-alert.ant-alert {
+    border-radius: var(--radius-control);
+    font-size: var(--font-body);
+}
+
+.ga-alert--callout.ant-alert {
+    border: 1px solid var(--color-border-light);
+    background: var(--color-bg-subtle);
+}
+
+.ga-alert--callout .ant-alert-message {
+    font-weight: 600;
+    color: var(--color-text-title);
+}
+
+.ga-alert--callout .ant-alert-description {
+    font-size: var(--font-caption);
+    color: var(--color-text-secondary);
+}

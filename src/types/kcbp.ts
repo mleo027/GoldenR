@@ -1,0 +1,35 @@
+export interface KcbpConnectionOptions {
+    ip?: string;
+    port?: string;
+    reqqueue?: string;
+    ansqueue?: string;
+    service?: string;
+    apiid?: string;
+    connecttimeout?: string;
+    requesttimeout?: string;
+}
+
+export type KcbpTextFieldValue = string;
+
+/** IPC 形态：二进制字段名 → 本地绝对路径；主进程 resolve 后写入 fields 为 Buffer */
+export interface KcbpParamOptions {
+    msgtype?: string;
+    fields?: Record<string, KcbpTextFieldValue>;
+    binaryFields?: Record<string, string>;
+}
+
+export interface KcbpRequestOptions {
+    connection: KcbpConnectionOptions;
+    param: KcbpParamOptions;
+}
+
+export interface KcbpResponseData {
+    code: string | number;
+    msg: string;
+    data: unknown[];
+    level?: string;
+    stats: {
+        timecost: number;
+        rows: number;
+    };
+}

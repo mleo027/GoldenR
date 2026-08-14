@@ -1,0 +1,446 @@
+/* 平台级功能页 UI 原语 */
+
+/* --- Feature Tabs --- */
+.ui-feature-tabs.ant-tabs {
+    min-height: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.ui-feature-tabs > .ant-tabs-nav {
+    margin: 0;
+    padding: 0;
+    background: color-mix(in srgb, var(--color-bg-card) 88%, var(--color-bg-subtle));
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-subtle);
+}
+
+.ui-feature-tabs > .ant-tabs-nav::before {
+    border-bottom: none !important;
+}
+
+.ui-feature-tabs > .ant-tabs-nav .ant-tabs-tab {
+    padding: 12px 6px;
+    margin: 0 24px 0 0;
+    font-size: 13px;
+    letter-spacing: 0.01em;
+    transition:
+        color var(--transition-fast),
+        background-color var(--transition-fast);
+}
+
+.ui-feature-tabs > .ant-tabs-nav .ant-tabs-tab:hover {
+    color: var(--color-primary);
+}
+
+.ui-feature-tabs > .ant-tabs-nav .ant-tabs-tab-active .ant-tabs-tab-btn {
+    font-weight: 600;
+    color: var(--color-text-title);
+}
+
+.ui-feature-tabs > .ant-tabs-nav .ant-tabs-ink-bar {
+    height: 3px;
+    border-radius: 2px 2px 0 0;
+}
+
+.ui-feature-tabs > .ant-tabs-content-holder {
+    min-height: 0;
+    flex: 1;
+    overflow: hidden;
+}
+
+.ui-feature-tabs > .ant-tabs-content-holder > .ant-tabs-content {
+    height: 100%;
+}
+
+.ui-feature-tabs .ant-tabs-tabpane-active {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    height: 100%;
+    gap: 16px;
+}
+
+/* --- Feature Nav (segmented strip / pill bar) --- */
+.ui-feature-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 4px;
+    padding: 5px;
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+}
+
+.ui-feature-nav-item {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 72px;
+    margin: 0;
+    padding: 8px 12px;
+    border: 1px solid transparent;
+    border-radius: calc(var(--radius-card) - 2px);
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    line-height: 1.35;
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        color var(--transition-fast),
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.ui-feature-nav-item:hover {
+    color: var(--color-primary);
+    background: var(--color-bg-card);
+}
+
+.ui-feature-nav-item--active {
+    padding-left: 18px;
+    background: var(--color-bg-card);
+    border-color: var(--color-primary-muted);
+    color: var(--color-primary);
+    font-weight: 600;
+    box-shadow:
+        0 1px 2px var(--color-primary-glow),
+        inset 0 -2px 0 var(--color-primary);
+}
+
+.ui-feature-nav-item--active::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    width: 3px;
+    height: 14px;
+    border-radius: var(--radius-pill);
+    background: var(--color-primary);
+    transform: translateY(-50%);
+}
+
+/* --- Command Bar --- */
+.ui-command-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+}
+
+.ui-command-bar-start,
+.ui-command-bar-end {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* --- KPI Strip --- */
+.ui-kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+@media (max-width: 960px) {
+    .ui-kpi-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+    .ui-kpi-strip {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ui-kpi-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 16px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-subtle);
+    min-width: 0;
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+[data-theme='dark'] .ui-kpi-cell {
+    box-shadow:
+        var(--shadow-subtle),
+        inset 0 1px 0 color-mix(in srgb, #ffffff 4%, transparent);
+}
+
+.ui-kpi-cell:hover {
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-card);
+}
+
+.ui-kpi-cell-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+}
+
+.ui-kpi-cell-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-title);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+
+.ui-kpi-cell-value--success {
+    color: var(--color-success);
+}
+
+.ui-kpi-cell-value--error {
+    color: var(--color-error);
+}
+
+.ui-kpi-cell-value--warning {
+    color: var(--color-warning);
+}
+
+.ui-kpi-cell--featured {
+    position: relative;
+    overflow: hidden;
+}
+
+.ui-kpi-cell--featured::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    border-radius: var(--radius-pill);
+    background: var(--color-text-muted);
+}
+
+.ui-kpi-cell--live {
+    border-color: color-mix(in srgb, var(--color-success) 35%, var(--color-border-light));
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--color-success-bg) 65%, var(--color-bg-card)) 0%,
+        var(--color-bg-card) 78%
+    );
+}
+
+.ui-kpi-cell--live::before {
+    background: var(--color-success);
+}
+
+.ui-kpi-cell--idle::before {
+    background: var(--color-text-muted);
+}
+
+.ui-kpi-cell--highlight-warning {
+    border-color: color-mix(in srgb, var(--color-warning) 24%, var(--color-border-light));
+}
+
+.ui-kpi-cell--highlight-error {
+    border-color: color-mix(in srgb, var(--color-error) 24%, var(--color-border-light));
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--color-error-bg) 45%, var(--color-bg-card)) 0%,
+        var(--color-bg-card) 75%
+    );
+}
+
+.ui-kpi-cell-hint {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    line-height: 1.45;
+}
+
+/* --- Accent Card --- */
+.ui-accent-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-subtle);
+    overflow: hidden;
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+[data-theme='dark'] .ui-accent-card {
+    box-shadow:
+        var(--shadow-subtle),
+        inset 0 1px 0 color-mix(in srgb, #ffffff 4%, transparent);
+}
+
+.ui-accent-card:hover {
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-card);
+}
+
+.ui-accent-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px 0;
+    min-width: 0;
+}
+
+.ui-accent-card-bar {
+    flex-shrink: 0;
+    width: 3px;
+    align-self: stretch;
+    min-height: 18px;
+    margin-top: 2px;
+    border-radius: var(--radius-pill);
+    background: var(--ui-accent-tone, var(--color-primary));
+}
+
+.ui-accent-card-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--ui-accent-tone, var(--color-primary));
+    background: color-mix(in srgb, var(--ui-accent-tone, var(--color-primary)) 10%, transparent);
+}
+
+.ui-accent-card--primary {
+    --ui-accent-tone: var(--color-primary);
+}
+
+.ui-accent-card--amber {
+    --ui-accent-tone: var(--color-warning);
+}
+
+.ui-accent-card--sky {
+    --ui-accent-tone: #0ea5e9;
+}
+
+.ui-accent-card--rose {
+    --ui-accent-tone: #f43f5e;
+}
+
+[data-theme='dark'] .ui-accent-card--sky {
+    --ui-accent-tone: #38bdf8;
+}
+
+[data-theme='dark'] .ui-accent-card--rose {
+    --ui-accent-tone: #fb7185;
+}
+
+.ui-accent-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-title);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+}
+
+.ui-accent-card-body {
+    padding: 12px 16px 16px;
+    min-width: 0;
+}
+
+.ui-accent-card-body .ant-form-item-label > label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+}
+
+/* --- Data Table --- */
+.ui-data-table .ant-table-thead > tr > th {
+    background: var(--color-table-header) !important;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+}
+
+.ui-data-table .ant-table-thead > tr > th.ant-table-cell-fix-right {
+    background: var(--color-table-header) !important;
+}
+
+.ui-data-table .ant-table-tbody > tr:nth-child(even) > td {
+    background: var(--color-bg-row-even);
+}
+
+.ui-data-table .ant-table-tbody > tr:hover > td {
+    background: var(--color-bg-row-hover) !important;
+}
+
+.ui-data-table .ant-table-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.ui-data-table .ant-table-body {
+    overflow: auto !important;
+}
+
+/* --- TitleBar pill badges --- */
+.ui-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 10px;
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 18px;
+    white-space: nowrap;
+}
+
+.ui-status-pill-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.ui-status-pill--running {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+}
+
+.ui-status-pill--running .ui-status-pill-dot {
+    background: var(--color-success);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-success) 25%, transparent);
+}
+
+.ui-status-pill--info {
+    background: var(--color-primary-subtle);
+    color: var(--color-primary);
+}
+
+.ui-status-pill--error {
+    background: var(--color-error-bg);
+    color: var(--color-error);
+}

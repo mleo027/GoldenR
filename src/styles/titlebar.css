@@ -1,0 +1,295 @@
+/* 自定义标题栏 */
+.title-bar {
+    display: flex;
+    align-items: center;
+    height: 36px;
+    padding: 0 12px;
+    flex-shrink: 0;
+    background: var(--color-bg-elevated);
+    border-bottom: 1px solid var(--color-divider);
+    -webkit-app-region: drag;
+}
+
+.title-bar-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+
+.title-bar-logo {
+    flex-shrink: 0;
+    border-radius: var(--radius-control);
+}
+
+.title-bar-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-title);
+    letter-spacing: -0.01em;
+}
+
+.title-bar-module {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--color-bg-subtle);
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.title-bar-path {
+    flex: 1;
+    overflow: hidden;
+    padding: 0 8px;
+}
+
+.title-bar-path-text {
+    display: block;
+    font-size: 12px;
+    color: var(--color-text-muted);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0.85;
+}
+
+.title-bar-actions .ant-btn {
+    color: var(--color-text-secondary) !important;
+}
+
+.title-bar-actions {
+    -webkit-app-region: no-drag;
+}
+
+.window-control-btn:hover {
+    background: var(--color-bg-hover) !important;
+    color: var(--color-text-body) !important;
+}
+
+.window-control-close:hover {
+    background: var(--color-error-bg) !important;
+}
+
+.window-control-close:hover .anticon {
+    color: var(--color-error) !important;
+}
+
+.settings-trigger-btn-active {
+    background: var(--color-primary-subtle) !important;
+}
+
+.settings-trigger-btn-active .anticon {
+    color: var(--color-primary) !important;
+}
+
+/* 平台 TitleBar 中央插槽（模块页签等） */
+.title-bar-slot {
+    flex: 1;
+    min-width: 0;
+    display: none;
+    align-items: center;
+    overflow: hidden;
+    margin-inline: 8px 12px;
+}
+
+.title-bar-slot-active {
+    display: flex;
+    -webkit-app-region: drag;
+}
+
+.title-bar-slot-active .case-tab-item-title,
+.title-bar-slot-active .case-tab-close {
+    -webkit-app-region: no-drag;
+}
+
+/** 页签右侧空白区 + 页签条未覆盖区域，用于拖动窗口 */
+.title-bar-drag-fill {
+    flex: 1 1 auto;
+    min-width: 12px;
+    align-self: stretch;
+    -webkit-app-region: drag;
+}
+
+.title-bar-drag-fill--solo {
+    width: 100%;
+    min-width: 0;
+}
+
+/* 标题栏接口页签 */
+.case-tab-bar-title {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    -webkit-app-region: drag;
+}
+
+.case-tab-bar-title .case-tab-bar-scroll {
+    flex: 0 1 auto;
+    width: auto;
+    max-width: 100%;
+    -webkit-app-region: no-drag;
+}
+
+.case-tab-bar-title .case-tab-bar-scroll {
+    gap: 2px;
+    padding: 0;
+    height: 100%;
+    align-items: center;
+}
+
+.case-tab-bar-title .case-tab-item-title {
+    height: 26px;
+    max-width: 200px;
+    padding: 0 8px;
+    border: none;
+    border-radius: var(--radius-control);
+    background: transparent;
+    font-size: 11px;
+}
+
+.case-tab-bar-title .case-tab-item-title:hover {
+    background: var(--color-bg-hover);
+}
+
+.case-tab-bar-title .case-tab-item-title.case-tab-item-active {
+    background: var(--color-primary-subtle);
+    box-shadow: inset 0 0 0 1px var(--color-primary-muted);
+    font-weight: 600;
+}
+
+.case-tab-bar-title .case-tab-item-active .case-tab-close {
+    opacity: 1;
+}
+
+.case-tab-bar {
+    min-width: 0;
+}
+
+.case-tab-bar-scroll {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-block: 2px;
+}
+
+.case-tab-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 220px;
+    min-width: 0;
+    height: 30px;
+    padding: 0 8px 0 10px;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-control);
+    background: var(--color-bg-card);
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+        color var(--transition-fast),
+        border-color var(--transition-fast),
+        background-color var(--transition-fast);
+}
+
+.case-tab-item:hover {
+    color: var(--color-text-body);
+    border-color: var(--color-border-hover);
+    background: var(--color-bg-hover);
+}
+
+.case-tab-item-active {
+    color: var(--color-primary);
+    border-color: var(--color-primary-muted);
+    background: var(--color-primary-subtle);
+}
+
+.case-tab-favorite {
+    flex-shrink: 0;
+    font-size: 10px;
+    color: var(--color-warning);
+}
+
+.case-tab-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.case-tab-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-inline-end: -2px;
+    border-radius: var(--radius-control);
+    color: var(--color-text-muted);
+    opacity: 0;
+    transition:
+        opacity var(--transition-fast),
+        color var(--transition-fast),
+        background-color var(--transition-fast);
+}
+
+.case-tab-item:hover .case-tab-close,
+.case-tab-item-active .case-tab-close {
+    opacity: 1;
+}
+
+.case-tab-close:hover {
+    color: var(--color-error);
+    background: var(--color-error-bg);
+}
+
+.case-tab-item-favorite {
+    border-left: 2px solid var(--color-warning);
+    padding-left: 8px;
+}
+
+.case-tab-close-others {
+    flex-shrink: 0;
+    align-self: center;
+    height: 24px;
+    padding: 0 8px;
+    margin-inline-start: 4px;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-control);
+    background: var(--color-bg-card);
+    color: var(--color-text-muted);
+    font-size: 11px;
+    cursor: pointer;
+    transition:
+        color var(--transition-fast),
+        border-color var(--transition-fast),
+        background-color var(--transition-fast);
+}
+
+.case-tab-close-others:hover {
+    color: var(--color-text-body);
+    border-color: var(--color-border-hover);
+    background: var(--color-bg-hover);
+}
+
+.case-tab-close-others:focus-visible,
+.title-bar-btn:focus-visible,
+.title-bar-win-btn:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}

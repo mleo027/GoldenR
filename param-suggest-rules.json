@@ -1,0 +1,251 @@
+{
+  "rules": [
+    {
+      "id": "rule-bsflag-global",
+      "field": "bsflag",
+      "fields": ["bsflag"],
+      "type": "select",
+      "enabled": true,
+      "priority": 0,
+      "match": { "when": { "bsflag": "" } },
+      "datasource": {
+        "type": "sql",
+        "db": "mssql",
+        "sql": "select distinct value = bsflag, remark = remark from run.dbo.bsconfig where bsflag like '%'+@bsflag+'%'",
+        "cache": { "enabled": true, "ttlSeconds": 300 },
+        "trigger": "focus"
+      }
+    },
+    {
+      "id": "rule-orgid-global",
+      "field": "orgid",
+      "fields": ["orgid", "custorgid"],
+      "type": "select",
+      "enabled": true,
+      "priority": 0,
+      "datasource": {
+        "type": "sql",
+        "db": "mssql",
+        "sql": "select value = orgid, remark = orgname from run.dbo.org",
+        "cache": { "enabled": true, "ttlSeconds": 300 },
+        "trigger": "focus"
+      }
+    },
+    {
+      "id": "rule-mqlpvkud-f1w2bj",
+      "field": "operid",
+      "fields": ["operid", "g_operid"],
+      "type": "select",
+      "enabled": true,
+      "priority": 0,
+      "datasource": {
+        "type": "sql",
+        "db": "mssql",
+        "sql": "select value=operid,remark = opername\nfrom operator\nwhere orgid = @orgid?\n  and operid like '%'+@g_operid?+'%'",
+        "cache": { "enabled": true, "ttlSeconds": 300 },
+        "trigger": "focus"
+      }
+    },
+    {
+      "id": "rule-mqlq9bn5-y2gom3",
+      "field": "market",
+      "fields": ["market"],
+      "type": "select",
+      "enabled": true,
+      "priority": 0,
+      "datasource": {
+        "type": "sql",
+        "db": "mssql",
+        "sql": "select value=market, remark = marketid from run.dbo.market",
+        "cache": { "enabled": true, "ttlSeconds": 300 },
+        "trigger": "focus"
+      }
+    },
+    {
+      "id": "rule-mqlqchxy-pzjiq8",
+      "field": "stkcode",
+      "fields": ["stkcode"],
+      "type": "select",
+      "enabled": true,
+      "priority": 0,
+      "match": { "when": { "stkcode": "" } },
+      "datasource": {
+        "type": "sql",
+        "db": "mssql",
+        "sql": "select value=stkcode, remark=stkname\nfrom run.dbo.stktrd\nwhere stkcode like '%' + @stkcode + '%'",
+        "cache": { "enabled": true, "ttlSeconds": 300 },
+        "trigger": "focus"
+      }
+    },
+    {
+      "id": "rule-mqlrsdn6-e7or81",
+      "field": "market",
+      "fields": ["market"],
+      "type": "select",
+      "enabled": true,
+      "priority": 0,
+      "match": { "when": { "secuid": "" } },
+      "datasource": {
+        "type": "sql",
+        "db": "mssql",
+        "sql": "select value=market from run.dbo.secuid where secuid = @secuid",
+        "cache": { "enabled": true, "ttlSeconds": 300 },
+        "trigger": "focus"
+      }
+    },
+    {
+      "id": "rule-mqlrvek7-wtkjnk",
+      "field": "orgid",
+      "fields": ["orgid", "custorgid"],
+      "type": "select",
+      "enabled": true,
+      "priority": 0,
+      "datasource": {
+        "type": "sql",
+        "db": "mssql",
+        "sql": "select value=orgid from fundinfo where fundid = @fundid",
+        "cache": { "enabled": true, "ttlSeconds": 300 },
+        "trigger": "focus"
+      }
+    },
+    {
+      "id": "rule-mqlrx64k-xbjqcq",
+      "field": "custid",
+      "fields": ["custid"],
+      "type": "select",
+      "enabled": true,
+      "priority": 0,
+      "match": { "when": { "fundid": "" } },
+      "datasource": {
+        "type": "sql",
+        "db": "mssql",
+        "sql": "select value=custid,remark = fundname from run.dbo.fundinfo where fundid = @fundid and orgid= @orgid?",
+        "cache": { "enabled": true, "ttlSeconds": 300 },
+        "trigger": "focus"
+      }
+    },
+    {
+      "id": "rule-mqlseqjy-zi072y",
+      "field": "fortuneid",
+      "fields": ["fortuneid"],
+      "type": "select",
+      "enabled": true,
+      "priority": 0,
+      "datasource": {
+        "type": "sql",
+        "db": "mssql",
+        "sql": "select value=fortuneid,remark=fortunename from run.dbo.fortuneinfo where fundid = @fundid",
+        "cache": { "enabled": true, "ttlSeconds": 300 },
+        "trigger": "focus"
+      }
+    },
+    {
+      "id": "rule-mqlsju61-5fndrp",
+      "field": "orgid",
+      "fields": ["orgid", "custorgid"],
+      "type": "select",
+      "enabled": true,
+      "priority": 0,
+      "datasource": {
+        "type": "sql",
+        "db": "mssql",
+        "sql": "select value=orgid from run.dbo.customer where custid = @custid",
+        "cache": { "enabled": true, "ttlSeconds": 300 },
+        "trigger": "focus"
+      }
+    },
+    {
+      "id": "rule-mqlss7tu-kp5u23",
+      "field": "secuid",
+      "fields": ["secuid"],
+      "type": "select",
+      "enabled": true,
+      "priority": 0,
+      "datasource": {
+        "type": "sql",
+        "db": "mssql",
+        "sql": "select value=secuid,remark=name+' 市场: '+market  from run.dbo.secuid where custid=@custid and market = @market?",
+        "cache": { "enabled": true, "ttlSeconds": 300 },
+        "trigger": "focus"
+      }
+    },
+    {
+      "id": "rule-mqlsxr1e-0bfckn",
+      "field": "fundid",
+      "fields": ["fundid"],
+      "type": "select",
+      "enabled": true,
+      "priority": 0,
+      "match": { "when": { "custid": "" } },
+      "datasource": {
+        "type": "sql",
+        "db": "mssql",
+        "sql": "select value=fundid, remark=fundname from run.dbo.fundinfo where custid = @custid and orgid = @orgid?",
+        "cache": { "enabled": true, "ttlSeconds": 300 },
+        "trigger": "focus"
+      }
+    },
+    {
+      "id": "rule-mqlt96sz-jiq4ff",
+      "field": "market",
+      "fields": ["market"],
+      "type": "select",
+      "enabled": true,
+      "priority": 0,
+      "match": { "when": { "stkcode": "" } },
+      "datasource": {
+        "type": "sql",
+        "db": "mssql",
+        "sql": "select value=market from run.dbo.stktrd where stkcode = @stkcode",
+        "cache": { "enabled": true, "ttlSeconds": 300 },
+        "trigger": "focus"
+      }
+    },
+    {
+      "id": "rule-mqtg2z3v-kvgrj6",
+      "field": "secuid",
+      "fields": ["secuid"],
+      "type": "select",
+      "enabled": true,
+      "priority": 0,
+      "match": { "when": { "fundid": "" } },
+      "datasource": {
+        "type": "sql",
+        "db": "mssql",
+        "sql": "select value=secuid,remark=name+' 市场: '+market  from run.dbo.secuid where custid=@fundid and market = @market?",
+        "cache": { "enabled": true, "ttlSeconds": 300 },
+        "trigger": "focus"
+      }
+    },
+    {
+      "id": "rule-mqudhknf-93oue4",
+      "field": "serverid",
+      "fields": ["serverid", "g_serverid"],
+      "type": "select",
+      "enabled": true,
+      "priority": 0,
+      "datasource": {
+        "type": "sql",
+        "db": "mssql",
+        "sql": "select value=serverid  from run.dbo.sysconfig",
+        "cache": { "enabled": true, "ttlSeconds": 300 },
+        "trigger": "focus"
+      }
+    },
+    {
+      "id": "rule-mqujy06w-rws6ni",
+      "field": "moneytype",
+      "fields": ["moneytype"],
+      "type": "select",
+      "enabled": true,
+      "priority": 0,
+      "datasource": {
+        "type": "sql",
+        "db": "mssql",
+        "sql": "select value=moneytype,remark=moneyid from run.dbo.currency",
+        "cache": { "enabled": true, "ttlSeconds": 300 },
+        "trigger": "focus"
+      }
+    }
+  ]
+}
