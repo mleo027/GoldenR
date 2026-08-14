@@ -11,7 +11,9 @@ function isRetryableWriteError(error: unknown): boolean {
 
 async function sleep(ms: number): Promise<void> {
     if (ms <= 0) return;
-    await new Promise((resolve) => setTimeout(resolve, ms));
+    await new Promise<void>((resolve) => {
+        setTimeout(resolve, ms);
+    });
 }
 
 async function replaceFileAtomically(tempPath: string, absPath: string): Promise<void> {

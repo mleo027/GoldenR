@@ -26,14 +26,16 @@ export function ParamSuggestProvider({ children }: { children: ReactNode }) {
     const persistedRulesRef = useRef<ParamFieldRule[] | null>(null);
 
     useEffect(() => {
-        Promise.all([loadDbConfig(), loadParamSuggestRules()]).then(([db, rulesFile]) => {
-            persistedDbRef.current = db;
-            persistedRulesRef.current = rulesFile.rules;
-            setDbConfig(db);
-            setRulesState(rulesFile.rules);
-            setLoaded(true);
-            void reloadMainProcessSuggestConfig();
-        });
+        void Promise.all([loadDbConfig(), loadParamSuggestRules()])
+            .then(([db, rulesFile]) => {
+                persistedDbRef.current = db;
+                persistedRulesRef.current = rulesFile.rules;
+                setDbConfig(db);
+                setRulesState(rulesFile.rules);
+                setLoaded(true);
+                void reloadMainProcessSuggestConfig();
+            })
+            .catch(console.error);
     }, []);
 
     useEffect(() => {

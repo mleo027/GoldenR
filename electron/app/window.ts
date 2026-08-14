@@ -26,9 +26,9 @@ export function createMainWindow(): BrowserWindow {
     win.on('unmaximize', sendMaximizedState);
 
     if (process.env.VITE_DEV_SERVER_URL) {
-        win.loadURL(process.env.VITE_DEV_SERVER_URL);
+        void win.loadURL(process.env.VITE_DEV_SERVER_URL).catch(console.error);
     } else {
-        win.loadFile('dist/index.html');
+        void win.loadFile('dist/index.html').catch(console.error);
     }
 
     return win;

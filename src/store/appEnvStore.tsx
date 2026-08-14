@@ -27,12 +27,14 @@ export function AppEnvProvider({ children }: { children: ReactNode }) {
     const persistedEnvRef = useRef<AppEnv | null>(null);
 
     useEffect(() => {
-        preloadAppEnv().then((cached) => {
-            persistedEnvRef.current = cached;
-            applyDocumentTheme(cached.darkMode);
-            setEnv(cached);
-            setLoaded(true);
-        });
+        void preloadAppEnv()
+            .then((cached) => {
+                persistedEnvRef.current = cached;
+                applyDocumentTheme(cached.darkMode);
+                setEnv(cached);
+                setLoaded(true);
+            })
+            .catch(console.error);
     }, []);
 
     useEffect(() => {

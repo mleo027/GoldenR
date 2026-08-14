@@ -10,8 +10,8 @@ import { getElectronAPI } from './lib/electron';
 setupPersistFlushListener();
 
 if (getElectronAPI()) {
-    preloadAppEnv();
-    preloadKcbpRuntimeConfig();
+    void preloadAppEnv().catch(console.error);
+    void preloadKcbpRuntimeConfig().catch(console.error);
 }
 
 createRoot(document.getElementById('root')!).render(

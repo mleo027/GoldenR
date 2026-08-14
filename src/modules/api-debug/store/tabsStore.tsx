@@ -29,14 +29,16 @@ export function TabsProvider({ children }: { children: ReactNode }) {
     const lastSavedProjectsHashRef = useRef<string | null>(null);
 
     useEffect(() => {
-        loadWorkspace().then((cached) => {
-            if (cached) {
-                lastSavedProjectsHashRef.current = hashPersistedProjects(cached.projects);
-                dispatch({ type: 'SET_WORKSPACE', workspace: cached });
-            } else {
-                dispatch({ type: 'MARK_LOADED' });
-            }
-        });
+        void loadWorkspace()
+            .then((cached) => {
+                if (cached) {
+                    lastSavedProjectsHashRef.current = hashPersistedProjects(cached.projects);
+                    dispatch({ type: 'SET_WORKSPACE', workspace: cached });
+                } else {
+                    dispatch({ type: 'MARK_LOADED' });
+                }
+            })
+            .catch(console.error);
     }, []);
 
     useEffect(() => {

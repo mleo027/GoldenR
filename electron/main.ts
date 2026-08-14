@@ -7,4 +7,7 @@ if (!app.isPackaged) {
     app.commandLine.appendSwitch('remote-debugging-port', '9222');
 }
 
-app.whenReady().then(() => bootstrapElectronApp());
+void app
+    .whenReady()
+    .then(() => bootstrapElectronApp())
+    .catch(console.error);

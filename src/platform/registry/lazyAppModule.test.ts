@@ -89,7 +89,7 @@ describe('lazyAppModule', () => {
             }),
         });
 
-        shell.flushPersistedState?.();
+        void shell.flushPersistedState?.();
         await vi.waitFor(() => expect(flushPersistedState).toHaveBeenCalledTimes(1));
     });
 });

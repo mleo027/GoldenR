@@ -28,11 +28,13 @@ export function ApiDebugEnvProvider({ children }: { children: ReactNode }) {
     const persistedEnvRef = useRef<ApiDebugEnv | null>(null);
 
     useEffect(() => {
-        loadApiDebugEnv().then((cached) => {
-            persistedEnvRef.current = cached;
-            setEnv(cached);
-            setLoaded(true);
-        });
+        void loadApiDebugEnv()
+            .then((cached) => {
+                persistedEnvRef.current = cached;
+                setEnv(cached);
+                setLoaded(true);
+            })
+            .catch(console.error);
     }, []);
 
     useEffect(() => {

@@ -67,7 +67,7 @@ export function useProjectImport({ projects, importCases }: UseProjectImportOpti
                                 block
                                 onClick={() => {
                                     instance.destroy();
-                                    runImport(projectIndex, 'json');
+                                    void runImport(projectIndex, 'json');
                                 }}
                             >
                                 JSON 文件
@@ -76,7 +76,7 @@ export function useProjectImport({ projects, importCases }: UseProjectImportOpti
                                 block
                                 onClick={() => {
                                     instance.destroy();
-                                    runImport(projectIndex, 'ini');
+                                    void runImport(projectIndex, 'ini');
                                 }}
                             >
                                 INI 文件 (Config.ini)

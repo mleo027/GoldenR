@@ -8,7 +8,7 @@ export function useRunShortcut() {
     usePlatformShortcut({
         ...PLATFORM_SHORTCUT.RUN,
         handler: () => {
-            run();
+            void run();
         },
     });
 }
