@@ -18,8 +18,21 @@ import { normalizeParamList } from '../utils/workspace/paramItem';
 import { resolveCaseScript } from '../utils/script/apiScript';
 import type { ConfigStorageFileName } from '@/shared/config/files';
 import { UI_DEBOUNCE_MS } from '../../../constants/ui';
-import { getElectronAPI } from '../../../lib/electron';
+import { configStorage } from '../../../services/persistence/configStorage';
+import { DebounceWriter } from '../../../services/persistence/debounceWriter';
 const SAVE_DEBOUNCE_MS = UI_DEBOUNCE_MS.save;
+
+const projectWriter = new DebounceWriter<ProjectData[]>({
+    write: (projects) => configStorage.write(PROJECT_FILE, toProjectFileData(projects)),
+    delayMs: SAVE_DEBOUNCE_MS,
+    onError: console.error,
+});
+
+const settingsWriter = new DebounceWriter<AppSettings>({
+    write: (settings) => configStorage.write(SETTINGS_FILE, settings),
+    delayMs: SAVE_DEBOUNCE_MS,
+    onError: console.error,
+});
 
 const defaultSettings = (): AppSettings => ({
     activeProjectIndex: 0,
@@ -27,11 +40,6 @@ const defaultSettings = (): AppSettings => ({
     expandedProjectIds: [],
     openCaseIds: [],
 });
-
-let projectSaveTimer: ReturnType<typeof setTimeout> | null = null;
-let settingsSaveTimer: ReturnType<typeof setTimeout> | null = null;
-let pendingProjects: ProjectData[] | null = null;
-let pendingSettingsData: AppSettings | null = null;
 
 function isParamItem(value: unknown): value is TabData['params'][number] {
     if (!value || typeof value !== 'object') return false;
@@ -152,18 +160,10 @@ function hydrateProjectsFromFile(data: ProjectFileData): ProjectData[] {
 }
 
 async function readJson(fileName: ConfigStorageFileName, fromUserData = false): Promise<unknown> {
-    const api = getElectronAPI();
-    if (!api) return null;
-    try {
-        return await api.config.read(fileName, fromUserData);
-    } catch {
-        return null;
-    }
+    return configStorage.read(fileName, fromUserData);
 }
 
 export async function loadWorkspace(): Promise<PersistedWorkspace | null> {
-    if (!getElectronAPI()) return null;
-
     const projectResult = await readJson(PROJECT_FILE, false);
     const settingsResult = await readJson(SETTINGS_FILE, false);
 
@@ -192,29 +192,11 @@ export async function loadWorkspace(): Promise<PersistedWorkspace | null> {
 }
 
 function scheduleProjectSave(projects: ProjectData[]): void {
-    pendingProjects = projects;
-    if (projectSaveTimer) clearTimeout(projectSaveTimer);
-    projectSaveTimer = setTimeout(() => {
-        const api = getElectronAPI();
-        if (pendingProjects && api) {
-            api.config.write(PROJECT_FILE, toProjectFileData(pendingProjects)).catch(console.error);
-        }
-        pendingProjects = null;
-        projectSaveTimer = null;
-    }, SAVE_DEBOUNCE_MS);
+    projectWriter.schedule(projects);
 }
 
 function scheduleSettingsSave(data: AppSettings): void {
-    pendingSettingsData = data;
-    if (settingsSaveTimer) clearTimeout(settingsSaveTimer);
-    settingsSaveTimer = setTimeout(() => {
-        const api = getElectronAPI();
-        if (pendingSettingsData && api) {
-            api.config.write(SETTINGS_FILE, pendingSettingsData).catch(console.error);
-        }
-        pendingSettingsData = null;
-        settingsSaveTimer = null;
-    }, SAVE_DEBOUNCE_MS);
+    settingsWriter.schedule(data);
 }
 
 export function saveProjects(projects: ProjectData[]): void {
@@ -226,27 +208,11 @@ export function hashPersistedProjects(projects: ProjectData[]): string {
 }
 
 function flushProjectSaveSync(): void {
-    if (projectSaveTimer) {
-        clearTimeout(projectSaveTimer);
-        projectSaveTimer = null;
-    }
-    const api = getElectronAPI();
-    if (pendingProjects && api) {
-        void api.config.write(PROJECT_FILE, toProjectFileData(pendingProjects));
-        pendingProjects = null;
-    }
+    void projectWriter.flush();
 }
 
 function flushSettingsSaveSync(): void {
-    if (settingsSaveTimer) {
-        clearTimeout(settingsSaveTimer);
-        settingsSaveTimer = null;
-    }
-    const api = getElectronAPI();
-    if (pendingSettingsData && api) {
-        void api.config.write(SETTINGS_FILE, pendingSettingsData);
-        pendingSettingsData = null;
-    }
+    void settingsWriter.flush();
 }
 
 export function flushPendingSaves(): void {
@@ -255,28 +221,7 @@ export function flushPendingSaves(): void {
 }
 
 export async function flushPendingSavesAsync(): Promise<void> {
-    if (projectSaveTimer) {
-        clearTimeout(projectSaveTimer);
-        projectSaveTimer = null;
-    }
-    if (settingsSaveTimer) {
-        clearTimeout(settingsSaveTimer);
-        settingsSaveTimer = null;
-    }
-
-    const api = getElectronAPI();
-    const pendingProjectsData = pendingProjects ? toProjectFileData(pendingProjects) : null;
-    const pendingSettings = pendingSettingsData;
-    if (api) {
-        if (pendingProjectsData) {
-            await api.config.write(PROJECT_FILE, pendingProjectsData);
-        }
-        if (pendingSettings) {
-            await api.config.write(SETTINGS_FILE, pendingSettings);
-        }
-    }
-    pendingProjects = null;
-    pendingSettingsData = null;
+    await Promise.all([projectWriter.flush(), settingsWriter.flush()]);
 }
 
 export function saveSettings(settings: AppSettings): void {

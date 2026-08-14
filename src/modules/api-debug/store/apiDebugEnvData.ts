@@ -7,12 +7,16 @@ import {
     normalizeKcxpEnvironments,
     resolveActiveKcxpEnvironmentId,
 } from '../utils/workspace/kcxpEnvironment';
-import { getElectronAPI } from '../../../lib/electron';
+import { configStorage } from '../../../services/persistence/configStorage';
+import { DebounceWriter } from '../../../services/persistence/debounceWriter';
 const LEGACY_APP_ENV_BACKUP_FILE = 'app.api-debug.legacy-migrated.json';
 const SAVE_DEBOUNCE_MS = UI_DEBOUNCE_MS.save;
 
-let saveTimer: ReturnType<typeof setTimeout> | null = null;
-let pendingEnv: ApiDebugEnv | null = null;
+const saveWriter = new DebounceWriter<ApiDebugEnv>({
+    write: (env) => configStorage.write(API_DEBUG_ENV_FILE, env),
+    delayMs: SAVE_DEBOUNCE_MS,
+    onError: console.error,
+});
 
 interface LegacyAppEnvFields {
     editorMode?: string;
@@ -62,19 +66,11 @@ export function mergeApiDebugEnv(partial?: Partial<ApiDebugEnv>): ApiDebugEnv {
 }
 
 async function readJson(fileName: ConfigStorageFileName): Promise<unknown> {
-    const api = getElectronAPI();
-    if (!api) return null;
-    try {
-        return await api.config.read(fileName, false);
-    } catch {
-        return null;
-    }
+    return configStorage.read(fileName, false);
 }
 
 async function writeJson(fileName: ConfigStorageFileName, data: unknown): Promise<void> {
-    const api = getElectronAPI();
-    if (!api) return;
-    await api.config.write(fileName, data);
+    await configStorage.write(fileName, data);
 }
 
 function stripLegacyApiDebugFields(appEnv: unknown): unknown {
@@ -119,16 +115,7 @@ export async function loadApiDebugEnv(): Promise<ApiDebugEnv> {
 }
 
 function scheduleApiDebugEnvSave(env: ApiDebugEnv): void {
-    pendingEnv = env;
-    if (saveTimer) clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-        const api = getElectronAPI();
-        if (pendingEnv && api) {
-            api.config.write(API_DEBUG_ENV_FILE, pendingEnv).catch(console.error);
-        }
-        pendingEnv = null;
-        saveTimer = null;
-    }, SAVE_DEBOUNCE_MS);
+    saveWriter.schedule(env);
 }
 
 export function saveApiDebugEnv(env: ApiDebugEnv): void {
@@ -136,25 +123,9 @@ export function saveApiDebugEnv(env: ApiDebugEnv): void {
 }
 
 export function flushPendingApiDebugEnvSave(): void {
-    if (saveTimer) {
-        clearTimeout(saveTimer);
-        saveTimer = null;
-    }
-    const api = getElectronAPI();
-    if (pendingEnv && api) {
-        void api.config.write(API_DEBUG_ENV_FILE, pendingEnv);
-        pendingEnv = null;
-    }
+    void saveWriter.flush();
 }
 
 export async function flushPendingApiDebugEnvSaveAsync(): Promise<void> {
-    if (saveTimer) {
-        clearTimeout(saveTimer);
-        saveTimer = null;
-    }
-    const api = getElectronAPI();
-    if (pendingEnv && api) {
-        await api.config.write(API_DEBUG_ENV_FILE, pendingEnv);
-        pendingEnv = null;
-    }
+    await saveWriter.flush();
 }

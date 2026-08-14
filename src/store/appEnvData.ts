@@ -4,12 +4,16 @@ import { APP_ENV_FILE, SETTINGS_FILE } from '@/config/files';
 import type { ConfigStorageFileName } from '@/shared/config/files';
 import { UI_DEBOUNCE_MS } from '../constants/ui';
 import { resolveActiveModuleId } from '../platform/registry/helpers';
-import { getElectronAPI } from '../lib/electron';
+import { configStorage } from '../services/persistence/configStorage';
+import { DebounceWriter } from '../services/persistence/debounceWriter';
 const LEGACY_SETTINGS_BACKUP_FILE = 'settings.preferences.legacy-migrated.json';
 const SAVE_DEBOUNCE_MS = UI_DEBOUNCE_MS.save;
 
-let saveTimer: ReturnType<typeof setTimeout> | null = null;
-let pendingEnv: AppEnv | null = null;
+const saveWriter = new DebounceWriter<AppEnv>({
+    write: (env) => configStorage.write(APP_ENV_FILE, env),
+    delayMs: SAVE_DEBOUNCE_MS,
+    onError: console.error,
+});
 
 interface LegacyAppEnvFields {
     editorMode?: string;
@@ -48,19 +52,11 @@ function toPersistedAppEnv(env: AppEnv): AppEnv {
 }
 
 async function readJson(fileName: ConfigStorageFileName): Promise<unknown> {
-    const api = getElectronAPI();
-    if (!api) return null;
-    try {
-        return await api.config.read(fileName, false);
-    } catch {
-        return null;
-    }
+    return configStorage.read(fileName, false);
 }
 
 async function writeJson(fileName: ConfigStorageFileName, data: unknown): Promise<void> {
-    const api = getElectronAPI();
-    if (!api) return;
-    await api.config.write(fileName, data);
+    await configStorage.write(fileName, data);
 }
 
 function stripLegacyPreferences(settings: unknown): unknown {
@@ -112,16 +108,7 @@ export function preloadAppEnv(): Promise<AppEnv> {
 }
 
 function scheduleAppEnvSave(env: AppEnv): void {
-    pendingEnv = toPersistedAppEnv(env);
-    if (saveTimer) clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-        const api = getElectronAPI();
-        if (pendingEnv && api) {
-            api.config.write(APP_ENV_FILE, pendingEnv).catch(console.error);
-        }
-        pendingEnv = null;
-        saveTimer = null;
-    }, SAVE_DEBOUNCE_MS);
+    saveWriter.schedule(toPersistedAppEnv(env));
 }
 
 export function saveAppEnv(env: AppEnv): void {
@@ -129,25 +116,9 @@ export function saveAppEnv(env: AppEnv): void {
 }
 
 export function flushPendingAppEnvSave(): void {
-    if (saveTimer) {
-        clearTimeout(saveTimer);
-        saveTimer = null;
-    }
-    const api = getElectronAPI();
-    if (pendingEnv && api) {
-        void api.config.write(APP_ENV_FILE, pendingEnv);
-        pendingEnv = null;
-    }
+    void saveWriter.flush();
 }
 
 export async function flushPendingAppEnvSaveAsync(): Promise<void> {
-    if (saveTimer) {
-        clearTimeout(saveTimer);
-        saveTimer = null;
-    }
-    const api = getElectronAPI();
-    if (pendingEnv && api) {
-        await api.config.write(APP_ENV_FILE, pendingEnv);
-        pendingEnv = null;
-    }
+    await saveWriter.flush();
 }
