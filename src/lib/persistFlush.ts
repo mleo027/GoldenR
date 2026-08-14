@@ -1,11 +1,11 @@
 import { APP_MODULES } from '../platform/registry/app-modules';
-import { flushPendingAppEnvSave } from '../store/appEnvData';
+import { flushPendingAppEnvSaveAsync } from '../store/appEnvData';
 import { getElectronAPI } from './electron';
 
-export function flushAllPersistedState(): void {
-    flushPendingAppEnvSave();
+export async function flushAllPersistedState(): Promise<void> {
+    await flushPendingAppEnvSaveAsync();
     for (const module of APP_MODULES) {
-        module.flushPersistedState?.();
+        await module.flushPersistedState?.();
     }
 }
 
@@ -13,7 +13,7 @@ export function setupPersistFlushListener(): void {
     const api = getElectronAPI();
     if (!api?.app.onFlushStorage) return;
 
-    api.app.onFlushStorage(() => {
-        flushAllPersistedState();
+    api.app.onFlushStorage(async () => {
+        await flushAllPersistedState();
     });
 }

@@ -77,7 +77,7 @@ export interface WindowApi {
 
 export interface AppLifecycleApi {
     getUserDataDir(): Promise<string>;
-    onFlushStorage(callback: () => void): () => void;
+    onFlushStorage(callback: () => void | Promise<void>): () => void;
 }
 
 export interface ElectronAPI {

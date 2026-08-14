@@ -141,10 +141,9 @@ export function createLazyAppModule(meta: LazyAppModuleMeta): AppModuleDefinitio
             showSkeleton: false,
         }),
         settingsSections: undefined,
-        flushPersistedState: () => {
-            void ensureAppModuleLoaded(id, load, shell).then((definition) => {
-                definition.flushPersistedState?.();
-            });
+        flushPersistedState: async () => {
+            const definition = await ensureAppModuleLoaded(id, load, shell);
+            await definition.flushPersistedState?.();
         },
     };
 

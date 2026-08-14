@@ -146,3 +146,15 @@ export function flushPendingApiDebugEnvSave(): void {
         pendingEnv = null;
     }
 }
+
+export async function flushPendingApiDebugEnvSaveAsync(): Promise<void> {
+    if (saveTimer) {
+        clearTimeout(saveTimer);
+        saveTimer = null;
+    }
+    const api = getElectronAPI();
+    if (pendingEnv && api) {
+        await api.config.write(API_DEBUG_ENV_FILE, pendingEnv);
+        pendingEnv = null;
+    }
+}

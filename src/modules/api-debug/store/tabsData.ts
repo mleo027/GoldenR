@@ -254,6 +254,31 @@ export function flushPendingSaves(): void {
     flushSettingsSaveSync();
 }
 
+export async function flushPendingSavesAsync(): Promise<void> {
+    if (projectSaveTimer) {
+        clearTimeout(projectSaveTimer);
+        projectSaveTimer = null;
+    }
+    if (settingsSaveTimer) {
+        clearTimeout(settingsSaveTimer);
+        settingsSaveTimer = null;
+    }
+
+    const api = getElectronAPI();
+    const pendingProjectsData = pendingProjects ? toProjectFileData(pendingProjects) : null;
+    const pendingSettings = pendingSettingsData;
+    if (api) {
+        if (pendingProjectsData) {
+            await api.config.write(PROJECT_FILE, pendingProjectsData);
+        }
+        if (pendingSettings) {
+            await api.config.write(SETTINGS_FILE, pendingSettings);
+        }
+    }
+    pendingProjects = null;
+    pendingSettingsData = null;
+}
+
 export function saveSettings(settings: AppSettings): void {
     scheduleSettingsSave(settings);
 }

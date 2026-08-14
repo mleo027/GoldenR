@@ -1,11 +1,11 @@
-import { flushPendingApiDebugEnvSave } from './store/apiDebugEnvData';
-import { flushPendingParamSuggestSave } from './store/paramSuggestData';
-import { flushPendingSaves } from './store/tabsData';
+import { flushPendingApiDebugEnvSaveAsync } from './store/apiDebugEnvData';
+import { flushPendingParamSuggestSaveAsync } from './store/paramSuggestData';
+import { flushPendingSavesAsync } from './store/tabsData';
 import { flushAllTabDrafts } from './utils/workspace/tabDraftRegistry';
 
-export function flushApiDebugPersistedState(): void {
+export async function flushApiDebugPersistedState(): Promise<void> {
     flushAllTabDrafts();
-    flushPendingSaves();
-    flushPendingApiDebugEnvSave();
-    flushPendingParamSuggestSave();
+    await flushPendingSavesAsync();
+    await flushPendingApiDebugEnvSaveAsync();
+    await flushPendingParamSuggestSaveAsync();
 }

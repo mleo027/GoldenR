@@ -50,5 +50,5 @@ export interface AppModuleDefinition {
     TitleBarSlot?: ComponentType;
     StatusBar?: ComponentType;
     settingsSections?: ModuleSettingsSection[];
-    flushPersistedState?: () => void;
+    flushPersistedState?: () => void | Promise<void>;
 }
