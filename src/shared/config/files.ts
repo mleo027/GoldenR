@@ -7,6 +7,7 @@ export const DB_CONFIG_FILE = 'db.json';
 export const PARAM_SUGGEST_RULES_FILE = 'param-suggest-rules.json';
 
 export const KCBP_ENV_FILE = 'kcbp.env.json';
+export const REQUEST_HISTORY_FILE = 'request-history.json';
 /** 仅用于从旧 GoldenAPI 的 tracecode.env.json 迁移历史 KCBP 配置。 */
 export const TRACECODE_ENV_FILE = 'tracecode.env.json';
 
@@ -30,6 +31,7 @@ export const LEGACY_CONFIG_BACKUP_FILES = [
 export const CONFIG_STORAGE_FILES = [
     ...PERSISTED_CONFIG_FILES,
     ...LEGACY_CONFIG_BACKUP_FILES,
+    REQUEST_HISTORY_FILE,
 ] as const;
 
 export type PersistedConfigFileName = (typeof PERSISTED_CONFIG_FILES)[number];

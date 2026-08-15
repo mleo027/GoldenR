@@ -12,6 +12,7 @@ import { KcbpCallProvider } from '../store/kcbpCallStore';
 import { ParamSuggestProvider } from '../store/paramSuggestStore';
 import { ApiDebugEnvProvider } from '../store/apiDebugEnvStore';
 import { RunLogProvider } from '../store/runLogStore';
+import { RequestHistoryProvider } from '../store/requestHistoryStore';
 import ApiDebugUndoFlush from '../components/ApiDebugUndoFlush';
 import { KcbpFeedbackSync } from '../components/feedback/KcbpFeedbackSync';
 
@@ -21,17 +22,19 @@ export function ApiDebugProviders({ children }: { children: ReactNode }) {
             <ParamSuggestProvider>
                 <ApiDebugUndoFlush />
                 <TabsProvider>
-                    <ResponseProvider>
-                        <ScriptConsoleProvider>
-                            <ResponseLifecycleSync />
-                            <RunLogProvider>
-                                <KcbpCallProvider>
-                                    <KcbpFeedbackSync />
-                                    {children}
-                                </KcbpCallProvider>
-                            </RunLogProvider>
-                        </ScriptConsoleProvider>
-                    </ResponseProvider>
+                    <RequestHistoryProvider>
+                        <ResponseProvider>
+                            <ScriptConsoleProvider>
+                                <ResponseLifecycleSync />
+                                <RunLogProvider>
+                                    <KcbpCallProvider>
+                                        <KcbpFeedbackSync />
+                                        {children}
+                                    </KcbpCallProvider>
+                                </RunLogProvider>
+                            </ScriptConsoleProvider>
+                        </ResponseProvider>
+                    </RequestHistoryProvider>
                 </TabsProvider>
             </ParamSuggestProvider>
         </ApiDebugEnvProvider>

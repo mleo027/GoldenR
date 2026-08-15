@@ -1,5 +1,6 @@
 import { flushPendingApiDebugEnvSaveAsync } from './store/apiDebugEnvData';
 import { flushPendingParamSuggestSaveAsync } from './store/paramSuggestData';
+import { flushRequestHistoryAsync } from './store/requestHistoryData';
 import { flushPendingSavesAsync } from './store/tabsData';
 import { flushWorkspaceDrafts } from './store/workspaceFlushRegistry';
 
@@ -9,6 +10,7 @@ export async function flushApiDebugPersistedState(): Promise<void> {
         flushPendingSavesAsync(),
         flushPendingApiDebugEnvSaveAsync(),
         flushPendingParamSuggestSaveAsync(),
+        flushRequestHistoryAsync(),
     ]);
     const errors = results
         .filter((result): result is PromiseRejectedResult => result.status === 'rejected')

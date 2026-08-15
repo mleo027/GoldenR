@@ -1,11 +1,12 @@
 import { Button, Typography } from 'antd';
-import { FolderOutlined } from '@ant-design/icons';
+import { FolderOutlined, HistoryOutlined } from '@ant-design/icons';
 
 interface CaseSidebarHeaderProps {
     onAddProject: () => void;
+    onOpenHistory: () => void;
 }
 
-export default function CaseSidebarHeader({ onAddProject }: CaseSidebarHeaderProps) {
+export default function CaseSidebarHeader({ onAddProject, onOpenHistory }: CaseSidebarHeaderProps) {
     return (
         <div className="case-sidebar-header px-3 py-2.5 border-b border-[var(--color-divider)] flex items-center justify-between gap-2">
             <Typography.Text strong className="text-sm text-[var(--color-text-title)]">
@@ -21,6 +22,14 @@ export default function CaseSidebarHeader({ onAddProject }: CaseSidebarHeaderPro
             >
                 项目
             </Button>
+            <Button
+                type="text"
+                size="small"
+                icon={<HistoryOutlined />}
+                onClick={onOpenHistory}
+                className="case-header-history"
+                title="请求历史"
+            />
         </div>
     );
 }

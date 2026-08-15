@@ -21,6 +21,9 @@ const successRaw: KcbpResponseData = {
 
 const mockCallKcbp = vi.fn();
 const mockCancelKcbp = vi.fn();
+const mockConfigWrite = vi.fn<(name: string, data: unknown) => Promise<void>>(
+    async () => undefined,
+);
 
 function Harness() {
     const { loading, run, cancel } = useKcbpCall();
@@ -55,7 +58,7 @@ function stubElectronApi(options: { configRead?: (fileName: string) => Promise<u
         value: {
             config: {
                 read: options.configRead ?? vi.fn(async () => null),
-                write: vi.fn(async () => undefined),
+                write: mockConfigWrite,
                 flush: vi.fn(async () => undefined),
             },
             kcbp: {
@@ -103,6 +106,7 @@ describe('KcbpCallProvider integration', () => {
     beforeEach(() => {
         mockCallKcbp.mockReset();
         mockCancelKcbp.mockReset();
+        mockConfigWrite.mockReset();
         mockCancelKcbp.mockResolvedValue(true);
         stubElectronApi();
     });
@@ -121,6 +125,11 @@ describe('KcbpCallProvider integration', () => {
 
         await waitFor(() => expect(mockCallKcbp).toHaveBeenCalledTimes(1));
         await waitFor(() => expect(screen.getByText('idle')).toBeTruthy());
+        await waitFor(() =>
+            expect(
+                mockConfigWrite.mock.calls.some(([name]) => name === 'request-history.json'),
+            ).toBe(true),
+        );
     });
 
     it('cancels an in-flight call and clears loading state', async () => {

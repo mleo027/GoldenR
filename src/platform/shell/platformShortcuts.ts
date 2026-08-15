@@ -8,6 +8,8 @@ export const PLATFORM_SHORTCUT = {
     OPEN_SETTINGS: { shortcutKey: ',', mod: true },
     /** API 调试：执行请求 */
     RUN: { shortcutKey: 'Enter', mod: true },
+    /** API 调试：打开请求历史 */
+    HISTORY: { shortcutKey: 'h', mod: true },
     /** 编辑器：保存 */
     SAVE: { shortcutKey: 's', mod: true },
     /** 撤销 / 重做 */

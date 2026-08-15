@@ -11,6 +11,7 @@ describe('config storage allowlist', () => {
             expect(isConfigStorageFileName(fileName)).toBe(true);
             expect(assertConfigStorageFileName(fileName)).toBe(fileName);
         }
+        expect(isConfigStorageFileName('request-history.json')).toBe(true);
     });
 
     it('rejects absolute paths, traversal, empty names, and unknown files', () => {

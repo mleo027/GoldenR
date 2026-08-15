@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTabsActions, useActiveTab } from './useTabs';
 import { useRunLogActions } from './useRunLog';
 import { useApiDebugEnv } from './useApiDebugEnv';
+import { useRequestHistoryActions } from './useRequestHistory';
 import {
     canInvokeKcbp,
     cancelKcbpCall,
@@ -10,6 +11,10 @@ import {
     KCBP_MSGTYPE_REQUIRED_MESSAGE,
 } from '../services/kcbpCallService';
 import { isKcbpCancelled } from '../utils/kcbp/kcbpCancel';
+import { createRequestHistoryId } from './requestHistoryData';
+import { getActiveKcxpEnvironment } from '../utils/workspace/kcxpEnvironment';
+import { parseKcbpAddress } from '../utils/kcbp/kcbpAddress';
+import { parseKcbpResponseStatus } from '../utils/kcbp/kcbpResponse';
 import { flushAllTabDrafts } from '../utils/workspace/tabDraftRegistry';
 import {
     getCaseLabel,
@@ -28,20 +33,25 @@ import { useScriptConsoleActions } from './useScriptConsole';
 export function KcbpCallProvider({ children }: { children: ReactNode }) {
     const { updateTab } = useTabsActions();
     const { env } = useApiDebugEnv();
-    const { activeTab, activeCaseIndex } = useActiveTab();
+    const { activeProject, activeTab, activeCaseIndex } = useActiveTab();
     const { setResponse } = useResponseActions();
     const { setScriptConsole } = useScriptConsoleActions();
     const { pushLog } = useRunLogActions();
+    const { addEntry } = useRequestHistoryActions();
     const [runningCaseId, setRunningCaseId] = useState<string | null>(null);
     const callGenerationRef = useRef(0);
     const runningCaseIdRef = useRef<string | null>(null);
     const activeTabRef = useRef(activeTab);
+    const activeProjectRef = useRef(activeProject);
     const activeCaseIndexRef = useRef(activeCaseIndex);
+    const envRef = useRef(env);
     const editorModeRef = useRef(env.editorMode);
     const feedbackRef = useRef<KcbpFeedbackHandler | null>(null);
 
     activeTabRef.current = activeTab;
+    activeProjectRef.current = activeProject;
     activeCaseIndexRef.current = activeCaseIndex;
+    envRef.current = env;
     editorModeRef.current = env.editorMode;
 
     const registerFeedback = useCallback((handler: KcbpFeedbackHandler | null) => {
@@ -134,6 +144,48 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
                 message: feedback.message,
                 timestamp: Date.now(),
             });
+
+            const addressParts = parseKcbpAddress(tab.address);
+            const project = activeProjectRef.current;
+            const environment = getActiveKcxpEnvironment(
+                envRef.current.kcxpEnvironments,
+                envRef.current.activeKcxpEnvironmentId,
+            );
+            const responseStatus = parseKcbpResponseStatus(outcome.response);
+            addEntry({
+                id: createRequestHistoryId(),
+                timestamp: Date.now(),
+                projectId: project.id,
+                projectName: project.name,
+                caseId: tab.id,
+                caseName,
+                mode: editorMode,
+                environmentId: environment.id,
+                environmentName: environment.name,
+                request: {
+                    address: tab.address,
+                    msgtype: outcome.msgtype || msgtype,
+                    queue: addressParts.queue.trim() || undefined,
+                    timeout: addressParts.timeout.trim() || undefined,
+                    params: tab.params,
+                    script: tab.script,
+                    runInput: tab.runInput,
+                },
+                response: outcome.response,
+                outcome: {
+                    success: feedback.level === 'success' || feedback.level === 'info',
+                    rows: outcome.response.stats?.rows,
+                    timecost: outcome.response.stats?.timecost,
+                    dataSize: JSON.stringify(outcome.response.data).length,
+                    businessCode: responseStatus.businessCode,
+                    transportCode: responseStatus.transportCode,
+                    message: feedback.message,
+                    scriptError: outcome.scriptError,
+                    scriptTest: outcome.scriptTest,
+                    callSteps: outcome.callSteps,
+                    scriptConsole: outcome.scriptConsole,
+                },
+            });
         } catch (error) {
             if (callId !== callGenerationRef.current || isKcbpCancelled(error)) return;
 
@@ -165,13 +217,53 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
                 message: errorMessage,
                 timestamp: Date.now(),
             });
+
+            const addressParts = parseKcbpAddress(tab.address);
+            const project = activeProjectRef.current;
+            const environment = getActiveKcxpEnvironment(
+                envRef.current.kcxpEnvironments,
+                envRef.current.activeKcxpEnvironmentId,
+            );
+            const errorResponse = {
+                code: '-1',
+                message: errorMessage,
+                data: [],
+                calledAt: Date.now(),
+            };
+            addEntry({
+                id: createRequestHistoryId(),
+                timestamp: Date.now(),
+                projectId: project.id,
+                projectName: project.name,
+                caseId: tab.id,
+                caseName,
+                mode: editorMode,
+                environmentId: environment.id,
+                environmentName: environment.name,
+                request: {
+                    address: tab.address,
+                    msgtype,
+                    queue: addressParts.queue.trim() || undefined,
+                    timeout: addressParts.timeout.trim() || undefined,
+                    params: tab.params,
+                    script: tab.script,
+                    runInput: tab.runInput,
+                },
+                response: errorResponse,
+                outcome: {
+                    success: false,
+                    dataSize: 0,
+                    transportCode: '-1',
+                    message: errorMessage,
+                },
+            });
         } finally {
             if (callId === callGenerationRef.current) {
                 runningCaseIdRef.current = null;
                 setRunningCaseId(null);
             }
         }
-    }, [cancelInFlight, notify, pushLog, setResponse, setScriptConsole, updateTab]);
+    }, [addEntry, cancelInFlight, notify, pushLog, setResponse, setScriptConsole, updateTab]);
 
     const value = useMemo(
         () => ({
