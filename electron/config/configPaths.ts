@@ -23,6 +23,7 @@ export function getBundledConfigDir(): string {
     return path.dirname(app.getPath('exe'));
 }
 
-export function resolveConfigPath(fileName: string): string {
-    return resolveConfigStoragePath(getConfigDir(), fileName);
+export function resolveConfigPath(fileName: string, fromUserData = false): string {
+    const baseDir = fromUserData ? app.getPath('userData') : getConfigDir();
+    return resolveConfigStoragePath(baseDir, fileName);
 }

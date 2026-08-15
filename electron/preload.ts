@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 import { isKcbpIpcCancelledResult, KCBP_CANCELLED_MESSAGE } from '../src/shared/kcbp/cancel';
 import { parseIpcError } from '../src/shared/ipc/errors';
 import type { ConfigWriteEntry, ImportFileFormat } from '../src/shared/electron/api';
+import type { ConfigStorageFileName } from '../src/shared/config/files';
 import type { KcbpRequestOptions, KcbpResponseData } from '../src/shared/kcbp/types';
 import type {
     DbConnectionConfig,
@@ -28,7 +29,7 @@ async function invoke<T>(channel: string, ...args: unknown[]): Promise<T> {
 
 contextBridge.exposeInMainWorld('electronAPI', {
     config: {
-        read: (name: string, fromUserData?: boolean) =>
+        read: (name: ConfigStorageFileName, fromUserData?: boolean) =>
             invoke<unknown>('readJsonFile', name, fromUserData),
         write: (name: string, data: unknown) => invoke<void>('writeJsonFile', name, data),
         flush: (entries: ConfigWriteEntry[]) =>

@@ -9,6 +9,7 @@ const mock = vi.hoisted(() => ({
 vi.mock('electron', () => ({
     app: {
         isPackaged: false,
+        getPath: () => process.cwd(),
     },
     ipcMain: {
         handle: (channel: string, handler: (...args: unknown[]) => unknown) => {
@@ -46,6 +47,9 @@ describe('storage IPC handlers', () => {
         const readResult = await invoke('readJsonFile', {}, 'project.json');
         expect(readResult).toEqual({ value: 1 });
         expect(mock.readJsonFileAt).toHaveBeenCalledTimes(1);
+
+        await invoke('readJsonFile', {}, 'project.json', true);
+        expect(mock.readJsonFileAt).toHaveBeenCalledTimes(2);
 
         await invoke('writeJsonFile', {}, 'project.json', { projects: [] });
         expect(mock.writeJsonFileAt).toHaveBeenCalledWith(expect.stringContaining('project.json'), {

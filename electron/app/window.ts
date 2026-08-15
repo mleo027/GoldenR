@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron';
 import { isWindowCloseAllowed } from './closeGuard';
 import { getBuildIconPath, getPreloadScriptPath } from '../paths';
+import { isTrustedDocumentUrl } from '../ipc/security';
 
 export function createMainWindow(): BrowserWindow {
     const win = new BrowserWindow({
@@ -18,6 +19,11 @@ export function createMainWindow(): BrowserWindow {
     });
 
     win.setMenuBarVisibility(false);
+
+    win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+    win.webContents.on('will-navigate', (event, url) => {
+        if (!isTrustedDocumentUrl(url)) event.preventDefault();
+    });
 
     win.on('close', (event) => {
         if (process.platform === 'darwin' || isWindowCloseAllowed()) return;

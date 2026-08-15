@@ -18,11 +18,14 @@ function isConfigWriteEntry(value: unknown): value is { filePath: string; data: 
 export function registerStorageIpc(ctx: ElectronAppContext): void {
     ipcMain.handle(
         'readJsonFile',
-        withIpcError(async (_event, filePath: string) => {
+        withIpcError(async (_event, filePath: string, fromUserData?: boolean) => {
             if (typeof filePath !== 'string') {
                 throw invalidIpcArgument('Invalid config file path');
             }
-            const absPath = resolveConfigPath(filePath);
+            if (fromUserData !== undefined && typeof fromUserData !== 'boolean') {
+                throw invalidIpcArgument('Invalid config storage location');
+            }
+            const absPath = resolveConfigPath(filePath, fromUserData);
             return readJsonFileAt(absPath);
         }),
     );

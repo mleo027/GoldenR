@@ -31,7 +31,10 @@ try {
 const results = JSON.parse(stdout);
 const violations = results.flatMap((result) =>
     result.messages
-        .filter((message) => message.ruleId?.startsWith('complexity') || message.ruleId?.startsWith('max-'))
+        .filter(
+            (message) =>
+                message.ruleId?.startsWith('complexity') || message.ruleId?.startsWith('max-'),
+        )
         .map((message) => ({
             file: result.filePath,
             line: message.line,
@@ -40,7 +43,12 @@ const violations = results.flatMap((result) =>
         })),
 );
 
-console.log(`Complexity baseline violations: ${violations.length}`);
+const baseline = 46;
+console.log(`Complexity baseline violations: ${violations.length} (allowed baseline: ${baseline})`);
 for (const violation of violations) {
     console.log(`${violation.file}:${violation.line} [${violation.rule}] ${violation.message}`);
+}
+if (violations.length > baseline) {
+    console.error(`Complexity regression: ${violations.length - baseline} new violation(s)`);
+    process.exitCode = 1;
 }
