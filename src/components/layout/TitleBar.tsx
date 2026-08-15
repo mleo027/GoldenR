@@ -23,7 +23,7 @@ export default function TitleBar({
         const api = getElectronAPI();
         if (!api?.window.isMaximized) return;
 
-        void api.window.isMaximized().then(setIsMaximized);
+        void api.window.isMaximized().then(setIsMaximized).catch(console.error);
 
         const unsubscribe = api.window.onMaximizedChange?.(setIsMaximized);
         return () => unsubscribe?.();
@@ -66,7 +66,9 @@ export default function TitleBar({
                         type="text"
                         size="small"
                         icon={<MinusOutlined />}
-                        onClick={() => getElectronAPI()?.window.minimize?.()}
+                        onClick={() => {
+                            void getElectronAPI()?.window.minimize?.().catch(console.error);
+                        }}
                         className="!p-1.5 window-control-btn"
                     />
                 </Tooltip>
@@ -76,7 +78,10 @@ export default function TitleBar({
                         size="small"
                         icon={isMaximized ? <BlockOutlined /> : <BorderOutlined />}
                         onClick={() => {
-                            void getElectronAPI()?.window.toggleMaximize?.().then(setIsMaximized);
+                            void getElectronAPI()
+                                ?.window.toggleMaximize?.()
+                                .then(setIsMaximized)
+                                .catch(console.error);
                         }}
                         className="!p-1.5 window-control-btn"
                     />

@@ -38,7 +38,13 @@ export function TabsProvider({ children }: { children: ReactNode }) {
                     dispatch({ type: 'MARK_LOADED' });
                 }
             })
-            .catch(console.error);
+            .catch((error) => {
+                console.error('Failed to load workspace:', error);
+                lastSavedProjectsHashRef.current = hashPersistedProjects(
+                    workspaceRef.current.projects,
+                );
+                dispatch({ type: 'MARK_LOADED' });
+            });
     }, []);
 
     useEffect(() => {

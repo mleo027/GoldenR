@@ -34,7 +34,11 @@ export function AppEnvProvider({ children }: { children: ReactNode }) {
                 setEnv(cached);
                 setLoaded(true);
             })
-            .catch(console.error);
+            .catch((error) => {
+                console.error('Failed to load app env:', error);
+                persistedEnvRef.current = { ...DEFAULT_APP_ENV };
+                setLoaded(true);
+            });
     }, []);
 
     useEffect(() => {

@@ -22,7 +22,7 @@ export const CONTENT_EDGE_INSET_PX = 10;
 
 /** 布局最小宽度（防止拖拽分栏后 UI 挤压变形） */
 export const LAYOUT_MIN_WIDTH_PX = {
-    window: 1024,
+    window: 720,
     sidebar: 240,
     mainPanel: 720,
     pathBar: 640,

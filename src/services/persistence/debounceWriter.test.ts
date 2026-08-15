@@ -57,6 +57,47 @@ describe('DebounceWriter', () => {
         expect(write).toHaveBeenCalledTimes(2);
     });
 
+    it('keeps a newer scheduled value when an older write fails', async () => {
+        vi.useFakeTimers();
+        let rejectFirst: ((error: Error) => void) | undefined;
+        const write = vi
+            .fn()
+            .mockImplementationOnce(
+                () =>
+                    new Promise<void>((_resolve, reject) => {
+                        rejectFirst = reject;
+                    }),
+            )
+            .mockResolvedValueOnce(undefined);
+        const writer = new DebounceWriter({ write, delayMs: 10 });
+        writer.schedule('first');
+
+        await vi.advanceTimersByTimeAsync(10);
+        writer.schedule('second-latest');
+        rejectFirst?.(new Error('disk busy'));
+
+        await expect(writer.flush()).resolves.toBeUndefined();
+
+        expect(write).toHaveBeenCalledTimes(2);
+        expect(write).toHaveBeenLastCalledWith('second-latest');
+        vi.useRealTimers();
+    });
+
+    it('handles timer-driven write failures without leaking a rejected promise', async () => {
+        vi.useFakeTimers();
+        const onError = vi.fn();
+        const write = vi.fn().mockRejectedValue(new Error('disk busy'));
+        const writer = new DebounceWriter({ write, delayMs: 10, onError });
+        writer.schedule('value');
+
+        await vi.advanceTimersByTimeAsync(10);
+
+        expect(write).toHaveBeenCalledTimes(1);
+        expect(onError).toHaveBeenCalledWith(new Error('disk busy'));
+        expect(writer.hasPending).toBe(true);
+        vi.useRealTimers();
+    });
+
     it('writes pending data on dispose', async () => {
         const write = vi.fn(async () => undefined);
         const writer = new DebounceWriter({ write, delayMs: 100 });

@@ -35,7 +35,7 @@ export class DebounceWriter<T> {
         }
         this.timer = this.scheduleTimer(() => {
             this.timer = null;
-            void this.drain();
+            void this.drain().catch(() => undefined);
         }, this.delayMs);
     }
 
@@ -72,11 +72,15 @@ export class DebounceWriter<T> {
         const value = this.pendingValue;
         if (value === undefined) return;
         this.pendingValue = undefined;
-        this.writing = this.writeValue(value).catch((error: unknown) => {
-            this.pendingValue = value;
-            this.onError?.(error);
-            throw error;
-        });
+        this.writing = Promise.resolve()
+            .then(() => this.writeValue(value))
+            .catch((error: unknown) => {
+                if (this.pendingValue === undefined) {
+                    this.pendingValue = value;
+                }
+                this.onError?.(error);
+                throw error;
+            });
         try {
             await this.writing;
         } finally {

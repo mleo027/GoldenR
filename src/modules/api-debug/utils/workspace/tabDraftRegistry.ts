@@ -4,6 +4,7 @@ type DraftFlusher = () => void;
 
 export interface TabDraftSnapshot {
     params?: ParamItem[];
+    address?: string;
 }
 
 type TabDraftReader = () => TabDraftSnapshot;

@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
+import { allowWindowClose } from './closeGuard';
 import { FlushCoordinator } from './flushCoordinator';
 
 const flushCoordinator = new FlushCoordinator({
@@ -7,6 +8,7 @@ const flushCoordinator = new FlushCoordinator({
         if (reason === 'timeout') {
             console.error(`App flush timed out for request ${requestId}`);
         }
+        allowWindowClose();
         app.exit(0);
     },
 });

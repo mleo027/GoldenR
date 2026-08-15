@@ -3,12 +3,12 @@ import { flushPendingAppEnvSaveAsync } from '../store/appEnvData';
 import { getElectronAPI } from './electron';
 
 export async function flushAllPersistedState(): Promise<void> {
-    await flushPendingAppEnvSaveAsync();
-    const results = await Promise.allSettled(
-        APP_MODULES.map(async (module) => {
+    const results = await Promise.allSettled([
+        flushPendingAppEnvSaveAsync(),
+        ...APP_MODULES.map(async (module) => {
             await module.flushPersistedState?.();
         }),
-    );
+    ]);
     const errors = results
         .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
         .map((result) => result.reason);

@@ -10,7 +10,8 @@ export function useUserDataDir(): string | null {
             ?.app.getUserDataDir?.()
             .then((value) => {
                 if (!cancelled) setDir(value);
-            });
+            })
+            .catch(console.error);
         return () => {
             cancelled = true;
         };

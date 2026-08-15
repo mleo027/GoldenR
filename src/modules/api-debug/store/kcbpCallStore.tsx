@@ -80,15 +80,18 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
             cancelInFlight();
         }
 
-        const tab = activeTabRef.current;
+        const drafts = flushAllTabDrafts();
+        const tab = {
+            ...activeTabRef.current,
+            ...(drafts.params ? { params: drafts.params } : {}),
+            ...(typeof drafts.address === 'string' ? { address: drafts.address } : {}),
+        };
         const resolvedMsgtype =
             parseMsgtypeFromAddress(tab.address).trim() || resolveMsgtypeFromParams(tab.params);
         if (!resolvedMsgtype) {
             notify('warning', KCBP_MSGTYPE_REQUIRED_MESSAGE);
             return;
         }
-
-        flushAllTabDrafts();
 
         const caseIndex = activeCaseIndexRef.current;
         const callId = ++callGenerationRef.current;

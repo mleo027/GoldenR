@@ -9,6 +9,7 @@ import { useKcbpCall } from '../hooks/useKcbpCall';
 import { ApiDebugProviders } from './ApiDebugProviders';
 import { AppEnvProvider } from '../../../store/appEnvStore';
 import { UndoRedoProvider } from '../../../platform/undo';
+import { registerTabDraftReader } from '../utils/workspace/tabDraftRegistry';
 
 const successRaw: KcbpResponseData = {
     code: '0',
@@ -138,5 +139,31 @@ describe('KcbpCallProvider integration', () => {
         await waitFor(() => expect(screen.getByText('idle')).toBeTruthy());
         expect(mockCancelKcbp).toHaveBeenCalledTimes(1);
         resolveCall(successRaw);
+    });
+
+    it('runs with pending address and params from draft readers', async () => {
+        const unregisterDraftReader = registerTabDraftReader(() => ({
+            address: '127.0.0.1:21000/999999',
+            params: [{ name: 'market', value: '2', type: 'string' }],
+        }));
+        mockCallKcbp.mockResolvedValue(successRaw);
+        const user = userEvent.setup();
+        renderProviders(<Harness />);
+
+        try {
+            await user.click(screen.getByRole('button', { name: 'run' }));
+
+            await waitFor(() => expect(mockCallKcbp).toHaveBeenCalledTimes(1));
+            const payload = mockCallKcbp.mock.calls[0][0] as {
+                connection: { ip?: string; port?: string };
+                param: { msgtype?: string; fields?: Record<string, string> };
+            };
+            expect(payload.connection.ip).toBe('127.0.0.1');
+            expect(payload.connection.port).toBe('21000');
+            expect(payload.param.msgtype).toBe('999999');
+            expect(payload.param.fields).toMatchObject({ market: '2' });
+        } finally {
+            unregisterDraftReader();
+        }
     });
 });

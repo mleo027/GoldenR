@@ -5,5 +5,8 @@ export function canInvokeKcbp(): boolean {
 }
 
 export function cancelKcbpCall(): void {
-    void getElectronAPI()?.kcbp.cancel?.();
+    const cancel = getElectronAPI()?.kcbp.cancel;
+    if (cancel) {
+        void cancel().catch(console.error);
+    }
 }

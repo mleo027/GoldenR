@@ -10,6 +10,20 @@ describe('IPC error protocol', () => {
         });
     });
 
+    it('parses a typed payload wrapped by ipcRenderer.invoke', () => {
+        const wrapped = new Error(
+            `Error invoking remote method 'readJsonFile': Error: IPC_ERROR:${JSON.stringify({
+                code: 'INVALID_ARGUMENT',
+                message: 'bad request',
+            })} (wrapped)`,
+        );
+
+        expect(parseIpcError(wrapped)).toEqual({
+            code: 'INVALID_ARGUMENT',
+            message: 'bad request',
+        });
+    });
+
     it('preserves IpcError code and message', () => {
         expect(createIpcErrorPayload(new IpcError('INVALID_CONFIG_FILE', 'unknown file'))).toEqual({
             code: 'INVALID_CONFIG_FILE',

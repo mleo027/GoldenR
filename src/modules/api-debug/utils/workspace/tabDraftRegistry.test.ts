@@ -30,12 +30,15 @@ describe('tabDraftRegistry', () => {
         registerTabDraftFlusher(flusher);
         registerTabDraftReader(() => ({
             params: [{ name: 'interestflag', value: '1', type: 'string' }],
+            address: '127.0.0.1:21000/150501',
         }));
 
         const snapshot = flushAllTabDrafts();
 
         expect(snapshot.params).toEqual([{ name: 'interestflag', value: '1', type: 'string' }]);
+        expect(snapshot.address).toBe('127.0.0.1:21000/150501');
         expect(flusher).toHaveBeenCalledOnce();
         expect(readPendingTabDrafts().params).toEqual(snapshot.params);
+        expect(readPendingTabDrafts().address).toBe(snapshot.address);
     });
 });

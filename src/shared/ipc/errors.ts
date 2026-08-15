@@ -45,11 +45,44 @@ export function serializeIpcError(payload: IpcErrorPayload): Error {
 }
 
 export function parseIpcError(error: unknown): IpcErrorPayload | null {
-    if (!(error instanceof Error) || !error.message.startsWith(IPC_ERROR_PREFIX)) {
-        return null;
+    if (!(error instanceof Error)) return null;
+
+    const prefixIndex = error.message.indexOf(IPC_ERROR_PREFIX);
+    if (prefixIndex === -1) return null;
+
+    const jsonStart = error.message.indexOf('{', prefixIndex + IPC_ERROR_PREFIX.length);
+    if (jsonStart === -1) return null;
+
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+    let jsonEnd = -1;
+    for (let index = jsonStart; index < error.message.length; index += 1) {
+        const char = error.message[index];
+        if (inString) {
+            if (escaped) {
+                escaped = false;
+            } else if (char === '\\') {
+                escaped = true;
+            } else if (char === '"') {
+                inString = false;
+            }
+        } else if (char === '"') {
+            inString = true;
+        } else if (char === '{') {
+            depth += 1;
+        } else if (char === '}') {
+            depth -= 1;
+            if (depth === 0) {
+                jsonEnd = index;
+                break;
+            }
+        }
     }
+    if (jsonEnd === -1) return null;
+
     try {
-        const payload = JSON.parse(error.message.slice(IPC_ERROR_PREFIX.length)) as unknown;
+        const payload = JSON.parse(error.message.slice(jsonStart, jsonEnd + 1)) as unknown;
         if (
             payload &&
             typeof payload === 'object' &&

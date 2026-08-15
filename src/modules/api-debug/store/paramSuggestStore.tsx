@@ -35,7 +35,12 @@ export function ParamSuggestProvider({ children }: { children: ReactNode }) {
                 setLoaded(true);
                 void reloadMainProcessSuggestConfig();
             })
-            .catch(console.error);
+            .catch((error) => {
+                console.error('Failed to load param suggest config:', error);
+                persistedDbRef.current = { ...DEFAULT_DB_CONFIG };
+                persistedRulesRef.current = [];
+                setLoaded(true);
+            });
     }, []);
 
     useEffect(() => {

@@ -1,11 +1,12 @@
-import { BrowserWindow } from 'electron';
+import { app, BrowserWindow } from 'electron';
+import { isWindowCloseAllowed } from './closeGuard';
 import { getBuildIconPath, getPreloadScriptPath } from '../paths';
 
 export function createMainWindow(): BrowserWindow {
     const win = new BrowserWindow({
         width: 1200,
         height: 800,
-        minWidth: 1024,
+        minWidth: 720,
         minHeight: 560,
         frame: false,
         icon: getBuildIconPath(),
@@ -17,6 +18,12 @@ export function createMainWindow(): BrowserWindow {
     });
 
     win.setMenuBarVisibility(false);
+
+    win.on('close', (event) => {
+        if (process.platform === 'darwin' || isWindowCloseAllowed()) return;
+        event.preventDefault();
+        app.quit();
+    });
 
     const sendMaximizedState = () => {
         win.webContents.send('window:maximized-changed', win.isMaximized());

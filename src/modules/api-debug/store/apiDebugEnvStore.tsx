@@ -34,7 +34,11 @@ export function ApiDebugEnvProvider({ children }: { children: ReactNode }) {
                 setEnv(cached);
                 setLoaded(true);
             })
-            .catch(console.error);
+            .catch((error) => {
+                console.error('Failed to load API debug env:', error);
+                persistedEnvRef.current = { ...DEFAULT_API_DEBUG_ENV };
+                setLoaded(true);
+            });
     }, []);
 
     useEffect(() => {

@@ -335,6 +335,30 @@ describe('invokeKcbpCall', () => {
         expect(outcome.scriptTest?.message).toBe('脚本通过');
     });
 
+    it('uses effectiveAddress for the fallback request after a script error', async () => {
+        const injectedCall = vi.fn().mockResolvedValue(successRaw);
+        const injectedQuery = vi.fn().mockResolvedValue({ rows: [], columns: [] });
+        const scriptTab = {
+            ...tab,
+            script: `async function main() {
+  throw new Error('boom');
+}`,
+        };
+
+        const outcome = await invokeKcbpCall(scriptTab, 'script', {
+            effectiveAddress: '10.0.0.5:22000/150501',
+            electronDeps: {
+                callKcbp: injectedCall,
+                queryScriptSql: injectedQuery,
+            },
+        });
+
+        expect(outcome.scriptError).toBe('boom');
+        expect(injectedCall).toHaveBeenCalledTimes(1);
+        expect(injectedCall.mock.calls[0][0].connection.ip).toBe('10.0.0.5');
+        expect(injectedCall.mock.calls[0][0].connection.port).toBe('22000');
+    });
+
     it('runs tcd mode with ctx.input and records call steps', async () => {
         mockCallKcbp
             .mockResolvedValueOnce({ ...successRaw, code: '0', msg: 'ok1' })

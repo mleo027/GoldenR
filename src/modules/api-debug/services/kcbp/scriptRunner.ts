@@ -324,6 +324,7 @@ export async function runScriptOrTcdCase(
             fallbackPayload.binaryFields,
             tab.params,
             electronDeps,
+            effectiveAddress,
         );
         return attachCallSteps({
             ...outcome,

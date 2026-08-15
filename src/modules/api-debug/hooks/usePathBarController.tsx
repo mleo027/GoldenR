@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { App, message } from 'antd';
 import type { MenuProps } from 'antd';
 import {
@@ -13,7 +13,11 @@ import { useApiDebugEnv } from '../store/useApiDebugEnv';
 import { useResponse } from '../store/useResponse';
 import { useKcbpCall } from './useKcbpCall';
 import { useDebouncedCommit } from '../../../hooks/useDebouncedCommit';
-import { flushAllTabDrafts, registerTabDraftFlusher } from '../utils/workspace/tabDraftRegistry';
+import {
+    flushAllTabDrafts,
+    registerTabDraftFlusher,
+    registerTabDraftReader,
+} from '../utils/workspace/tabDraftRegistry';
 import { formatActiveScript } from '../utils/script/scriptFormatRegistry';
 import { generateTestScriptFromParams } from '../utils/script/apiScript';
 import { parseKcbpResponseStatus } from '../utils/kcbp/kcbpResponse';
@@ -57,8 +61,19 @@ export function usePathBarController({ layout, onQuickFill }: UsePathBarControll
         delayMs: UI_DEBOUNCE_MS.edit,
         onCommit: commitAddress,
     });
+    const addressDraftRef = useRef(addressDraft);
+    addressDraftRef.current = addressDraft;
 
-    useEffect(() => registerTabDraftFlusher(flushPending), [flushPending]);
+    useEffect(() => {
+        const unregisterFlusher = registerTabDraftFlusher(flushPending);
+        const unregisterReader = registerTabDraftReader(() => ({
+            address: addressDraftRef.current,
+        }));
+        return () => {
+            unregisterFlusher();
+            unregisterReader();
+        };
+    }, [flushPending]);
 
     useEffect(
         () => () => {

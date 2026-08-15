@@ -5,9 +5,15 @@ import { flushAllTabDrafts } from './utils/workspace/tabDraftRegistry';
 
 export async function flushApiDebugPersistedState(): Promise<void> {
     flushAllTabDrafts();
-    await Promise.all([
+    const results = await Promise.allSettled([
         flushPendingSavesAsync(),
         flushPendingApiDebugEnvSaveAsync(),
         flushPendingParamSuggestSaveAsync(),
     ]);
+    const errors = results
+        .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
+        .map((result) => result.reason);
+    if (errors.length > 0) {
+        throw new Error(`ApiDebug persisted state flush failed: ${errors.map(String).join('; ')}`);
+    }
 }

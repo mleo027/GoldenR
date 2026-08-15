@@ -11,11 +11,7 @@ export function createElectronConfigStoragePort(): ConfigStoragePort {
         async read(name, fromUserData) {
             const api = getElectronAPI();
             if (!api) return null;
-            try {
-                return await api.config.read(name, fromUserData);
-            } catch {
-                return null;
-            }
+            return api.config.read(name, fromUserData);
         },
         async write(name, data) {
             const api = getElectronAPI();
