@@ -2,8 +2,17 @@ import { useReducer, useCallback, useMemo, useEffect, useRef, type ReactNode } f
 import type { TabData } from '../types/workspace';
 import type { KcxpApplyScope, KcxpEnvironment } from '../types/kcxp';
 import { TabsActionsContext, TabsStateContext, type TabsContextValue } from './TabsContext';
-import { loadWorkspace, saveProjects, saveSettings, hashPersistedProjects } from './tabsData';
+import {
+    applyTabDraftsToWorkspace,
+    flushPendingSavesAsync,
+    hashPersistedProjects,
+    loadWorkspace,
+    saveProjects,
+    saveSettings,
+} from './tabsData';
 import { flushAllPersistedState } from '../../../lib/persistFlush';
+import { flushAllTabDrafts } from '../utils/workspace/tabDraftRegistry';
+import { registerWorkspaceDraftFlusher } from './workspaceFlushRegistry';
 import {
     buildAddressFromKcxpEnvironment,
     getActiveKcxpEnvironment,
@@ -26,7 +35,9 @@ export function TabsProvider({ children }: { children: ReactNode }) {
     const { env: apiEnv } = useApiDebugEnv();
     const [state, dispatch] = useReducer(tabsReducer, initialState);
     const workspaceRef = useRef(state);
+    const latestWorkspaceRef = useRef(state);
     const lastSavedProjectsHashRef = useRef<string | null>(null);
+    latestWorkspaceRef.current = state;
 
     useEffect(() => {
         void loadWorkspace()
@@ -78,6 +89,38 @@ export function TabsProvider({ children }: { children: ReactNode }) {
 
         workspaceRef.current = state;
     }, [state, env.autoSave]);
+
+    const flushWorkspace = useCallback(async () => {
+        const errors: unknown[] = [];
+        let drafts: ReturnType<typeof flushAllTabDrafts> = {};
+        try {
+            drafts = flushAllTabDrafts();
+        } catch (error) {
+            errors.push(error);
+        }
+
+        const workspace = latestWorkspaceRef.current;
+        try {
+            if (workspace.loaded && env.autoSave) {
+                const next = applyTabDraftsToWorkspace(workspace, drafts);
+                if (
+                    hashPersistedProjects(next.projects) !==
+                    hashPersistedProjects(workspace.projects)
+                ) {
+                    saveProjects(next.projects);
+                }
+            }
+            await flushPendingSavesAsync();
+        } catch (error) {
+            errors.push(error);
+        }
+
+        if (errors.length > 0) {
+            throw new Error(`Workspace flush failed: ${errors.map(String).join('; ')}`);
+        }
+    }, [env.autoSave]);
+
+    useEffect(() => registerWorkspaceDraftFlusher(flushWorkspace), [flushWorkspace]);
 
     useEffect(() => {
         const handleBeforeUnload = () => {

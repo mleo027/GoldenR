@@ -16,6 +16,7 @@ import { sortCasesByMsgtype, resolveCaseIndexById } from '../utils/workspace/cas
 import { sanitizeOpenCaseIds } from '../utils/workspace/openCaseTabs';
 import { normalizeParamList } from '../utils/workspace/paramItem';
 import { resolveCaseScript } from '../utils/script/apiScript';
+import type { TabDraftSnapshot } from '../utils/workspace/tabDraftRegistry';
 import type { ConfigStorageFileName } from '@/shared/config/files';
 import { UI_DEBOUNCE_MS } from '../../../constants/ui';
 import { configStorage } from '../../../services/persistence/configStorage';
@@ -205,6 +206,35 @@ export function saveProjects(projects: ProjectData[]): void {
 
 export function hashPersistedProjects(projects: ProjectData[]): string {
     return JSON.stringify(toProjectFileData(projects));
+}
+
+export function applyTabDraftsToWorkspace(
+    workspace: PersistedWorkspace,
+    drafts: TabDraftSnapshot,
+): PersistedWorkspace {
+    const hasDrafts =
+        drafts.address !== undefined || drafts.params !== undefined || drafts.script !== undefined;
+    if (!hasDrafts) return workspace;
+
+    return {
+        ...workspace,
+        projects: workspace.projects.map((project, projectIndex) => {
+            if (projectIndex !== workspace.activeProjectIndex) return project;
+            return {
+                ...project,
+                cases: project.cases.map((item, caseIndex) => {
+                    if (caseIndex !== workspace.activeCaseIndex) return item;
+                    return {
+                        ...item,
+                        ...(drafts.address !== undefined ? { address: drafts.address } : {}),
+                        ...(drafts.params !== undefined ? { params: drafts.params } : {}),
+                        ...(drafts.script !== undefined ? { script: drafts.script } : {}),
+                        updatedAt: Date.now(),
+                    };
+                }),
+            };
+        }),
+    };
 }
 
 function flushProjectSaveSync(): void {

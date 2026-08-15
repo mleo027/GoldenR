@@ -85,6 +85,7 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
             ...activeTabRef.current,
             ...(drafts.params ? { params: drafts.params } : {}),
             ...(typeof drafts.address === 'string' ? { address: drafts.address } : {}),
+            ...(typeof drafts.script === 'string' ? { script: drafts.script } : {}),
         };
         const resolvedMsgtype =
             parseMsgtypeFromAddress(tab.address).trim() || resolveMsgtypeFromParams(tab.params);

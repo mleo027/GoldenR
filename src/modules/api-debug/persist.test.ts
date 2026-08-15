@@ -4,7 +4,7 @@ const mocks = vi.hoisted(() => ({
     flushTabs: vi.fn(),
     flushEnv: vi.fn(),
     flushSuggest: vi.fn(),
-    flushDrafts: vi.fn(),
+    flushWorkspace: vi.fn(),
 }));
 
 vi.mock('./store/tabsData', () => ({
@@ -19,8 +19,8 @@ vi.mock('./store/paramSuggestData', () => ({
     flushPendingParamSuggestSaveAsync: mocks.flushSuggest,
 }));
 
-vi.mock('./utils/workspace/tabDraftRegistry', () => ({
-    flushAllTabDrafts: mocks.flushDrafts,
+vi.mock('./store/workspaceFlushRegistry', () => ({
+    flushWorkspaceDrafts: mocks.flushWorkspace,
 }));
 
 import { flushApiDebugPersistedState } from './persist';
@@ -30,18 +30,18 @@ describe('flushApiDebugPersistedState', () => {
         mocks.flushTabs.mockReset();
         mocks.flushEnv.mockReset();
         mocks.flushSuggest.mockReset();
-        mocks.flushDrafts.mockReset();
-        mocks.flushDrafts.mockReturnValue({});
+        mocks.flushWorkspace.mockReset();
     });
 
     it('starts all api-debug flushes concurrently', async () => {
         mocks.flushTabs.mockResolvedValue(undefined);
         mocks.flushEnv.mockResolvedValue(undefined);
         mocks.flushSuggest.mockResolvedValue(undefined);
+        mocks.flushWorkspace.mockResolvedValue(undefined);
 
         await flushApiDebugPersistedState();
 
-        expect(mocks.flushDrafts).toHaveBeenCalledOnce();
+        expect(mocks.flushWorkspace).toHaveBeenCalledOnce();
         expect(mocks.flushTabs).toHaveBeenCalledOnce();
         expect(mocks.flushEnv).toHaveBeenCalledOnce();
         expect(mocks.flushSuggest).toHaveBeenCalledOnce();
@@ -51,8 +51,10 @@ describe('flushApiDebugPersistedState', () => {
         mocks.flushTabs.mockResolvedValue(undefined);
         mocks.flushEnv.mockRejectedValue(new Error('env failed'));
         mocks.flushSuggest.mockResolvedValue(undefined);
+        mocks.flushWorkspace.mockResolvedValue(undefined);
 
         await expect(flushApiDebugPersistedState()).rejects.toThrow('env failed');
+        expect(mocks.flushWorkspace).toHaveBeenCalledOnce();
         expect(mocks.flushTabs).toHaveBeenCalledOnce();
         expect(mocks.flushSuggest).toHaveBeenCalledOnce();
     });

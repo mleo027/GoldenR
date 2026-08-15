@@ -1,11 +1,11 @@
 import { flushPendingApiDebugEnvSaveAsync } from './store/apiDebugEnvData';
 import { flushPendingParamSuggestSaveAsync } from './store/paramSuggestData';
 import { flushPendingSavesAsync } from './store/tabsData';
-import { flushAllTabDrafts } from './utils/workspace/tabDraftRegistry';
+import { flushWorkspaceDrafts } from './store/workspaceFlushRegistry';
 
 export async function flushApiDebugPersistedState(): Promise<void> {
-    flushAllTabDrafts();
     const results = await Promise.allSettled([
+        flushWorkspaceDrafts(),
         flushPendingSavesAsync(),
         flushPendingApiDebugEnvSaveAsync(),
         flushPendingParamSuggestSaveAsync(),

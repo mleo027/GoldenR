@@ -5,6 +5,7 @@ type DraftFlusher = () => void;
 export interface TabDraftSnapshot {
     params?: ParamItem[];
     address?: string;
+    script?: string;
 }
 
 type TabDraftReader = () => TabDraftSnapshot;
@@ -36,8 +37,16 @@ export function readPendingTabDrafts(): TabDraftSnapshot {
 
 export function flushAllTabDrafts(): TabDraftSnapshot {
     const snapshot = readPendingTabDrafts();
+    const errors: unknown[] = [];
     flushers.forEach((flusher) => {
-        flusher();
+        try {
+            flusher();
+        } catch (error) {
+            errors.push(error);
+        }
     });
+    if (errors.length > 0) {
+        throw new Error(`Tab draft flush failed: ${errors.map(String).join('; ')}`);
+    }
     return snapshot;
 }

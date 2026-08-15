@@ -63,10 +63,7 @@ export class DebounceWriter<T> {
     private async drain(): Promise<void> {
         if (this.writing) {
             await this.writing.catch(() => undefined);
-            if (this.pendingValue !== undefined) {
-                return this.drain();
-            }
-            return;
+            return this.drain();
         }
 
         const value = this.pendingValue;

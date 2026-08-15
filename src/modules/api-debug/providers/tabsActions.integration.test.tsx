@@ -6,13 +6,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppEnvProvider } from '../../../store/appEnvStore';
 import { UndoRedoProvider } from '../../../platform/undo';
 import { useTabsActions, useTabsState } from '../store/useTabs';
+import { flushWorkspaceDrafts } from '../store/workspaceFlushRegistry';
+import { registerTabDraftReader } from '../utils/workspace/tabDraftRegistry';
 import { ApiDebugProviders } from './ApiDebugProviders';
 
-const mockWrite = vi.fn(async () => undefined);
+const mockWrite = vi.fn<(name: string, data: unknown) => Promise<void>>(async () => undefined);
 
 function Harness() {
     const { state } = useTabsState();
     const { addProject, addCase, renameCase } = useTabsActions();
+    const activeTab = state.projects[state.activeProjectIndex]?.cases[state.activeCaseIndex];
     const activeProjectIndex = state.activeProjectIndex;
     const activeCaseIndex = state.activeCaseIndex;
     const lastCaseIndex = (state.projects[activeProjectIndex]?.cases.length ?? 1) - 1;
@@ -38,6 +41,8 @@ function Harness() {
             <span data-testid="active-name">
                 {state.projects[activeProjectIndex]?.cases[activeCaseIndex]?.name}
             </span>
+            <span data-testid="tabs-loaded">{String(state.loaded)}</span>
+            <span data-testid="active-address">{activeTab?.address}</span>
         </div>
     );
 }
@@ -131,5 +136,34 @@ describe('TabsActions integration', () => {
         await waitFor(() =>
             expect(mockWrite).toHaveBeenCalledWith('project.json', expect.anything()),
         );
+    });
+
+    it('persists pending draft fields directly during workspace flush', async () => {
+        const unregisterDraftReader = registerTabDraftReader(() => ({
+            address: '127.0.0.1:21000/777777',
+            params: [{ name: 'market', value: '2', type: 'string' }],
+            script: 'async function main() { return test.pass(); }',
+        }));
+        renderHarness();
+
+        try {
+            await waitFor(() => expect(screen.getByTestId('tabs-loaded').textContent).toBe('true'));
+            await flushWorkspaceDrafts();
+
+            await waitFor(() =>
+                expect(mockWrite).toHaveBeenCalledWith('project.json', expect.anything()),
+            );
+            const writeCalls = mockWrite.mock.calls.filter(([name]) => name === 'project.json');
+            const lastProjectWrite = writeCalls.at(-1)?.[1] as {
+                projects: Array<{ cases: Array<Record<string, unknown>> }>;
+            };
+            expect(lastProjectWrite.projects[0].cases[0]).toMatchObject({
+                address: '127.0.0.1:21000/777777',
+                params: [{ name: 'market', value: '2', type: 'string' }],
+                script: 'async function main() { return test.pass(); }',
+            });
+        } finally {
+            unregisterDraftReader();
+        }
     });
 });

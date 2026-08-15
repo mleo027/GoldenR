@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { KcbpResponseData } from '../../../types/kcbp';
 import { useKcbpCall } from '../hooks/useKcbpCall';
+import { useApiDebugEnv } from '../store/useApiDebugEnv';
 import { ApiDebugProviders } from './ApiDebugProviders';
 import { AppEnvProvider } from '../../../store/appEnvStore';
 import { UndoRedoProvider } from '../../../platform/undo';
@@ -23,6 +24,7 @@ const mockCancelKcbp = vi.fn();
 
 function Harness() {
     const { loading, run, cancel } = useKcbpCall();
+    const { env } = useApiDebugEnv();
     return (
         <div>
             <button type="button" onClick={() => void run()}>
@@ -32,6 +34,7 @@ function Harness() {
                 cancel
             </button>
             <span>{loading ? 'loading' : 'idle'}</span>
+            <span data-testid="editor-mode">{env.editorMode}</span>
         </div>
     );
 }
@@ -46,12 +49,12 @@ function renderProviders(children: ReactNode) {
     );
 }
 
-function stubElectronApi() {
+function stubElectronApi(options: { configRead?: (fileName: string) => Promise<unknown> } = {}) {
     Object.defineProperty(window, 'electronAPI', {
         configurable: true,
         value: {
             config: {
-                read: vi.fn(async () => null),
+                read: options.configRead ?? vi.fn(async () => null),
                 write: vi.fn(async () => undefined),
                 flush: vi.fn(async () => undefined),
             },
@@ -162,6 +165,37 @@ describe('KcbpCallProvider integration', () => {
             expect(payload.connection.port).toBe('21000');
             expect(payload.param.msgtype).toBe('999999');
             expect(payload.param.fields).toMatchObject({ market: '2' });
+        } finally {
+            unregisterDraftReader();
+        }
+    });
+
+    it('runs with a pending script from the script editor draft', async () => {
+        stubElectronApi({
+            configRead: vi.fn(async (fileName: string) =>
+                fileName === 'api-debug.env.json'
+                    ? { editorMode: 'script', kcxpEnvironments: [] }
+                    : null,
+            ),
+        });
+        const unregisterDraftReader = registerTabDraftReader(() => ({
+            script: `async function main(ctx) {
+  await call({ g_funcid: '888888' });
+  return test.pass('script draft ok');
+}`,
+        }));
+        mockCallKcbp.mockResolvedValue(successRaw);
+        const user = userEvent.setup();
+        renderProviders(<Harness />);
+
+        try {
+            await waitFor(() =>
+                expect(screen.getByTestId('editor-mode').textContent).toBe('script'),
+            );
+            await user.click(screen.getByRole('button', { name: 'run' }));
+
+            await waitFor(() => expect(mockCallKcbp).toHaveBeenCalledTimes(1));
+            expect(mockCallKcbp.mock.calls[0][0].param.msgtype).toBe('888888');
         } finally {
             unregisterDraftReader();
         }

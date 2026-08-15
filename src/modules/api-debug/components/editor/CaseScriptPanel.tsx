@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { App, Tooltip } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
@@ -8,7 +8,10 @@ import EditorModeToggle from './EditorModeToggle';
 import ResponseMeta from '../response/ResponseMeta';
 import { useTabsActions, useActiveTab } from '../../store/useTabs';
 import { useDebouncedCommit } from '../../../../hooks/useDebouncedCommit';
-import { registerTabDraftFlusher } from '../../utils/workspace/tabDraftRegistry';
+import {
+    registerTabDraftFlusher,
+    registerTabDraftReader,
+} from '../../utils/workspace/tabDraftRegistry';
 import { registerScriptFormatHandler } from '../../utils/script/scriptFormatRegistry';
 import { CASE_SCRIPT_API_HINT, resolveCaseScript } from '../../utils/script/apiScript';
 import { parseKcbpAddress } from '../../utils/kcbp/kcbpAddress';
@@ -53,6 +56,8 @@ export default function CaseScriptPanel() {
         onCommit: commitScript,
         isEqual: scriptsEqual,
     });
+    const scriptDraftRef = useRef(scriptDraft);
+    scriptDraftRef.current = scriptDraft;
 
     const handleFormatScript = useCallback(async () => {
         if (!scriptDraft.trim()) return;
@@ -72,6 +77,14 @@ export default function CaseScriptPanel() {
     }, [commitNow, message, scriptDraft, setDraftDebounced]);
 
     useEffect(() => registerTabDraftFlusher(flushPending), [flushPending]);
+
+    useEffect(
+        () =>
+            registerTabDraftReader(() => ({
+                script: scriptDraftRef.current,
+            })),
+        [],
+    );
 
     useEffect(() => registerScriptFormatHandler(handleFormatScript), [handleFormatScript]);
 

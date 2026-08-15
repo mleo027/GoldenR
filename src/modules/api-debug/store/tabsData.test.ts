@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createEmptyProject } from '../constants/workspace';
 import {
+    applyTabDraftsToWorkspace,
     createInitialWorkspace,
     flushPendingSaves,
     hashPersistedProjects,
@@ -111,6 +112,34 @@ describe('hashPersistedProjects', () => {
         ];
 
         expect(hashPersistedProjects(favorited)).not.toBe(baseline);
+    });
+});
+
+describe('applyTabDraftsToWorkspace', () => {
+    it('applies draft address, params and script to the active case', () => {
+        const workspace = normalizeWorkspace({
+            ...createInitialWorkspace(),
+            projects: [createEmptyProject(1)],
+            activeProjectIndex: 0,
+            activeCaseIndex: 0,
+        });
+        const next = applyTabDraftsToWorkspace(workspace, {
+            address: '127.0.0.1:21000/999999',
+            params: [{ name: 'market', value: '2', type: 'string' }],
+            script: 'async function main() { return test.pass(); }',
+        });
+
+        expect(next.projects[0].cases[0]).toMatchObject({
+            address: '127.0.0.1:21000/999999',
+            params: [{ name: 'market', value: '2', type: 'string' }],
+            script: 'async function main() { return test.pass(); }',
+        });
+    });
+
+    it('returns the same workspace when there are no draft fields', () => {
+        const workspace = normalizeWorkspace(createInitialWorkspace());
+
+        expect(applyTabDraftsToWorkspace(workspace, {})).toBe(workspace);
     });
 });
 

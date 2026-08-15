@@ -19,11 +19,11 @@ describe('DebounceWriter', () => {
 
     it('waits for an in-flight write before flushing pending data', async () => {
         vi.useFakeTimers();
-        let resolveFirst: (() => void) | undefined;
+        const resolvers: Array<() => void> = [];
         const write = vi.fn(
             () =>
                 new Promise<void>((resolve) => {
-                    resolveFirst = resolve;
+                    resolvers.push(resolve);
                 }),
         );
         const writer = new DebounceWriter({ write, delayMs: 50 });
@@ -33,12 +33,21 @@ describe('DebounceWriter', () => {
 
         const flushPromise = writer.flush();
         expect(write).toHaveBeenCalledTimes(1);
+        let flushResolved = false;
+        void flushPromise.then(() => {
+            flushResolved = true;
+        });
 
-        resolveFirst?.();
+        resolvers[0]?.();
+        await vi.advanceTimersByTimeAsync(0);
+        expect(write).toHaveBeenCalledTimes(2);
+        expect(flushResolved).toBe(false);
+
+        resolvers[1]?.();
         await flushPromise;
 
-        expect(write).toHaveBeenCalledTimes(2);
         expect(write).toHaveBeenLastCalledWith(2);
+        expect(flushResolved).toBe(true);
         vi.useRealTimers();
     });
 
