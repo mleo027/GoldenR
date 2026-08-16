@@ -1,5 +1,10 @@
-import type { ReactNode } from 'react';
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import type { ReactNode, RefObject } from 'react';
+import {
+    Panel,
+    PanelGroup,
+    PanelResizeHandle,
+    type ImperativePanelHandle,
+} from 'react-resizable-panels';
 import Card from '@/components/ui/primitives/Card';
 import { MODULE_LAYOUT_SIDEBAR_RATIO } from '@/constants/ui';
 import type { ModuleCardVariant } from './moduleCardVariant';
@@ -28,6 +33,8 @@ export interface PlatformModuleLayoutProps {
     autoSaveId: string;
     sidebar: ReactNode;
     main: ReactNode;
+    /** 隐藏侧栏并让主内容占满模块区域，例如历史页打开时 */
+    fullMain?: boolean;
     sidebarOptions?: ModuleSidebarLayoutOptions;
     mainOptions?: ModuleMainLayoutOptions;
     /** 模块级快捷键监听、Run 监听等 */
@@ -65,10 +72,103 @@ function wrapCard(
     );
 }
 
+interface ModulePanelsProps {
+    autoSaveId: string;
+    sidebar: ReactNode;
+    main: ReactNode;
+    sidebarConfig: Required<
+        Pick<ModuleSidebarLayoutOptions, 'defaultSize' | 'minSize' | 'maxSize' | 'card'>
+    >;
+    mainConfig: Required<Pick<ModuleMainLayoutOptions, 'minSize' | 'card'>>;
+    sidebarOptions?: ModuleSidebarLayoutOptions;
+    mainOptions?: ModuleMainLayoutOptions;
+    sidebarRef: RefObject<ImperativePanelHandle>;
+    sidebarCollapsed: boolean;
+    onCollapse: () => void;
+    onExpand: () => void;
+}
+
+function ModulePanels({
+    autoSaveId,
+    sidebar,
+    main,
+    sidebarConfig,
+    mainConfig,
+    sidebarOptions,
+    mainOptions,
+    sidebarRef,
+    sidebarCollapsed,
+    onCollapse,
+    onExpand,
+}: ModulePanelsProps) {
+    return (
+        <PanelGroup
+            direction="horizontal"
+            autoSaveId={autoSaveId}
+            className={`platform-module-panels min-h-0 flex-1${sidebarCollapsed ? ' platform-module-panels--sidebar-collapsed' : ''}`}
+        >
+            <Panel
+                ref={sidebarRef}
+                defaultSize={sidebarConfig.defaultSize}
+                minSize={sidebarConfig.minSize}
+                maxSize={sidebarConfig.maxSize}
+                collapsible
+                collapsedSize={0}
+                onCollapse={onCollapse}
+                onExpand={onExpand}
+                className={
+                    sidebarCollapsed
+                        ? 'layout-panel layout-panel-sidebar-collapsed min-w-0'
+                        : 'layout-panel layout-panel-sidebar min-w-0'
+                }
+            >
+                {!sidebarCollapsed
+                    ? wrapCard(sidebarConfig.card, sidebar, {
+                          padding: sidebarOptions?.padding,
+                          className: sidebarOptions?.className,
+                      })
+                    : null}
+            </Panel>
+
+            {!sidebarCollapsed ? <PanelResizeHandle className="case-sidebar-resize" /> : null}
+
+            <Panel
+                minSize={mainConfig.minSize}
+                className={`layout-panel layout-panel-main min-w-0${mainOptions?.panelClassName ? ` ${mainOptions.panelClassName}` : ''}`}
+            >
+                {wrapCard(mainConfig.card, main, {
+                    padding: mainOptions?.padding,
+                    className: mainOptions?.className,
+                })}
+            </Panel>
+        </PanelGroup>
+    );
+}
+
+function FullMainPanel({
+    main,
+    mainConfig,
+    mainOptions,
+}: {
+    main: ReactNode;
+    mainConfig: Required<Pick<ModuleMainLayoutOptions, 'minSize' | 'card'>>;
+    mainOptions?: ModuleMainLayoutOptions;
+}) {
+    return (
+        <div className="layout-panel layout-panel-main min-w-0">
+            {wrapCard(mainConfig.card, main, {
+                padding: mainOptions?.padding,
+                className: mainOptions?.className,
+            })}
+        </div>
+    );
+}
+
 export default function PlatformModuleLayout({
     autoSaveId,
     sidebar,
     main,
+    fullMain = false,
     sidebarOptions,
     mainOptions,
     listeners,
@@ -88,46 +188,23 @@ export default function PlatformModuleLayout({
     return (
         <div className="platform-module-layout flex min-h-0 min-w-0 flex-1 flex-col">
             {listeners}
-            <PanelGroup
-                direction="horizontal"
-                autoSaveId={autoSaveId}
-                className={`platform-module-panels min-h-0 flex-1${sidebarCollapsed ? ' platform-module-panels--sidebar-collapsed' : ''}`}
-            >
-                <Panel
-                    ref={sidebarRef}
-                    defaultSize={sidebarConfig.defaultSize}
-                    minSize={sidebarConfig.minSize}
-                    maxSize={sidebarConfig.maxSize}
-                    collapsible
-                    collapsedSize={0}
+            {fullMain ? (
+                <FullMainPanel main={main} mainConfig={mainConfig} mainOptions={mainOptions} />
+            ) : (
+                <ModulePanels
+                    autoSaveId={autoSaveId}
+                    sidebar={sidebar}
+                    main={main}
+                    sidebarConfig={sidebarConfig}
+                    mainConfig={mainConfig}
+                    sidebarOptions={sidebarOptions}
+                    mainOptions={mainOptions}
+                    sidebarRef={sidebarRef}
+                    sidebarCollapsed={sidebarCollapsed}
                     onCollapse={onCollapse}
                     onExpand={onExpand}
-                    className={
-                        sidebarCollapsed
-                            ? 'layout-panel layout-panel-sidebar-collapsed min-w-0'
-                            : 'layout-panel layout-panel-sidebar min-w-0'
-                    }
-                >
-                    {!sidebarCollapsed
-                        ? wrapCard(sidebarConfig.card, sidebar, {
-                              padding: sidebarOptions?.padding,
-                              className: sidebarOptions?.className,
-                          })
-                        : null}
-                </Panel>
-
-                {!sidebarCollapsed ? <PanelResizeHandle className="case-sidebar-resize" /> : null}
-
-                <Panel
-                    minSize={mainConfig.minSize}
-                    className={`layout-panel layout-panel-main min-w-0${mainOptions?.panelClassName ? ` ${mainOptions.panelClassName}` : ''}`}
-                >
-                    {wrapCard(mainConfig.card, main, {
-                        padding: mainOptions?.padding,
-                        className: mainOptions?.className,
-                    })}
-                </Panel>
-            </PanelGroup>
+                />
+            )}
             {overlays}
         </div>
     );

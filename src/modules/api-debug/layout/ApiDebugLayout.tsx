@@ -22,6 +22,7 @@ export default function ApiDebugLayout() {
     return (
         <PlatformModuleLayout
             autoSaveId="golden-case-layout-1x4"
+            fullMain={historyOpen}
             sidebar={<CaseSidebar ref={sidebarRef} onOpenHistory={openHistory} />}
             main={historyOpen ? <RequestHistoryPage onClose={closeHistory} /> : <Tab />}
             mainOptions={{ card: 'none' }}
