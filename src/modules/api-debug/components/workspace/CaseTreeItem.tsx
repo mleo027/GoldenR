@@ -1,6 +1,6 @@
 import { memo, type RefObject } from 'react';
 import type { InputRef } from 'antd';
-import { Button, Dropdown } from 'antd';
+import { Button, Dropdown, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import { CopyOutlined, StarFilled, StarOutlined } from '@ant-design/icons';
 import TextHighlight from '../../../../components/ui/TextHighlight';
@@ -31,23 +31,25 @@ interface CaseTreeItemProps {
 
 function FavoriteButton({ favorite, onToggle }: { favorite: boolean; onToggle: () => void }) {
     return (
-        <Button
-            type="text"
-            size="small"
-            icon={
-                favorite ? (
-                    <StarFilled className="case-item-star case-item-star-filled" />
-                ) : (
-                    <StarOutlined className="case-item-star" />
-                )
-            }
-            className="case-item-star-btn"
-            title={favorite ? '取消收藏' : '收藏接口'}
-            onClick={(event) => {
-                event.stopPropagation();
-                onToggle();
-            }}
-        />
+        <Tooltip title={favorite ? '取消收藏' : '收藏接口'}>
+            <Button
+                type="text"
+                size="small"
+                icon={
+                    favorite ? (
+                        <StarFilled className="case-item-star case-item-star-filled" />
+                    ) : (
+                        <StarOutlined className="case-item-star" />
+                    )
+                }
+                className="case-item-star-btn"
+                aria-label={favorite ? '取消收藏' : '收藏接口'}
+                onClick={(event) => {
+                    event.stopPropagation();
+                    onToggle();
+                }}
+            />
+        </Tooltip>
     );
 }
 
@@ -70,17 +72,19 @@ function CaseLabel({ item, index, query }: { item: TabData; index: number; query
 function CopyButton({ msgtype, onCopy }: { msgtype: string; onCopy: () => void }) {
     return (
         <div className="case-item-actions">
-            <Button
-                type="text"
-                size="small"
-                icon={<CopyOutlined className="text-[10px]" />}
-                className="case-item-action"
-                title={`复制功能号${msgtype}`}
-                onClick={(event) => {
-                    event.stopPropagation();
-                    onCopy();
-                }}
-            />
+            <Tooltip title={`复制功能号${msgtype}`}>
+                <Button
+                    type="text"
+                    size="small"
+                    icon={<CopyOutlined className="text-[10px]" />}
+                    className="case-item-action"
+                    aria-label={`复制功能号${msgtype}`}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                        onCopy();
+                    }}
+                />
+            </Tooltip>
         </div>
     );
 }
@@ -120,7 +124,6 @@ function CaseTreeItem({
                     event.stopPropagation();
                     onStartRename();
                 }}
-                title={label}
             >
                 {!isEditing && <FavoriteButton favorite={favorite} onToggle={onToggleFavorite} />}
                 {isEditing ? (
@@ -132,7 +135,9 @@ function CaseTreeItem({
                         onClick={(event) => event.stopPropagation()}
                     />
                 ) : (
-                    <CaseLabel item={caseItem} index={caseIndex} query={searchHighlightTerm} />
+                    <Tooltip title={label}>
+                        <CaseLabel item={caseItem} index={caseIndex} query={searchHighlightTerm} />
+                    </Tooltip>
                 )}
                 {!isEditing && msgtype && <CopyButton msgtype={msgtype} onCopy={onCopyMsgtype} />}
             </div>

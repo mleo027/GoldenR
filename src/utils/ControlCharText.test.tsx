@@ -14,7 +14,7 @@ describe('ControlCharText', () => {
 
         const marker = container.querySelector('.ctrl-char-soh');
         expect(marker?.textContent).toBe('□');
-        expect(marker?.getAttribute('title')).toContain('SOH');
+        expect(marker?.getAttribute('title')).toBeNull();
     });
 
     it('renders literal square characters separately from SOH markers', () => {

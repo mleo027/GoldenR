@@ -99,23 +99,34 @@ function HistoryRow({
                 </span>
             </Tooltip>
             <Space size={2} onClick={(event) => event.stopPropagation()}>
-                <Button
-                    type="text"
-                    size="small"
-                    icon={<ProfileOutlined />}
-                    title="查看详情"
-                    onClick={onOpenDetail}
-                />
-                <Button
-                    type="text"
-                    size="small"
-                    icon={<ReloadOutlined />}
-                    title="重新执行"
-                    onClick={onReplay}
-                />
-                <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-                    <Button type="text" size="small" icon={<HistoryOutlined />} title="更多" />
-                </Dropdown>
+                <Tooltip title="查看详情">
+                    <Button
+                        type="text"
+                        size="small"
+                        icon={<ProfileOutlined />}
+                        aria-label="查看详情"
+                        onClick={onOpenDetail}
+                    />
+                </Tooltip>
+                <Tooltip title="重新执行">
+                    <Button
+                        type="text"
+                        size="small"
+                        icon={<ReloadOutlined />}
+                        aria-label="重新执行"
+                        onClick={onReplay}
+                    />
+                </Tooltip>
+                <Tooltip title="更多">
+                    <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+                        <Button
+                            type="text"
+                            size="small"
+                            icon={<HistoryOutlined />}
+                            aria-label="更多"
+                        />
+                    </Dropdown>
+                </Tooltip>
             </Space>
         </div>
     );

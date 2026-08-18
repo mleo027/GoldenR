@@ -16,6 +16,12 @@ export function isFilePickerTriggerValue(value: string): boolean {
     return trimmed === '@file' || trimmed === '@file:';
 }
 
+export function isWindowsFilePath(value: string): boolean {
+    const trimmed = value.trim();
+    if (!trimmed) return false;
+    return /^[a-zA-Z]:[\\/]/.test(trimmed) || /^\\\\[^\\/]+[\\/]/.test(trimmed);
+}
+
 export function parseFileParamPath(value: string): string | null {
     const trimmed = value.trim();
     if (!trimmed.startsWith(FILE_PARAM_PREFIX)) return null;

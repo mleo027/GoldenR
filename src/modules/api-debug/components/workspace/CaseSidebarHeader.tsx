@@ -1,4 +1,4 @@
-import { Button, Typography } from 'antd';
+import { Button, Tooltip, Typography } from 'antd';
 import { FolderOutlined, HistoryOutlined } from '@ant-design/icons';
 
 interface CaseSidebarHeaderProps {
@@ -12,24 +12,27 @@ export default function CaseSidebarHeader({ onAddProject, onOpenHistory }: CaseS
             <Typography.Text strong className="text-sm text-[var(--color-text-title)]">
                 用例集
             </Typography.Text>
-            <Button
-                type="text"
-                size="small"
-                icon={<FolderOutlined />}
-                onClick={onAddProject}
-                className="case-header-add"
-                title="新建项目"
-            >
-                项目
-            </Button>
-            <Button
-                type="text"
-                size="small"
-                icon={<HistoryOutlined />}
-                onClick={onOpenHistory}
-                className="case-header-history"
-                title="请求历史"
-            />
+            <Tooltip title="新建项目">
+                <Button
+                    type="text"
+                    size="small"
+                    icon={<FolderOutlined />}
+                    onClick={onAddProject}
+                    className="case-header-add"
+                >
+                    项目
+                </Button>
+            </Tooltip>
+            <Tooltip title="请求历史">
+                <Button
+                    type="text"
+                    size="small"
+                    icon={<HistoryOutlined />}
+                    onClick={onOpenHistory}
+                    className="case-header-history"
+                    aria-label="请求历史"
+                />
+            </Tooltip>
         </div>
     );
 }

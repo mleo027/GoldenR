@@ -29,9 +29,9 @@
     display: flex;
     align-items: center;
     gap: 0;
-    flex: 0 1 auto;
-    width: max-content;
-    max-width: 100%;
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: none;
     min-width: 0;
     height: calc(var(--control-height) + 4px);
     padding-inline: 2px;
@@ -65,7 +65,9 @@
     background: transparent;
     box-shadow: none;
     height: 100%;
-    max-width: min(200px, 30vw);
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
 }
 
 .path-command-bar .path-env-block--dev,
@@ -105,8 +107,15 @@
 }
 
 .path-command-bar .path-field-queue {
-    width: 144px;
-    flex: 0 0 auto;
+    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.path-command-bar .path-field-queue-wrap {
+    flex: 1 1 144px;
+    min-width: 0;
+    max-width: none;
 }
 
 .path-command-bar .path-field-timeout {
@@ -274,10 +283,10 @@
 }
 
 .path-env-host-input.ant-input-affix-wrapper {
-    flex: 0 1 132px;
-    width: 132px;
-    max-width: 160px;
-    min-width: 72px;
+    flex: 1 1 132px;
+    width: auto;
+    max-width: none;
+    min-width: 0;
     height: calc(var(--control-height) - 4px) !important;
     padding-inline: 6px !important;
     border: none !important;

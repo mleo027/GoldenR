@@ -16,6 +16,8 @@ export interface PlatformSettingsSection {
     searchKeywords: string[];
     placement: PlatformSettingsPlacement;
     Panel: ComponentType;
+    /** 暂不在设置导航中展示的配置页签 */
+    hidden?: boolean;
 }
 
 export interface ModuleSettingsSection {

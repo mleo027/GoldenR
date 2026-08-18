@@ -7,6 +7,7 @@ import {
     formatFileParamValue,
     isFileParamValue,
     isFilePickerTriggerValue,
+    isWindowsFilePath,
     parseFileParamPath,
 } from './kcbpFields';
 
@@ -50,6 +51,15 @@ describe('kcbpFields @file: prefix', () => {
         expect(parseFileParamPath('@file:D:/data/a.zip')).toBe('D:/data/a.zip');
         expect(isFileParamValue('@file:D:/data/a.zip')).toBe(true);
         expect(isFileParamValue('D:/data/a.zip')).toBe(false);
+    });
+
+    it('detects Windows file paths before @file: is added', () => {
+        expect(isWindowsFilePath('C:\\data\\a.txt')).toBe(true);
+        expect(isWindowsFilePath('C:/data/a.txt')).toBe(true);
+        expect(isWindowsFilePath('D:\\data\\a.txt')).toBe(true);
+        expect(isWindowsFilePath('\\\\server\\share\\a.txt')).toBe(true);
+        expect(isWindowsFilePath('hello world')).toBe(false);
+        expect(isWindowsFilePath('@file:C:/data/a.txt')).toBe(false);
     });
 
     it('detects when a file picker should be opened automatically', () => {

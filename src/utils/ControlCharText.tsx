@@ -1,4 +1,5 @@
 import { Fragment } from 'react';
+import { Tooltip } from 'antd';
 import { SOH_CHAR, containsSoh, formatControlCharsForTitle } from './controlCharDisplay';
 
 interface ControlCharTextProps {
@@ -10,9 +11,9 @@ interface ControlCharTextProps {
 export function ControlCharText({ text, className }: ControlCharTextProps) {
     if (!containsSoh(text)) {
         return (
-            <span className={className} title={formatControlCharsForTitle(text)}>
-                {formatControlCharsForTitle(text)}
-            </span>
+            <Tooltip title={formatControlCharsForTitle(text)}>
+                <span className={className}>{formatControlCharsForTitle(text)}</span>
+            </Tooltip>
         );
     }
 
@@ -20,21 +21,21 @@ export function ControlCharText({ text, className }: ControlCharTextProps) {
     const title = formatControlCharsForTitle(text);
 
     return (
-        <span className={className} title={title}>
-            {parts.map((part, index) => (
-                <Fragment key={index}>
-                    {index > 0 ? (
-                        <span
-                            className="ctrl-char ctrl-char-soh"
-                            title="SOH (Start of Heading, U+0001)"
-                            aria-hidden
-                        >
-                            □
-                        </span>
-                    ) : null}
-                    {formatControlCharsForTitle(part)}
-                </Fragment>
-            ))}
-        </span>
+        <Tooltip title={title}>
+            <span className={className}>
+                {parts.map((part, index) => (
+                    <Fragment key={index}>
+                        {index > 0 ? (
+                            <Tooltip key={`soh-${index}`} title="SOH (Start of Heading, U+0001)">
+                                <span className="ctrl-char ctrl-char-soh" aria-hidden>
+                                    □
+                                </span>
+                            </Tooltip>
+                        ) : null}
+                        {formatControlCharsForTitle(part)}
+                    </Fragment>
+                ))}
+            </span>
+        </Tooltip>
     );
 }

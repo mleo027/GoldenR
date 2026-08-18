@@ -1,4 +1,4 @@
-import { Button, Dropdown } from 'antd';
+import { Button, Dropdown, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import {
     PlusOutlined,
@@ -72,35 +72,41 @@ function ProjectTreeItem({
                         onClick={(event) => event.stopPropagation()}
                     />
                 ) : (
-                    <span className="case-project-label" title={project.name}>
-                        {project.name}
-                        <span className="case-project-count">{caseCount}</span>
-                    </span>
+                    <Tooltip title={project.name}>
+                        <span className="case-project-label">
+                            {project.name}
+                            <span className="case-project-count">{caseCount}</span>
+                        </span>
+                    </Tooltip>
                 )}
                 {!isEditing && (
                     <div className="case-item-actions">
-                        <Button
-                            type="text"
-                            size="small"
-                            icon={<ImportOutlined className="text-[10px]" />}
-                            className="case-item-action"
-                            title="导入接口 JSON|INI"
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                onImport();
-                            }}
-                        />
-                        <Button
-                            type="text"
-                            size="small"
-                            icon={<PlusOutlined className="text-[10px]" />}
-                            className="case-item-action"
-                            title="为该项目添加接口"
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                onAddCase();
-                            }}
-                        />
+                        <Tooltip title="导入接口 JSON|INI">
+                            <Button
+                                type="text"
+                                size="small"
+                                icon={<ImportOutlined className="text-[10px]" />}
+                                className="case-item-action"
+                                aria-label="导入接口 JSON|INI"
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    onImport();
+                                }}
+                            />
+                        </Tooltip>
+                        <Tooltip title="为该项目添加接口">
+                            <Button
+                                type="text"
+                                size="small"
+                                icon={<PlusOutlined className="text-[10px]" />}
+                                className="case-item-action"
+                                aria-label="为该项目添加接口"
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    onAddCase();
+                                }}
+                            />
+                        </Tooltip>
                     </div>
                 )}
             </div>

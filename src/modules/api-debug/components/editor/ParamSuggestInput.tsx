@@ -7,14 +7,20 @@ import {
     useState,
     type ClipboardEvent,
 } from 'react';
-import { Dropdown, Input, Spin, Typography } from 'antd';
+import { App, Dropdown, Input, Spin, Tooltip, Typography } from 'antd';
 import type { TextAreaRef } from 'antd/es/input/TextArea';
 import { SearchOutlined } from '@ant-design/icons';
 import type { ParamItem } from '../../types/workspace';
 import type { DbSuggestOption } from '../../types/paramSuggest';
 import { useParamSuggestions } from '../../hooks/useParamSuggestions';
 import { getElectronAPI } from '../../../../lib/electron';
-import { formatFileParamValue, isFilePickerTriggerValue } from '../../utils/kcbp/kcbpFields';
+import { UI_DEBOUNCE_MS } from '../../../../constants/ui';
+import {
+    formatFileParamValue,
+    isFileParamValue,
+    isFilePickerTriggerValue,
+    isWindowsFilePath,
+} from '../../utils/kcbp/kcbpFields';
 import { decodeSohMarkers, formatControlCharsForTitle } from '../../../../utils/controlCharDisplay';
 
 interface ParamSuggestInputProps {
@@ -36,9 +42,9 @@ function SuggestOptionItem({ item }: { item: DbSuggestOption }) {
         <div className="param-suggest-option">
             <span className="param-suggest-option-code">{item.value}</span>
             {showRemark ? (
-                <span className="param-suggest-option-desc" title={item.label}>
-                    {item.label}
-                </span>
+                <Tooltip title={item.label}>
+                    <span className="param-suggest-option-desc">{item.label}</span>
+                </Tooltip>
             ) : null}
         </div>
     );
@@ -113,11 +119,15 @@ function ParamSuggestInput({
     placeholder: placeholderProp,
     onChange,
 }: ParamSuggestInputProps) {
+    const { modal } = App.useApp();
     const inputRef = useRef<TextAreaRef>(null);
     const focusedRef = useRef(false);
     const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const commitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const filePromptTimerRef = useRef<number | null>(null);
     const filePickerInFlightRef = useRef(false);
+    const promptedPathsRef = useRef<Set<string>>(new Set());
+    const latestRawRef = useRef(value);
     const onChangeRef = useRef(onChange);
     onChangeRef.current = onChange;
 
@@ -134,6 +144,7 @@ function ParamSuggestInput({
     });
 
     useEffect(() => {
+        latestRawRef.current = value;
         if (!focusedRef.current) {
             setLocalValue(value);
             setKeyword(value);
@@ -144,6 +155,7 @@ function ParamSuggestInput({
         () => () => {
             if (blurTimerRef.current) clearTimeout(blurTimerRef.current);
             if (commitTimerRef.current) clearTimeout(commitTimerRef.current);
+            if (filePromptTimerRef.current) window.clearTimeout(filePromptTimerRef.current);
         },
         [],
     );
@@ -176,6 +188,7 @@ function ParamSuggestInput({
                 .then((result) => {
                     if (!result.opened) return;
                     const next = formatFileParamValue(result.filePath);
+                    latestRawRef.current = next;
                     setLocalValue(next);
                     setKeyword(next);
                     commitToParent(next, true);
@@ -187,6 +200,57 @@ function ParamSuggestInput({
                 });
         },
         [commitToParent],
+    );
+
+    const openFileContentConfirm = useCallback(
+        (filePath: string, fileLength: number) => {
+            modal.confirm({
+                title: '是否使用文件内容作为入参？',
+                content: `检测到 Windows 文件路径：${filePath}\nlength: ${fileLength}`,
+                okText: '使用文件内容',
+                cancelText: '作为文本',
+                centered: true,
+                mousePosition: null,
+                onOk: () => {
+                    const next = formatFileParamValue(filePath);
+                    latestRawRef.current = next;
+                    setLocalValue(next);
+                    setKeyword(next);
+                    commitToParent(next, true);
+                    setOpen(false);
+                    inputRef.current?.focus();
+                },
+            });
+        },
+        [commitToParent, modal],
+    );
+
+    const scheduleWindowsFilePrompt = useCallback(
+        (raw: string) => {
+            latestRawRef.current = raw;
+            if (isFileParamValue(raw)) return;
+
+            const filePath = raw.trim();
+            if (!isWindowsFilePath(filePath) || promptedPathsRef.current.has(filePath)) return;
+            promptedPathsRef.current.add(filePath);
+
+            if (filePromptTimerRef.current) {
+                window.clearTimeout(filePromptTimerRef.current);
+            }
+            filePromptTimerRef.current = window.setTimeout(() => {
+                const api = getElectronAPI();
+                if (!api?.importExport.statParamFile) return;
+
+                void api.importExport
+                    .statParamFile(filePath)
+                    .then((result) => {
+                        if (!result.exists || latestRawRef.current.trim() !== filePath) return;
+                        openFileContentConfirm(filePath, result.size);
+                    })
+                    .catch(() => undefined);
+            }, UI_DEBOUNCE_MS.edit);
+        },
+        [openFileContentConfirm],
     );
 
     const placeholder = useMemo(() => {
@@ -206,7 +270,8 @@ function ParamSuggestInput({
         focusedRef.current = true;
         setActive(true);
         setOpen(true);
-    }, []);
+        scheduleWindowsFilePrompt(localValue);
+    }, [localValue, scheduleWindowsFilePrompt]);
 
     const handleBlur = useCallback(() => {
         blurTimerRef.current = setTimeout(() => {
@@ -225,12 +290,14 @@ function ParamSuggestInput({
             commitToParent(raw);
             setOpen(true);
             openFilePickerForValue(raw);
+            scheduleWindowsFilePrompt(raw);
         },
-        [commitToParent, openFilePickerForValue],
+        [commitToParent, openFilePickerForValue, scheduleWindowsFilePrompt],
     );
 
     const handlePick = useCallback(
         (picked: string) => {
+            latestRawRef.current = picked;
             setLocalValue(picked);
             setKeyword(picked);
             commitToParent(picked, true);

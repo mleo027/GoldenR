@@ -2,6 +2,8 @@
 
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { App } from 'antd';
+import type { ReactElement } from 'react';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import ParamEdit from './ParamEdit';
 
@@ -45,10 +47,12 @@ describe('ParamEdit', () => {
 
     afterEach(cleanup);
 
+    const renderParamEdit = (ui: ReactElement) => render(<App>{ui}</App>);
+
     it('shows the empty state and adds a parameter', async () => {
         const user = userEvent.setup();
         const onChange = vi.fn();
-        render(<ParamEdit params={[]} onChange={onChange} />);
+        renderParamEdit(<ParamEdit params={[]} onChange={onChange} />);
 
         await user.click(screen.getByRole('button', { name: /添加参数/ }));
 
@@ -58,7 +62,7 @@ describe('ParamEdit', () => {
 
     it('renders parameter values in a wrap-capable textarea', () => {
         const longValue = 'x'.repeat(200);
-        const view = render(
+        const view = renderParamEdit(
             <ParamEdit
                 params={[{ name: 'key', value: longValue, type: 'string' }]}
                 onChange={vi.fn()}
@@ -75,7 +79,7 @@ describe('ParamEdit', () => {
     it('shows SOH markers in the value input and stores raw SOH', async () => {
         const rawValue = `8=FIXT.1.1${String.fromCharCode(1)}9=82`;
         const onChange = vi.fn();
-        const view = render(
+        const view = renderParamEdit(
             <ParamEdit
                 params={[{ name: 'key', value: rawValue, type: 'string' }]}
                 onChange={onChange}

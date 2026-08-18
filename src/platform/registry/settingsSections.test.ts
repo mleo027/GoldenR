@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { APP_MODULES } from './app-modules';
-import { PLATFORM_SETTINGS_SECTIONS } from './platformSettings';
+import { getPlatformMainSettingsSections, PLATFORM_SETTINGS_SECTIONS } from './platformSettings';
 
 describe('settings sections registry', () => {
     it('platform sections declare category, keywords, and placement', () => {
@@ -18,5 +18,14 @@ describe('settings sections registry', () => {
                 expect(section.searchKeywords.length).toBeGreaterThan(0);
             }
         }
+    });
+
+    it('hides the KCBP runtime tab from visible main settings', () => {
+        expect(
+            PLATFORM_SETTINGS_SECTIONS.find((section) => section.key === 'kcbp-runtime')?.hidden,
+        ).toBe(true);
+        expect(
+            getPlatformMainSettingsSections().some((section) => section.key === 'kcbp-runtime'),
+        ).toBe(false);
     });
 });

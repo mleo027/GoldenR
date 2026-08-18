@@ -46,27 +46,31 @@ export default function ApiDebugStatusBar() {
             actions={
                 logs.length > 0 ? (
                     <>
-                        <Dropdown
-                            menu={{ items: historyItems }}
-                            trigger={['click']}
-                            placement="topRight"
-                        >
+                        <Tooltip title="历史请求日志">
+                            <Dropdown
+                                menu={{ items: historyItems }}
+                                trigger={['click']}
+                                placement="topRight"
+                            >
+                                <Button
+                                    type="text"
+                                    size="small"
+                                    icon={<HistoryOutlined />}
+                                    className="status-bar-history-btn"
+                                    aria-label="历史请求日志"
+                                />
+                            </Dropdown>
+                        </Tooltip>
+                        <Tooltip title="清空日志">
                             <Button
                                 type="text"
                                 size="small"
-                                icon={<HistoryOutlined />}
-                                className="status-bar-history-btn"
-                                title="历史请求日志"
+                                icon={<DeleteOutlined />}
+                                onClick={clearLogs}
+                                className="status-bar-clear"
+                                aria-label="清空日志"
                             />
-                        </Dropdown>
-                        <Button
-                            type="text"
-                            size="small"
-                            icon={<DeleteOutlined />}
-                            onClick={clearLogs}
-                            className="status-bar-clear"
-                            title="清空日志"
-                        />
+                        </Tooltip>
                     </>
                 ) : null
             }

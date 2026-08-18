@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { WarningOutlined } from '@ant-design/icons';
-import { Spin } from 'antd';
+import { Spin, Tooltip } from 'antd';
 import { UI_DEBOUNCE_MS } from '../../../../constants/ui';
 import { getElectronAPI } from '../../../../lib/electron';
-import { formatByteSize } from '../../../../utils/exportTable';
 import { parseFileParamPath } from '../../utils/kcbp/kcbpFields';
 
 interface ParamFileHintProps {
@@ -88,29 +87,32 @@ export default function ParamFileHint({ value, disabled = false }: ParamFileHint
 
     if (checking) {
         return (
-            <div className="param-file-hint param-file-hint-pending" title="检测文件中">
-                <Spin size="small" />
-            </div>
+            <Tooltip title="检测文件中">
+                <div className="param-file-hint param-file-hint-pending">
+                    <Spin size="small" />
+                </div>
+            </Tooltip>
         );
     }
 
     if (exists && size != null) {
         return (
-            <div
-                className="param-file-hint param-file-hint-ok"
-                title={`${basename(filePath)} · ${filePath}`}
-            >
-                <span className="param-file-size">{formatByteSize(size)}</span>
-            </div>
+            <Tooltip title={`${basename(filePath)} · ${filePath} · length: ${size}`}>
+                <div className="param-file-hint param-file-hint-ok">
+                    <span className="param-file-size">length: {size}</span>
+                </div>
+            </Tooltip>
         );
     }
 
     if (error) {
         return (
-            <div className="param-file-hint param-file-hint-error" title={`${error} · ${filePath}`}>
-                <WarningOutlined className="param-file-icon" />
-                <span className="param-file-error-text">{error}</span>
-            </div>
+            <Tooltip title={`${error} · ${filePath}`}>
+                <div className="param-file-hint param-file-hint-error">
+                    <WarningOutlined className="param-file-icon" />
+                    <span className="param-file-error-text">{error}</span>
+                </div>
+            </Tooltip>
         );
     }
 

@@ -1,4 +1,5 @@
 import { memo, type MouseEvent, type ReactNode } from 'react';
+import { Tooltip } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 
 export interface TitleBarTabItem {
@@ -52,7 +53,6 @@ function TitleBarTabBar({
                                 ? ({ WebkitAppRegion: 'no-drag' } as React.CSSProperties)
                                 : undefined
                         }
-                        title={item.label}
                         onClick={item.onSelect}
                         onMouseDown={(event) => {
                             if (event.button === 1 && closable && item.onClose) {
@@ -71,7 +71,9 @@ function TitleBarTabBar({
                                 {item.icon}
                             </span>
                         ) : null}
-                        <span className="case-tab-label">{item.label}</span>
+                        <Tooltip title={item.label}>
+                            <span className="case-tab-label">{item.label}</span>
+                        </Tooltip>
                         {closable && item.onClose ? (
                             <span
                                 role="button"
@@ -80,7 +82,9 @@ function TitleBarTabBar({
                                 aria-label="关闭页签"
                                 style={
                                     isTitleBar
-                                        ? ({ WebkitAppRegion: 'no-drag' } as React.CSSProperties)
+                                        ? ({
+                                              WebkitAppRegion: 'no-drag',
+                                          } as React.CSSProperties)
                                         : undefined
                                 }
                                 onClick={(event) => handleClose(event, item)}

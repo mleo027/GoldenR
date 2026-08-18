@@ -37,9 +37,9 @@ export default function TitleBar({
                 <GoldenApiLogo size={28} className="title-bar-logo" title="Golden API Debug" />
                 <span className="title-bar-name">Golden API Debug</span>
                 {moduleLabel && !useTitleBarSlot ? (
-                    <span className="title-bar-module" title={moduleLabel}>
-                        {moduleLabel}
-                    </span>
+                    <Tooltip title={moduleLabel}>
+                        <span className="title-bar-module">{moduleLabel}</span>
+                    </Tooltip>
                 ) : null}
             </div>
 
@@ -50,9 +50,9 @@ export default function TitleBar({
 
             {!useTitleBarSlot ? (
                 <div className="title-bar-path">
-                    <span className="title-bar-path-text" title={activeLabel}>
-                        {activeLabel}
-                    </span>
+                    <Tooltip title={activeLabel}>
+                        <span className="title-bar-path-text">{activeLabel}</span>
+                    </Tooltip>
                 </div>
             ) : null}
 

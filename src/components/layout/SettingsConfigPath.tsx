@@ -1,4 +1,4 @@
-import { Typography } from 'antd';
+import { Tooltip, Typography } from 'antd';
 import { joinUserDataFile, useUserDataDir } from '../../hooks/useUserDataDir';
 
 interface SettingsConfigPathProps {
@@ -18,7 +18,10 @@ export default function SettingsConfigPath({
 
     return (
         <Typography.Paragraph className="settings-form-meta" copyable={{ text: absPath }}>
-            {label}：<span title={absPath}>{absPath}</span>
+            {label}：
+            <Tooltip title={absPath}>
+                <span>{absPath}</span>
+            </Tooltip>
         </Typography.Paragraph>
     );
 }

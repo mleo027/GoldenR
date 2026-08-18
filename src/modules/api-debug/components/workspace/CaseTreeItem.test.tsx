@@ -35,8 +35,8 @@ describe('CaseTreeItem', () => {
         );
 
         await user.click(screen.getByText('登录接口'));
-        await user.click(screen.getByTitle('收藏接口'));
-        await user.click(screen.getByTitle(/复制功能号/));
+        await user.click(screen.getByRole('button', { name: '收藏接口' }));
+        await user.click(screen.getByRole('button', { name: /复制功能号/ }));
 
         expect(onSelect).toHaveBeenCalledTimes(1);
         expect(onToggleFavorite).toHaveBeenCalledTimes(1);

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Button, Input, Space, Tag, Typography } from 'antd';
+import { Button, Input, Space, Tag, Tooltip, Typography } from 'antd';
 import { ThunderboltOutlined } from '@ant-design/icons';
 import type { DbSuggestResponse, ParamFieldRule } from '../../types/paramSuggest';
 import { formatExecutedSqlPreview } from '../../utils/suggest/paramSuggestSql';
@@ -95,13 +95,12 @@ export default function ParamSuggestRuleTestPanel({
                         预计命中：
                     </Typography.Text>
                     {testResolvedRule ? (
-                        <Typography.Text
-                            className="text-xs"
-                            title={`规则 ID: ${testResolvedRule.id}`}
-                        >
-                            {matchedRank ? `#${matchedRank} ` : ''}
-                            {formatRuleFields(testResolvedRule)}
-                        </Typography.Text>
+                        <Tooltip title={`规则 ID: ${testResolvedRule.id}`}>
+                            <Typography.Text className="text-xs">
+                                {matchedRank ? `#${matchedRank} ` : ''}
+                                {formatRuleFields(testResolvedRule)}
+                            </Typography.Text>
+                        </Tooltip>
                     ) : (
                         <Typography.Text type="warning" className="text-xs">
                             当前场景无可用规则

@@ -21,6 +21,7 @@ export const PLATFORM_SETTINGS_SECTIONS: PlatformSettingsSection[] = [
         category: 'core',
         searchKeywords: ['kcbp', '可执行', '工作目录', '启动参数'],
         placement: 'main',
+        hidden: true,
         Panel: KcbpRuntimeSettings,
     },
     {
@@ -37,13 +38,17 @@ export const PLATFORM_SETTINGS_SECTIONS: PlatformSettingsSection[] = [
 export const DEFAULT_SETTINGS_SECTION_KEY = 'appearance';
 
 export function getPlatformMainSettingsSections(): PlatformSettingsSection[] {
-    return PLATFORM_SETTINGS_SECTIONS.filter((section) => section.placement === 'main');
+    return PLATFORM_SETTINGS_SECTIONS.filter(
+        (section) => !section.hidden && section.placement === 'main',
+    );
 }
 
 export function getPlatformFooterSettingsSections(): PlatformSettingsSection[] {
-    return PLATFORM_SETTINGS_SECTIONS.filter((section) => section.placement === 'footer');
+    return PLATFORM_SETTINGS_SECTIONS.filter(
+        (section) => !section.hidden && section.placement === 'footer',
+    );
 }
 
 export function findPlatformSettingsSection(key: string): PlatformSettingsSection | undefined {
-    return PLATFORM_SETTINGS_SECTIONS.find((section) => section.key === key);
+    return PLATFORM_SETTINGS_SECTIONS.find((section) => !section.hidden && section.key === key);
 }

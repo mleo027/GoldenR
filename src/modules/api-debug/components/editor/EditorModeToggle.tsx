@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Tooltip } from 'antd';
 import { CodeOutlined, TableOutlined } from '@ant-design/icons';
 import { useEditorModeActions } from '../../hooks/useEditorModeActions';
 import type { EditorMode } from '../../types/workspace';
@@ -25,19 +26,20 @@ export default function EditorModeToggle({ compact = false }: EditorModeTogglePr
             aria-label="编辑器模式"
         >
             {segments.map(({ mode, icon, label, title }) => (
-                <button
-                    key={mode}
-                    type="button"
-                    className={`editor-mode-segment${segmentClass}${
-                        editorMode === mode ? ' editor-mode-segment-active' : ''
-                    }`}
-                    aria-pressed={editorMode === mode}
-                    title={title}
-                    onClick={() => switchEditorMode(mode)}
-                >
-                    {icon}
-                    <span>{label}</span>
-                </button>
+                <Tooltip key={mode} title={title}>
+                    <button
+                        type="button"
+                        className={`editor-mode-segment${segmentClass}${
+                            editorMode === mode ? ' editor-mode-segment-active' : ''
+                        }`}
+                        aria-pressed={editorMode === mode}
+                        aria-label={title}
+                        onClick={() => switchEditorMode(mode)}
+                    >
+                        {icon}
+                        <span>{label}</span>
+                    </button>
+                </Tooltip>
             ))}
         </div>
     );

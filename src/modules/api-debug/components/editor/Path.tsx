@@ -149,7 +149,7 @@ export default function Path({
 
                 <>
                     <Tooltip title="Queue">
-                        <span className="path-field-tooltip-wrap">
+                        <span className="path-field-tooltip-wrap path-field-queue-wrap">
                             <Input
                                 value={addressParts.queue}
                                 onChange={(e) => handleAddressPartChange('queue', e.target.value)}
