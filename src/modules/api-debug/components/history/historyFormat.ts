@@ -1,7 +1,6 @@
 import { parseKcbpResponseStatus } from '../../utils/kcbp/kcbpResponse';
 import type { RequestHistoryEntry } from '../../types/requestHistory';
 
-export type DetailMode = 'bottom' | 'right' | 'hidden';
 export type ResultFilter = 'all' | 'failed' | 'success';
 export type TimeFilter = 'all' | 'hour' | 'day' | 'week';
 

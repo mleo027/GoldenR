@@ -1,64 +1,49 @@
-import { useCallback, useEffect, useMemo, useRef, useState, memo } from 'react';
-import { Table, Button, Checkbox, Input } from 'antd';
-import { PlusOutlined, DeleteOutlined, FormOutlined } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Table, Button } from 'antd';
+import { PlusOutlined, FormOutlined } from '@ant-design/icons';
 import type { ParamItem } from '../../types/workspace';
-import { isParamEnabled, createParamItem } from '../../utils/workspace/paramItem';
+import { createParamItem } from '../../utils/workspace/paramItem';
 import ResizableHeaderCell from '../../../../components/ui/ResizableHeaderCell';
 import PanelEmptyState from '../../../../components/ui/PanelEmptyState';
-import ParamSuggestInput from './ParamSuggestInput';
-import ParamFileHint from './ParamFileHint';
+import { createParamTableColumns } from './paramTableColumns';
 
 interface ParamEditProps {
     params: ParamItem[];
     onChange: (params: ParamItem[]) => void;
 }
-
-interface ParamRow extends ParamItem {
-    key: string;
-}
-
 const CHECK_COL_WIDTH = 40;
 const ACTION_COL_WIDTH = 40;
 const FIXED_COL_WIDTH = CHECK_COL_WIDTH + ACTION_COL_WIDTH;
 const MIN_KEY_WIDTH = 72;
 const KEY_WIDTH_RATIO = 0.3;
 
-function ParamEdit({ params, onChange }: ParamEditProps) {
-    const tableWrapRef = useRef<HTMLDivElement>(null);
+function ParamTable({ params, onChange }: ParamEditProps) {
+    const wrapRef = useRef<HTMLDivElement>(null);
     const paramsRef = useRef(params);
     paramsRef.current = params;
     const [tableWidth, setTableWidth] = useState(0);
     const [keyWidth, setKeyWidth] = useState<number | null>(null);
-
-    const rows: ParamRow[] = useMemo(
-        () =>
-            params.map((p, i) => ({
-                ...p,
-                key: String(i),
-            })),
+    const rows = useMemo(
+        () => params.map((param, index) => ({ ...param, key: String(index) })),
         [params],
     );
 
     useEffect(() => {
-        const el = tableWrapRef.current;
-        if (!el) return;
-
+        const element = wrapRef.current;
+        if (!element) return;
         const updateWidth = () => {
-            const width = el.clientWidth;
+            const width = element.clientWidth;
             setTableWidth(width);
-
             if (width > FIXED_COL_WIDTH) {
-                const nextKeyWidth = Math.floor((width - FIXED_COL_WIDTH) * KEY_WIDTH_RATIO);
-                setKeyWidth((prev) =>
-                    prev == null ? nextKeyWidth : Math.min(prev, width - FIXED_COL_WIDTH - 1),
+                const next = Math.floor((width - FIXED_COL_WIDTH) * KEY_WIDTH_RATIO);
+                setKeyWidth((previous) =>
+                    previous == null ? next : Math.min(previous, width - FIXED_COL_WIDTH - 1),
                 );
             }
         };
-
         updateWidth();
         const observer = new ResizeObserver(updateWidth);
-        observer.observe(el);
+        observer.observe(element);
         return () => observer.disconnect();
     }, []);
 
@@ -68,137 +53,98 @@ function ParamEdit({ params, onChange }: ParamEditProps) {
         availableWidth,
     );
     const valueWidth = Math.max(0, availableWidth - resolvedKeyWidth);
-
+    const handleChange = useCallback(
+        (index: number, field: keyof ParamItem, value: string) => {
+            onChange(
+                paramsRef.current.map((param, itemIndex) =>
+                    itemIndex === index ? { ...param, [field]: value } : param,
+                ),
+            );
+        },
+        [onChange],
+    );
+    const handleRemove = useCallback(
+        (index: number) => {
+            onChange(paramsRef.current.filter((_, itemIndex) => itemIndex !== index));
+        },
+        [onChange],
+    );
     const handleKeyResize = useCallback(
         (width: number) => {
-            const maxKeyWidth = Math.max(MIN_KEY_WIDTH, availableWidth - 1);
-            setKeyWidth(Math.max(MIN_KEY_WIDTH, Math.min(width, maxKeyWidth)));
+            const max = Math.max(MIN_KEY_WIDTH, availableWidth - 1);
+            setKeyWidth(Math.max(MIN_KEY_WIDTH, Math.min(width, max)));
         },
         [availableWidth],
     );
 
-    const handleAdd = useCallback(() => {
-        onChange([...paramsRef.current, createParamItem('')]);
-    }, [onChange]);
-
-    const handleRemove = useCallback(
-        (index: number) => {
-            onChange(paramsRef.current.filter((_, i) => i !== index));
-        },
-        [onChange],
-    );
-
-    const handleChange = useCallback(
-        (index: number, field: keyof ParamItem, value: string) => {
-            onChange(paramsRef.current.map((p, i) => (i === index ? { ...p, [field]: value } : p)));
-        },
-        [onChange],
-    );
-
-    const columns: ColumnsType<ParamRow> = useMemo(
-        () => [
-            {
-                title: '',
-                width: CHECK_COL_WIDTH,
-                render: (_: unknown, record: ParamRow) => {
-                    const rowIndex = Number(record.key);
-                    return (
-                        <Checkbox
-                            checked={isParamEnabled(record.type)}
-                            onChange={(e) =>
-                                handleChange(
-                                    rowIndex,
-                                    'type',
-                                    e.target.checked ? 'string' : 'disabled',
-                                )
-                            }
-                            onClick={(e) => e.stopPropagation()}
-                            className="param-checkbox"
-                        />
-                    );
-                },
-            },
-            {
-                title: 'Key',
-                dataIndex: 'name',
-                width: resolvedKeyWidth,
-                onHeaderCell: () => ({
-                    width: resolvedKeyWidth,
-                    minWidth: MIN_KEY_WIDTH,
-                    onResize: handleKeyResize,
-                }),
-                render: (text: string, _: ParamRow, index: number) => (
-                    <Input
-                        value={text}
-                        placeholder="参数名"
-                        variant="borderless"
-                        size="small"
-                        className="param-input param-key-input"
-                        onChange={(e) => handleChange(index, 'name', e.target.value)}
-                    />
-                ),
-            },
-            {
-                title: 'Value',
-                dataIndex: 'value',
-                width: valueWidth,
-                render: (text: string, record: ParamRow, index: number) => (
-                    <div className="param-value-cell">
-                        <div className="param-value-input">
-                            <ParamSuggestInput
-                                fieldName={record.name}
-                                value={text}
-                                params={paramsRef.current}
-                                disabled={record.type === 'disabled'}
-                                placeholder=""
-                                onChange={(next) => handleChange(index, 'value', next)}
-                            />
-                        </div>
-                        <ParamFileHint value={text} disabled={record.type === 'disabled'} />
-                    </div>
-                ),
-            },
-            {
-                title: '',
-                key: 'action',
-                width: ACTION_COL_WIDTH,
-                render: (_: unknown, record: ParamRow) => (
-                    <Button
-                        type="text"
-                        danger
-                        size="small"
-                        icon={<DeleteOutlined />}
-                        onClick={() => handleRemove(parseInt(record.key))}
-                        className="param-delete-btn"
-                    />
-                ),
-            },
-        ],
-        [handleChange, handleKeyResize, handleRemove, resolvedKeyWidth, valueWidth],
+    const columns = useMemo(
+        () =>
+            createParamTableColumns({
+                params: rows,
+                keyWidth: resolvedKeyWidth,
+                valueWidth,
+                minKeyWidth: MIN_KEY_WIDTH,
+                onChange: handleChange,
+                onResize: handleKeyResize,
+                onRemove: handleRemove,
+            }),
+        [handleChange, handleKeyResize, handleRemove, resolvedKeyWidth, rows, valueWidth],
     );
 
     return (
+        <div ref={wrapRef} className="param-table-wrap">
+            <Table
+                columns={columns}
+                dataSource={rows}
+                size="small"
+                pagination={false}
+                tableLayout="fixed"
+                className="param-table"
+                rowClassName={(_, index) =>
+                    `param-row group ${index % 2 === 0 ? 'param-row-even' : 'param-row-odd'}`
+                }
+                components={{ header: { cell: ResizableHeaderCell } }}
+            />
+        </div>
+    );
+}
+
+function ParamEmptyState({ onAdd }: { onAdd: () => void }) {
+    return (
+        <div className="param-empty-panel flex-1 min-h-[160px]">
+            <div className="param-empty-header">
+                <span className="param-empty-header-check" />
+                <span>Key</span>
+                <span>Value</span>
+            </div>
+            <div className="param-empty-body">
+                <PanelEmptyState
+                    icon={<FormOutlined />}
+                    title="尚未配置入参"
+                    description="添加 KCBP 请求字段；二进制文件请填写 @file: 绝对路径"
+                    action={
+                        <Button type="primary" size="small" icon={<PlusOutlined />} onClick={onAdd}>
+                            添加参数
+                        </Button>
+                    }
+                />
+            </div>
+        </div>
+    );
+}
+
+function ParamEdit({ params, onChange }: ParamEditProps) {
+    const paramsRef = useRef(params);
+    paramsRef.current = params;
+    const handleAdd = useCallback(
+        () => onChange([...paramsRef.current, createParamItem('')]),
+        [onChange],
+    );
+    return (
         <div className="param-edit flex flex-col py-2">
-            {rows.length > 0 ? (
+            {params.length > 0 ? (
                 <>
-                    <div ref={tableWrapRef} className="param-table-wrap">
-                        <Table
-                            columns={columns}
-                            dataSource={rows}
-                            size="small"
-                            pagination={false}
-                            tableLayout="fixed"
-                            className="param-table"
-                            rowClassName={(_, index) =>
-                                `param-row group ${index % 2 === 0 ? 'param-row-even' : 'param-row-odd'}`
-                            }
-                            components={{
-                                header: {
-                                    cell: ResizableHeaderCell,
-                                },
-                            }}
-                        />
-                    </div>
+                    <ParamTable params={params} onChange={onChange} />
                     <Button
                         type="dashed"
                         block
@@ -211,30 +157,7 @@ function ParamEdit({ params, onChange }: ParamEditProps) {
                     </Button>
                 </>
             ) : (
-                <div className="param-empty-panel flex-1 min-h-[160px]">
-                    <div className="param-empty-header">
-                        <span className="param-empty-header-check" />
-                        <span>Key</span>
-                        <span>Value</span>
-                    </div>
-                    <div className="param-empty-body">
-                        <PanelEmptyState
-                            icon={<FormOutlined />}
-                            title="尚未配置入参"
-                            description="添加 KCBP 请求字段；二进制文件请填写 @file: 绝对路径"
-                            action={
-                                <Button
-                                    type="primary"
-                                    size="small"
-                                    icon={<PlusOutlined />}
-                                    onClick={handleAdd}
-                                >
-                                    添加参数
-                                </Button>
-                            }
-                        />
-                    </div>
-                </div>
+                <ParamEmptyState onAdd={handleAdd} />
             )}
         </div>
     );

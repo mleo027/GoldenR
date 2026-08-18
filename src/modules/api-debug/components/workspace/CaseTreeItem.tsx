@@ -29,6 +29,62 @@ interface CaseTreeItemProps {
     onDragEnd?: () => void;
 }
 
+function FavoriteButton({ favorite, onToggle }: { favorite: boolean; onToggle: () => void }) {
+    return (
+        <Button
+            type="text"
+            size="small"
+            icon={
+                favorite ? (
+                    <StarFilled className="case-item-star case-item-star-filled" />
+                ) : (
+                    <StarOutlined className="case-item-star" />
+                )
+            }
+            className="case-item-star-btn"
+            title={favorite ? '取消收藏' : '收藏接口'}
+            onClick={(event) => {
+                event.stopPropagation();
+                onToggle();
+            }}
+        />
+    );
+}
+
+function CaseLabel({ item, index, query }: { item: TabData; index: number; query: string }) {
+    const { msgtype, name } = getCaseDisplayParts(item, index);
+    return (
+        <div className="case-item-label-wrap">
+            {msgtype && (
+                <span className="case-item-msgtype">
+                    <TextHighlight text={msgtype} queryTerm={query} />
+                </span>
+            )}
+            <span className="case-item-name">
+                <TextHighlight text={name} queryTerm={query} />
+            </span>
+        </div>
+    );
+}
+
+function CopyButton({ msgtype, onCopy }: { msgtype: string; onCopy: () => void }) {
+    return (
+        <div className="case-item-actions">
+            <Button
+                type="text"
+                size="small"
+                icon={<CopyOutlined className="text-[10px]" />}
+                className="case-item-action"
+                title={`复制功能号${msgtype}`}
+                onClick={(event) => {
+                    event.stopPropagation();
+                    onCopy();
+                }}
+            />
+        </div>
+    );
+}
+
 function CaseTreeItem({
     caseItem,
     caseIndex,
@@ -49,16 +105,13 @@ function CaseTreeItem({
     onDragEnd,
 }: CaseTreeItemProps) {
     const label = getCaseLabel(caseItem, caseIndex);
-    const { msgtype, name } = getCaseDisplayParts(caseItem, caseIndex);
-    const isFavorite = caseItem.favorite ?? false;
-    const resolvedMsgtype = getCaseMsgtype(caseItem);
-
+    const favorite = caseItem.favorite ?? false;
+    const msgtype = getCaseMsgtype(caseItem);
     const draggable = Boolean(onDragStart) && !isEditing;
-
     return (
         <Dropdown menu={{ items: menuItems }} trigger={['contextMenu']}>
             <div
-                className={`case-item group ${isActive ? 'case-item-active' : ''}${isFavorite ? ' case-item-favorite' : ''}${isDragging ? ' case-item-dragging' : ''}${draggable ? ' case-item-draggable' : ''}`}
+                className={`case-item group ${isActive ? 'case-item-active' : ''}${favorite ? ' case-item-favorite' : ''}${isDragging ? ' case-item-dragging' : ''}${draggable ? ' case-item-draggable' : ''}`}
                 draggable={draggable}
                 onDragStart={onDragStart}
                 onDragEnd={onDragEnd}
@@ -69,25 +122,7 @@ function CaseTreeItem({
                 }}
                 title={label}
             >
-                {!isEditing && (
-                    <Button
-                        type="text"
-                        size="small"
-                        icon={
-                            isFavorite ? (
-                                <StarFilled className="case-item-star case-item-star-filled" />
-                            ) : (
-                                <StarOutlined className="case-item-star" />
-                            )
-                        }
-                        className="case-item-star-btn"
-                        title={isFavorite ? '取消收藏' : '收藏接口'}
-                        onClick={(event) => {
-                            event.stopPropagation();
-                            onToggleFavorite();
-                        }}
-                    />
-                )}
+                {!isEditing && <FavoriteButton favorite={favorite} onToggle={onToggleFavorite} />}
                 {isEditing ? (
                     <InlineRenameInput
                         inputRef={inputRef}
@@ -97,38 +132,9 @@ function CaseTreeItem({
                         onClick={(event) => event.stopPropagation()}
                     />
                 ) : (
-                    <div className="case-item-label-wrap">
-                        {msgtype ? (
-                            <>
-                                <span className="case-item-msgtype">
-                                    <TextHighlight text={msgtype} queryTerm={searchHighlightTerm} />
-                                </span>
-                                <span className="case-item-name">
-                                    <TextHighlight text={name} queryTerm={searchHighlightTerm} />
-                                </span>
-                            </>
-                        ) : (
-                            <span className="case-item-name">
-                                <TextHighlight text={name} queryTerm={searchHighlightTerm} />
-                            </span>
-                        )}
-                    </div>
+                    <CaseLabel item={caseItem} index={caseIndex} query={searchHighlightTerm} />
                 )}
-                {!isEditing && resolvedMsgtype ? (
-                    <div className="case-item-actions">
-                        <Button
-                            type="text"
-                            size="small"
-                            icon={<CopyOutlined className="text-[10px]" />}
-                            className="case-item-action"
-                            title={`复制功能号 ${resolvedMsgtype}`}
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                onCopyMsgtype();
-                            }}
-                        />
-                    </div>
-                ) : null}
+                {!isEditing && msgtype && <CopyButton msgtype={msgtype} onCopy={onCopyMsgtype} />}
             </div>
         </Dropdown>
     );

@@ -15,6 +15,7 @@ export default defineConfig({
             reporter: ['text', 'json-summary', 'html'],
             include: [
                 'src/shared/**/*.{ts,tsx}',
+                'src/modules/api-debug/components/**/*.{ts,tsx}',
                 'src/modules/api-debug/services/**/*.{ts,tsx}',
                 'src/modules/api-debug/store/**/*.{ts,tsx}',
                 'electron/ipc/**/*.ts',

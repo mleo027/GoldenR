@@ -28,20 +28,57 @@ interface RequestPanelProps {
     onToggleParamsCollapse?: () => void;
 }
 
+function ParamsSection({
+    collapsed,
+    count,
+    onToggle,
+    params,
+    onChange,
+}: {
+    collapsed: boolean;
+    count: number;
+    onToggle?: () => void;
+    params: ParamItem[];
+    onChange: (params: ParamItem[]) => void;
+}) {
+    return (
+        <>
+            <div className="param-section-toggle">
+                <button
+                    type="button"
+                    className="param-section-toggle-main"
+                    onClick={onToggle}
+                    aria-expanded={!collapsed}
+                >
+                    {collapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}
+                    <FormOutlined className="param-section-toggle-icon" />
+                    <span>请求参数</span>
+                </button>
+                <span className="param-section-toggle-actions">
+                    <span className="param-section-toggle-count">{count}</span>
+                </span>
+            </div>
+            <div
+                className={`param-section-body${collapsed ? ' param-section-body-collapsed' : ''}`}
+            >
+                <div className="param-section-scroll ui-scroll flex flex-col h-full min-h-0 overflow-y-auto overflow-x-hidden">
+                    <ParamEdit params={params} onChange={onChange} />
+                </div>
+            </div>
+        </>
+    );
+}
+
 export default function RequestPanel({
     paramsCollapsed = false,
     onToggleParamsCollapse,
 }: RequestPanelProps) {
     const { activeTab } = useActiveTab();
     const { updateTab, updateTabUndoable } = useTabsActions();
-
     const commitParams = useCallback(
-        (params: ParamItem[]) => {
-            updateTabUndoable({ params }, '修改请求参数');
-        },
+        (params: ParamItem[]) => updateTabUndoable({ params }, '修改请求参数'),
         [updateTabUndoable],
     );
-
     const {
         draft: paramsDraft,
         setDraftDebounced,
@@ -51,46 +88,20 @@ export default function RequestPanel({
         onCommit: commitParams,
         isEqual: paramsEqual,
     });
-
     const paramsDraftRef = useRef(paramsDraft);
     paramsDraftRef.current = paramsDraft;
 
     useEffect(() => {
         const parts = parseKcbpAddress(activeTab.address);
-        if (parts.msgtype.trim()) return;
-
-        const msgtype = resolveMsgtypeFromParams(activeTab.params);
-        if (!msgtype) return;
-
+        const msgtype = parts.msgtype.trim() || resolveMsgtypeFromParams(activeTab.params);
+        if (parts.msgtype.trim() || !msgtype) return;
         updateTab({ address: serializeKcbpAddress({ ...parts, msgtype }) });
     }, [activeTab.address, activeTab.id, activeTab.params, updateTab]);
-
     useEffect(() => registerTabDraftFlusher(flushPending), [flushPending]);
-
-    useEffect(
-        () =>
-            registerTabDraftReader(() => ({
-                params: paramsDraftRef.current,
-            })),
-        [],
-    );
-
-    useEffect(
-        () => () => {
-            flushPending();
-        },
-        [activeTab.id, flushPending],
-    );
-
-    const handleParamsChange = useCallback(
-        (params: ParamItem[]) => {
-            setDraftDebounced(params);
-        },
-        [setDraftDebounced],
-    );
+    useEffect(() => registerTabDraftReader(() => ({ params: paramsDraftRef.current })), []);
+    useEffect(() => () => flushPending(), [activeTab.id, flushPending]);
 
     const [quickFillOpen, setQuickFillOpen] = useState(false);
-
     const handleQuickFillApply = useCallback(
         (result: { params: ParamItem[]; msgtype?: string }) => {
             flushPending();
@@ -99,14 +110,13 @@ export default function RequestPanel({
                 const parts = parseKcbpAddress(activeTab.address);
                 patch.address = serializeKcbpAddress({ ...parts, msgtype: result.msgtype });
             }
-            updateTabUndoable(patch, '快速填充入参');
+            updateTabUndoable(patch, '快速填充参数');
         },
         [activeTab.address, flushPending, updateTabUndoable],
     );
 
     const { ref: headerRef, layout } = useRequestHeaderLayout<HTMLDivElement>();
-    const compactTrailing = layout !== 'full';
-
+    const compact = layout !== 'full';
     return (
         <div className="flex flex-col h-full min-h-0">
             <SectionHeader
@@ -114,41 +124,23 @@ export default function RequestPanel({
                 icon={<SendOutlined className="text-[var(--color-text-secondary)] text-sm" />}
                 title="请求"
                 layout={layout}
-                actions={<EditorModeToggle compact={compactTrailing} />}
-                endActions={<PathRunButton compact={compactTrailing} />}
+                actions={<EditorModeToggle compact={compact} />}
+                endActions={<PathRunButton compact={compact} />}
             >
                 <Path hideRunButton layout={layout} onQuickFill={() => setQuickFillOpen(true)} />
             </SectionHeader>
-
-            <div className="param-section-toggle">
-                <button
-                    type="button"
-                    className="param-section-toggle-main"
-                    onClick={onToggleParamsCollapse}
-                    aria-expanded={!paramsCollapsed}
-                >
-                    {paramsCollapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}
-                    <FormOutlined className="param-section-toggle-icon" />
-                    <span>请求参数</span>
-                </button>
-                <span className="param-section-toggle-actions">
-                    <span className="param-section-toggle-count">{paramsDraft.length}</span>
-                </span>
-            </div>
-
             <ParamQuickFillModal
                 open={quickFillOpen}
                 onClose={() => setQuickFillOpen(false)}
                 onApply={handleQuickFillApply}
             />
-
-            <div
-                className={`param-section-body${paramsCollapsed ? ' param-section-body-collapsed' : ''}`}
-            >
-                <div className="param-section-scroll ui-scroll flex flex-col h-full min-h-0 overflow-y-auto overflow-x-hidden">
-                    <ParamEdit params={paramsDraft} onChange={handleParamsChange} />
-                </div>
-            </div>
+            <ParamsSection
+                collapsed={paramsCollapsed}
+                count={paramsDraft.length}
+                onToggle={onToggleParamsCollapse}
+                params={paramsDraft}
+                onChange={setDraftDebounced}
+            />
         </div>
     );
 }

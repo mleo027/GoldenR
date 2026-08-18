@@ -7,6 +7,7 @@ import {
     CopyOutlined,
     DeleteOutlined,
     HistoryOutlined,
+    ProfileOutlined,
     ReloadOutlined,
     SendOutlined,
 } from '@ant-design/icons';
@@ -17,7 +18,7 @@ import type { RequestHistoryEntry } from '../../types/requestHistory';
 interface HistoryListProps {
     entries: RequestHistoryEntry[];
     selectedId?: string;
-    onSelect: (entry: RequestHistoryEntry) => void;
+    onOpenDetail: (entry: RequestHistoryEntry) => void;
     onReplay: (entry: RequestHistoryEntry) => void;
     onLoad: (entry: RequestHistoryEntry) => void;
     onCopy: (entry: RequestHistoryEntry) => void;
@@ -39,7 +40,7 @@ function HistoryStatus({ entry }: { entry: RequestHistoryEntry }) {
 function HistoryRow({
     entry,
     selected,
-    onSelect,
+    onOpenDetail,
     onReplay,
     onLoad,
     onCopy,
@@ -47,7 +48,7 @@ function HistoryRow({
 }: {
     entry: RequestHistoryEntry;
     selected: boolean;
-    onSelect: () => void;
+    onOpenDetail: () => void;
     onReplay: () => void;
     onLoad: () => void;
     onCopy: () => void;
@@ -78,11 +79,10 @@ function HistoryRow({
 
     return (
         <div
-            className={`history-row grid items-center gap-2 px-3 py-2 border-b border-[var(--color-divider)] cursor-pointer${
+            className={`history-row grid items-center gap-2 px-3 py-2 border-b border-[var(--color-divider)]${
                 selected ? ' history-row-selected bg-[var(--color-fill-secondary)]' : ''
             }`}
-            style={{ gridTemplateColumns: '110px 72px 56px 90px 80px minmax(220px, 1fr) 76px' }}
-            onClick={onSelect}
+            style={{ gridTemplateColumns: '110px 72px 56px 90px 80px minmax(220px, 1fr) 104px' }}
         >
             <Tooltip title={formatDateTime(entry.timestamp)}>
                 <span className="font-mono text-xs">{formatHistoryTime(entry.timestamp)}</span>
@@ -102,6 +102,13 @@ function HistoryRow({
                 <Button
                     type="text"
                     size="small"
+                    icon={<ProfileOutlined />}
+                    title="查看详情"
+                    onClick={onOpenDetail}
+                />
+                <Button
+                    type="text"
+                    size="small"
                     icon={<ReloadOutlined />}
                     title="重新执行"
                     onClick={onReplay}
@@ -117,7 +124,7 @@ function HistoryRow({
 export default function HistoryList({
     entries,
     selectedId,
-    onSelect,
+    onOpenDetail,
     onReplay,
     onLoad,
     onCopy,
@@ -154,7 +161,7 @@ export default function HistoryList({
                             key={entry.id}
                             entry={entry}
                             selected={entry.id === selectedId}
-                            onSelect={() => onSelect(entry)}
+                            onOpenDetail={() => onOpenDetail(entry)}
                             onReplay={() => onReplay(entry)}
                             onLoad={() => onLoad(entry)}
                             onCopy={() => onCopy(entry)}

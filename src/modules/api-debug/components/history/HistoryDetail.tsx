@@ -1,16 +1,18 @@
-import { Button, Empty, Tabs, Tag, Typography } from 'antd';
+import { Button, Empty, Table, Tag, Typography } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import {
     CheckCircleFilled,
     CloseCircleFilled,
     CopyOutlined,
     DeleteOutlined,
+    HistoryOutlined,
     ReloadOutlined,
     SendOutlined,
 } from '@ant-design/icons';
 import { formatDateTime } from '../../../../utils/formatDateTime';
 import { parseKcbpResponseStatus } from '../../utils/kcbp/kcbpResponse';
-import { formatHistoryTime } from './historyFormat';
 import type { RequestHistoryEntry } from '../../types/requestHistory';
+import type { ParamItem } from '../../types/workspace';
 
 function HistoryStatus({ entry }: { entry: RequestHistoryEntry }) {
     return entry.outcome.success ? (
@@ -21,6 +23,14 @@ function HistoryStatus({ entry }: { entry: RequestHistoryEntry }) {
         <span className="text-[var(--color-error)]">
             <CloseCircleFilled /> 失败
         </span>
+    );
+}
+
+function SectionTitle({ children }: { children: string }) {
+    return (
+        <Typography.Title level={5} className="!mt-0 !mb-2">
+            {children}
+        </Typography.Title>
     );
 }
 
@@ -38,9 +48,9 @@ function OverviewPanel({ entry }: { entry: RequestHistoryEntry }) {
     ];
 
     return (
-        <div className="grid gap-3 p-4 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
             {items.map(([label, value]) => (
-                <div key={label} className="flex gap-2">
+                <div key={label} className="flex gap-2 min-w-0">
                     <Typography.Text type="secondary" className="w-20 shrink-0">
                         {label}
                     </Typography.Text>
@@ -59,9 +69,149 @@ function OverviewPanel({ entry }: { entry: RequestHistoryEntry }) {
     );
 }
 
+interface ParamTableRow {
+    key: string;
+    name: string;
+    value: string;
+    type: ParamItem['type'];
+}
+
+function ParamTable({ params }: { params: ParamItem[] }) {
+    const rows: ParamTableRow[] = params.map((param, index) => ({
+        key: String(index),
+        name: param.name,
+        value: param.value,
+        type: param.type,
+    }));
+    const columns: ColumnsType<ParamTableRow> = [
+        {
+            title: 'Key',
+            dataIndex: 'name',
+            ellipsis: true,
+            render: (text: string) => <span className="font-mono">{text}</span>,
+        },
+        {
+            title: 'Value',
+            dataIndex: 'value',
+            ellipsis: true,
+            render: (text: string) => <span className="font-mono break-all">{text}</span>,
+        },
+        {
+            title: 'Type',
+            dataIndex: 'type',
+            width: 90,
+        },
+    ];
+
+    if (rows.length === 0) {
+        return <Empty description="无请求参数" />;
+    }
+
+    return (
+        <Table<ParamTableRow>
+            size="small"
+            rowKey="key"
+            columns={columns}
+            dataSource={rows}
+            pagination={false}
+            scroll={{ x: true }}
+        />
+    );
+}
+
+interface RunInputRow {
+    key: string;
+    name: string;
+    value: unknown;
+}
+
+function RunInputTable({ runInput }: { runInput: Record<string, unknown> }) {
+    const rows: RunInputRow[] = Object.entries(runInput).map(([name, value], index) => ({
+        key: String(index),
+        name,
+        value,
+    }));
+    const columns: ColumnsType<RunInputRow> = [
+        {
+            title: 'Key',
+            dataIndex: 'name',
+            ellipsis: true,
+            render: (text: string) => <span className="font-mono">{text}</span>,
+        },
+        {
+            title: 'Value',
+            dataIndex: 'value',
+            ellipsis: true,
+            render: (value: unknown) => (
+                <span className="font-mono break-all">{formatCellValue(value)}</span>
+            ),
+        },
+    ];
+
+    if (rows.length === 0) {
+        return <Empty description="无运行参数" />;
+    }
+
+    return (
+        <Table<RunInputRow>
+            size="small"
+            rowKey="key"
+            columns={columns}
+            dataSource={rows}
+            pagination={false}
+            scroll={{ x: true }}
+        />
+    );
+}
+
+function formatCellValue(value: unknown): string {
+    if (value == null) return '';
+    if (typeof value === 'object') return JSON.stringify(value);
+    return String(value);
+}
+
+interface ResponseTableRow {
+    key: string;
+    [key: string]: unknown;
+}
+
+function ResponseDataTable({ data }: { data: Record<string, unknown>[] }) {
+    const keys = [...new Set(data.flatMap((row) => Object.keys(row)))];
+    const rows: ResponseTableRow[] = data.map((row, index) => ({
+        key: String(index),
+        ...row,
+    }));
+    const columns: ColumnsType<ResponseTableRow> = keys.map((key) => ({
+        title: key,
+        dataIndex: key,
+        key,
+        ellipsis: true,
+        render: (value: unknown) => (
+            <span className="font-mono break-all">{formatCellValue(value)}</span>
+        ),
+    }));
+
+    if (rows.length === 0) {
+        return <Empty description="无响应数据" />;
+    }
+
+    return (
+        <div className="overflow-x-auto">
+            <Table<ResponseTableRow>
+                size="small"
+                rowKey="key"
+                columns={columns}
+                dataSource={rows}
+                pagination={false}
+                scroll={{ x: true }}
+            />
+        </div>
+    );
+}
+
 function RequestDetail({ entry }: { entry: RequestHistoryEntry }) {
     return (
-        <div className="p-4 space-y-3">
+        <div className="space-y-4">
             <div className="grid gap-2 md:grid-cols-2">
                 <div>
                     <Typography.Text type="secondary">地址：</Typography.Text>
@@ -84,63 +234,25 @@ function RequestDetail({ entry }: { entry: RequestHistoryEntry }) {
                     </div>
                 ) : null}
             </div>
-            <pre className="request-history-code max-h-96 overflow-auto whitespace-pre-wrap">
-                {JSON.stringify(entry.request.params, null, 2)}
-            </pre>
-            {entry.request.runInput ? (
-                <pre className="request-history-code max-h-96 overflow-auto whitespace-pre-wrap">
-                    {JSON.stringify(entry.request.runInput, null, 2)}
-                </pre>
-            ) : null}
+            <ParamTable params={entry.request.params} />
+            {entry.request.runInput ? <RunInputTable runInput={entry.request.runInput} /> : null}
         </div>
     );
 }
 
 function ResponseDetail({ entry }: { entry: RequestHistoryEntry }) {
     return (
-        <div className="p-4">
-            <div className="mb-3">
+        <div className="space-y-3">
+            <div className="flex items-center gap-2">
                 <HistoryStatus entry={entry} />
                 <Tag className="ml-2">{String(entry.response.code)}</Tag>
+                {entry.response.message ? (
+                    <span className="min-w-0 break-all text-[var(--color-text-secondary)]">
+                        {entry.response.message}
+                    </span>
+                ) : null}
             </div>
-            <pre className="request-history-code max-h-[520px] overflow-auto whitespace-pre-wrap">
-                {JSON.stringify(entry.response, null, 2)}
-            </pre>
-        </div>
-    );
-}
-
-function ScriptDetail({ entry }: { entry: RequestHistoryEntry }) {
-    if (!entry.request.script) {
-        return <Empty description="本次请求没有脚本" />;
-    }
-    return (
-        <pre className="request-history-code p-4 max-h-[520px] overflow-auto whitespace-pre-wrap">
-            {entry.request.script}
-        </pre>
-    );
-}
-
-function LogDetail({ entry }: { entry: RequestHistoryEntry }) {
-    const consoleEntries = entry.outcome.scriptConsole?.entries ?? [];
-    return (
-        <div className="p-4 space-y-2">
-            {consoleEntries.length === 0 && !entry.outcome.scriptError ? (
-                <Empty description="本次请求没有运行日志" />
-            ) : null}
-            {entry.outcome.scriptError ? (
-                <pre className="request-history-code whitespace-pre-wrap text-[var(--color-error)]">
-                    {entry.outcome.scriptError}
-                </pre>
-            ) : null}
-            {consoleEntries.map((item, index) => (
-                <div key={`${item.timestamp}-${index}`} className="font-mono text-xs">
-                    <span className="text-[var(--color-text-muted)]">
-                        {formatHistoryTime(item.timestamp)} [{item.level}]
-                    </span>{' '}
-                    {item.message}
-                </div>
-            ))}
+            <ResponseDataTable data={entry.response.data} />
         </div>
     );
 }
@@ -165,6 +277,7 @@ export default function HistoryDetail({
     return (
         <div className="request-history-detail h-full flex flex-col min-h-0">
             <div className="flex items-center gap-2 px-3 py-2 border-b border-[var(--color-divider)]">
+                <HistoryOutlined className="text-[var(--color-text-secondary)]" />
                 <Typography.Text strong>{entry.caseName}</Typography.Text>
                 <HistoryStatus entry={entry} />
                 <div className="flex-1" />
@@ -181,20 +294,20 @@ export default function HistoryDetail({
                     删除
                 </Button>
             </div>
-            <Tabs
-                className="request-history-detail-tabs flex-1 min-h-0"
-                items={[
-                    { key: 'overview', label: '概览', children: <OverviewPanel entry={entry} /> },
-                    {
-                        key: 'request',
-                        label: '请求参数',
-                        children: <RequestDetail entry={entry} />,
-                    },
-                    { key: 'response', label: '响应', children: <ResponseDetail entry={entry} /> },
-                    { key: 'script', label: '脚本', children: <ScriptDetail entry={entry} /> },
-                    { key: 'logs', label: '日志', children: <LogDetail entry={entry} /> },
-                ]}
-            />
+            <div className="request-history-detail-scroll flex-1 min-h-0 overflow-y-auto">
+                <section className="px-4 py-3 border-b border-[var(--color-divider)]">
+                    <SectionTitle>概览</SectionTitle>
+                    <OverviewPanel entry={entry} />
+                </section>
+                <section className="px-4 py-3 border-b border-[var(--color-divider)]">
+                    <SectionTitle>请求参数</SectionTitle>
+                    <RequestDetail entry={entry} />
+                </section>
+                <section className="px-4 py-3">
+                    <SectionTitle>响应</SectionTitle>
+                    <ResponseDetail entry={entry} />
+                </section>
+            </div>
         </div>
     );
 }

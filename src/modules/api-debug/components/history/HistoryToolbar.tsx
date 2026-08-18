@@ -1,6 +1,5 @@
-import { Button, Input, Segmented, Select, Typography } from 'antd';
-import { ArrowLeftOutlined, HistoryOutlined } from '@ant-design/icons';
-import type { DetailMode, ResultFilter, TimeFilter } from './historyFormat';
+import { Button, Input, Segmented, Select } from 'antd';
+import type { ResultFilter, TimeFilter } from './historyFormat';
 
 interface HistoryToolbarProps {
     counts: Record<ResultFilter, number>;
@@ -10,46 +9,12 @@ interface HistoryToolbarProps {
     environment?: string;
     mode?: string;
     environments: string[];
-    detailMode: DetailMode;
     onQueryChange: (value: string) => void;
     onResultChange: (value: ResultFilter) => void;
     onTimeChange: (value: TimeFilter) => void;
     onEnvironmentChange: (value?: string) => void;
     onModeChange: (value?: string) => void;
-    onDetailModeChange: (value: DetailMode) => void;
     onClear: () => void;
-    onClose: () => void;
-}
-
-function ToolbarHeader({
-    detailMode,
-    onDetailModeChange,
-    onClose,
-}: {
-    detailMode: DetailMode;
-    onDetailModeChange: (value: DetailMode) => void;
-    onClose: () => void;
-}) {
-    return (
-        <div className="flex items-center gap-2 px-3 py-2">
-            <Button type="text" size="small" icon={<ArrowLeftOutlined />} onClick={onClose}>
-                返回
-            </Button>
-            <HistoryOutlined className="text-[var(--color-text-secondary)]" />
-            <Typography.Text strong>请求历史</Typography.Text>
-            <div className="flex-1" />
-            <Segmented<DetailMode>
-                size="small"
-                value={detailMode}
-                onChange={onDetailModeChange}
-                options={[
-                    { label: '底部', value: 'bottom' },
-                    { label: '右侧', value: 'right' },
-                    { label: '隐藏', value: 'hidden' },
-                ]}
-            />
-        </div>
-    );
 }
 
 function ToolbarFilters({
@@ -146,11 +111,6 @@ function ToolbarFilters({
 export default function HistoryToolbar(props: HistoryToolbarProps) {
     return (
         <div className="border-b border-[var(--color-divider)]">
-            <ToolbarHeader
-                detailMode={props.detailMode}
-                onDetailModeChange={props.onDetailModeChange}
-                onClose={props.onClose}
-            />
             <ToolbarFilters {...props} />
         </div>
     );

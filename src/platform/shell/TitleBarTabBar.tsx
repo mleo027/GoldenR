@@ -5,6 +5,7 @@ export interface TitleBarTabItem {
     key: string;
     label: string;
     active?: boolean;
+    leadingIcon?: ReactNode;
     icon?: ReactNode;
     onSelect: () => void;
     onClose?: () => void;
@@ -60,6 +61,11 @@ function TitleBarTabBar({
                             }
                         }}
                     >
+                        {item.leadingIcon ? (
+                            <span className="case-tab-leading-icon" aria-hidden>
+                                {item.leadingIcon}
+                            </span>
+                        ) : null}
                         {item.icon ? (
                             <span className="case-tab-favorite" aria-hidden>
                                 {item.icon}

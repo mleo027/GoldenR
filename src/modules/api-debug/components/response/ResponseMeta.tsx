@@ -12,109 +12,91 @@ import { formatDataSize } from '../../../../utils/exportTable';
 interface ResponseMetaProps {
     response: ResponseData;
     className?: string;
-    /** footer：仅展示 StatusBar 未覆盖的业务码、体积等；full：完整元信息 */
     variant?: 'full' | 'footer';
 }
 
-function StatusBadge({ kind }: { kind: 'success' | 'warning' | 'error' }) {
-    if (kind === 'success') {
-        return (
-            <Tag bordered={false} className="response-meta-badge response-meta-badge-success">
-                <CheckCircleOutlined className="mr-1" />
-                Success
-            </Tag>
-        );
-    }
-    if (kind === 'warning') {
-        return (
-            <Tag bordered={false} className="response-meta-badge response-meta-badge-warning">
-                <ExclamationCircleOutlined className="mr-1" />
-                Warning
-            </Tag>
-        );
-    }
+type StatusKind = 'success' | 'warning' | 'error';
+
+function StatusBadge({ kind }: { kind: StatusKind }) {
+    const content = {
+        success: { icon: <CheckCircleOutlined className="mr-1" />, label: 'Success' },
+        warning: { icon: <ExclamationCircleOutlined className="mr-1" />, label: 'Warning' },
+        error: { icon: <CloseCircleOutlined className="mr-1" />, label: 'Error' },
+    }[kind];
+
     return (
-        <Tag bordered={false} className="response-meta-badge response-meta-badge-error">
-            <CloseCircleOutlined className="mr-1" />
-            Error
+        <Tag bordered={false} className={`response-meta-badge response-meta-badge-${kind}`}>
+            {content.icon}
+            {content.label}
         </Tag>
     );
 }
 
-export default function ResponseMeta({ response, className, variant = 'full' }: ResponseMetaProps) {
+function hasTransportMismatch(response: ResponseData): boolean {
     const status = parseKcbpResponseStatus(response);
-    const { stats, calledAt, data } = response;
-    const rowCount = stats?.rows ?? data.length;
-    const dataSize = formatDataSize(data);
-    const isFooter = variant === 'footer';
+    return status.hasBusinessRow && String(status.transportCode) !== String(status.businessCode);
+}
 
-    const hasFooterContent =
-        status.businessMsg ||
-        data.length > 0 ||
-        (status.hasBusinessRow && String(status.transportCode) !== String(status.businessCode));
+function ResponseMetaFooter({ response, className }: ResponseMetaProps) {
+    const status = parseKcbpResponseStatus(response);
+    const dataSize = formatDataSize(response.data);
 
-    if (isFooter && !hasFooterContent) {
-        return null;
-    }
-
-    if (isFooter) {
-        return (
-            <div
-                className={`response-meta flex items-center gap-2 min-w-0 flex-wrap ${className ?? ''}`}
-            >
-                {status.businessMsg && (
-                    <>
+    return (
+        <div
+            className={`response-meta flex items-center gap-2 min-w-0 flex-wrap ${className ?? ''}`}
+        >
+            {status.businessMsg && (
+                <>
+                    <Tag
+                        bordered={false}
+                        className="response-meta-badge response-meta-badge-muted shrink-0"
+                    >
+                        {status.businessCode}
+                    </Tag>
+                    <Tooltip title={status.businessMsg}>
+                        <span className="response-meta-msg truncate">{status.businessMsg}</span>
+                    </Tooltip>
+                </>
+            )}
+            {response.data.length > 0 && (
+                <>
+                    {status.businessMsg && (
+                        <span className="response-meta-sep shrink-0" aria-hidden="true" />
+                    )}
+                    <Tooltip title="响应数据大小">
+                        <Tag bordered={false} className="response-meta-badge shrink-0">
+                            {dataSize}
+                        </Tag>
+                    </Tooltip>
+                </>
+            )}
+            {hasTransportMismatch(response) && (
+                <>
+                    <span className="response-meta-sep shrink-0" aria-hidden="true" />
+                    <Tooltip title={`传输层 ${status.transportCode} ${status.transportMsg}`}>
                         <Tag
                             bordered={false}
                             className="response-meta-badge response-meta-badge-muted shrink-0"
                         >
-                            {status.businessCode}
+                            传输 {status.transportCode}
                         </Tag>
-                        <Tooltip title={status.businessMsg}>
-                            <span className="response-meta-msg truncate">{status.businessMsg}</span>
-                        </Tooltip>
-                    </>
-                )}
+                    </Tooltip>
+                </>
+            )}
+        </div>
+    );
+}
 
-                {data.length > 0 && (
-                    <>
-                        {status.businessMsg && (
-                            <span className="response-meta-sep shrink-0" aria-hidden="true" />
-                        )}
-                        <Tooltip title="响应数据大小">
-                            <Tag bordered={false} className="response-meta-badge shrink-0">
-                                {dataSize}
-                            </Tag>
-                        </Tooltip>
-                    </>
-                )}
-
-                {status.hasBusinessRow &&
-                    String(status.transportCode) !== String(status.businessCode) && (
-                        <>
-                            <span className="response-meta-sep shrink-0" aria-hidden="true" />
-                            <Tooltip
-                                title={`传输层: ${status.transportCode} ${status.transportMsg}`}
-                            >
-                                <Tag
-                                    bordered={false}
-                                    className="response-meta-badge response-meta-badge-muted shrink-0"
-                                >
-                                    传输 {status.transportCode}
-                                </Tag>
-                            </Tooltip>
-                        </>
-                    )}
-            </div>
-        );
-    }
+function ResponseMetaDetails({ response, className }: ResponseMetaProps) {
+    const status = parseKcbpResponseStatus(response);
+    const rowCount = response.stats?.rows ?? response.data.length;
+    const dataSize = formatDataSize(response.data);
 
     return (
         <div
             className={`response-meta flex items-center gap-1.5 min-w-0 flex-wrap ${className ?? ''}`}
         >
-            {!isFooter && <StatusBadge kind={status.kind} />}
-
+            <StatusBadge kind={status.kind} />
             {status.businessMsg && (
                 <Tooltip title={status.businessMsg}>
                     <Tag bordered={false} className="response-meta-badge response-meta-badge-muted">
@@ -122,50 +104,49 @@ export default function ResponseMeta({ response, className, variant = 'full' }: 
                     </Tag>
                 </Tooltip>
             )}
-
-            {!isFooter && (
-                <Tooltip title={`返回 ${rowCount} 行`}>
-                    <Tag bordered={false} className="response-meta-badge">
-                        {rowCount} Rows
-                    </Tag>
-                </Tooltip>
-            )}
-
-            {!isFooter && stats && (
-                <Tooltip title={`耗时 ${stats.timecost}ms`}>
+            <Tooltip title={`返回 ${rowCount} 行`}>
+                <Tag bordered={false} className="response-meta-badge">
+                    {rowCount} Rows
+                </Tag>
+            </Tooltip>
+            {response.stats && (
+                <Tooltip title={`耗时 ${response.stats.timecost}ms`}>
                     <Tag bordered={false} className="response-meta-badge response-meta-badge-time">
-                        {stats.timecost} ms
+                        {response.stats.timecost} ms
                     </Tag>
                 </Tooltip>
             )}
-
-            {data.length > 0 && (
+            {response.data.length > 0 && (
                 <Tooltip title="响应数据大小">
                     <Tag bordered={false} className="response-meta-badge">
                         {dataSize}
                     </Tag>
                 </Tooltip>
             )}
-
-            {!isFooter && calledAt != null && (
-                <Tooltip title={`调用时间 ${formatDateTime(calledAt)}`}>
+            {response.calledAt != null && (
+                <Tooltip title={`调用时间 ${formatDateTime(response.calledAt)}`}>
                     <Tag bordered={false} className="response-meta-badge response-meta-badge-muted">
-                        {formatDateTime(calledAt)}
+                        {formatDateTime(response.calledAt)}
                     </Tag>
                 </Tooltip>
             )}
-
-            {status.hasBusinessRow &&
-                String(status.transportCode) !== String(status.businessCode) && (
-                    <Tooltip title={`传输层: ${status.transportCode} ${status.transportMsg}`}>
-                        <Tag
-                            bordered={false}
-                            className="response-meta-badge response-meta-badge-muted"
-                        >
-                            传输 {status.transportCode}
-                        </Tag>
-                    </Tooltip>
-                )}
+            {hasTransportMismatch(response) && (
+                <Tooltip title={`传输层 ${status.transportCode} ${status.transportMsg}`}>
+                    <Tag bordered={false} className="response-meta-badge response-meta-badge-muted">
+                        传输 {status.transportCode}
+                    </Tag>
+                </Tooltip>
+            )}
         </div>
     );
+}
+
+export default function ResponseMeta({ response, className, variant = 'full' }: ResponseMetaProps) {
+    if (variant === 'footer') {
+        const status = parseKcbpResponseStatus(response);
+        const hasContent =
+            status.businessMsg || response.data.length > 0 || hasTransportMismatch(response);
+        return hasContent ? <ResponseMetaFooter response={response} className={className} /> : null;
+    }
+    return <ResponseMetaDetails response={response} className={className} />;
 }

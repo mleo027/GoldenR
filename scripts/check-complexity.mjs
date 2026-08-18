@@ -33,7 +33,8 @@ const violations = results.flatMap((result) =>
     result.messages
         .filter(
             (message) =>
-                message.ruleId?.startsWith('complexity') || message.ruleId?.startsWith('max-'),
+                !result.filePath.includes('.test.') &&
+                (message.ruleId?.startsWith('complexity') || message.ruleId?.startsWith('max-')),
         )
         .map((message) => ({
             file: result.filePath,
@@ -43,7 +44,7 @@ const violations = results.flatMap((result) =>
         })),
 );
 
-const baseline = 46;
+const baseline = 38;
 console.log(`Complexity baseline violations: ${violations.length} (allowed baseline: ${baseline})`);
 for (const violation of violations) {
     console.log(`${violation.file}:${violation.line} [${violation.rule}] ${violation.message}`);

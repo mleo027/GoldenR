@@ -13,6 +13,7 @@ import { ParamSuggestProvider } from '../store/paramSuggestStore';
 import { ApiDebugEnvProvider } from '../store/apiDebugEnvStore';
 import { RunLogProvider } from '../store/runLogStore';
 import { RequestHistoryProvider } from '../store/requestHistoryStore';
+import { RequestHistoryNavigationProvider } from '../store/requestHistoryNavigationStore';
 import ApiDebugUndoFlush from '../components/ApiDebugUndoFlush';
 import { KcbpFeedbackSync } from '../components/feedback/KcbpFeedbackSync';
 
@@ -23,17 +24,19 @@ export function ApiDebugProviders({ children }: { children: ReactNode }) {
                 <ApiDebugUndoFlush />
                 <TabsProvider>
                     <RequestHistoryProvider>
-                        <ResponseProvider>
-                            <ScriptConsoleProvider>
-                                <ResponseLifecycleSync />
-                                <RunLogProvider>
-                                    <KcbpCallProvider>
-                                        <KcbpFeedbackSync />
-                                        {children}
-                                    </KcbpCallProvider>
-                                </RunLogProvider>
-                            </ScriptConsoleProvider>
-                        </ResponseProvider>
+                        <RequestHistoryNavigationProvider>
+                            <ResponseProvider>
+                                <ScriptConsoleProvider>
+                                    <ResponseLifecycleSync />
+                                    <RunLogProvider>
+                                        <KcbpCallProvider>
+                                            <KcbpFeedbackSync />
+                                            {children}
+                                        </KcbpCallProvider>
+                                    </RunLogProvider>
+                                </ScriptConsoleProvider>
+                            </ResponseProvider>
+                        </RequestHistoryNavigationProvider>
                     </RequestHistoryProvider>
                 </TabsProvider>
             </ParamSuggestProvider>

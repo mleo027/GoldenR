@@ -224,6 +224,16 @@
     color: var(--color-warning);
 }
 
+.case-tab-leading-icon {
+    flex-shrink: 0;
+    font-size: 11px;
+    color: var(--color-text-muted);
+}
+
+.case-tab-item-active .case-tab-leading-icon {
+    color: var(--color-primary);
+}
+
 .case-tab-label {
     min-width: 0;
     overflow: hidden;
