@@ -182,4 +182,42 @@ export function registerImportExportIpc(): void {
             }
         }),
     );
+
+    ipcMain.handle(
+        'export:saveIni',
+        withIpcError(async (event, payload: unknown) => {
+            if (
+                !payload ||
+                typeof payload !== 'object' ||
+                typeof (payload as { content?: unknown }).content !== 'string' ||
+                typeof (payload as { defaultFilename?: unknown }).defaultFilename !== 'string'
+            ) {
+                throw invalidIpcArgument('Invalid INI export payload');
+            }
+            const typedPayload = payload as { content: string; defaultFilename: string };
+            const win = BrowserWindow.fromWebContents(event.sender);
+            const defaultFilename = typedPayload.defaultFilename.trim() || 'project.ini';
+            const defaultPath = defaultFilename.endsWith('.ini')
+                ? defaultFilename
+                : `${defaultFilename}.ini`;
+
+            const result = await showSaveDialog(win, {
+                title: '导出 INI',
+                defaultPath,
+                filters: [{ name: 'INI', extensions: ['ini'] }],
+            });
+
+            if (result.canceled || !result.filePath) {
+                return { saved: false as const };
+            }
+
+            try {
+                await writeFile(result.filePath, typedPayload.content, 'utf-8');
+                return { saved: true as const, filePath: result.filePath };
+            } catch (error) {
+                const message = error instanceof Error ? error.message : String(error);
+                return { saved: false as const, error: message };
+            }
+        }),
+    );
 }

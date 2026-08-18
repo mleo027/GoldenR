@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Button, Tooltip } from 'antd';
 import { ClearOutlined, CodeOutlined } from '@ant-design/icons';
+import { ControlCharText } from '../../../../utils/ControlCharText';
 import type { ScriptConsoleSnapshot } from '../../types/scriptConsole';
 
 interface ScriptConsolePanelProps {
@@ -47,7 +48,9 @@ export default function ScriptConsolePanel({ snapshot, onClear }: ScriptConsoleP
                                 {formatConsoleTime(entry.timestamp)}
                             </span>
                             <span className="script-console-level">{entry.level}</span>
-                            <pre className="script-console-message">{entry.message}</pre>
+                            <pre className="script-console-message">
+                                <ControlCharText text={entry.message} />
+                            </pre>
                         </div>
                     ))
                 ) : (

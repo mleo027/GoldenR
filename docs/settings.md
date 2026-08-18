@@ -23,6 +23,8 @@
 | Queue    | 请求队列名             |
 | Timeout  | 超时秒数               |
 
+选中环境后会自动应用到全部接口；也可以直接在请求界面的环境下拉框中切换。
+
 存储：`api-debug.env.json` → `kcxpEnvironments`、`activeKcxpEnvironmentId`。
 
 ## 数据库设置

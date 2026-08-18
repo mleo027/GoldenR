@@ -1,6 +1,6 @@
 import { useReducer, useCallback, useMemo, useEffect, useRef, type ReactNode } from 'react';
 import type { TabData } from '../types/workspace';
-import type { KcxpApplyScope, KcxpEnvironment } from '../types/kcxp';
+import type { KcxpEnvironment } from '../types/kcxp';
 import { TabsActionsContext, TabsStateContext, type TabsContextValue } from './TabsContext';
 import {
     applyTabDraftsToWorkspace,
@@ -238,8 +238,7 @@ export function TabsProvider({ children }: { children: ReactNode }) {
         [],
     );
     const applyKcxpEnvironment = useCallback(
-        (environment: KcxpEnvironment, scope: KcxpApplyScope) =>
-            dispatch({ type: 'APPLY_KCXP_ENV', environment, scope }),
+        (environment: KcxpEnvironment) => dispatch({ type: 'APPLY_KCXP_ENV', environment }),
         [],
     );
 

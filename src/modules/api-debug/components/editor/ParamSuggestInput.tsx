@@ -1,12 +1,21 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+    memo,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    type ClipboardEvent,
+} from 'react';
 import { Dropdown, Input, Spin, Typography } from 'antd';
-import type { InputRef } from 'antd';
+import type { TextAreaRef } from 'antd/es/input/TextArea';
 import { SearchOutlined } from '@ant-design/icons';
 import type { ParamItem } from '../../types/workspace';
 import type { DbSuggestOption } from '../../types/paramSuggest';
 import { useParamSuggestions } from '../../hooks/useParamSuggestions';
 import { getElectronAPI } from '../../../../lib/electron';
 import { formatFileParamValue, isFilePickerTriggerValue } from '../../utils/kcbp/kcbpFields';
+import { decodeSohMarkers, formatControlCharsForTitle } from '../../../../utils/controlCharDisplay';
 
 interface ParamSuggestInputProps {
     fieldName: string;
@@ -104,7 +113,7 @@ function ParamSuggestInput({
     placeholder: placeholderProp,
     onChange,
 }: ParamSuggestInputProps) {
-    const inputRef = useRef<InputRef>(null);
+    const inputRef = useRef<TextAreaRef>(null);
     const focusedRef = useRef(false);
     const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const commitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -210,11 +219,12 @@ function ParamSuggestInput({
 
     const handleInputChange = useCallback(
         (next: string) => {
-            setLocalValue(next);
-            setKeyword(next);
-            commitToParent(next);
+            const raw = decodeSohMarkers(next);
+            setLocalValue(raw);
+            setKeyword(raw);
+            commitToParent(raw);
             setOpen(true);
-            openFilePickerForValue(next);
+            openFilePickerForValue(raw);
         },
         [commitToParent, openFilePickerForValue],
     );
@@ -230,19 +240,33 @@ function ParamSuggestInput({
         [commitToParent],
     );
 
+    const handleCopy = useCallback((event: ClipboardEvent<HTMLTextAreaElement>) => {
+        const target = event.currentTarget;
+        const selected = target.value.slice(target.selectionStart ?? 0, target.selectionEnd ?? 0);
+        const raw = decodeSohMarkers(selected);
+        if (raw === selected) return;
+
+        if (navigator.clipboard) {
+            event.preventDefault();
+            void navigator.clipboard.writeText(raw).catch(() => undefined);
+        }
+    }, []);
+
     if (!hasFieldRule) {
         return (
-            <Input
+            <Input.TextArea
                 ref={inputRef}
-                value={localValue}
+                value={formatControlCharsForTitle(localValue)}
                 placeholder={placeholder}
-                variant="borderless"
                 size="small"
+                autoSize={{ minRows: 1, maxRows: 5 }}
+                spellCheck={false}
                 className="param-input"
                 disabled={disabled}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 onChange={(event) => handleInputChange(event.target.value)}
+                onCopy={handleCopy}
             />
         );
     }
@@ -264,17 +288,19 @@ function ParamSuggestInput({
                 />
             )}
         >
-            <Input
+            <Input.TextArea
                 ref={inputRef}
-                value={localValue}
+                value={formatControlCharsForTitle(localValue)}
                 placeholder={placeholder}
-                variant="borderless"
                 size="small"
+                autoSize={{ minRows: 1, maxRows: 5 }}
+                spellCheck={false}
                 className="param-input param-suggest-input"
                 disabled={disabled}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 onChange={(event) => handleInputChange(event.target.value)}
+                onCopy={handleCopy}
             />
         </Dropdown>
     );

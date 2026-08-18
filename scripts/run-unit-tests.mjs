@@ -26,6 +26,7 @@ const suites = {
     import: [
         'src/modules/api-debug/utils/import/kuabImport.test.ts',
         'src/modules/api-debug/utils/import/configIniImport.test.ts',
+        'src/modules/api-debug/utils/import/configIniExport.test.ts',
         'src/modules/api-debug/utils/import/readIniText.test.ts',
     ],
     script: [

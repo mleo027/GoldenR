@@ -6,12 +6,57 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppEnvProvider } from '../../../../store/appEnvStore';
 import { UndoRedoProvider } from '../../../../platform/undo';
 import { ApiDebugProviders } from '../../providers/ApiDebugProviders';
-import { useActiveTab } from '../../store/useTabs';
+import { useActiveTab, useTabsActions, useTabsState } from '../../store/useTabs';
+import { useApiDebugEnv } from '../../store/useApiDebugEnv';
 import Path from './Path';
 
 function AddressProbe() {
     const { activeTab } = useActiveTab();
     return <span data-testid="address">{activeTab.address}</span>;
+}
+
+function EnvSetupProbe() {
+    const { patchEnv } = useApiDebugEnv();
+    const { addCase } = useTabsActions();
+
+    return (
+        <button
+            type="button"
+            onClick={() => {
+                patchEnv({
+                    kcxpEnvironments: [
+                        {
+                            id: 'default-dev',
+                            name: 'DEV',
+                            host: '127.0.0.1:21000',
+                            queue: 'req1',
+                            timeout: '15',
+                        },
+                        {
+                            id: 'env-test',
+                            name: 'TEST',
+                            host: '10.0.0.9:23000',
+                            queue: 'req9',
+                            timeout: '25',
+                        },
+                    ],
+                    activeKcxpEnvironmentId: 'default-dev',
+                });
+                addCase(0);
+            }}
+        >
+            setup-env
+        </button>
+    );
+}
+
+function AddressListProbe() {
+    const { state } = useTabsState();
+    return (
+        <span data-testid="address-list">
+            {state.projects.flatMap((project) => project.cases).map((caseItem) => caseItem.address)}
+        </span>
+    );
 }
 
 function renderPath() {
@@ -21,6 +66,8 @@ function renderPath() {
                 <ApiDebugProviders>
                     <Path layout="full" hideRunButton />
                     <AddressProbe />
+                    <EnvSetupProbe />
+                    <AddressListProbe />
                 </ApiDebugProviders>
             </UndoRedoProvider>
         </AppEnvProvider>,
@@ -64,6 +111,7 @@ function stubElectronApi() {
             importExport: {
                 saveCsv: vi.fn(async () => ({ saved: false })),
                 saveHtml: vi.fn(async () => ({ saved: false })),
+                saveIni: vi.fn(async () => ({ saved: false })),
                 openImportFile: vi.fn(async () => ({ opened: false })),
                 openParamFile: vi.fn(async () => ({ opened: false })),
                 statParamFile: vi.fn(async () => ({ exists: false, error: 'missing' })),
@@ -106,5 +154,24 @@ describe('Path integration', () => {
             },
             { timeout: 3000 },
         );
+    });
+
+    it('applies the selected environment to all cases from the request dropdown', async () => {
+        const user = userEvent.setup();
+        renderPath();
+
+        await user.click(screen.getByRole('button', { name: 'setup-env' }));
+        await waitFor(() => {
+            expect(screen.getByTestId('address-list').textContent).toContain('127.0.0.1:21000');
+        });
+
+        await user.click(screen.getByText('DEV'));
+        await user.click(await screen.findByText('TEST'));
+
+        await waitFor(() => {
+            const addresses = screen.getByTestId('address-list').textContent ?? '';
+            expect(addresses).toContain('10.0.0.9:23000');
+            expect(addresses).not.toContain('127.0.0.1:21000');
+        });
     });
 });

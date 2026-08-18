@@ -28,6 +28,30 @@ IPPort   =21000
         ]);
     });
 
+    it('parses per-case queue and timeout from msgtype query', () => {
+        const caseItem = parseIniCaseLine(
+            '测试查询=150501?queue=req2&timeout=30;fundid:8',
+            '127.0.0.1:21000',
+            0,
+        );
+
+        expect(caseItem?.address).toBe('127.0.0.1:21000/150501?queue=req2&timeout=30');
+        expect(caseItem?.params).toEqual([{ name: 'fundid', value: '8', type: 'string' }]);
+    });
+
+    it('unescapes delimiters in titles and parameter values', () => {
+        const caseItem = parseIniCaseLine(
+            '\\[测试\\=名称\\]=150501;field\\,name:a\\,b\\;c\\:d',
+            '127.0.0.1:21000',
+            0,
+        );
+
+        expect(caseItem?.name).toBe('[测试=名称]');
+        expect(caseItem?.params).toEqual([
+            { name: 'field,name', value: 'a,b;c:d', type: 'string' },
+        ]);
+    });
+
     it('parses full ini content', () => {
         const content = `
 [连接参数]

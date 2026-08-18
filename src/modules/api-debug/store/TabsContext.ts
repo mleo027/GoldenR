@@ -1,6 +1,6 @@
 import { createContext, type Context } from 'react';
 import type { TabData, ProjectData } from '../types/workspace';
-import type { KcxpApplyScope, KcxpEnvironment } from '../types/kcxp';
+import type { KcxpEnvironment } from '../types/kcxp';
 import type { TabsState } from './tabsReducer';
 
 export interface TabsStateContextValue {
@@ -25,7 +25,7 @@ export interface TabsActionsContextValue {
     toggleCaseFavorite: (projectIndex: number, caseIndex: number) => void;
     importCases: (projectIndex: number, cases: TabData[]) => void;
     moveCase: (fromProjectIndex: number, fromCaseIndex: number, toProjectIndex: number) => void;
-    applyKcxpEnvironment: (environment: KcxpEnvironment, scope: KcxpApplyScope) => void;
+    applyKcxpEnvironment: (environment: KcxpEnvironment) => void;
 }
 
 export type TabsContextValue = TabsStateContextValue & TabsActionsContextValue;

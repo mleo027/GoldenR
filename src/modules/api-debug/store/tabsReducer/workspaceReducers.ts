@@ -11,41 +11,12 @@ type WorkspaceAction = Extract<
 export function reduceWorkspaceAction(state: TabsState, action: WorkspaceAction): TabsState {
     switch (action.type) {
         case 'APPLY_KCXP_ENV': {
-            const { environment, scope } = action;
+            const { environment } = action;
             const mapCase = (caseItem: TabData): TabData => ({
                 ...caseItem,
                 address: applyKcxpEnvironmentToAddress(caseItem.address, environment),
                 updatedAt: Date.now(),
             });
-
-            if (scope === 'active') {
-                const activeProject = state.projects[state.activeProjectIndex];
-                if (!activeProject?.cases[state.activeCaseIndex]) return state;
-
-                const nextProjects = state.projects.map((project, projectIndex) => {
-                    if (projectIndex !== state.activeProjectIndex) return project;
-                    return {
-                        ...project,
-                        updatedAt: Date.now(),
-                        cases: project.cases.map((item, caseIndex) =>
-                            caseIndex === state.activeCaseIndex ? mapCase(item) : item,
-                        ),
-                    };
-                });
-                return { ...state, projects: nextProjects };
-            }
-
-            if (scope === 'project') {
-                const nextProjects = state.projects.map((project, projectIndex) => {
-                    if (projectIndex !== state.activeProjectIndex) return project;
-                    return {
-                        ...project,
-                        updatedAt: Date.now(),
-                        cases: project.cases.map(mapCase),
-                    };
-                });
-                return { ...state, projects: nextProjects };
-            }
 
             const nextProjects = state.projects.map((project) => ({
                 ...project,

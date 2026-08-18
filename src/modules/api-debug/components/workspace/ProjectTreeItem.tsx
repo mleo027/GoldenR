@@ -84,7 +84,7 @@ function ProjectTreeItem({
                             size="small"
                             icon={<ImportOutlined className="text-[10px]" />}
                             className="case-item-action"
-                            title="从 JSON 导入接口"
+                            title="导入接口 JSON|INI"
                             onClick={(event) => {
                                 event.stopPropagation();
                                 onImport();

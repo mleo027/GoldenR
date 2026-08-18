@@ -1,1 +1,1 @@
-export type { KcxpApplyScope, KcxpEnvironment } from '@/shared/kcxp/types';
+export type { KcxpEnvironment } from '@/shared/kcxp/types';

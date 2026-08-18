@@ -6,6 +6,7 @@ import {
     DEFAULT_KCBP_TIMEOUT,
     serializeKcbpAddress,
 } from '../kcbp/kcbpAddress';
+import { findUnescapedChar, splitUnescaped, unescapeIniText } from './configIniCodec';
 
 /** 从 Config.ini [连接参数] 解析 host，如 127.0.0.1:21000 */
 export function parseIniConnectionHost(content: string): string {
@@ -31,17 +32,17 @@ function parseIniParams(paramsStr: string): ParamItem[] {
     if (!paramsStr) return [];
 
     const params: ParamItem[] = [];
-    for (const segment of paramsStr.split(',')) {
+    for (const segment of splitUnescaped(paramsStr, ',')) {
         const trimmed = segment.trim();
         if (!trimmed) continue;
 
-        const colonIndex = trimmed.indexOf(':');
+        const colonIndex = findUnescapedChar(trimmed, ':');
         if (colonIndex <= 0) continue;
 
-        const name = trimmed.slice(0, colonIndex).trim();
+        const name = unescapeIniText(trimmed.slice(0, colonIndex)).trim();
         if (!name) continue;
 
-        params.push(createParamItem(name, trimmed.slice(colonIndex + 1).trim()));
+        params.push(createParamItem(name, unescapeIniText(trimmed.slice(colonIndex + 1)).trim()));
     }
 
     return params;
@@ -56,18 +57,27 @@ export function parseIniCaseLine(
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith('[')) return null;
 
-    const eqIndex = trimmed.indexOf('=');
+    const eqIndex = findUnescapedChar(trimmed, '=');
     if (eqIndex <= 0) return null;
 
-    const title = trimmed.slice(0, eqIndex).trim();
+    const title = unescapeIniText(trimmed.slice(0, eqIndex)).trim();
     const remainder = trimmed.slice(eqIndex + 1).trim();
     if (!remainder) return null;
 
-    const semiIndex = remainder.indexOf(';');
+    const semiIndex = findUnescapedChar(remainder, ';');
     if (semiIndex < 0) return null;
 
-    const msgtype = remainder.slice(0, semiIndex).trim();
+    const rawMsgtype = remainder.slice(0, semiIndex).trim();
+    const msgtypeQueryIndex = findUnescapedChar(rawMsgtype, '?');
+    const msgtype = unescapeIniText(
+        msgtypeQueryIndex === -1 ? rawMsgtype : rawMsgtype.slice(0, msgtypeQueryIndex),
+    ).trim();
     if (!msgtype) return null;
+    const query = new URLSearchParams(
+        msgtypeQueryIndex === -1 ? '' : rawMsgtype.slice(msgtypeQueryIndex + 1),
+    );
+    const queue = query.get('queue')?.trim() || DEFAULT_KCBP_QUEUE;
+    const timeout = query.get('timeout')?.trim() || DEFAULT_KCBP_TIMEOUT;
 
     const paramsStr = remainder.slice(semiIndex + 1).trim();
     const base = createEmptyCase(index + 1);
@@ -79,8 +89,8 @@ export function parseIniCaseLine(
         address: serializeKcbpAddress({
             host: hostTemplate,
             msgtype,
-            queue: DEFAULT_KCBP_QUEUE,
-            timeout: DEFAULT_KCBP_TIMEOUT,
+            queue,
+            timeout,
         }),
         params: parseIniParams(paramsStr),
     };

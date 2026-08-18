@@ -1,5 +1,5 @@
 import type { TabData, ProjectData, PersistedWorkspace } from '../../types/workspace';
-import type { KcxpApplyScope, KcxpEnvironment } from '../../types/kcxp';
+import type { KcxpEnvironment } from '../../types/kcxp';
 import { createInitialWorkspace } from '../tabsData';
 
 export interface TabsState {
@@ -31,7 +31,7 @@ export type TabsAction =
           fromCaseIndex: number;
           toProjectIndex: number;
       }
-    | { type: 'APPLY_KCXP_ENV'; environment: KcxpEnvironment; scope: KcxpApplyScope }
+    | { type: 'APPLY_KCXP_ENV'; environment: KcxpEnvironment }
     | { type: 'SET_WORKSPACE'; workspace: PersistedWorkspace }
     | { type: 'MARK_LOADED' };
 

@@ -10,8 +10,8 @@ interface ControlCharTextProps {
 export function ControlCharText({ text, className }: ControlCharTextProps) {
     if (!containsSoh(text)) {
         return (
-            <span className={className} title={text}>
-                {text}
+            <span className={className} title={formatControlCharsForTitle(text)}>
+                {formatControlCharsForTitle(text)}
             </span>
         );
     }
@@ -28,9 +28,11 @@ export function ControlCharText({ text, className }: ControlCharTextProps) {
                             className="ctrl-char ctrl-char-soh"
                             title="SOH (Start of Heading, U+0001)"
                             aria-hidden
-                        />
+                        >
+                            □
+                        </span>
                     ) : null}
-                    {part}
+                    {formatControlCharsForTitle(part)}
                 </Fragment>
             ))}
         </span>

@@ -84,6 +84,7 @@ function stubElectronApi(options: { configRead?: (fileName: string) => Promise<u
             importExport: {
                 saveCsv: vi.fn(async () => ({ saved: false })),
                 saveHtml: vi.fn(async () => ({ saved: false })),
+                saveIni: vi.fn(async () => ({ saved: false })),
                 openImportFile: vi.fn(async () => ({ opened: false })),
                 openParamFile: vi.fn(async () => ({ opened: false })),
                 statParamFile: vi.fn(async () => ({ exists: false, error: 'missing' })),

@@ -108,6 +108,13 @@ const ResponseBody = memo(function ResponseBody({
                     )}
                 </div>
             </div>
+            {!responseCollapsed && showIdleMetrics && response?.message ? (
+                <div className="response-footer">
+                    <div className="response-footer-meta">
+                        <ResponseMeta response={response} variant="footer" />
+                    </div>
+                </div>
+            ) : null}
             {responseCollapsed && response ? (
                 <div className="response-footer">
                     <div className="response-footer-meta">

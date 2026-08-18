@@ -5,5 +5,3 @@ export interface KcxpEnvironment {
     queue: string;
     timeout: string;
 }
-
-export type KcxpApplyScope = 'active' | 'project' | 'all';

@@ -112,7 +112,7 @@
 
 .param-value-cell {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
     min-width: 0;
 }
@@ -259,6 +259,15 @@
 
 .param-table .param-input {
     min-width: 0;
+}
+
+.param-table textarea.param-input {
+    min-height: 24px;
+    resize: none;
+    overflow-y: hidden;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 18px;
 }
 
 .param-section-toggle {

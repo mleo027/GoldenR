@@ -8,24 +8,15 @@ import {
     computeCaseVirtualListHeight,
     measureCaseListViewportHeight,
 } from '../../utils/workspace/caseSidebarVirtualList';
-import {
-    buildCaseGroupStorageKey,
-    groupCasesByMsgtypePrefix,
-    shouldGroupCasesByMsgtype,
-} from '../../utils/workspace/caseMsgtypeGroup';
 import type { VisibleCaseItem } from '../../hooks/useVisibleProjects';
 import CaseTreeItem from './CaseTreeItem';
-import CaseMsgtypeGroupHeader from './CaseMsgtypeGroupHeader';
 
 interface CaseChildrenListProps {
     cases: VisibleCaseItem[];
     projectIndex: number;
     activeProjectIndex: number;
     activeCaseIndex: number;
-    searchKeyword: string;
     searchHighlightTerm: string;
-    expandedGroupKeys: ReadonlySet<string>;
-    onToggleGroup: (storageKey: string) => void;
     isEditing: (target: { type: 'case'; projectIndex: number; caseIndex: number }) => boolean;
     editingName: string;
     inputRef: RefObject<InputRef | null>;
@@ -59,7 +50,7 @@ function CaseCaseList({
     draggingCaseId,
     onCaseDragStart,
     onCaseDragEnd,
-}: Omit<CaseChildrenListProps, 'searchKeyword' | 'expandedGroupKeys' | 'onToggleGroup'>) {
+}: CaseChildrenListProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const [listHeight, setListHeight] = useState(CASE_SIDEBAR_ITEM_HEIGHT);
     const useVirtual = cases.length >= PERFORMANCE_THRESHOLDS.sidebarVirtualCases;
@@ -151,49 +142,5 @@ function CaseCaseList({
 }
 
 export default function CaseChildrenList(props: CaseChildrenListProps) {
-    const {
-        cases,
-        projectIndex,
-        searchKeyword,
-        expandedGroupKeys,
-        onToggleGroup,
-        activeProjectIndex,
-        activeCaseIndex,
-    } = props;
-
-    const useGrouping = shouldGroupCasesByMsgtype(cases.length, searchKeyword);
-
-    if (!useGrouping) {
-        return <CaseCaseList {...props} />;
-    }
-
-    const groups = groupCasesByMsgtypePrefix(cases);
-
-    return (
-        <div className="case-children case-children-grouped">
-            {groups.map((group) => {
-                const storageKey = buildCaseGroupStorageKey(projectIndex, group.key);
-                const expanded = expandedGroupKeys.has(storageKey);
-                const containsActive =
-                    projectIndex === activeProjectIndex &&
-                    group.cases.some((item) => item.caseIndex === activeCaseIndex);
-
-                return (
-                    <div
-                        key={storageKey}
-                        className={`case-msgtype-group-block${containsActive ? ' case-msgtype-group-block-active' : ''}`}
-                    >
-                        <CaseMsgtypeGroupHeader
-                            label={group.label}
-                            title={group.title}
-                            count={group.cases.length}
-                            expanded={expanded}
-                            onToggle={() => onToggleGroup(storageKey)}
-                        />
-                        {expanded ? <CaseCaseList {...props} cases={group.cases} /> : null}
-                    </div>
-                );
-            })}
-        </div>
-    );
+    return <CaseCaseList {...props} />;
 }

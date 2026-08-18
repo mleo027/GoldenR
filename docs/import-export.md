@@ -5,7 +5,7 @@
 导入目标为**指定项目**，入口：
 
 - 项目行 hover → **导入** 图标
-- 右键项目 → **导入接口 JSON**（实际支持 JSON 与 INI，见格式选择弹窗）
+- 右键项目 → **导入接口 JSON|INI**（打开格式选择弹窗）
 
 ### 格式选择
 
@@ -35,12 +35,22 @@ title=msgtype;key:value,key:value,...
 - 跳过空行与 `[节名]` 行
 - 参数类型均为 `string`
 - Host 优先从 `[连接参数]` 的 `IPAddress` + `IPPort` 解析，否则沿用项目 host 模板
+- 导出时会对标题、参数名和参数值中的 `\ , ; : = [ ]` 进行转义；导入时自动还原
 
 ### 导入后行为
 
 - 若项目仅有空占位接口，先替换再导入
 - 导入后按 msgtype 升序重排（收藏仍优先）
 - 保持当前选中接口 `id` 不变（若仍存在）
+
+## 项目导出
+
+右键项目 → **导出项目 INI**：
+
+- 生成 `[连接参数]` 与 `title=msgtype;key:value,...` 行
+- 保留接口名称、Msgtype、启用入参及 Host；Queue/Timeout 以 `msgtype?queue=...&timeout=...` 形式保留
+- 项目内存在多个 Host 时，导出以第一个非空 Host 为准
+- 导出的 INI 可由当前导入逻辑重新导入
 
 ## 响应导出
 
@@ -68,6 +78,7 @@ title=msgtype;key:value,key:value,...
 | INI 解析             | `src/modules/api-debug/utils/import/configIniImport.ts`                   |
 | INI 编码检测         | `electron/readIniText.ts`（主进程）                                       |
 | 导入 UI / 写入 store | `src/modules/api-debug/hooks/useProjectImport.tsx`、`store/tabsStore.tsx` |
+| 项目导出             | `src/modules/api-debug/utils/import/configIniExport.ts`                   |
 | CSV 导出             | `src/utils/exportTable.ts`                                                |
 
 ## 相关文档

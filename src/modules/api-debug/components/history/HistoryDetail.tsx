@@ -10,6 +10,7 @@ import {
     SendOutlined,
 } from '@ant-design/icons';
 import { formatDateTime } from '../../../../utils/formatDateTime';
+import { ControlCharText } from '../../../../utils/ControlCharText';
 import { parseKcbpResponseStatus } from '../../utils/kcbp/kcbpResponse';
 import type { RequestHistoryEntry } from '../../types/requestHistory';
 import type { ParamItem } from '../../types/workspace';
@@ -187,7 +188,7 @@ function ResponseDataTable({ data }: { data: Record<string, unknown>[] }) {
         key,
         ellipsis: true,
         render: (value: unknown) => (
-            <span className="font-mono break-all">{formatCellValue(value)}</span>
+            <ControlCharText className="font-mono break-all" text={formatCellValue(value)} />
         ),
     }));
 
@@ -247,9 +248,10 @@ function ResponseDetail({ entry }: { entry: RequestHistoryEntry }) {
                 <HistoryStatus entry={entry} />
                 <Tag className="ml-2">{String(entry.response.code)}</Tag>
                 {entry.response.message ? (
-                    <span className="min-w-0 break-all text-[var(--color-text-secondary)]">
-                        {entry.response.message}
-                    </span>
+                    <ControlCharText
+                        className="min-w-0 break-all text-[var(--color-text-secondary)]"
+                        text={entry.response.message}
+                    />
                 ) : null}
             </div>
             <ResponseDataTable data={entry.response.data} />

@@ -63,6 +63,7 @@ export interface DatabaseApi {
 export interface ImportExportApi {
     saveCsv(content: string, defaultFilename: string): Promise<SaveFileResult>;
     saveHtml(content: string, defaultFilename: string): Promise<SaveFileResult>;
+    saveIni(content: string, defaultFilename: string): Promise<SaveFileResult>;
     openImportFile(format: ImportFileFormat): Promise<ImportFileResult>;
     openParamFile(): Promise<ParamFileOpenResult>;
     statParamFile(filePath: string): Promise<ParamFileStatResult>;

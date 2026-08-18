@@ -688,45 +688,6 @@
     margin-top: 4px;
 }
 
-.kcxp-apply-context {
-    margin-bottom: 14px;
-    padding: 12px 14px;
-    border-radius: var(--radius-control);
-    border: 1px solid var(--color-border-light);
-    background: var(--color-bg-subtle);
-}
-
-.kcxp-apply-context-title {
-    margin-bottom: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-text-secondary);
-}
-
-.kcxp-apply-context-row {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    font-size: 12px;
-    line-height: 1.6;
-}
-
-.kcxp-apply-context-row + .kcxp-apply-context-row {
-    margin-top: 4px;
-}
-
-.kcxp-apply-context-label {
-    flex-shrink: 0;
-    width: 36px;
-    color: var(--color-text-muted);
-}
-
-.kcxp-apply-context-value {
-    min-width: 0;
-    color: var(--color-text-body);
-    word-break: break-all;
-}
-
 .settings-about-card {
     display: flex;
     align-items: center;

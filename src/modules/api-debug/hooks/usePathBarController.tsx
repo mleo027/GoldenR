@@ -183,7 +183,7 @@ export function usePathBarController({ layout, onQuickFill }: UsePathBarControll
         flushPending();
         const environment = getActiveKcxpEnvironment(env.kcxpEnvironments, environmentId);
         updateEnv('activeKcxpEnvironmentId', environmentId);
-        applyKcxpEnvironment(environment, 'active');
+        applyKcxpEnvironment(environment);
     };
 
     const activeEnvironment = useMemo(

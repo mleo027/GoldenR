@@ -36,10 +36,7 @@ function CaseSidebarSearch({ controller }: { controller: CaseSidebarController }
 function CaseSidebarTree({ controller }: { controller: CaseSidebarController }) {
     const {
         state,
-        searchKeyword,
         searchHighlightTerm,
-        expandedGroupKeys,
-        handleToggleGroup,
         draggingCaseId,
         dropTargetProjectIndex,
         sidebarListRef,
@@ -110,10 +107,7 @@ function CaseSidebarTree({ controller }: { controller: CaseSidebarController }) 
                             <CaseChildrenList
                                 cases={cases}
                                 projectIndex={projectIndex}
-                                searchKeyword={searchKeyword}
                                 searchHighlightTerm={searchHighlightTerm}
-                                expandedGroupKeys={expandedGroupKeys}
-                                onToggleGroup={handleToggleGroup}
                                 activeProjectIndex={state.activeProjectIndex}
                                 activeCaseIndex={state.activeCaseIndex}
                                 isEditing={isEditing}

@@ -105,4 +105,37 @@ describe('tabsReducer', () => {
         expect(next.projects[0].cases[0].id).toBe('imported-case');
         expect(next.activeCaseIndex).toBe(0);
     });
+
+    it('APPLY_KCXP_ENV applies the selected environment to every project and case', () => {
+        const firstProject = createEmptyProject(1);
+        const secondProject = createEmptyProject(2);
+        firstProject.cases[0].address = '127.0.0.1:21000/150501?queue=req1&timeout=15';
+        secondProject.cases[0].address = '127.0.0.1:21000/150502?queue=req1&timeout=15';
+        const state = {
+            ...withLoadedState(),
+            projects: [firstProject, secondProject],
+            activeProjectIndex: 0,
+            activeCaseIndex: 0,
+            expandedProjectIds: [firstProject.id, secondProject.id],
+            openCaseIds: [firstProject.cases[0].id, secondProject.cases[0].id],
+        };
+
+        const next = tabsReducer(state, {
+            type: 'APPLY_KCXP_ENV',
+            environment: {
+                id: 'env-test',
+                name: 'TEST',
+                host: '10.0.0.5:22000',
+                queue: 'req2',
+                timeout: '30',
+            },
+        });
+
+        expect(next.projects[0].cases[0].address).toBe(
+            '10.0.0.5:22000/150501?queue=req2&timeout=30',
+        );
+        expect(next.projects[1].cases[0].address).toBe(
+            '10.0.0.5:22000/150502?queue=req2&timeout=30',
+        );
+    });
 });

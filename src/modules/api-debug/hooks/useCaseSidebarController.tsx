@@ -1,24 +1,27 @@
-import { useCallback, useEffect, useRef, useState, type DragEvent } from 'react';
+import { useCallback, useRef, useState, type DragEvent } from 'react';
 import { App, message } from 'antd';
 import type { InputRef, MenuProps } from 'antd';
 import {
     CloseOutlined,
     CopyOutlined,
     EditOutlined,
+    ExportOutlined,
     ImportOutlined,
     PlusOutlined,
     StarOutlined,
 } from '@ant-design/icons';
 import { useTabsActions, useTabsNavigation } from '../store/useTabs';
+import { applyTabDraftsToWorkspace } from '../store/tabsData';
 import { useInlineRename, type RenameTarget } from '../../../hooks/useInlineRename';
 import { useDragAutoScroll } from '../../../hooks/useDragAutoScroll';
 import { useVisibleProjects } from './useVisibleProjects';
 import { useStableHandlerMap } from '../../../hooks/useStableHandlerMap';
 import { useProjectImport } from './useProjectImport';
+import { exportProjectToIni } from '../utils/import/configIniExport';
 import { getCaseLabel, getCaseMsgtype } from '../utils/workspace/caseLabel';
 import { isCaseDragEvent, readCaseDragData, writeCaseDragData } from '../utils/workspace/caseDrag';
-import { resolveActiveCaseGroupKey } from '../utils/workspace/caseMsgtypeGroup';
 import { getCaseSearchHighlightTerm, parseCaseSearchQuery } from '../utils/workspace/caseSearch';
+import { flushAllTabDrafts } from '../utils/workspace/tabDraftRegistry';
 
 export function useCaseSidebarController() {
     const { modal } = App.useApp();
@@ -47,7 +50,6 @@ export function useCaseSidebarController() {
     const [searchKeyword, setSearchKeyword] = useState('');
     const searchInputRef = useRef<InputRef>(null);
     const searchHighlightTerm = getCaseSearchHighlightTerm(parseCaseSearchQuery(searchKeyword));
-    const [expandedGroupKeys, setExpandedGroupKeys] = useState<Set<string>>(() => new Set());
     const [draggingCaseId, setDraggingCaseId] = useState<string | null>(null);
     const [dropTargetProjectIndex, setDropTargetProjectIndex] = useState<number | null>(null);
     const dragSourceProjectIndexRef = useRef<number | null>(null);
@@ -58,35 +60,6 @@ export function useCaseSidebarController() {
         enabled: draggingCaseId !== null,
         boundsRef: sidebarRef,
     });
-
-    const handleToggleGroup = useCallback((storageKey: string) => {
-        setExpandedGroupKeys((prev) => {
-            const next = new Set(prev);
-            if (next.has(storageKey)) {
-                next.delete(storageKey);
-            } else {
-                next.add(storageKey);
-            }
-            return next;
-        });
-    }, []);
-
-    useEffect(() => {
-        const projectIndex = state.activeProjectIndex;
-        const project = state.projects[projectIndex];
-        if (!project) return;
-
-        const cases = project.cases.map((caseItem, caseIndex) => ({ caseItem, caseIndex }));
-        const storageKey = resolveActiveCaseGroupKey(projectIndex, state.activeCaseIndex, cases);
-        if (!storageKey) return;
-
-        setExpandedGroupKeys((prev) => {
-            if (prev.has(storageKey)) return prev;
-            const next = new Set(prev);
-            next.add(storageKey);
-            return next;
-        });
-    }, [state.activeCaseIndex, state.activeProjectIndex, state.projects]);
 
     const getRenameName = useCallback(
         (target: RenameTarget) => {
@@ -182,6 +155,42 @@ export function useCaseSidebarController() {
         [openImportFormatPicker],
     );
 
+    const handleExportProject = useCallback(
+        async (projectIndex: number) => {
+            try {
+                const workspace = applyTabDraftsToWorkspace(
+                    {
+                        projects: state.projects,
+                        activeProjectIndex: state.activeProjectIndex,
+                        activeCaseIndex: state.activeCaseIndex,
+                        expandedProjectIds: state.expandedProjectIds,
+                        openCaseIds: state.openCaseIds,
+                    },
+                    flushAllTabDrafts(),
+                );
+                const project = workspace.projects[projectIndex];
+                if (!project) return;
+
+                const safeName = project.name.trim().replace(/[\\/:*?"<>|]/g, '_') || 'project';
+                const filename = `${safeName}.ini`;
+                const result = await exportProjectToIni(project, filename);
+                if (result.saved) {
+                    message.success(`已导出项目 INI：${result.filePath}`);
+                    return;
+                }
+                if (result.reason === 'empty') {
+                    message.warning('当前项目没有可导出的接口');
+                } else if (result.reason === 'error') {
+                    message.error(`导出项目 INI 失败：${result.error ?? '保存失败'}`);
+                }
+            } catch (error) {
+                const messageText = error instanceof Error ? error.message : String(error);
+                message.error(`导出项目 INI 失败：${messageText}`);
+            }
+        },
+        [state],
+    );
+
     const getCaseMenu = useCallback(
         (projectIndex: number, caseIndex: number): MenuProps['items'] => [
             {
@@ -223,9 +232,15 @@ export function useCaseSidebarController() {
         (projectIndex: number): MenuProps['items'] => [
             {
                 key: 'import',
-                label: '导入接口 JSON',
+                label: '导入接口 JSON|INI',
                 icon: <ImportOutlined />,
                 onClick: () => handleImportProject(projectIndex),
+            },
+            {
+                key: 'export',
+                label: '导出项目 INI',
+                icon: <ExportOutlined />,
+                onClick: () => void handleExportProject(projectIndex),
             },
             {
                 key: 'add-case',
@@ -248,7 +263,7 @@ export function useCaseSidebarController() {
                 onClick: () => handleDeleteProject(projectIndex),
             },
         ],
-        [addCase, handleDeleteProject, handleImportProject, startRename],
+        [addCase, handleDeleteProject, handleExportProject, handleImportProject, startRename],
     );
 
     const getCaseActionHandler = useStableHandlerMap((key: string) => {
@@ -400,8 +415,6 @@ export function useCaseSidebarController() {
         setSearchKeyword,
         searchInputRef,
         searchHighlightTerm,
-        expandedGroupKeys,
-        handleToggleGroup,
         draggingCaseId,
         dropTargetProjectIndex,
         sidebarRef,

@@ -1,13 +1,13 @@
-import { useCallback, useMemo } from 'react';
-import { App, Button, Input, Radio, Space, Switch, Tooltip, Typography } from 'antd';
+import { useCallback } from 'react';
+import { Button, Input, Radio, Switch, Typography } from 'antd';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { useAppEnv } from '../../../../store/useAppEnv';
 import { useApiDebugEnv } from '../../store/useApiDebugEnv';
-import { useTabsActions, useActiveTab, useTabsState } from '../../store/useTabs';
-import type { KcxpApplyScope, KcxpEnvironment } from '../../types/kcxp';
+import { useTabsActions } from '../../store/useTabs';
+import type { KcxpEnvironment } from '../../types/kcxp';
 import { DEFAULT_KCBP_TIMEOUT } from '../../utils/kcbp/kcbpAddress';
 import { createKcxpEnvironment } from '../../utils/workspace/kcxpEnvironment';
-import { getCaseLabel, getCaseMsgtype } from '../../utils/workspace/caseLabel';
+import { flushAllTabDrafts } from '../../utils/workspace/tabDraftRegistry';
 
 function EnvironmentRow({
     environment,
@@ -84,34 +84,11 @@ function EnvironmentRow({
 }
 
 export default function RequestSettings() {
-    const { message } = App.useApp();
     const { env, updateEnv: updateAppEnv } = useAppEnv();
     const { env: apiEnv, updateEnv, patchEnv } = useApiDebugEnv();
     const { applyKcxpEnvironment } = useTabsActions();
-    const { activeProject, activeTab, activeCaseIndex } = useActiveTab();
-    const { state } = useTabsState();
     const { autoSave } = env;
     const { kcxpEnvironments, activeKcxpEnvironmentId } = apiEnv;
-
-    const applyContext = useMemo(() => {
-        const caseLabel = getCaseLabel(activeTab, activeCaseIndex);
-        const msgtype = getCaseMsgtype(activeTab);
-        const projectCaseCount = activeProject.cases.length;
-        const totalProjects = state.projects.length;
-        const totalCases = state.projects.reduce((sum, project) => sum + project.cases.length, 0);
-
-        return {
-            caseLabel,
-            msgtype,
-            projectName: activeProject.name,
-            projectCaseCount,
-            totalProjects,
-            totalCases,
-            caseSummary: msgtype ? `${caseLabel} · ${msgtype}` : caseLabel,
-            projectSummary: `${activeProject.name}（${projectCaseCount} 个接口）`,
-            allSummary: `${totalProjects} 个项目，${totalCases} 个接口`,
-        };
-    }, [activeCaseIndex, activeProject, activeTab, state.projects]);
 
     const handleEnvironmentChange = useCallback(
         (index: number, next: KcxpEnvironment) => {
@@ -124,12 +101,8 @@ export default function RequestSettings() {
     );
 
     const handleAddEnvironment = useCallback(() => {
-        const nextIndex = kcxpEnvironments.length + 1;
-        const next = createKcxpEnvironment(`环境 ${nextIndex}`);
-        patchEnv({
-            kcxpEnvironments: [...kcxpEnvironments, next],
-            activeKcxpEnvironmentId: next.id,
-        });
+        const next = createKcxpEnvironment(`环境 ${kcxpEnvironments.length + 1}`);
+        patchEnv({ kcxpEnvironments: [...kcxpEnvironments, next] });
     }, [kcxpEnvironments, patchEnv]);
 
     const handleDeleteEnvironment = useCallback(
@@ -141,35 +114,21 @@ export default function RequestSettings() {
                 activeKcxpEnvironmentId:
                     activeKcxpEnvironmentId === id ? environments[0].id : activeKcxpEnvironmentId,
             });
+            if (activeKcxpEnvironmentId === id) {
+                flushAllTabDrafts();
+                applyKcxpEnvironment(environments[0]);
+            }
         },
-        [activeKcxpEnvironmentId, kcxpEnvironments, patchEnv],
+        [activeKcxpEnvironmentId, applyKcxpEnvironment, kcxpEnvironments, patchEnv],
     );
 
-    const handleApply = useCallback(
-        (scope: KcxpApplyScope) => {
-            const environment = kcxpEnvironments.find(
-                (item) => item.id === activeKcxpEnvironmentId,
-            );
-            if (!environment) {
-                message.warning('请先选择 KCXP 环境');
-                return;
-            }
-            applyKcxpEnvironment(environment, scope);
-            if (scope === 'active') {
-                message.success(
-                    `已将「${environment.name}」应用到接口「${applyContext.caseSummary}」`,
-                );
-                return;
-            }
-            if (scope === 'project') {
-                message.success(
-                    `已将「${environment.name}」应用到项目「${applyContext.projectSummary}」`,
-                );
-                return;
-            }
-            message.success(`已将「${environment.name}」应用到全部（${applyContext.allSummary}）`);
+    const handleSelectEnvironment = useCallback(
+        (environment: KcxpEnvironment) => {
+            flushAllTabDrafts();
+            updateEnv('activeKcxpEnvironmentId', environment.id);
+            applyKcxpEnvironment(environment);
         },
-        [activeKcxpEnvironmentId, applyContext, applyKcxpEnvironment, kcxpEnvironments, message],
+        [applyKcxpEnvironment, updateEnv],
     );
 
     return (
@@ -202,7 +161,7 @@ export default function RequestSettings() {
                 KCXP 环境
             </Typography.Title>
             <Typography.Paragraph type="secondary" className="settings-section-desc">
-                每组环境包含 Host、Queue、Timeout；切换或应用时保留各接口的 Msgtype 与入参
+                每组环境包含 Host、Queue、Timeout；选中后自动应用到全部接口，保留 Msgtype 与入参
             </Typography.Paragraph>
 
             <div className="kcxp-env-list">
@@ -213,38 +172,17 @@ export default function RequestSettings() {
                         active={environment.id === activeKcxpEnvironmentId}
                         canDelete={kcxpEnvironments.length > 1}
                         onChange={(next) => handleEnvironmentChange(index, next)}
-                        onSelect={() => updateEnv('activeKcxpEnvironmentId', environment.id)}
+                        onSelect={() => handleSelectEnvironment(environment)}
                         onDelete={() => handleDeleteEnvironment(environment.id)}
                     />
                 ))}
             </div>
 
-            <div className="kcxp-apply-context">
-                <div className="kcxp-apply-context-title">当前工作区</div>
-                <div className="kcxp-apply-context-row">
-                    <span className="kcxp-apply-context-label">项目</span>
-                    <span className="kcxp-apply-context-value">{applyContext.projectSummary}</span>
-                </div>
-                <div className="kcxp-apply-context-row">
-                    <span className="kcxp-apply-context-label">接口</span>
-                    <span className="kcxp-apply-context-value">{applyContext.caseSummary}</span>
-                </div>
-            </div>
-
-            <Space className="kcxp-env-actions" wrap>
+            <div className="kcxp-env-actions">
                 <Button icon={<PlusOutlined />} onClick={handleAddEnvironment}>
                     添加环境
                 </Button>
-                <Tooltip title={`应用到接口「${applyContext.caseSummary}」`}>
-                    <Button onClick={() => handleApply('active')}>应用到当前接口</Button>
-                </Tooltip>
-                <Tooltip title={`应用到项目「${applyContext.projectSummary}」`}>
-                    <Button onClick={() => handleApply('project')}>应用到当前项目</Button>
-                </Tooltip>
-                <Tooltip title={`应用到全部（${applyContext.allSummary}）`}>
-                    <Button onClick={() => handleApply('all')}>应用到全部项目</Button>
-                </Tooltip>
-            </Space>
+            </div>
         </div>
     );
 }

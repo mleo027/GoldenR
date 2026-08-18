@@ -8,6 +8,8 @@ import type { ResponseData } from '../../types/workspace';
 import { parseKcbpResponseStatus } from '../../utils/kcbp/kcbpResponse';
 import { formatDateTime } from '../../../../utils/formatDateTime';
 import { formatDataSize } from '../../../../utils/exportTable';
+import { ControlCharText } from '../../../../utils/ControlCharText';
+import { formatControlCharsForTitle } from '../../../../utils/controlCharDisplay';
 
 interface ResponseMetaProps {
     response: ResponseData;
@@ -53,8 +55,11 @@ function ResponseMetaFooter({ response, className }: ResponseMetaProps) {
                     >
                         {status.businessCode}
                     </Tag>
-                    <Tooltip title={status.businessMsg}>
-                        <span className="response-meta-msg truncate">{status.businessMsg}</span>
+                    <Tooltip title={formatControlCharsForTitle(status.businessMsg)}>
+                        <ControlCharText
+                            className="response-meta-msg truncate"
+                            text={status.businessMsg}
+                        />
                     </Tooltip>
                 </>
             )}
@@ -73,7 +78,9 @@ function ResponseMetaFooter({ response, className }: ResponseMetaProps) {
             {hasTransportMismatch(response) && (
                 <>
                     <span className="response-meta-sep shrink-0" aria-hidden="true" />
-                    <Tooltip title={`传输层 ${status.transportCode} ${status.transportMsg}`}>
+                    <Tooltip
+                        title={`传输层 ${status.transportCode} ${formatControlCharsForTitle(status.transportMsg)}`}
+                    >
                         <Tag
                             bordered={false}
                             className="response-meta-badge response-meta-badge-muted shrink-0"
@@ -98,7 +105,7 @@ function ResponseMetaDetails({ response, className }: ResponseMetaProps) {
         >
             <StatusBadge kind={status.kind} />
             {status.businessMsg && (
-                <Tooltip title={status.businessMsg}>
+                <Tooltip title={formatControlCharsForTitle(status.businessMsg)}>
                     <Tag bordered={false} className="response-meta-badge response-meta-badge-muted">
                         {status.businessCode}
                     </Tag>
@@ -131,7 +138,9 @@ function ResponseMetaDetails({ response, className }: ResponseMetaProps) {
                 </Tooltip>
             )}
             {hasTransportMismatch(response) && (
-                <Tooltip title={`传输层 ${status.transportCode} ${status.transportMsg}`}>
+                <Tooltip
+                    title={`传输层 ${status.transportCode} ${formatControlCharsForTitle(status.transportMsg)}`}
+                >
                     <Tag bordered={false} className="response-meta-badge response-meta-badge-muted">
                         传输 {status.transportCode}
                     </Tag>

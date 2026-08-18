@@ -89,6 +89,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
             invoke('export:saveCsv', { content, defaultFilename }),
         saveHtml: (content: string, defaultFilename: string) =>
             invoke('export:saveHtml', { content, defaultFilename }),
+        saveIni: (content: string, defaultFilename: string) =>
+            invoke('export:saveIni', { content, defaultFilename }),
         openImportFile: (format: ImportFileFormat) => invoke('import:openFile', format),
         openParamFile: () => invoke('param:openFile'),
         statParamFile: (filePath: string) => invoke('param:statFile', filePath),

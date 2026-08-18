@@ -99,10 +99,21 @@ describe('import/export IPC handlers', () => {
             defaultFilename: 'out',
         });
         expect(html).toEqual({ saved: true, filePath: 'C:/data/out.html' });
+
+        mock.showSaveDialog.mockResolvedValueOnce({
+            canceled: false,
+            filePath: 'C:/data/out.ini',
+        });
+        const ini = await invoke('export:saveIni', {
+            content: '[连接参数]\nIPAddress=127.0.0.1',
+            defaultFilename: 'out',
+        });
+        expect(ini).toEqual({ saved: true, filePath: 'C:/data/out.ini' });
     });
 
     it('rejects invalid import formats and export payloads', async () => {
         await expect(invoke('import:openFile', 'xml')).rejects.toThrow();
         await expect(invoke('export:saveCsv', { content: 1 })).rejects.toThrow();
+        await expect(invoke('export:saveIni', { content: 1 })).rejects.toThrow();
     });
 });

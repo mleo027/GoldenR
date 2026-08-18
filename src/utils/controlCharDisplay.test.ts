@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { containsSoh, formatControlCharsForTitle } from './controlCharDisplay';
+import { containsSoh, decodeSohMarkers, formatControlCharsForTitle } from './controlCharDisplay';
 
 describe('formatControlCharsForTitle', () => {
     it('replaces SOH with square placeholder', () => {
@@ -8,6 +8,15 @@ describe('formatControlCharsForTitle', () => {
 
     it('leaves plain text unchanged', () => {
         expect(formatControlCharsForTitle('hello')).toBe('hello');
+    });
+
+    it('keeps literal square characters distinct from SOH markers', () => {
+        expect(formatControlCharsForTitle('方块□字符')).toBe('方块■字符');
+        expect(decodeSohMarkers('方块■字符')).toBe('方块□字符');
+    });
+
+    it('decodes display markers back to raw SOH', () => {
+        expect(decodeSohMarkers('8=FIXT.1.1□9=82')).toBe(`8=FIXT.1.1${String.fromCharCode(1)}9=82`);
     });
 });
 
