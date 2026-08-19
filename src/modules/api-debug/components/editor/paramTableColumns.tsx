@@ -76,7 +76,9 @@ export function createParamTableColumns({
                             onChange={(value) => onChange(index, 'value', value)}
                         />
                     </div>
-                    <ParamFileHint value={text} disabled={record.type === 'disabled'} />
+                    <div>
+                        <ParamFileHint value={text} disabled={record.type === 'disabled'} />
+                    </div>
                 </div>
             ),
         },

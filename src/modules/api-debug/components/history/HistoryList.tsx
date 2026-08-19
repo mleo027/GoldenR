@@ -85,12 +85,12 @@ function HistoryRow({
             style={{ gridTemplateColumns: '110px 72px 56px 90px 80px minmax(220px, 1fr) 104px' }}
         >
             <Tooltip title={formatDateTime(entry.timestamp)}>
-                <span className="font-mono text-xs">{formatHistoryTime(entry.timestamp)}</span>
+                <span className="text-xs">{formatHistoryTime(entry.timestamp)}</span>
             </Tooltip>
             <HistoryStatus entry={entry} />
             <span className="text-xs">{entry.environmentName ?? '-'}</span>
-            <span className="font-mono text-xs">{entry.request.msgtype}</span>
-            <span className="font-mono text-xs">
+            <span className="text-xs">{entry.request.msgtype}</span>
+            <span className="text-xs">
                 {entry.outcome.timecost == null ? '-' : `${entry.outcome.timecost}ms`}
             </span>
             <Tooltip title={getResultSummary(entry)}>

@@ -9,6 +9,7 @@ import {
     isFilePickerTriggerValue,
     isWindowsFilePath,
     parseFileParamPath,
+    trimPathQuotes,
 } from './kcbpFields';
 
 describe('kcbpFields @file: prefix', () => {
@@ -49,17 +50,29 @@ describe('kcbpFields @file: prefix', () => {
 
     it('parses file path from @file: prefix', () => {
         expect(parseFileParamPath('@file:D:/data/a.zip')).toBe('D:/data/a.zip');
+        expect(parseFileParamPath('@file:"D:/data/a.zip"')).toBe('D:/data/a.zip');
         expect(isFileParamValue('@file:D:/data/a.zip')).toBe(true);
         expect(isFileParamValue('D:/data/a.zip')).toBe(false);
     });
 
     it('detects Windows file paths before @file: is added', () => {
         expect(isWindowsFilePath('C:\\data\\a.txt')).toBe(true);
+        expect(isWindowsFilePath('"C:\\data\\a.txt"')).toBe(true);
         expect(isWindowsFilePath('C:/data/a.txt')).toBe(true);
+        expect(isWindowsFilePath('"C:/data/a.txt"')).toBe(true);
         expect(isWindowsFilePath('D:\\data\\a.txt')).toBe(true);
+        expect(isWindowsFilePath('"D:\\data\\a.txt"')).toBe(true);
         expect(isWindowsFilePath('\\\\server\\share\\a.txt')).toBe(true);
+        expect(isWindowsFilePath('"\\\\server\\share\\a.txt"')).toBe(true);
         expect(isWindowsFilePath('hello world')).toBe(false);
+        expect(isWindowsFilePath('"hello world"')).toBe(false);
         expect(isWindowsFilePath('@file:C:/data/a.txt')).toBe(false);
+    });
+
+    it('trims matching quotes from copied file paths', () => {
+        expect(trimPathQuotes('"D:/data/a.txt"')).toBe('D:/data/a.txt');
+        expect(trimPathQuotes('  "D:/data/a.txt"  ')).toBe('D:/data/a.txt');
+        expect(trimPathQuotes('D:/data/a.txt')).toBe('D:/data/a.txt');
     });
 
     it('detects when a file picker should be opened automatically', () => {

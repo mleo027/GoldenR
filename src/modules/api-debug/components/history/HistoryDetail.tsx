@@ -89,13 +89,13 @@ function ParamTable({ params }: { params: ParamItem[] }) {
             title: 'Key',
             dataIndex: 'name',
             ellipsis: true,
-            render: (text: string) => <span className="font-mono">{text}</span>,
+            render: (text: string) => <span>{text}</span>,
         },
         {
             title: 'Value',
             dataIndex: 'value',
             ellipsis: true,
-            render: (text: string) => <span className="font-mono break-all">{text}</span>,
+            render: (text: string) => <span className="break-all">{text}</span>,
         },
         {
             title: 'Type',
@@ -137,15 +137,13 @@ function RunInputTable({ runInput }: { runInput: Record<string, unknown> }) {
             title: 'Key',
             dataIndex: 'name',
             ellipsis: true,
-            render: (text: string) => <span className="font-mono">{text}</span>,
+            render: (text: string) => <span>{text}</span>,
         },
         {
             title: 'Value',
             dataIndex: 'value',
             ellipsis: true,
-            render: (value: unknown) => (
-                <span className="font-mono break-all">{formatCellValue(value)}</span>
-            ),
+            render: (value: unknown) => <span className="break-all">{formatCellValue(value)}</span>,
         },
     ];
 
@@ -188,7 +186,7 @@ function ResponseDataTable({ data }: { data: Record<string, unknown>[] }) {
         key,
         ellipsis: true,
         render: (value: unknown) => (
-            <ControlCharText className="font-mono break-all" text={formatCellValue(value)} />
+            <ControlCharText className="break-all" text={formatCellValue(value)} />
         ),
     }));
 
@@ -216,7 +214,7 @@ function RequestDetail({ entry }: { entry: RequestHistoryEntry }) {
             <div className="grid gap-2 md:grid-cols-2">
                 <div>
                     <Typography.Text type="secondary">地址：</Typography.Text>
-                    <span className="font-mono">{entry.request.address}</span>
+                    <span>{entry.request.address}</span>
                 </div>
                 <div>
                     <Typography.Text type="secondary">模式：</Typography.Text>
@@ -225,13 +223,13 @@ function RequestDetail({ entry }: { entry: RequestHistoryEntry }) {
                 {entry.request.queue ? (
                     <div>
                         <Typography.Text type="secondary">队列：</Typography.Text>
-                        <span className="font-mono">{entry.request.queue}</span>
+                        <span>{entry.request.queue}</span>
                     </div>
                 ) : null}
                 {entry.request.timeout ? (
                     <div>
                         <Typography.Text type="secondary">超时：</Typography.Text>
-                        <span className="font-mono">{entry.request.timeout}s</span>
+                        <span>{entry.request.timeout}s</span>
                     </div>
                 ) : null}
             </div>

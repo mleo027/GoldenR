@@ -20,6 +20,7 @@ import {
     isFileParamValue,
     isFilePickerTriggerValue,
     isWindowsFilePath,
+    trimPathQuotes,
 } from '../../utils/kcbp/kcbpFields';
 import { decodeSohMarkers, formatControlCharsForTitle } from '../../../../utils/controlCharDisplay';
 
@@ -230,7 +231,7 @@ function ParamSuggestInput({
             latestRawRef.current = raw;
             if (isFileParamValue(raw)) return;
 
-            const filePath = raw.trim();
+            const filePath = trimPathQuotes(raw);
             if (!isWindowsFilePath(filePath) || promptedPathsRef.current.has(filePath)) return;
             promptedPathsRef.current.add(filePath);
 
@@ -244,7 +245,8 @@ function ParamSuggestInput({
                 void api.importExport
                     .statParamFile(filePath)
                     .then((result) => {
-                        if (!result.exists || latestRawRef.current.trim() !== filePath) return;
+                        if (!result.exists || trimPathQuotes(latestRawRef.current) !== filePath)
+                            return;
                         openFileContentConfirm(filePath, result.size);
                     })
                     .catch(() => undefined);

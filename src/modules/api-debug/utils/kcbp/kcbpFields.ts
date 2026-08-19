@@ -16,8 +16,16 @@ export function isFilePickerTriggerValue(value: string): boolean {
     return trimmed === '@file' || trimmed === '@file:';
 }
 
-export function isWindowsFilePath(value: string): boolean {
+export function trimPathQuotes(value: string): string {
     const trimmed = value.trim();
+    if (trimmed.length >= 2 && trimmed[0] === '"' && trimmed[trimmed.length - 1] === '"') {
+        return trimmed.slice(1, -1).trim();
+    }
+    return trimmed;
+}
+
+export function isWindowsFilePath(value: string): boolean {
+    const trimmed = trimPathQuotes(value);
     if (!trimmed) return false;
     return /^[a-zA-Z]:[\\/]/.test(trimmed) || /^\\\\[^\\/]+[\\/]/.test(trimmed);
 }
@@ -25,7 +33,7 @@ export function isWindowsFilePath(value: string): boolean {
 export function parseFileParamPath(value: string): string | null {
     const trimmed = value.trim();
     if (!trimmed.startsWith(FILE_PARAM_PREFIX)) return null;
-    const filePath = trimmed.slice(FILE_PARAM_PREFIX.length).trim();
+    const filePath = trimPathQuotes(trimmed.slice(FILE_PARAM_PREFIX.length));
     return filePath || null;
 }
 
