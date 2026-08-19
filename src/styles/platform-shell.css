@@ -11,7 +11,6 @@
 .platform-module-panels {
     height: 100%;
     min-height: 0;
-    padding: var(--platform-page-gutter);
     gap: var(--platform-page-gutter);
 }
 

@@ -45,13 +45,15 @@ describe('configIniExport', () => {
         expect(content).toContain('[连接参数]');
         expect(content).toContain('IPAddress=10.0.0.5');
         expect(content).toContain('IPPort=22000');
-        expect(content).toContain('查询一=150501?queue=req2&timeout=30;fundid:8');
+        expect(content).toContain('查询一=150501;fundid:8');
+        expect(content).not.toContain('?queue=');
+        expect(content).not.toContain('?timeout=');
         expect(content).not.toContain('skip');
 
         const imported = parseConfigIni(content);
         expect(imported).toHaveLength(2);
-        expect(imported[0].address).toBe('10.0.0.5:22000/150501?queue=req2&timeout=30');
-        expect(imported[1].address).toBe('10.0.0.5:22000/150502?queue=req3&timeout=45');
+        expect(imported[0].address).toBe('10.0.0.5:22000/150501?queue=req1&timeout=15');
+        expect(imported[1].address).toBe('10.0.0.5:22000/150502?queue=req1&timeout=15');
         expect(imported[0].params).toEqual([{ name: 'fundid', value: '8', type: 'string' }]);
     });
 
@@ -72,9 +74,7 @@ describe('configIniExport', () => {
         });
 
         const content = buildConfigIniContent(escapedProject);
-        expect(content).toContain(
-            '\\[查询\\;一\\]=150501?queue=req2&timeout=30;a\\,b:x\\,y\\;z\\=w',
-        );
+        expect(content).toContain('\\[查询\\;一\\]=150501;a\\,b:x\\,y\\;z\\=w');
         expect(content).not.toContain(';skip:');
 
         const imported = parseConfigIni(content);

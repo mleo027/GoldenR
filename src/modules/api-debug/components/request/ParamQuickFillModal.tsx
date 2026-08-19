@@ -57,7 +57,7 @@ function ParamQuickFillModal({ open, onClose, onApply }: ParamQuickFillModalProp
                 rows={12}
                 value={text}
                 spellCheck={false}
-                placeholder={`深圳普通买=410411;funcid:410411,custid:600100000570,netaddr:127.0.0.1  abcdefg,...\n\n或粘贴清算日志：\n[入参:clearflow ] [数值:A         ] [说明:清算流程]`}
+                placeholder={`深圳普通买=410411;funcid:410411,custid:600100000570,netaddr:127.0.0.1  abcdefg,...\n\n或粘贴日志：\n[入参:clearflow ] [数值:A         ] [说明:清算流程]`}
                 className={error ? 'param-text-textarea-error' : undefined}
                 onChange={(event) => {
                     setText(event.target.value);

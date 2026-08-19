@@ -1,25 +1,8 @@
 import type { ProjectData, TabData } from '../../types/workspace';
 import { getElectronAPI } from '../../../../lib/electron';
-import {
-    DEFAULT_KCBP_QUEUE,
-    DEFAULT_KCBP_TIMEOUT,
-    parseKcbpAddress,
-    splitHost,
-} from '../kcbp/kcbpAddress';
+import { parseKcbpAddress, splitHost } from '../kcbp/kcbpAddress';
 import { getDefaultCaseName } from '../workspace/caseLabel';
 import { escapeIniText } from './configIniCodec';
-
-function buildMsgtypeSegment(msgtype: string, queue: string, timeout: string): string {
-    const query = new URLSearchParams();
-    if (queue && queue !== DEFAULT_KCBP_QUEUE) {
-        query.set('queue', queue);
-    }
-    if (timeout && timeout !== DEFAULT_KCBP_TIMEOUT) {
-        query.set('timeout', timeout);
-    }
-    const queryText = query.toString();
-    return queryText ? `${msgtype}?${queryText}` : msgtype;
-}
 
 function buildCaseLine(caseItem: TabData, index: number): string | null {
     const parts = parseKcbpAddress(caseItem.address);
@@ -39,7 +22,7 @@ function buildCaseLine(caseItem: TabData, index: number): string | null {
         )
         .join(',');
 
-    const msgtypePart = buildMsgtypeSegment(escapeIniText(msgtype), parts.queue, parts.timeout);
+    const msgtypePart = escapeIniText(msgtype);
     return `${title}=${msgtypePart};${params}`;
 }
 

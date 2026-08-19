@@ -2,7 +2,7 @@
 
 ## 结论与假设
 
-本目录是独立的 Golden API Debug 应用，目标只保留 `api-debug` 模块及其运行依赖。原始 GoldenAPI 仓库不修改、不删除，作为只读参考源。
+本目录是独立的 Golden API 应用，目标只保留 `api-debug` 模块及其运行依赖。原始 GoldenAPI 仓库不修改、不删除，作为只读参考源。
 
 按用户确认的“纯 API 调试”档执行：移除 TCD、TCI、AutoQC、TraceCode、知识库、SQL Debugger、数据库环境、交易所文件、Agent Server、Agent Chat、LLM、RAG 与 Tunnel 等无关能力。
 

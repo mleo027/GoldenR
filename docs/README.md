@@ -1,4 +1,4 @@
-# Golden API Debug 文档
+# Golden API 文档
 
 - [操作手册](./golden-api-debug-operation-manual.md)
 - [接口调试](./request-and-response.md)

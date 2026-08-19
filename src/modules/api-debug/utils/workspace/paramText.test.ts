@@ -92,6 +92,7 @@ describe('parseQuickFillText', () => {
             value: '',
             type: 'string',
         });
+        expect(outcome.msgtype).toBe('410411');
         expect(outcome.params.some((item) => item.name === '深圳普通买')).toBe(false);
     });
 
@@ -126,6 +127,41 @@ describe('parseQuickFillText', () => {
             ok: true,
             msgtype: '225452',
             params: [{ name: 'funcid', value: '225452', type: 'string' }],
+        });
+    });
+
+    it('infers msgtype from g_funcid in line-based params', () => {
+        expect(parseQuickFillText('g_funcid=150501')).toEqual({
+            ok: true,
+            msgtype: '150501',
+            params: [{ name: 'g_funcid', value: '150501', type: 'string' }],
+        });
+    });
+
+    it('infers msgtype when title prefix contains timeout query', () => {
+        const outcome = parseQuickFillText(
+            '盘后定价大宗1m=150622?timeout=300;funcid:150622,g_funcid:150622',
+        );
+
+        expect(outcome).toEqual({
+            ok: true,
+            msgtype: '150622',
+            params: [
+                { name: 'funcid', value: '150622', type: 'string' },
+                { name: 'g_funcid', value: '150622', type: 'string' },
+            ],
+        });
+    });
+
+    it('prefers g_funcid and ignores disabled funcid params', () => {
+        expect(parseQuickFillText('funcid=410411\ng_funcid=150501\n# funcid:999999')).toEqual({
+            ok: true,
+            msgtype: '150501',
+            params: [
+                { name: 'funcid', value: '410411', type: 'string' },
+                { name: 'g_funcid', value: '150501', type: 'string' },
+                { name: 'funcid', value: '999999', type: 'disabled' },
+            ],
         });
     });
 

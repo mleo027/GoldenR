@@ -13,21 +13,14 @@ export interface ParsedKcbpResponseStatus {
     hasBusinessRow: boolean;
 }
 
-export function getBusinessRow(data: Record<string, unknown>[]): Record<string, unknown> | null {
-    if (!data.length) return null;
-
-    const first = data[0];
-    if (first && typeof first === 'object' && 'msg' in first) {
-        return first;
-    }
-
-    return null;
-}
-
 export function parseKcbpResponseStatus(response: ResponseData): ParsedKcbpResponseStatus {
     const transportCode = response.code;
     const transportMsg = response.message;
-    const businessRow = getBusinessRow(response.data);
+    const rawLevel = response.level;
+    const businessLevel =
+        typeof rawLevel === 'string' || typeof rawLevel === 'number' ? rawLevel : undefined;
+    const codeStr = String(transportCode);
+    const levelNum = Number(businessLevel);
 
     if (String(transportCode) === '-1') {
         return {
@@ -40,41 +33,20 @@ export function parseKcbpResponseStatus(response: ResponseData): ParsedKcbpRespo
         };
     }
 
-    if (businessRow) {
-        const rawCode = businessRow.code;
-        const businessCode =
-            typeof rawCode === 'string' || typeof rawCode === 'number' ? rawCode : transportCode;
-        const businessMsg = String(businessRow.msg ?? transportMsg);
-        const rawLevel = businessRow.level;
-        const businessLevel =
-            typeof rawLevel === 'string' || typeof rawLevel === 'number' ? rawLevel : undefined;
-        const codeStr = String(businessCode);
-        const levelNum = Number(businessLevel);
-
-        let kind: ResponseStatusKind = 'success';
-        if (codeStr === '90001' || codeStr.includes('90001')) {
-            kind = 'warning';
-        } else if (levelNum >= 2 || (codeStr.startsWith('-') && codeStr !== '-1')) {
-            kind = 'error';
-        } else if (levelNum === 1) {
-            kind = 'warning';
-        }
-
-        return {
-            kind,
-            businessCode,
-            businessMsg,
-            businessLevel,
-            transportCode,
-            transportMsg,
-            hasBusinessRow: true,
-        };
+    let kind: ResponseStatusKind = 'success';
+    if (codeStr === '90001' || codeStr.includes('90001')) {
+        kind = 'warning';
+    } else if (levelNum >= 2 || (codeStr.startsWith('-') && codeStr !== '-1')) {
+        kind = 'error';
+    } else if (levelNum === 1) {
+        kind = 'warning';
     }
 
     return {
-        kind: 'success',
+        kind,
         businessCode: transportCode,
         businessMsg: transportMsg,
+        businessLevel,
         transportCode,
         transportMsg,
         hasBusinessRow: false,

@@ -1,4 +1,4 @@
-start[启动 Golden API Debug]
+start[启动 Golden API]
 start --> env[检查当前配置]
 env --> workspace[打开工程与接口用例]
 workspace --> edit[编辑请求地址与入参]

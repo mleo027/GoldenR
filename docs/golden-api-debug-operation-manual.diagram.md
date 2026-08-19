@@ -1,4 +1,4 @@
-GoldenAPI[Golden API Debug 操作手册]
+GoldenAPI[Golden API 操作手册]
 GoldenAPI --> start[启动与部署]
 start --> setup[Setup 安装版]
 start --> portable[Portable 便携版]

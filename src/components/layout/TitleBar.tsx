@@ -32,10 +32,10 @@ export default function TitleBar({
     const activeLabel = breadcrumb || moduleLabel;
 
     return (
-        <div className="title-bar" style={{ userSelect: 'none' } as React.CSSProperties}>
+        <div className="title-bar min-h-10" style={{ userSelect: 'none' } as React.CSSProperties}>
             <div className="title-bar-brand">
-                <GoldenApiLogo size={28} className="title-bar-logo" title="Golden API Debug" />
-                <span className="title-bar-name">Golden API Debug</span>
+                <GoldenApiLogo size={28} className="title-bar-logo" title="Golden API" />
+                <span className="title-bar-name font-bold">Golden API</span>
                 {moduleLabel && !useTitleBarSlot ? (
                     <Tooltip title={moduleLabel}>
                         <span className="title-bar-module">{moduleLabel}</span>

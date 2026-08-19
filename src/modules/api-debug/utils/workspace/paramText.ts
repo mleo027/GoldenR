@@ -1,4 +1,5 @@
 import type { ParamItem } from '../../types/workspace';
+import { resolveMsgtypeFromParams } from './caseLabel';
 
 export interface ParseParamsTextResult {
     ok: true;
@@ -8,7 +9,7 @@ export interface ParseParamsTextResult {
 export interface ParseQuickFillResult {
     ok: true;
     params: ParamItem[];
-    /** 清算/KCBP 日志头中的功能号，用于更新地址栏 msgtype */
+    /** 从日志头或 funcid/g_funcid 入参中解析的功能号，用于更新地址栏 msgtype */
     msgtype?: string;
 }
 
@@ -200,7 +201,8 @@ export function parseQuickFillText(text: string): ParseQuickFillOutcome {
         return { ok: false, error: '未能识别有效入参，请检查文本格式' };
     }
 
-    return msgtype ? { ok: true, params, msgtype } : { ok: true, params };
+    const resolvedMsgtype = msgtype || resolveMsgtypeFromParams(params);
+    return resolvedMsgtype ? { ok: true, params, msgtype: resolvedMsgtype } : { ok: true, params };
 }
 
 export const PARAM_TEXT_PLACEHOLDER = `g_serverid=1

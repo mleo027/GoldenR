@@ -1,4 +1,4 @@
-# Golden API Debug 深度修复交付报告
+# Golden API 深度修复交付报告
 
 ## 依赖方向
 

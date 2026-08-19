@@ -53,10 +53,8 @@ function ParamsSection({
                     {collapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}
                     <FormOutlined className="param-section-toggle-icon" />
                     <span>请求参数</span>
-                </button>
-                <span className="param-section-toggle-actions">
                     <span className="param-section-toggle-count">{count}</span>
-                </span>
+                </button>
             </div>
             <div
                 className={`param-section-body${collapsed ? ' param-section-body-collapsed' : ''}`}

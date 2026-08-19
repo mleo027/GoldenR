@@ -2,7 +2,7 @@
   "name": "golden-api-debug",
   "private": true,
   "version": "0.0.0",
-  "description": "Golden API Debug standalone KCBP API debugger",
+  "description": "Golden API standalone KCBP API debugger",
   "author": "Your Name",
   "main": "dist-electron/main.js",
   "type": "module",
@@ -43,7 +43,7 @@
   },
   "build": {
     "appId": "com.yourcompany.golden-api-debug",
-    "productName": "Golden API Debug",
+    "productName": "Golden API",
     "win": {
       "target": [
         "nsis",

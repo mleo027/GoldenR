@@ -757,13 +757,6 @@
     font-variant-numeric: tabular-nums;
 }
 
-.param-section-toggle-actions {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-left: auto;
-}
-
 .param-section-toggle-mode {
     display: inline-flex;
     align-items: center;

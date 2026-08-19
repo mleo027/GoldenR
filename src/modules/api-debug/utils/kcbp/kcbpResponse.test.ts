@@ -2,22 +2,9 @@ import { describe, expect, it } from 'vitest';
 import type { ParamItem, ResponseData } from '../../types/workspace';
 import {
     extractFieldsFromMsg,
-    getBusinessRow,
     mergeExtractedFieldsIntoParams,
     parseKcbpResponseStatus,
 } from './kcbpResponse';
-
-describe('getBusinessRow', () => {
-    it('returns first row with msg field', () => {
-        const row = { code: '0', msg: 'ok' };
-        expect(getBusinessRow([row])).toEqual(row);
-    });
-
-    it('returns null when no msg row', () => {
-        expect(getBusinessRow([{ custid: '1' }])).toBeNull();
-        expect(getBusinessRow([])).toBeNull();
-    });
-});
 
 describe('parseKcbpResponseStatus', () => {
     it('marks transport -1 as error', () => {
@@ -25,38 +12,56 @@ describe('parseKcbpResponseStatus', () => {
         expect(parseKcbpResponseStatus(response).kind).toBe('error');
     });
 
-    it('parses business row success', () => {
+    it('uses top-level code and message as the business status', () => {
         const response: ResponseData = {
             code: '0',
             message: 'ok',
-            data: [{ code: '0', msg: 'done', level: 0 }],
+            level: '0',
+            data: [{ custid: '1' }],
         };
         const status = parseKcbpResponseStatus(response);
         expect(status.kind).toBe('success');
-        expect(status.businessMsg).toBe('done');
-        expect(status.hasBusinessRow).toBe(true);
+        expect(status.businessCode).toBe('0');
+        expect(status.businessMsg).toBe('ok');
+        expect(status.businessLevel).toBe('0');
+        expect(status.hasBusinessRow).toBe(false);
     });
 
-    it('marks 90001 as warning', () => {
+    it('ignores code, msg and level inside data rows', () => {
         const response: ResponseData = {
             code: '0',
-            message: 'ok',
-            data: [{ code: '90001', msg: '没有fundid项的数据' }],
+            message: 'Success',
+            data: [{ code: -1003, msg: 'call remote backend failed', level: '888' }],
+        };
+        const status = parseKcbpResponseStatus(response);
+        expect(status.kind).toBe('success');
+        expect(status.businessCode).toBe('0');
+        expect(status.businessMsg).toBe('Success');
+        expect(status.hasBusinessRow).toBe(false);
+    });
+
+    it('marks top-level 90001 as warning', () => {
+        const response: ResponseData = {
+            code: '90001',
+            message: '没有fundid项的数据',
+            level: '0',
+            data: [],
         };
         expect(parseKcbpResponseStatus(response).kind).toBe('warning');
     });
 
-    it('marks level >= 2 as error', () => {
-        const response: ResponseData = {
-            code: '0',
-            message: 'ok',
-            data: [{ code: '100', msg: 'fail', level: 2 }],
-        };
+    it('marks top-level level >= 2 as error', () => {
+        const response: ResponseData = { code: '100', message: 'fail', level: '2', data: [] };
         expect(parseKcbpResponseStatus(response).kind).toBe('error');
     });
 
-    it('falls back to transport when no business row', () => {
-        const response: ResponseData = { code: '0', message: 'ok', data: [{ custid: '1' }] };
+    it('marks top-level negative code as error', () => {
+        const response: ResponseData = { code: '-1003', message: 'fail', level: '888', data: [] };
+        expect(parseKcbpResponseStatus(response).kind).toBe('error');
+    });
+
+    it('falls back to transport when level is absent', () => {
+        const response: ResponseData = { code: '0', message: 'ok', data: [] };
         const status = parseKcbpResponseStatus(response);
         expect(status.kind).toBe('success');
         expect(status.hasBusinessRow).toBe(false);

@@ -9,7 +9,7 @@
       .ai-fc-edge { animation: ai-fc-flow 1.2s linear infinite; }
     </style>
   </defs>
-<text x="320" y="-61" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="#495057">Golden API Debug 调用操作流程</text>
+<text x="320" y="-61" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="#495057">Golden API 调用操作流程</text>
 <text x="320" y="-42" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" fill="#868e96">从启动到导出</text>
 <g class="flowchart">
 

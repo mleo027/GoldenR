@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Tooltip } from 'antd';
-import { CodeOutlined, TableOutlined } from '@ant-design/icons';
+import { TableOutlined } from '@ant-design/icons';
 import { useEditorModeActions } from '../../hooks/useEditorModeActions';
 import type { EditorMode } from '../../types/workspace';
 
@@ -16,7 +16,8 @@ export default function EditorModeToggle({ compact = false }: EditorModeTogglePr
 
     const segments: { mode: EditorMode; icon: ReactNode; label: string; title: string }[] = [
         { mode: 'ui', icon: <TableOutlined />, label: '表单', title: '表单' },
-        { mode: 'script', icon: <CodeOutlined />, label: '代码', title: '代码' },
+        // 暂时不支持代码模式
+        // { mode: 'script', icon: <CodeOutlined />, label: '代码', title: '代码' },
     ];
 
     return (

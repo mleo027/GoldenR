@@ -1,6 +1,6 @@
-# Golden API Debug
+# Golden API
 
-Golden API Debug 是从 GoldenAPI 中拆分出的独立桌面应用，只保留 `api-debug` 模块：KCBP 接口调用、入参编辑、脚本自动化、响应查看、JSON/INI 导入导出、SQL 参数提示与脚本 `query()`。
+Golden API 是从 GoldenAPI 中拆分出的独立桌面应用，只保留 `api-debug` 模块：KCBP 接口调用、入参编辑、脚本自动化、响应查看、JSON/INI 导入导出、SQL 参数提示与脚本 `query()`。
 
 原 GoldenAPI 仓库保持只读，本目录不再包含 TCD、TCI、AutoQC、TraceCode、知识库、SQL Debugger、数据库环境、交易所文件、Agent Server 等模块。
 

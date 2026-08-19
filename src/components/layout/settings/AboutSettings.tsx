@@ -28,12 +28,12 @@ export default function AboutSettings() {
                 关于
             </Typography.Title>
             <Typography.Paragraph className="settings-panel-desc">
-                Golden API Debug — 独立 API 调试工具
+                Golden API — 独立 API 调试工具
             </Typography.Paragraph>
             <div className="settings-about-card">
-                <GoldenApiLogo size={52} className="settings-about-logo" title="Golden API Debug" />
+                <GoldenApiLogo size={52} className="settings-about-logo" title="Golden API" />
                 <div className="settings-about-meta">
-                    <div className="settings-about-name">Golden API Debug</div>
+                    <div className="settings-about-name">Golden API</div>
                     <div className="settings-about-tagline">KCBP 接口调试</div>
                     <div className="settings-about-version">版本 v0.1.0</div>
                 </div>

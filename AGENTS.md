@@ -1,6 +1,6 @@
-# Golden API Debug Agent Guide
+# Golden API Agent Guide
 
-This repository is the standalone Golden API Debug application. It contains only the `api-debug` module and the Electron/shared code required to run KCBP API debugging.
+This repository is the standalone Golden API application. It contains only the `api-debug` module and the Electron/shared code required to run KCBP API debugging.
 
 ## Rules
 

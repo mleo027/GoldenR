@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1312" height="2319" viewBox="-656 -153 1312 2319">
 
-<text x="0" y="-119" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="#495057">Golden API Debug 操作手册</text>
+<text x="0" y="-119" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="#495057">Golden API 操作手册</text>
 <text x="0" y="-100" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" fill="#868e96">功能点总览</text>
 <g class="mindmap">
 <path d="M88,956.8 C129.4,956.8 138.6,156 180,156" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
@@ -55,7 +55,7 @@
 <path d="M-340,1820 C-385,1820 -395,2080 -440,2080" fill="none" stroke="#495057" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6,4"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.8s" repeatCount="indefinite"/></path>
 <g class="node node-terminal" data-id="GoldenAPI">
 <rect x="-88" y="923.8" width="176" height="66" rx="6" ry="6" fill="#ebfbee" stroke="#51cf66" stroke-width="2.8"/>
-<text x="0" y="946.3" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#2f9e44">Golden API Debug</text>
+<text x="0" y="946.3" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#2f9e44">Golden API</text>
 <text x="0" y="967.3" text-anchor="middle" dominant-baseline="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#2f9e44">操作手册</text>
 </g>
 <g class="node node-process" data-id="start">
