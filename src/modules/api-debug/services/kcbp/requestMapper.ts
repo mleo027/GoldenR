@@ -55,7 +55,6 @@ export function buildKcbpCallOutcome(
     const response: KcbpCallOutcome['response'] = {
         code: raw.code,
         message: raw.msg,
-        level: raw.level,
         data: gridData,
         stats: raw.stats,
         calledAt: Date.now(),

@@ -84,26 +84,6 @@ describe('buildKcbpRequest', () => {
 });
 
 describe('buildKcbpCallOutcome', () => {
-    it('maps top-level level and classifies status from it', () => {
-        const raw: KcbpResponseData = {
-            code: '0',
-            msg: '业务失败',
-            level: '888',
-            data: [],
-            stats: { timecost: 1, rows: 0 },
-        };
-
-        const outcome = buildKcbpCallOutcome(
-            { params: [] },
-            '127.0.0.1:21000/150501',
-            '150501',
-            raw,
-        );
-
-        expect(outcome.response.level).toBe('888');
-        expect(outcome.status.kind).toBe('error');
-    });
-
     it('maps raw response and detects missing param', () => {
         const raw: KcbpResponseData = {
             code: '90001',

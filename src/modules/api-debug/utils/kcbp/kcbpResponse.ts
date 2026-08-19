@@ -7,7 +7,6 @@ export interface ParsedKcbpResponseStatus {
     kind: ResponseStatusKind;
     businessCode: string | number;
     businessMsg: string;
-    businessLevel?: string | number;
     transportCode: string | number;
     transportMsg: string;
     hasBusinessRow: boolean;
@@ -16,37 +15,11 @@ export interface ParsedKcbpResponseStatus {
 export function parseKcbpResponseStatus(response: ResponseData): ParsedKcbpResponseStatus {
     const transportCode = response.code;
     const transportMsg = response.message;
-    const rawLevel = response.level;
-    const businessLevel =
-        typeof rawLevel === 'string' || typeof rawLevel === 'number' ? rawLevel : undefined;
-    const codeStr = String(transportCode);
-    const levelNum = Number(businessLevel);
-
-    if (String(transportCode) === '-1') {
-        return {
-            kind: 'error',
-            businessCode: transportCode,
-            businessMsg: transportMsg,
-            transportCode,
-            transportMsg,
-            hasBusinessRow: false,
-        };
-    }
-
-    let kind: ResponseStatusKind = 'success';
-    if (codeStr === '90001' || codeStr.includes('90001')) {
-        kind = 'warning';
-    } else if (levelNum >= 2 || (codeStr.startsWith('-') && codeStr !== '-1')) {
-        kind = 'error';
-    } else if (levelNum === 1) {
-        kind = 'warning';
-    }
 
     return {
-        kind,
+        kind: String(transportCode) === '0' ? 'success' : 'error',
         businessCode: transportCode,
         businessMsg: transportMsg,
-        businessLevel,
         transportCode,
         transportMsg,
         hasBusinessRow: false,

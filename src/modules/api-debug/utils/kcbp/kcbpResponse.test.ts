@@ -7,65 +7,30 @@ import {
 } from './kcbpResponse';
 
 describe('parseKcbpResponseStatus', () => {
-    it('marks transport -1 as error', () => {
-        const response: ResponseData = { code: '-1', message: 'timeout', data: [] };
-        expect(parseKcbpResponseStatus(response).kind).toBe('error');
-    });
-
-    it('uses top-level code and message as the business status', () => {
+    it('marks code 0 as success', () => {
         const response: ResponseData = {
             code: '0',
             message: 'ok',
-            level: '0',
             data: [{ custid: '1' }],
         };
         const status = parseKcbpResponseStatus(response);
         expect(status.kind).toBe('success');
         expect(status.businessCode).toBe('0');
         expect(status.businessMsg).toBe('ok');
-        expect(status.businessLevel).toBe('0');
         expect(status.hasBusinessRow).toBe(false);
     });
 
-    it('ignores code, msg and level inside data rows', () => {
+    it('marks any non-zero code as error', () => {
         const response: ResponseData = {
-            code: '0',
-            message: 'Success',
-            data: [{ code: -1003, msg: 'call remote backend failed', level: '888' }],
-        };
-        const status = parseKcbpResponseStatus(response);
-        expect(status.kind).toBe('success');
-        expect(status.businessCode).toBe('0');
-        expect(status.businessMsg).toBe('Success');
-        expect(status.hasBusinessRow).toBe(false);
-    });
-
-    it('marks top-level 90001 as warning', () => {
-        const response: ResponseData = {
-            code: '90001',
-            message: '没有fundid项的数据',
-            level: '0',
+            code: '-1',
+            message: 'timeout',
             data: [],
         };
-        expect(parseKcbpResponseStatus(response).kind).toBe('warning');
-    });
-
-    it('marks top-level level >= 2 as error', () => {
-        const response: ResponseData = { code: '100', message: 'fail', level: '2', data: [] };
-        expect(parseKcbpResponseStatus(response).kind).toBe('error');
-    });
-
-    it('marks top-level negative code as error', () => {
-        const response: ResponseData = { code: '-1003', message: 'fail', level: '888', data: [] };
-        expect(parseKcbpResponseStatus(response).kind).toBe('error');
-    });
-
-    it('falls back to transport when level is absent', () => {
-        const response: ResponseData = { code: '0', message: 'ok', data: [] };
         const status = parseKcbpResponseStatus(response);
-        expect(status.kind).toBe('success');
+        expect(status.kind).toBe('error');
+        expect(status.businessCode).toBe('-1');
+        expect(status.businessMsg).toBe('timeout');
         expect(status.hasBusinessRow).toBe(false);
-        expect(status.businessMsg).toBe('ok');
     });
 });
 
