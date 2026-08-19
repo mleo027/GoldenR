@@ -5,10 +5,6 @@ export interface DbConnectionConfig {
     database: string;
     user: string;
     password: string;
-    options?: {
-        encrypt?: boolean;
-        trustServerCertificate?: boolean;
-    };
     queryTimeoutMs?: number;
     maxRows?: number;
 }

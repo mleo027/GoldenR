@@ -42,7 +42,7 @@ function parseParamToken(raw: string, forceDisabled = false): ParamItem | null {
     }
 
     const name = content.slice(0, separatorIndex).trim();
-    const value = content.slice(separatorIndex + 1).trim();
+    const value = stripOuterQuotes(content.slice(separatorIndex + 1).trim());
     if (!name) return null;
 
     return {
@@ -50,6 +50,17 @@ function parseParamToken(raw: string, forceDisabled = false): ParamItem | null {
         value,
         type: disabled ? 'disabled' : 'string',
     };
+}
+
+function stripOuterQuotes(value: string): string {
+    if (value.length < 2) return value;
+
+    const quote = value[0];
+    if ((quote === "'" || quote === '"') && value[value.length - 1] === quote) {
+        return value.slice(1, -1);
+    }
+
+    return value;
 }
 
 function splitParamTokens(line: string): string[] {
@@ -65,13 +76,14 @@ function splitParamTokens(line: string): string[] {
 
 /** 按逗号拆分 key:value 片段，保留 value 内空格（如 netaddr:127.0.0.1  abcdefg） */
 function splitCommaSeparatedPairs(text: string): string[] {
+    const normalized = text.replace(/(?:,\s*)+$/, '');
     const parts: string[] = [];
     let current = '';
 
-    for (let i = 0; i < text.length; i += 1) {
-        const char = text[i];
+    for (let i = 0; i < normalized.length; i += 1) {
+        const char = normalized[i];
         if (char === ',') {
-            const nextSegment = text.slice(i + 1);
+            const nextSegment = normalized.slice(i + 1);
             const nextKeyMatch = nextSegment.match(/^\s*([a-zA-Z_]\w*)[:=]/);
             if (nextKeyMatch) {
                 if (current.trim()) parts.push(current.trim());
@@ -122,7 +134,7 @@ function parseLogFormatParams(text: string): { params: ParamItem[]; msgtype?: st
         if (!match) continue;
 
         const name = match[1].trim();
-        const value = match[2].trim();
+        const value = stripOuterQuotes(match[2].trim());
         if (!name) continue;
 
         params.push({ name, value, type: 'string' });

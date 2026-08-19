@@ -88,23 +88,23 @@ describe('executeCaseScript', () => {
         const query = async () => {
             throw new Error('query() 仅在 Electron 环境可用');
         };
-        const result = await executeCaseScript(
-            `async function main(ctx) {
+        const result = await executeCaseScript({
+            script: `async function main(ctx) {
   console.log('before call');
   return await call({ g_serverid: '1', g_funcid: ctx.msgtype });
 }`,
-            {
+            ctx: {
                 ...baseCtx,
                 call: async (fields) => {
                     calls.push(fields);
                     return response;
                 },
             },
-            consoleCapture.api,
-            query,
-            test,
-            createNoopFlowApi(),
-        );
+            consoleApi: consoleCapture.api,
+            queryFn: query,
+            testApi: test,
+            flowApi: createNoopFlowApi(),
+        });
 
         expect(calls).toEqual([{ g_serverid: '1', g_funcid: '150501' }]);
         expect(result).toEqual(response);
@@ -158,6 +158,56 @@ describe('normalizeRequestScriptResult', () => {
         });
         expect(result.binaryFields).toEqual({
             databody: 'D:/data/1.zip',
+        });
+    });
+
+    it('extracts binaryFields from object file values', () => {
+        const result = normalizeRequestScriptResult({
+            g_funcid: '856065',
+            databody: { file: 'D:/data/1.zip' },
+        });
+
+        expect(result.fields).toEqual({ g_funcid: '856065' });
+        expect(result.binaryFields).toEqual({ databody: 'D:/data/1.zip' });
+        expect(result.params).toEqual([
+            { name: 'g_funcid', value: '856065', type: 'string' },
+            { name: 'databody', value: '@file:D:/data/1.zip', type: 'string' },
+        ]);
+    });
+
+    it('normalizes array rows into params, fields and binary fields', () => {
+        const result = normalizeRequestScriptResult([
+            { name: 'g_funcid', value: '150501' },
+            { name: 'databody', value: 'D:/data/1.zip', type: 'file' },
+            { name: 'databody2', value: '@file:D:/data/2.zip', type: 'string' },
+            { name: 'skip', value: '1', enabled: false },
+            { name: 'empty', value: null },
+            { name: '  ', value: 'ignored' },
+            null,
+        ]);
+
+        expect(result.fields).toEqual({
+            g_funcid: '150501',
+            empty: '',
+        });
+        expect(result.binaryFields).toEqual({
+            databody: 'D:/data/1.zip',
+            databody2: 'D:/data/2.zip',
+        });
+        expect(result.params).toEqual([
+            { name: 'g_funcid', value: '150501', type: 'string' },
+            { name: 'databody', value: 'D:/data/1.zip', type: 'file' },
+            { name: 'databody2', value: '@file:D:/data/2.zip', type: 'string' },
+            { name: 'skip', value: '1', type: 'disabled' },
+            { name: 'empty', value: '', type: 'string' },
+        ]);
+    });
+
+    it('returns empty fields for scalar results', () => {
+        expect(normalizeRequestScriptResult('150501')).toEqual({
+            fields: {},
+            binaryFields: {},
+            params: [],
         });
     });
 });

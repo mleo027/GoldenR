@@ -99,15 +99,15 @@ export async function runScriptOrTcdCase(
         const callMsgtype =
             normalized.fields.g_funcid?.trim() || normalized.fields.g_funcid_src?.trim() || msgtype;
         const startedAt = Date.now();
-        lastOutcome = await invokeKcbpWithFields(
+        lastOutcome = await invokeKcbpWithFields({
             tab,
-            callMsgtype,
-            normalized.fields,
-            normalized.binaryFields,
-            activeParams,
+            msgtype: callMsgtype,
+            fields: normalized.fields,
+            binaryFields: normalized.binaryFields,
+            baseParams: activeParams,
             electronDeps,
-            effectiveAddress,
-        );
+            addressOverride: effectiveAddress,
+        });
         callCounter += 1;
         const step = {
             index: callCounter,
@@ -208,17 +208,17 @@ export async function runScriptOrTcdCase(
     });
 
     try {
-        const scriptResult = await executeCaseScript(
+        const scriptResult = await executeCaseScript({
             script,
             ctx,
-            consoleCapture.api,
-            query,
-            test,
+            consoleApi: consoleCapture.api,
+            queryFn: query,
+            testApi: test,
             flowApi,
             varsApi,
             libApi,
             assertApi,
-        );
+        });
         if (!lastOutcome && !isScriptTestResult(scriptResult)) {
             throw new Error(
                 '\u811a\u672c\u672a\u8c03\u7528 call()\uff0c\u65e0\u6cd5\u53d1\u9001\u8bf7\u6c42',
@@ -317,15 +317,15 @@ export async function runScriptOrTcdCase(
             });
         }
 
-        const outcome = await invokeKcbpWithFields(
+        const outcome = await invokeKcbpWithFields({
             tab,
             msgtype,
-            fallbackPayload.fields,
-            fallbackPayload.binaryFields,
-            tab.params,
+            fields: fallbackPayload.fields,
+            binaryFields: fallbackPayload.binaryFields,
+            baseParams: tab.params,
             electronDeps,
-            effectiveAddress,
-        );
+            addressOverride: effectiveAddress,
+        });
         return attachCallSteps({
             ...outcome,
             scriptError,

@@ -18,6 +18,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const suites = {
     kcbp: [
+        'electron/services/kcbp/kcbp.test.ts',
         'src/modules/api-debug/utils/kcbp/kcbpAddress.test.ts',
         'src/modules/api-debug/utils/kcbp/kcbpParams.test.ts',
         'src/modules/api-debug/utils/kcbp/kcbpResponse.test.ts',
@@ -36,11 +37,16 @@ const suites = {
         'src/modules/api-debug/utils/script/formatJavaScript.test.ts',
     ],
     suggest: [
+        'electron/services/suggest/suggestRuleEngine.test.ts',
         'src/modules/api-debug/utils/suggest/paramSuggestResolve.test.ts',
         'src/modules/api-debug/utils/suggest/paramSuggestSql.test.ts',
         'src/modules/api-debug/utils/suggest/paramSuggestRuleDisplay.test.ts',
     ],
-    persist: ['src/store/appEnvData.test.ts', 'src/modules/api-debug/store/apiDebugEnvData.test.ts'],
+    persist: [
+        'src/store/appEnvData.test.ts',
+        'src/modules/api-debug/store/apiDebugEnvData.test.ts',
+        'src/modules/api-debug/store/paramSuggestData.test.ts',
+    ],
     core: [
         'src/modules/api-debug/utils/workspace/caseLabel.test.ts',
         'src/modules/api-debug/utils/workspace/paramText.test.ts',

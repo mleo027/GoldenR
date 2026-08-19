@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ComponentType } from 'react';
 import { Input, Modal } from 'antd';
 import { SettingOutlined, SearchOutlined } from '@ant-design/icons';
 import SettingsNavHighlight from './SettingsNavHighlight';
@@ -23,6 +23,118 @@ interface SettingsModalProps {
 }
 
 type SettingsSectionKey = string;
+
+function SettingsModalNav({
+    filteredNavGroups,
+    filteredFooterSections,
+    searchQuery,
+    hasSearchQuery,
+    activeSection,
+    onSearchChange,
+    onSectionSelect,
+}: {
+    filteredNavGroups: ReturnType<typeof filterSettingsNavGroups>;
+    filteredFooterSections: ReturnType<typeof getPlatformFooterSettingsSections>;
+    searchQuery: string;
+    hasSearchQuery: boolean;
+    activeSection: string;
+    onSearchChange: (value: string) => void;
+    onSectionSelect: (key: string) => void;
+}) {
+    return (
+        <nav className="settings-modal-nav" aria-label="设置导航">
+            <div className="settings-modal-nav-search">
+                <Input
+                    allowClear
+                    size="small"
+                    prefix={<SearchOutlined className="settings-modal-search-icon" />}
+                    placeholder="搜索设置…"
+                    value={searchQuery}
+                    onChange={(event) => onSearchChange(event.target.value)}
+                    aria-label="搜索设置"
+                />
+            </div>
+
+            <div className="settings-modal-nav-body ui-scroll">
+                {filteredNavGroups.length === 0 && filteredFooterSections.length === 0 ? (
+                    <div className="settings-modal-nav-empty">未找到匹配的设置项</div>
+                ) : (
+                    filteredNavGroups.map((group) => (
+                        <div key={group.key} className="settings-modal-nav-group">
+                            <div className="settings-modal-nav-group-label">{group.label}</div>
+                            {group.items.map((item) => (
+                                <button
+                                    key={item.key}
+                                    type="button"
+                                    className={`settings-modal-nav-item${activeSection === item.key ? ' settings-modal-nav-item-active' : ''}`}
+                                    onClick={() => onSectionSelect(item.key)}
+                                >
+                                    <span className="settings-modal-nav-icon">{item.icon}</span>
+                                    {hasSearchQuery ? (
+                                        <SettingsNavHighlight
+                                            text={item.label}
+                                            query={searchQuery}
+                                        />
+                                    ) : (
+                                        item.label
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    ))
+                )}
+            </div>
+
+            {filteredFooterSections.length > 0 ? (
+                <div className="settings-modal-nav-footer">
+                    {filteredFooterSections.map((section) => (
+                        <button
+                            key={section.key}
+                            type="button"
+                            className={`settings-modal-nav-item${activeSection === section.key ? ' settings-modal-nav-item-active' : ''}`}
+                            onClick={() => onSectionSelect(section.key)}
+                        >
+                            <span className="settings-modal-nav-icon">{section.icon}</span>
+                            {hasSearchQuery ? (
+                                <SettingsNavHighlight text={section.label} query={searchQuery} />
+                            ) : (
+                                section.label
+                            )}
+                        </button>
+                    ))}
+                </div>
+            ) : null}
+        </nav>
+    );
+}
+
+function SettingsModalContent({
+    showSearchEmpty,
+    searchQuery,
+    ActivePanel,
+    isWidePanel,
+}: {
+    showSearchEmpty: boolean;
+    searchQuery: string;
+    ActivePanel?: ComponentType;
+    isWidePanel: boolean;
+}) {
+    return (
+        <div className="settings-modal-content ui-scroll">
+            <div
+                className={`settings-modal-content-inner${isWidePanel ? ' settings-modal-content-inner-wide' : ''}`}
+            >
+                {showSearchEmpty ? (
+                    <div className="settings-modal-search-empty">
+                        未找到与「{searchQuery.trim()}」匹配的设置项
+                    </div>
+                ) : ActivePanel ? (
+                    <ActivePanel />
+                ) : null}
+            </div>
+        </div>
+    );
+}
 
 export default function SettingsModal({ open, onClose }: SettingsModalProps) {
     const { env } = useAppEnv();
@@ -114,90 +226,21 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
             }
         >
             <div className="settings-modal-layout">
-                <nav className="settings-modal-nav" aria-label="设置导航">
-                    <div className="settings-modal-nav-search">
-                        <Input
-                            allowClear
-                            size="small"
-                            prefix={<SearchOutlined className="settings-modal-search-icon" />}
-                            placeholder="搜索设置…"
-                            value={searchQuery}
-                            onChange={(event) => setSearchQuery(event.target.value)}
-                            aria-label="搜索设置"
-                        />
-                    </div>
-
-                    <div className="settings-modal-nav-body ui-scroll">
-                        {filteredNavGroups.length === 0 && filteredFooterSections.length === 0 ? (
-                            <div className="settings-modal-nav-empty">未找到匹配的设置项</div>
-                        ) : (
-                            filteredNavGroups.map((group) => (
-                                <div key={group.key} className="settings-modal-nav-group">
-                                    <div className="settings-modal-nav-group-label">
-                                        {group.label}
-                                    </div>
-                                    {group.items.map((item) => (
-                                        <button
-                                            key={item.key}
-                                            type="button"
-                                            className={`settings-modal-nav-item${activeSection === item.key ? ' settings-modal-nav-item-active' : ''}`}
-                                            onClick={() => setActiveSection(item.key)}
-                                        >
-                                            <span className="settings-modal-nav-icon">
-                                                {item.icon}
-                                            </span>
-                                            {hasSearchQuery ? (
-                                                <SettingsNavHighlight
-                                                    text={item.label}
-                                                    query={searchQuery}
-                                                />
-                                            ) : (
-                                                item.label
-                                            )}
-                                        </button>
-                                    ))}
-                                </div>
-                            ))
-                        )}
-                    </div>
-
-                    {filteredFooterSections.length > 0 ? (
-                        <div className="settings-modal-nav-footer">
-                            {filteredFooterSections.map((section) => (
-                                <button
-                                    key={section.key}
-                                    type="button"
-                                    className={`settings-modal-nav-item${activeSection === section.key ? ' settings-modal-nav-item-active' : ''}`}
-                                    onClick={() => setActiveSection(section.key)}
-                                >
-                                    <span className="settings-modal-nav-icon">{section.icon}</span>
-                                    {hasSearchQuery ? (
-                                        <SettingsNavHighlight
-                                            text={section.label}
-                                            query={searchQuery}
-                                        />
-                                    ) : (
-                                        section.label
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-                    ) : null}
-                </nav>
-
-                <div className="settings-modal-content ui-scroll">
-                    <div
-                        className={`settings-modal-content-inner${isWidePanel ? ' settings-modal-content-inner-wide' : ''}`}
-                    >
-                        {showSearchEmpty ? (
-                            <div className="settings-modal-search-empty">
-                                未找到与「{searchQuery.trim()}」匹配的设置项
-                            </div>
-                        ) : ActivePanel ? (
-                            <ActivePanel />
-                        ) : null}
-                    </div>
-                </div>
+                <SettingsModalNav
+                    filteredNavGroups={filteredNavGroups}
+                    filteredFooterSections={filteredFooterSections}
+                    searchQuery={searchQuery}
+                    hasSearchQuery={hasSearchQuery}
+                    activeSection={activeSection}
+                    onSearchChange={setSearchQuery}
+                    onSectionSelect={setActiveSection}
+                />
+                <SettingsModalContent
+                    showSearchEmpty={showSearchEmpty}
+                    searchQuery={searchQuery}
+                    ActivePanel={ActivePanel}
+                    isWidePanel={isWidePanel}
+                />
             </div>
         </Modal>
     );

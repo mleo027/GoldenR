@@ -18,6 +18,68 @@ interface ParamSuggestRuleFormTestProps {
     onViewSql?: (sql: string, boundParams?: Record<string, string | number>) => void;
 }
 
+function RuleTestResult({
+    response,
+    onViewSql,
+}: {
+    response: DbSuggestResponse;
+    onViewSql?: (sql: string, boundParams?: Record<string, string | number>) => void;
+}) {
+    return (
+        <div className="param-suggest-test-result-card mt-3">
+            {response.executedSql ? (
+                <div className="param-suggest-test-result-section">
+                    <div className="flex items-center justify-between gap-2">
+                        <Typography.Text strong className="text-xs">
+                            执行 SQL
+                        </Typography.Text>
+                        {onViewSql ? (
+                            <Button
+                                type="link"
+                                size="small"
+                                className="px-0 h-auto"
+                                onClick={() =>
+                                    onViewSql(response.executedSql ?? '', response.boundParams)
+                                }
+                            >
+                                查看
+                            </Button>
+                        ) : null}
+                    </div>
+                    <pre className="param-suggest-test-sql-preview mt-1">
+                        {formatExecutedSqlPreview(response.executedSql, response.boundParams)}
+                    </pre>
+                </div>
+            ) : null}
+
+            <div className="param-suggest-test-result-meta">
+                {response.error ? (
+                    <Typography.Text type="danger" className="text-xs">
+                        错误：{response.error}
+                    </Typography.Text>
+                ) : response.pendingDeps && response.pendingDeps.length > 0 ? (
+                    <Typography.Text type="warning" className="text-xs">
+                        缺少依赖参数：{response.pendingDeps.join(', ')}
+                    </Typography.Text>
+                ) : (
+                    <Typography.Text className="text-xs">
+                        返回记录：{response.options.length}
+                    </Typography.Text>
+                )}
+                {response.elapsedMs != null ? (
+                    <Typography.Text type="secondary" className="text-xs">
+                        耗时：{response.elapsedMs}ms
+                    </Typography.Text>
+                ) : null}
+            </div>
+
+            {response.options.length > 0 ? (
+                <ParamSuggestOptionsPreview options={response.options} />
+            ) : null}
+        </div>
+    );
+}
+
 export default function ParamSuggestRuleFormTest({
     formValues,
     editingRuleId,
@@ -87,65 +149,7 @@ export default function ParamSuggestRuleFormTest({
                 执行测试
             </Button>
 
-            {testResponse ? (
-                <div className="param-suggest-test-result-card mt-3">
-                    {testResponse.executedSql ? (
-                        <div className="param-suggest-test-result-section">
-                            <div className="flex items-center justify-between gap-2">
-                                <Typography.Text strong className="text-xs">
-                                    执行 SQL
-                                </Typography.Text>
-                                {onViewSql ? (
-                                    <Button
-                                        type="link"
-                                        size="small"
-                                        className="px-0 h-auto"
-                                        onClick={() =>
-                                            onViewSql(
-                                                testResponse.executedSql ?? '',
-                                                testResponse.boundParams,
-                                            )
-                                        }
-                                    >
-                                        查看
-                                    </Button>
-                                ) : null}
-                            </div>
-                            <pre className="param-suggest-test-sql-preview mt-1">
-                                {formatExecutedSqlPreview(
-                                    testResponse.executedSql,
-                                    testResponse.boundParams,
-                                )}
-                            </pre>
-                        </div>
-                    ) : null}
-
-                    <div className="param-suggest-test-result-meta">
-                        {testResponse.error ? (
-                            <Typography.Text type="danger" className="text-xs">
-                                错误：{testResponse.error}
-                            </Typography.Text>
-                        ) : testResponse.pendingDeps && testResponse.pendingDeps.length > 0 ? (
-                            <Typography.Text type="warning" className="text-xs">
-                                缺少依赖参数：{testResponse.pendingDeps.join(', ')}
-                            </Typography.Text>
-                        ) : (
-                            <Typography.Text className="text-xs">
-                                返回记录：{testResponse.options.length}
-                            </Typography.Text>
-                        )}
-                        {testResponse.elapsedMs != null ? (
-                            <Typography.Text type="secondary" className="text-xs">
-                                耗时：{testResponse.elapsedMs}ms
-                            </Typography.Text>
-                        ) : null}
-                    </div>
-
-                    {testResponse.options.length > 0 ? (
-                        <ParamSuggestOptionsPreview options={testResponse.options} />
-                    ) : null}
-                </div>
-            ) : null}
+            {testResponse ? <RuleTestResult response={testResponse} onViewSql={onViewSql} /> : null}
         </div>
     );
 }

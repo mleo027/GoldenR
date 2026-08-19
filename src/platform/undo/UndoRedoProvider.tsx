@@ -1,4 +1,11 @@
-import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+    useCallback,
+    useMemo,
+    useRef,
+    useState,
+    type MutableRefObject,
+    type ReactNode,
+} from 'react';
 import type { UndoCommand } from '../../shared/platform/undo/types';
 import {
     clearUndoHistory,
@@ -25,38 +32,42 @@ function getScopeHistory(
     return next;
 }
 
-export function UndoRedoProvider({ children }: { children: ReactNode }) {
-    const historiesRef = useRef(new Map<string, ReturnType<typeof createEmptyUndoHistory>>());
-    const activeScopeRef = useRef<string | null>(null);
-    const flushCallbacksRef = useRef(new Set<() => void>());
-    const [revision, setRevision] = useState(0);
-
-    const bump = useCallback(() => {
-        setRevision((value) => value + 1);
-    }, []);
-
+function useUndoRedoActions({
+    historiesRef,
+    activeScopeRef,
+    flushCallbacksRef,
+    bump,
+}: {
+    historiesRef: MutableRefObject<Map<string, ReturnType<typeof createEmptyUndoHistory>>>;
+    activeScopeRef: MutableRefObject<string | null>;
+    flushCallbacksRef: MutableRefObject<Set<() => void>>;
+    bump: () => void;
+}) {
     const runFlushCallbacks = useCallback(() => {
-        flushCallbacksRef.current.forEach((flush) => {
+        flushCallbacksRef.current?.forEach((flush) => {
             flush();
         });
-    }, []);
+    }, [flushCallbacksRef]);
 
     const push = useCallback(
         (scopeId: string, command: UndoCommand) => {
             const histories = historiesRef.current;
+            if (!histories) return;
             const nextHistory = pushUndoCommand(getScopeHistory(histories, scopeId), command);
             histories.set(scopeId, nextHistory);
             bump();
         },
-        [bump],
+        [bump, historiesRef],
     );
 
     const clearScope = useCallback(
         (scopeId: string) => {
-            historiesRef.current.set(scopeId, clearUndoHistory());
+            const histories = historiesRef.current;
+            if (!histories) return;
+            histories.set(scopeId, clearUndoHistory());
             bump();
         },
-        [bump],
+        [bump, historiesRef],
     );
 
     const setActiveScope = useCallback(
@@ -64,7 +75,7 @@ export function UndoRedoProvider({ children }: { children: ReactNode }) {
             activeScopeRef.current = scopeId;
             bump();
         },
-        [bump],
+        [activeScopeRef, bump],
     );
 
     const releaseActiveScope = useCallback(
@@ -73,15 +84,18 @@ export function UndoRedoProvider({ children }: { children: ReactNode }) {
             activeScopeRef.current = null;
             bump();
         },
-        [bump],
+        [activeScopeRef, bump],
     );
 
-    const registerFlush = useCallback((flush: () => void) => {
-        flushCallbacksRef.current.add(flush);
-        return () => {
-            flushCallbacksRef.current.delete(flush);
-        };
-    }, []);
+    const registerFlush = useCallback(
+        (flush: () => void) => {
+            flushCallbacksRef.current?.add(flush);
+            return () => {
+                flushCallbacksRef.current?.delete(flush);
+            };
+        },
+        [flushCallbacksRef],
+    );
 
     const undo = useCallback(() => {
         runFlushCallbacks();
@@ -89,17 +103,17 @@ export function UndoRedoProvider({ children }: { children: ReactNode }) {
         if (!scopeId) return false;
 
         const histories = historiesRef.current;
-        const current = histories.get(scopeId);
+        const current = histories?.get(scopeId);
         if (!current) return false;
 
         const { history, command } = popUndoCommand(current);
         if (!command) return false;
 
         command.undo();
-        histories.set(scopeId, history);
+        histories?.set(scopeId, history);
         bump();
         return true;
-    }, [bump, runFlushCallbacks]);
+    }, [activeScopeRef, bump, historiesRef, runFlushCallbacks]);
 
     const redo = useCallback(() => {
         runFlushCallbacks();
@@ -107,22 +121,19 @@ export function UndoRedoProvider({ children }: { children: ReactNode }) {
         if (!scopeId) return false;
 
         const histories = historiesRef.current;
-        const current = histories.get(scopeId);
+        const current = histories?.get(scopeId);
         if (!current) return false;
 
         const { history, command } = popRedoCommand(current);
         if (!command) return false;
 
         command.redo();
-        histories.set(scopeId, history);
+        histories?.set(scopeId, history);
         bump();
         return true;
-    }, [bump, runFlushCallbacks]);
+    }, [activeScopeRef, bump, historiesRef, runFlushCallbacks]);
 
-    const activeScopeId = activeScopeRef.current;
-    const activeHistory = activeScopeId ? historiesRef.current.get(activeScopeId) : undefined;
-
-    const actions = useMemo<UndoRedoActions>(
+    return useMemo<UndoRedoActions>(
         () => ({
             push,
             clearScope,
@@ -134,6 +145,27 @@ export function UndoRedoProvider({ children }: { children: ReactNode }) {
         }),
         [clearScope, push, redo, registerFlush, releaseActiveScope, setActiveScope, undo],
     );
+}
+
+export function UndoRedoProvider({ children }: { children: ReactNode }) {
+    const historiesRef = useRef(new Map<string, ReturnType<typeof createEmptyUndoHistory>>());
+    const activeScopeRef = useRef<string | null>(null);
+    const flushCallbacksRef = useRef(new Set<() => void>());
+    const [revision, setRevision] = useState(0);
+
+    const bump = useCallback(() => {
+        setRevision((value) => value + 1);
+    }, []);
+
+    const actions = useUndoRedoActions({
+        historiesRef,
+        activeScopeRef,
+        flushCallbacksRef,
+        bump,
+    });
+
+    const activeScopeId = activeScopeRef.current;
+    const activeHistory = activeScopeId ? historiesRef.current.get(activeScopeId) : undefined;
 
     const state = useMemo<UndoRedoState>(
         () => ({

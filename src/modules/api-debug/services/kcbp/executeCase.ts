@@ -44,15 +44,15 @@ export async function invokeKcbpCall(
 
     if (editorMode === 'ui') {
         const { fields, binaryFields } = buildKcbpFields(tab.params);
-        const outcome = await invokeKcbpWithFields(
+        const outcome = await invokeKcbpWithFields({
             tab,
             msgtype,
             fields,
             binaryFields,
-            tab.params,
+            baseParams: tab.params,
             electronDeps,
-            effectiveAddress,
-        );
+            addressOverride: effectiveAddress,
+        });
         return {
             ...outcome,
             nextScript: outcome.missingParam

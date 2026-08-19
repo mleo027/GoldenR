@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
 import { Button, Input, Modal, Tooltip, message } from 'antd';
 import type { InputRef } from 'antd';
 import {
@@ -19,6 +19,76 @@ interface ResponseTableToolsProps {
     fullscreenActive?: boolean;
     exportData?: Record<string, unknown>[];
     exportFilename?: string;
+}
+
+function ExportSuccessDialog({ filePath }: { filePath: string }) {
+    Modal.success({
+        title: '导出成功',
+        centered: true,
+        mousePosition: null,
+        content: (
+            <div className="export-success-modal">
+                <p className="export-success-desc">CSV 文件已保存至：</p>
+                <p className="export-success-path">{filePath}</p>
+            </div>
+        ),
+        okText: '知道了',
+        width: 520,
+    });
+}
+
+async function exportResponseTable(
+    exportData: Record<string, unknown>[],
+    exportFilename: string,
+): Promise<void> {
+    if (exportData.length >= PERFORMANCE_THRESHOLDS.largeExportRows) {
+        message.warning(
+            `将导出 ${exportData.length} 行数据，文件可能较大，导出过程可能略有延迟`,
+            3,
+        );
+    }
+
+    const result = await exportTableToCsv(exportData, exportFilename);
+    if (result.saved) {
+        ExportSuccessDialog({ filePath: result.filePath });
+    } else if (result.reason === 'empty') {
+        message.warning('暂无数据可导出');
+    }
+}
+
+function ResponseTableSearchInput({
+    inputRef,
+    disabled,
+    draft,
+    onSearchChange,
+    onSearchClear,
+    onSearchBlur,
+    onCommit,
+}: {
+    inputRef: RefObject<InputRef>;
+    disabled: boolean;
+    draft: string;
+    onSearchChange: (value: string) => void;
+    onSearchClear: () => void;
+    onSearchBlur: () => void;
+    onCommit: (value: string) => void;
+}) {
+    return (
+        <Input
+            ref={inputRef}
+            allowClear
+            size="small"
+            placeholder="搜索表格内容"
+            prefix={<SearchOutlined className="text-[var(--color-text-muted)]" />}
+            value={draft}
+            onChange={(event) => onSearchChange(event.target.value)}
+            onClear={onSearchClear}
+            onBlur={onSearchBlur}
+            onPressEnter={() => onCommit(draft)}
+            className="response-table-tools-search"
+            disabled={disabled}
+        />
+    );
 }
 
 export default function ResponseTableTools({
@@ -78,49 +148,20 @@ export default function ResponseTableTools({
     };
 
     const handleExport = async () => {
-        if (exportData.length >= PERFORMANCE_THRESHOLDS.largeExportRows) {
-            message.warning(
-                `将导出 ${exportData.length} 行数据，文件可能较大，导出过程可能略有延迟`,
-                3,
-            );
-        }
-
-        const result = await exportTableToCsv(exportData, exportFilename);
-        if (result.saved) {
-            Modal.success({
-                title: '导出成功',
-                centered: true,
-                mousePosition: null,
-                content: (
-                    <div className="export-success-modal">
-                        <p className="export-success-desc">CSV 文件已保存至：</p>
-                        <p className="export-success-path">{result.filePath}</p>
-                    </div>
-                ),
-                okText: '知道了',
-                width: 520,
-            });
-        } else if (result.reason === 'empty') {
-            message.warning('暂无数据可导出');
-        }
+        await exportResponseTable(exportData, exportFilename);
     };
 
     return (
         <div className="response-table-tools">
             {showSearchInput && (
-                <Input
-                    ref={inputRef}
-                    allowClear
-                    size="small"
-                    placeholder="搜索表格内容"
-                    prefix={<SearchOutlined className="text-[var(--color-text-muted)]" />}
-                    value={draft}
-                    onChange={(event) => handleSearchChange(event.target.value)}
-                    onClear={handleSearchClear}
-                    onBlur={handleSearchBlur}
-                    onPressEnter={() => commitNow(draft)}
-                    className="response-table-tools-search"
+                <ResponseTableSearchInput
+                    inputRef={inputRef}
                     disabled={disabled}
+                    draft={draft}
+                    onSearchChange={handleSearchChange}
+                    onSearchClear={handleSearchClear}
+                    onSearchBlur={handleSearchBlur}
+                    onCommit={commitNow}
                 />
             )}
             <Tooltip title="搜索数据">

@@ -128,6 +128,58 @@ describe('getKcbpCallFeedback', () => {
         });
     });
 
+    it('reports script errors without a script test', () => {
+        const feedback = getKcbpCallFeedback(
+            baseOutcome({
+                scriptError: 'boom',
+            }),
+        );
+        expect(feedback).toEqual({ level: 'error', message: 'boom' });
+    });
+
+    it('reports a non-zero transport code as an error', () => {
+        const feedback = getKcbpCallFeedback(
+            baseOutcome({
+                response: {
+                    code: '-1',
+                    message: 'service failed',
+                    data: [],
+                },
+            }),
+        );
+        expect(feedback).toEqual({ level: 'error', message: 'service failed' });
+    });
+
+    it('reports business error and warning status', () => {
+        const errorFeedback = getKcbpCallFeedback(
+            baseOutcome({
+                status: {
+                    kind: 'error',
+                    businessCode: '90001',
+                    businessMsg: 'business failed',
+                    transportCode: '0',
+                    transportMsg: 'ok',
+                    hasBusinessRow: false,
+                },
+            }),
+        );
+        expect(errorFeedback).toEqual({ level: 'error', message: 'business failed' });
+
+        const warningFeedback = getKcbpCallFeedback(
+            baseOutcome({
+                status: {
+                    kind: 'warning',
+                    businessCode: '90002',
+                    businessMsg: 'business warning',
+                    transportCode: '0',
+                    transportMsg: 'ok',
+                    hasBusinessRow: false,
+                },
+            }),
+        );
+        expect(warningFeedback).toEqual({ level: 'warning', message: 'business warning' });
+    });
+
     it('reports script pass as success', () => {
         const feedback = getKcbpCallFeedback(
             baseOutcome({

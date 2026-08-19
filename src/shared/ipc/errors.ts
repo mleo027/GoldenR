@@ -44,21 +44,13 @@ export function serializeIpcError(payload: IpcErrorPayload): Error {
     return new Error(`${IPC_ERROR_PREFIX}${JSON.stringify(payload)}`);
 }
 
-export function parseIpcError(error: unknown): IpcErrorPayload | null {
-    if (!(error instanceof Error)) return null;
-
-    const prefixIndex = error.message.indexOf(IPC_ERROR_PREFIX);
-    if (prefixIndex === -1) return null;
-
-    const jsonStart = error.message.indexOf('{', prefixIndex + IPC_ERROR_PREFIX.length);
-    if (jsonStart === -1) return null;
-
+function findJsonEnd(message: string, jsonStart: number): number {
     let depth = 0;
     let inString = false;
     let escaped = false;
     let jsonEnd = -1;
-    for (let index = jsonStart; index < error.message.length; index += 1) {
-        const char = error.message[index];
+    for (let index = jsonStart; index < message.length; index += 1) {
+        const char = message[index];
         if (inString) {
             if (escaped) {
                 escaped = false;
@@ -79,20 +71,34 @@ export function parseIpcError(error: unknown): IpcErrorPayload | null {
             }
         }
     }
+    return jsonEnd;
+}
+
+function isIpcErrorPayload(value: unknown): value is IpcErrorPayload {
+    return Boolean(
+        value &&
+        typeof value === 'object' &&
+        typeof (value as IpcErrorPayload).code === 'string' &&
+        typeof (value as IpcErrorPayload).message === 'string',
+    );
+}
+
+export function parseIpcError(error: unknown): IpcErrorPayload | null {
+    if (!(error instanceof Error)) return null;
+
+    const prefixIndex = error.message.indexOf(IPC_ERROR_PREFIX);
+    if (prefixIndex === -1) return null;
+
+    const jsonStart = error.message.indexOf('{', prefixIndex + IPC_ERROR_PREFIX.length);
+    if (jsonStart === -1) return null;
+
+    const jsonEnd = findJsonEnd(error.message, jsonStart);
     if (jsonEnd === -1) return null;
 
     try {
         const payload = JSON.parse(error.message.slice(jsonStart, jsonEnd + 1)) as unknown;
-        if (
-            payload &&
-            typeof payload === 'object' &&
-            typeof (payload as IpcErrorPayload).code === 'string' &&
-            typeof (payload as IpcErrorPayload).message === 'string'
-        ) {
-            return payload as IpcErrorPayload;
-        }
+        return isIpcErrorPayload(payload) ? payload : null;
     } catch {
         return null;
     }
-    return null;
 }

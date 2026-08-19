@@ -84,6 +84,192 @@ export function PathRunButton({ compact = false }: PathRunButtonProps) {
     );
 }
 
+function PathAddressFields({
+    addressParts,
+    handleAddressPartChange,
+    run,
+    flushPending,
+    defaultTimeout,
+}: {
+    addressParts: ReturnType<typeof usePathBarController>['addressParts'];
+    handleAddressPartChange: (field: 'queue' | 'timeout' | 'msgtype', value: string) => void;
+    run: () => void;
+    flushPending: () => void;
+    defaultTimeout: string;
+}) {
+    return (
+        <>
+            <Tooltip title="Queue">
+                <span className="path-field-tooltip-wrap path-field-queue-wrap">
+                    <Input
+                        value={addressParts.queue}
+                        onChange={(e) => handleAddressPartChange('queue', e.target.value)}
+                        onPressEnter={run}
+                        onBlur={flushPending}
+                        placeholder="req1"
+                        size="small"
+                        className="path-field-input path-field-queue"
+                        variant="borderless"
+                        prefix={
+                            <span className="path-field-prefix path-field-prefix--icon-only">
+                                <UnorderedListOutlined className="path-field-icon" />
+                            </span>
+                        }
+                    />
+                </span>
+            </Tooltip>
+            <Tooltip title="Timeout (s)">
+                <span className="path-field-tooltip-wrap">
+                    <Input
+                        value={addressParts.timeout}
+                        onChange={(e) => handleAddressPartChange('timeout', e.target.value)}
+                        onPressEnter={run}
+                        onBlur={flushPending}
+                        placeholder={defaultTimeout}
+                        size="small"
+                        className="path-field-input path-field-timeout"
+                        variant="borderless"
+                        prefix={
+                            <span className="path-field-prefix path-field-prefix--icon-only">
+                                <ClockCircleOutlined className="path-field-icon" />
+                            </span>
+                        }
+                    />
+                </span>
+            </Tooltip>
+            <Tooltip title="Msgtype">
+                <span className="path-field-tooltip-wrap">
+                    <Input
+                        value={addressParts.msgtype}
+                        onChange={(e) => handleAddressPartChange('msgtype', e.target.value)}
+                        onPressEnter={run}
+                        onBlur={flushPending}
+                        placeholder=""
+                        size="small"
+                        className="path-field-input path-field-msgtype"
+                        variant="borderless"
+                        prefix={
+                            <span className="path-field-prefix path-field-prefix--icon-only">
+                                <TagOutlined className="path-field-icon" />
+                            </span>
+                        }
+                    />
+                </span>
+            </Tooltip>
+        </>
+    );
+}
+
+function PathInlineActions({
+    onQuickFill,
+    isCodeEditorMode,
+    canGenerateTestScript,
+    handleGenerateTestScript,
+    hasCopyableContent,
+    handleCopyParams,
+    hasParams,
+    handleClearParams,
+}: {
+    onQuickFill?: () => void;
+    isCodeEditorMode: boolean;
+    canGenerateTestScript: boolean;
+    handleGenerateTestScript: () => void;
+    hasCopyableContent: boolean;
+    handleCopyParams: () => Promise<void>;
+    hasParams: boolean;
+    handleClearParams: () => void;
+}) {
+    return (
+        <div className="path-actions shrink-0 flex items-center gap-1">
+            {onQuickFill ? (
+                <Tooltip title="快速填充入参">
+                    <Button
+                        type="text"
+                        size="small"
+                        icon={<ThunderboltOutlined />}
+                        className="path-helper-btn"
+                        onClick={onQuickFill}
+                    />
+                </Tooltip>
+            ) : null}
+            {isCodeEditorMode ? (
+                <Tooltip title="格式化脚本 (Ctrl+Shift+F)">
+                    <Button
+                        type="text"
+                        size="small"
+                        icon={<FormatPainterOutlined />}
+                        className="path-helper-btn"
+                        onClick={formatActiveScript}
+                    />
+                </Tooltip>
+            ) : (
+                <Tooltip title="生成测试脚本（需 Run 成功）">
+                    <Button
+                        type="text"
+                        size="small"
+                        icon={<SnippetsOutlined />}
+                        className="path-helper-btn"
+                        onClick={handleGenerateTestScript}
+                        disabled={!canGenerateTestScript}
+                    />
+                </Tooltip>
+            )}
+            <Tooltip title="复制地址与请求参数">
+                <Button
+                    type="text"
+                    size="small"
+                    icon={<CopyOutlined />}
+                    className="path-helper-btn"
+                    onClick={() => void handleCopyParams()}
+                    disabled={!hasCopyableContent}
+                />
+            </Tooltip>
+            <Tooltip title="清空全部参数">
+                <Button
+                    type="text"
+                    size="small"
+                    icon={<DeleteOutlined />}
+                    className="path-helper-btn"
+                    onClick={handleClearParams}
+                    disabled={!hasParams}
+                />
+            </Tooltip>
+        </div>
+    );
+}
+
+function PathOverflowMenu({
+    items,
+}: {
+    items?: ReturnType<typeof usePathBarController>['overflowMenuItems'];
+}) {
+    return (
+        <div className="path-overflow shrink-0">
+            <Dropdown
+                trigger={['click']}
+                placement="bottomRight"
+                dropdownRender={() => (
+                    <div
+                        className="path-overflow-panel"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <Menu items={items} />
+                    </div>
+                )}
+            >
+                <Tooltip title="更多操作">
+                    <Button
+                        type="text"
+                        size="small"
+                        icon={<MoreOutlined />}
+                        className="path-helper-btn path-overflow-btn"
+                    />
+                </Tooltip>
+            </Dropdown>
+        </div>
+    );
+}
+
 export default function Path({
     showScriptBadge = false,
     hideRunButton = false,
@@ -147,150 +333,28 @@ export default function Path({
 
                 <div className="path-command-divider" aria-hidden />
 
-                <>
-                    <Tooltip title="Queue">
-                        <span className="path-field-tooltip-wrap path-field-queue-wrap">
-                            <Input
-                                value={addressParts.queue}
-                                onChange={(e) => handleAddressPartChange('queue', e.target.value)}
-                                onPressEnter={run}
-                                onBlur={flushPending}
-                                placeholder="req1"
-                                size="small"
-                                className="path-field-input path-field-queue"
-                                variant="borderless"
-                                prefix={
-                                    <span className="path-field-prefix path-field-prefix--icon-only">
-                                        <UnorderedListOutlined className="path-field-icon" />
-                                    </span>
-                                }
-                            />
-                        </span>
-                    </Tooltip>
-                    <Tooltip title="Timeout (s)">
-                        <span className="path-field-tooltip-wrap">
-                            <Input
-                                value={addressParts.timeout}
-                                onChange={(e) => handleAddressPartChange('timeout', e.target.value)}
-                                onPressEnter={run}
-                                onBlur={flushPending}
-                                placeholder={DEFAULT_KCBP_TIMEOUT}
-                                size="small"
-                                className="path-field-input path-field-timeout"
-                                variant="borderless"
-                                prefix={
-                                    <span className="path-field-prefix path-field-prefix--icon-only">
-                                        <ClockCircleOutlined className="path-field-icon" />
-                                    </span>
-                                }
-                            />
-                        </span>
-                    </Tooltip>
-                </>
-
-                <Tooltip title="Msgtype">
-                    <span className="path-field-tooltip-wrap">
-                        <Input
-                            value={addressParts.msgtype}
-                            onChange={(e) => handleAddressPartChange('msgtype', e.target.value)}
-                            onPressEnter={run}
-                            onBlur={flushPending}
-                            placeholder=""
-                            size="small"
-                            className="path-field-input path-field-msgtype"
-                            variant="borderless"
-                            prefix={
-                                <span className="path-field-prefix path-field-prefix--icon-only">
-                                    <TagOutlined className="path-field-icon" />
-                                </span>
-                            }
-                        />
-                    </span>
-                </Tooltip>
+                <PathAddressFields
+                    addressParts={addressParts}
+                    handleAddressPartChange={handleAddressPartChange}
+                    run={run}
+                    flushPending={flushPending}
+                    defaultTimeout={DEFAULT_KCBP_TIMEOUT}
+                />
 
                 {showInlineActions ? (
-                    <div className="path-actions shrink-0 flex items-center gap-1">
-                        {onQuickFill ? (
-                            <Tooltip title="快速填充入参">
-                                <Button
-                                    type="text"
-                                    size="small"
-                                    icon={<ThunderboltOutlined />}
-                                    className="path-helper-btn"
-                                    onClick={onQuickFill}
-                                />
-                            </Tooltip>
-                        ) : null}
-                        {isCodeEditorMode ? (
-                            <Tooltip title="格式化脚本 (Ctrl+Shift+F)">
-                                <Button
-                                    type="text"
-                                    size="small"
-                                    icon={<FormatPainterOutlined />}
-                                    className="path-helper-btn"
-                                    onClick={formatActiveScript}
-                                />
-                            </Tooltip>
-                        ) : (
-                            <Tooltip title="生成测试脚本（需 Run 成功）">
-                                <Button
-                                    type="text"
-                                    size="small"
-                                    icon={<SnippetsOutlined />}
-                                    className="path-helper-btn"
-                                    onClick={handleGenerateTestScript}
-                                    disabled={!canGenerateTestScript}
-                                />
-                            </Tooltip>
-                        )}
-                        <Tooltip title="复制地址与请求参数">
-                            <Button
-                                type="text"
-                                size="small"
-                                icon={<CopyOutlined />}
-                                className="path-helper-btn"
-                                onClick={() => void handleCopyParams()}
-                                disabled={!hasCopyableContent}
-                            />
-                        </Tooltip>
-                        <Tooltip title="清空全部参数">
-                            <Button
-                                type="text"
-                                size="small"
-                                icon={<DeleteOutlined />}
-                                className="path-helper-btn"
-                                onClick={handleClearParams}
-                                disabled={activeTab.params.length === 0}
-                            />
-                        </Tooltip>
-                    </div>
+                    <PathInlineActions
+                        onQuickFill={onQuickFill}
+                        isCodeEditorMode={isCodeEditorMode}
+                        canGenerateTestScript={canGenerateTestScript}
+                        handleGenerateTestScript={handleGenerateTestScript}
+                        hasCopyableContent={hasCopyableContent}
+                        handleCopyParams={handleCopyParams}
+                        hasParams={activeTab.params.length > 0}
+                        handleClearParams={handleClearParams}
+                    />
                 ) : null}
 
-                {showOverflowMenu ? (
-                    <div className="path-overflow shrink-0">
-                        <Dropdown
-                            trigger={['click']}
-                            placement="bottomRight"
-                            dropdownRender={() => (
-                                <div
-                                    className="path-overflow-panel"
-                                    onClick={(event) => event.stopPropagation()}
-                                >
-                                    <Menu items={overflowMenuItems} />
-                                </div>
-                            )}
-                        >
-                            <Tooltip title="更多操作">
-                                <Button
-                                    type="text"
-                                    size="small"
-                                    icon={<MoreOutlined />}
-                                    className="path-helper-btn path-overflow-btn"
-                                />
-                            </Tooltip>
-                        </Dropdown>
-                    </div>
-                ) : null}
+                {showOverflowMenu ? <PathOverflowMenu items={overflowMenuItems} /> : null}
             </div>
 
             {!hideRunButton ? <PathRunButton /> : null}

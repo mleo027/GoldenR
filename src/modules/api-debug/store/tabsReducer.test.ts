@@ -55,6 +55,111 @@ describe('tabsReducer', () => {
         expect(next.expandedProjectIds).toContain(project.id);
     });
 
+    it('DUPLICATE_CASE clones params and selects the copied case', () => {
+        const project = createEmptyProject(1);
+        const source = {
+            ...project.cases[0],
+            address: '127.0.0.1:21000/150501',
+            params: [{ name: 'market', value: '1', type: 'string' as const }],
+        };
+        const second = {
+            ...createEmptyCase(2),
+            address: '127.0.0.1:21000/150502',
+        };
+        const projects = [{ ...project, cases: [source, second] }];
+        const state = {
+            ...withLoadedState(),
+            projects,
+            activeProjectIndex: 0,
+            activeCaseIndex: 0,
+            expandedProjectIds: [project.id],
+            openCaseIds: [source.id, second.id],
+        };
+
+        const next = tabsReducer(state, {
+            type: 'DUPLICATE_CASE',
+            projectIndex: 0,
+            caseIndex: 0,
+        });
+
+        expect(next.projects[0].cases).toHaveLength(3);
+        const copy = next.projects[0].cases.find(
+            (item) => item.address === source.address && item.id !== source.id,
+        );
+        expect(copy).toBeDefined();
+        expect(copy?.params).toEqual(source.params);
+        expect(next.activeCaseIndex).toBe(
+            next.projects[0].cases.findIndex((item) => item.id === copy?.id),
+        );
+    });
+
+    it('DELETE_CASE adjusts the active index after deleting an earlier case', () => {
+        const project = createEmptyProject(1);
+        const first = {
+            ...project.cases[0],
+            address: '127.0.0.1:21000/150501',
+        };
+        const second = {
+            ...createEmptyCase(2),
+            address: '127.0.0.1:21000/150502',
+        };
+        const third = {
+            ...createEmptyCase(3),
+            address: '127.0.0.1:21000/150503',
+        };
+        const projects = [{ ...project, cases: [first, second, third] }];
+        const state = {
+            ...withLoadedState(),
+            projects,
+            activeProjectIndex: 0,
+            activeCaseIndex: 2,
+            expandedProjectIds: [project.id],
+            openCaseIds: [first.id, second.id, third.id],
+        };
+
+        const next = tabsReducer(state, {
+            type: 'DELETE_CASE',
+            projectIndex: 0,
+            caseIndex: 0,
+        });
+
+        expect(next.projects[0].cases).toHaveLength(2);
+        expect(next.activeCaseIndex).toBe(1);
+        expect(next.projects[0].cases[next.activeCaseIndex].address).toContain('150503');
+        expect(next.openCaseIds).not.toContain(first.id);
+    });
+
+    it('TOGGLE_CASE_FAVORITE keeps the active case selected after resorting', () => {
+        const project = createEmptyProject(1);
+        const first = {
+            ...project.cases[0],
+            address: '127.0.0.1:21000/150501',
+        };
+        const second = {
+            ...createEmptyCase(2),
+            address: '127.0.0.1:21000/150502',
+        };
+        const projects = [{ ...project, cases: [first, second] }];
+        const state = {
+            ...withLoadedState(),
+            projects,
+            activeProjectIndex: 0,
+            activeCaseIndex: 1,
+            expandedProjectIds: [project.id],
+            openCaseIds: [first.id, second.id],
+        };
+
+        const next = tabsReducer(state, {
+            type: 'TOGGLE_CASE_FAVORITE',
+            projectIndex: 0,
+            caseIndex: 1,
+        });
+
+        expect(next.projects[0].cases[0].id).toBe(second.id);
+        expect(next.projects[0].cases[1].id).toBe(first.id);
+        expect(next.projects[0].cases[next.activeCaseIndex].id).toBe(second.id);
+    });
+
     it('UPDATE_ACTIVE_CASE strips response from persisted case updates', () => {
         const project = createEmptyProject(1);
         const state = {

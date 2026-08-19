@@ -61,6 +61,36 @@ g_funcid=150501`),
             ],
         });
     });
+
+    it('ignores a trailing comma after the last pair', () => {
+        expect(parseParamsText('g_serverid:1,g_funcid:150501,')).toEqual({
+            ok: true,
+            params: [
+                { name: 'g_serverid', value: '1', type: 'string' },
+                { name: 'g_funcid', value: '150501', type: 'string' },
+            ],
+        });
+    });
+
+    it('strips matching quotes from line-based values', () => {
+        expect(
+            parseParamsText(`g_name='张三'
+g_code="ABC"`),
+        ).toEqual({
+            ok: true,
+            params: [
+                { name: 'g_name', value: '张三', type: 'string' },
+                { name: 'g_code', value: 'ABC', type: 'string' },
+            ],
+        });
+    });
+
+    it('keeps unmatched quotes in line-based values', () => {
+        expect(parseParamsText("g_name='abc")).toEqual({
+            ok: true,
+            params: [{ name: 'g_name', value: "'abc", type: 'string' }],
+        });
+    });
 });
 
 describe('parseQuickFillText', () => {
@@ -92,8 +122,30 @@ describe('parseQuickFillText', () => {
             value: '',
             type: 'string',
         });
+        expect(outcome.params.find((item) => item.name === 'testorderid')).toEqual({
+            name: 'testorderid',
+            value: '',
+            type: 'string',
+        });
         expect(outcome.msgtype).toBe('410411');
         expect(outcome.params.some((item) => item.name === '深圳普通买')).toBe(false);
+    });
+
+    it('strips matching quotes from inline comma values', () => {
+        const outcome = parseQuickFillText('funcid:410411,remark:\'已报\',stkcode:"002500"');
+        expect(outcome.ok).toBe(true);
+        if (!outcome.ok) return;
+
+        expect(outcome.params.find((item) => item.name === 'remark')).toEqual({
+            name: 'remark',
+            value: '已报',
+            type: 'string',
+        });
+        expect(outcome.params.find((item) => item.name === 'stkcode')).toEqual({
+            name: 'stkcode',
+            value: '002500',
+            type: 'string',
+        });
     });
 
     it('parses log format with bracketed values', () => {
@@ -115,6 +167,20 @@ describe('parseQuickFillText', () => {
                     value: '证券交收序号[6001]－[7536]交收成功!',
                     type: 'string',
                 },
+            ],
+        });
+    });
+
+    it('strips matching quotes from log format values', () => {
+        const text = `[2026-06-25 14:33:44] [225453] [15ms] [0 Row(s)] [日志]
+           [入参:remark] [数值:"证券交收序号"] [说明:日志说明]`;
+
+        expect(parseQuickFillText(text)).toEqual({
+            ok: true,
+            msgtype: '225453',
+            params: [
+                { name: 'funcid', value: '225453', type: 'string' },
+                { name: 'remark', value: '证券交收序号', type: 'string' },
             ],
         });
     });

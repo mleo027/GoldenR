@@ -54,11 +54,13 @@ async function readJson(fileName: ConfigStorageFileName): Promise<unknown> {
 export function mergeDbConfig(partial?: Partial<DbConnectionConfig>): DbConnectionConfig {
     return {
         ...DEFAULT_DB_CONFIG,
-        ...partial,
-        options: {
-            ...DEFAULT_DB_CONFIG.options,
-            ...partial?.options,
-        },
+        server: partial?.server ?? DEFAULT_DB_CONFIG.server,
+        port: partial?.port ?? DEFAULT_DB_CONFIG.port,
+        database: partial?.database ?? DEFAULT_DB_CONFIG.database,
+        user: partial?.user ?? DEFAULT_DB_CONFIG.user,
+        password: partial?.password ?? DEFAULT_DB_CONFIG.password,
+        queryTimeoutMs: partial?.queryTimeoutMs ?? DEFAULT_DB_CONFIG.queryTimeoutMs,
+        maxRows: partial?.maxRows ?? DEFAULT_DB_CONFIG.maxRows,
     };
 }
 

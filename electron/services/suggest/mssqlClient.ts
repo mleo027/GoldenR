@@ -21,8 +21,8 @@ function buildSqlConfig(config: DbConnectionConfig): sql.config {
         user: config.user,
         password: config.password,
         options: {
-            encrypt: config.options?.encrypt ?? false,
-            trustServerCertificate: config.options?.trustServerCertificate ?? true,
+            encrypt: false,
+            trustServerCertificate: true,
         },
         requestTimeout: config.queryTimeoutMs ?? 10000,
     };

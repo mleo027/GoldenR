@@ -6,10 +6,6 @@ export const DEFAULT_DB_CONFIG: DbConnectionConfig = {
     database: '',
     user: '',
     password: '',
-    options: {
-        encrypt: false,
-        trustServerCertificate: true,
-    },
     queryTimeoutMs: 10000,
     maxRows: 500,
 };

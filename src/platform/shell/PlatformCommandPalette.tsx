@@ -24,6 +24,55 @@ function actionKey(action: PlatformCommandAction): string {
     return action.kind;
 }
 
+function PlatformCommandResults({
+    results,
+    activeIndex,
+    onHover,
+    onSelect,
+}: {
+    results: PlatformCommandAction[];
+    activeIndex: number;
+    onHover: (index: number) => void;
+    onSelect: (index: number) => void;
+}) {
+    let lastGroup: string | undefined;
+    if (results.length === 0) {
+        return <p className="platform-command-empty">没有匹配的命令</p>;
+    }
+    return (
+        <ul className="platform-command-list">
+            {results.map((action, index) => {
+                const groupLabel =
+                    action.kind === 'module' && action.group
+                        ? PLATFORM_COMMAND_GROUP_LABEL[action.group]
+                        : action.kind !== 'module'
+                          ? '命令'
+                          : undefined;
+                const showGroupHeader = groupLabel && groupLabel !== lastGroup;
+                if (showGroupHeader) lastGroup = groupLabel;
+
+                return (
+                    <li key={actionKey(action)}>
+                        {showGroupHeader ? (
+                            <div className="platform-command-group">{groupLabel}</div>
+                        ) : null}
+                        <button
+                            type="button"
+                            className={`platform-command-item${
+                                index === activeIndex ? ' platform-command-item--active' : ''
+                            }`}
+                            onMouseEnter={() => onHover(index)}
+                            onClick={() => onSelect(index)}
+                        >
+                            {action.label}
+                        </button>
+                    </li>
+                );
+            })}
+        </ul>
+    );
+}
+
 export default function PlatformCommandPalette({
     open,
     onClose,
@@ -92,8 +141,6 @@ export default function PlatformCommandPalette({
         [activeIndex, results, runAction],
     );
 
-    let lastGroup: string | undefined;
-
     return (
         <Modal
             open={open}
@@ -121,42 +168,12 @@ export default function PlatformCommandPalette({
                 onKeyDown={handleKeyDown}
             />
             <div className="platform-command-results">
-                {results.length === 0 ? (
-                    <p className="platform-command-empty">没有匹配的命令</p>
-                ) : (
-                    <ul className="platform-command-list">
-                        {results.map((action, index) => {
-                            const groupLabel =
-                                action.kind === 'module' && action.group
-                                    ? PLATFORM_COMMAND_GROUP_LABEL[action.group]
-                                    : action.kind !== 'module'
-                                      ? '命令'
-                                      : undefined;
-                            const showGroupHeader = groupLabel && groupLabel !== lastGroup;
-                            if (showGroupHeader) lastGroup = groupLabel;
-
-                            return (
-                                <li key={actionKey(action)}>
-                                    {showGroupHeader ? (
-                                        <div className="platform-command-group">{groupLabel}</div>
-                                    ) : null}
-                                    <button
-                                        type="button"
-                                        className={`platform-command-item${
-                                            index === activeIndex
-                                                ? ' platform-command-item--active'
-                                                : ''
-                                        }`}
-                                        onMouseEnter={() => setActiveIndex(index)}
-                                        onClick={() => runAction(action)}
-                                    >
-                                        {action.label}
-                                    </button>
-                                </li>
-                            );
-                        })}
-                    </ul>
-                )}
+                <PlatformCommandResults
+                    results={results}
+                    activeIndex={activeIndex}
+                    onHover={setActiveIndex}
+                    onSelect={(index) => runAction(results[index])}
+                />
             </div>
         </Modal>
     );

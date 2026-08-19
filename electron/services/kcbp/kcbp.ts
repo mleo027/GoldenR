@@ -28,7 +28,7 @@ export interface KcbpRequestOptions {
 }
 
 export interface KcbpResponseData {
-    code: string | number;
+    code: string;
     msg: string;
     data: unknown[];
     level?: string;
@@ -36,6 +36,13 @@ export interface KcbpResponseData {
         timecost: number;
         rows: number;
     };
+}
+
+interface RawKcbpResponseData {
+    code: string | number;
+    msg: string;
+    data: unknown[];
+    level?: string;
 }
 
 interface NativeKcbpAdapter {
@@ -393,7 +400,7 @@ export async function resolveBinaryFields(
     };
 }
 
-function isValidResult(value: unknown): value is Omit<KcbpResponseData, 'stats'> {
+function isValidResult(value: unknown): value is RawKcbpResponseData {
     if (!value || typeof value !== 'object') return false;
     const data = value as Record<string, unknown>;
     return (
@@ -406,45 +413,58 @@ function isValidResult(value: unknown): value is Omit<KcbpResponseData, 'stats'>
     );
 }
 
-function parseResult(raw: unknown, startedAt: number): KcbpResponseData {
-    const timecost = Date.now() - startedAt;
-
-    if (isValidResult(raw)) {
-        return {
-            ...raw,
-            stats: {
-                timecost,
-                rows: raw.data.length,
-            },
-        };
-    }
-
+function parseValidResult(raw: unknown): RawKcbpResponseData | null {
+    if (isValidResult(raw)) return raw;
     if (typeof raw === 'string') {
         try {
             const parsed = JSON.parse(raw) as unknown;
-            if (isValidResult(parsed)) {
-                return {
-                    ...parsed,
-                    stats: {
-                        timecost,
-                        rows: parsed.data.length,
-                    },
-                };
-            }
+            return isValidResult(parsed) ? parsed : null;
         } catch {
             // ignore malformed string payload
         }
     }
+    return null;
+}
 
+function toNormalizedResult(raw: RawKcbpResponseData, timecost: number): KcbpResponseData {
     return {
-        code: '0',
-        msg: 'Success',
-        data: raw ? [raw] : [],
+        ...raw,
+        code: String(raw.code),
         stats: {
             timecost,
-            rows: raw ? 1 : 0,
+            rows: raw.data.length,
         },
     };
+}
+
+function toEnvelopeResult(raw: unknown, timecost: number): KcbpResponseData {
+    const envelope =
+        raw && typeof raw === 'object' && !Array.isArray(raw)
+            ? (raw as Record<string, unknown>)
+            : null;
+    const code =
+        envelope && (typeof envelope.code === 'string' || typeof envelope.code === 'number')
+            ? String(envelope.code)
+            : '0';
+    const msg = envelope && typeof envelope.msg === 'string' ? envelope.msg : 'Success';
+    const level = envelope && typeof envelope.level === 'string' ? envelope.level : undefined;
+
+    return {
+        code,
+        msg,
+        ...(level ? { level } : {}),
+        data: [],
+        stats: {
+            timecost,
+            rows: 0,
+        },
+    };
+}
+
+function parseResult(raw: unknown, startedAt: number): KcbpResponseData {
+    const timecost = Date.now() - startedAt;
+    const valid = parseValidResult(raw);
+    return valid ? toNormalizedResult(valid, timecost) : toEnvelopeResult(raw, timecost);
 }
 
 export class KcbpClient {

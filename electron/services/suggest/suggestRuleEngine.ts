@@ -5,10 +5,12 @@ import type {
     DbConnectionConfig,
     DbScriptQueryRequest,
     DbScriptQueryResponse,
+    DbSuggestOption,
     DbSuggestRequest,
     DbSuggestResponse,
     ParamFieldRule,
     ParamSuggestRulesFile,
+    SqlDatasource,
 } from '../../../src/shared/suggest/types';
 import {
     buildSuggestCacheKey,
@@ -87,19 +89,22 @@ export async function testDbConnection(
     return testConnection(config);
 }
 
-async function runSuggestSql(
-    request: DbSuggestRequest,
-    rule: ParamFieldRule,
-    skipCache: boolean,
-): Promise<DbSuggestResponse> {
-    const datasource = rule.datasource;
-    if (datasource.type !== 'sql' || datasource.db !== 'mssql') {
-        return { options: [], error: '不支持的数据源类型' };
-    }
+interface SuggestExecutionMeta {
+    executedSql: string;
+    boundParams: Record<string, string | number>;
+}
 
+type PreparedSuggestSql =
+    | { meta: SuggestExecutionMeta; pendingDeps: string[] }
+    | { error: string; meta: SuggestExecutionMeta };
+
+function prepareSuggestSqlRun(
+    datasource: SqlDatasource,
+    request: DbSuggestRequest,
+): PreparedSuggestSql {
     const validation = validateSelectSql(datasource.sql);
     if (!validation.ok) {
-        return { options: [], error: validation.reason, executedSql: datasource.sql };
+        return { error: validation.reason, meta: { executedSql: datasource.sql, boundParams: {} } };
     }
 
     const placeholderDefs = extractSqlPlaceholderDefs(datasource.sql);
@@ -110,38 +115,50 @@ async function runSuggestSql(
     );
 
     const sqlToRun = prepareSuggestSql(datasource.sql, optionalEmpty);
-    const executionMeta = { executedSql: sqlToRun, boundParams: values };
+    const meta = { executedSql: sqlToRun, boundParams: values };
 
     if (pendingDeps.length > 0) {
-        return { options: [], pendingDeps, ...executionMeta };
+        return { meta, pendingDeps };
     }
 
     const runtimeValidation = validateSelectSql(sqlToRun);
     if (!runtimeValidation.ok) {
-        return { options: [], error: runtimeValidation.reason, ...executionMeta };
+        return { error: runtimeValidation.reason, meta };
     }
 
-    const cacheEnabled = !skipCache && datasource.cache?.enabled !== false;
-    const ttlSeconds = datasource.cache?.ttlSeconds ?? 300;
-    const cacheKey = buildSuggestCacheKey(request.field, values);
+    return { meta, pendingDeps: [] };
+}
 
-    if (cacheEnabled) {
-        const cached = suggestCache.get(cacheKey);
-        if (cached) {
-            return {
-                options: filterOptionsByKeyword(cached, request.keyword),
-                fromCache: true,
-                ...executionMeta,
-            };
-        }
-    }
+function toCachedSuggestResponse(
+    cached: DbSuggestOption[],
+    keyword: string | undefined,
+    meta: SuggestExecutionMeta,
+): DbSuggestResponse {
+    return {
+        options: filterOptionsByKeyword(cached, keyword),
+        fromCache: true,
+        ...meta,
+    };
+}
 
+async function executeSuggestQuery(
+    meta: SuggestExecutionMeta,
+    keyword: string | undefined,
+    cacheEnabled: boolean,
+    cacheKey: string,
+    ttlSeconds: number,
+): Promise<DbSuggestResponse> {
     if (!dbConfig) {
-        return { options: [], error: '未配置数据库连接 (db.json)', ...executionMeta };
+        return { options: [], error: '未配置数据库连接 (db.json)', ...meta };
     }
 
     try {
-        const { rows } = await executeSelect(dbConfig, sqlToRun, values, dbConfig.maxRows);
+        const { rows } = await executeSelect(
+            dbConfig,
+            meta.executedSql,
+            meta.boundParams,
+            dbConfig.maxRows,
+        );
         const options = mapRowsToOptions(rows);
 
         if (options.length === 0 && rows.length > 0) {
@@ -149,7 +166,7 @@ async function runSuggestSql(
             return {
                 options: [],
                 error: mappingError ?? `查询返回 ${rows.length} 行，但未能映射为下拉选项`,
-                ...executionMeta,
+                ...meta,
             };
         }
 
@@ -157,7 +174,7 @@ async function runSuggestSql(
             return {
                 options: [],
                 emptyResult: true,
-                ...executionMeta,
+                ...meta,
             };
         }
 
@@ -166,16 +183,49 @@ async function runSuggestSql(
         }
 
         return {
-            options: filterOptionsByKeyword(options, request.keyword),
-            ...executionMeta,
+            options: filterOptionsByKeyword(options, keyword),
+            ...meta,
         };
     } catch (error) {
         return {
             options: [],
             error: error instanceof Error ? error.message : String(error),
-            ...executionMeta,
+            ...meta,
         };
     }
+}
+
+async function runSuggestSql(
+    request: DbSuggestRequest,
+    rule: ParamFieldRule,
+    skipCache: boolean,
+): Promise<DbSuggestResponse> {
+    const datasource = rule.datasource;
+    if (datasource.type !== 'sql' || datasource.db !== 'mssql') {
+        return { options: [], error: '不支持的数据源类型' };
+    }
+
+    const prepared = prepareSuggestSqlRun(datasource, request);
+    if ('error' in prepared) {
+        return { options: [], error: prepared.error, ...prepared.meta };
+    }
+    if (prepared.pendingDeps.length > 0) {
+        return { options: [], pendingDeps: prepared.pendingDeps, ...prepared.meta };
+    }
+
+    const { meta } = prepared;
+    const cacheEnabled = !skipCache && datasource.cache?.enabled !== false;
+    const ttlSeconds = datasource.cache?.ttlSeconds ?? 300;
+    const cacheKey = buildSuggestCacheKey(request.field, meta.boundParams);
+
+    if (cacheEnabled) {
+        const cached = suggestCache.get(cacheKey);
+        if (cached) {
+            return toCachedSuggestResponse(cached, request.keyword, meta);
+        }
+    }
+
+    return executeSuggestQuery(meta, request.keyword, cacheEnabled, cacheKey, ttlSeconds);
 }
 
 export async function executeSuggest(request: DbSuggestRequest): Promise<DbSuggestResponse> {

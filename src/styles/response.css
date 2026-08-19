@@ -74,7 +74,7 @@
 }
 
 .response-footer-meta .response-meta-msg {
-    max-width: min(360px, 32vw);
+    max-width: min(720px, 58vw);
     font-size: 13px;
     color: var(--color-text-body) !important;
 }

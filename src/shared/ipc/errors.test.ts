@@ -24,6 +24,43 @@ describe('IPC error protocol', () => {
         });
     });
 
+    it('stops at the matching closing brace when message text contains braces', () => {
+        const wrapped = new Error(
+            `IPC_ERROR:${JSON.stringify({
+                code: 'INVALID_ARGUMENT',
+                message: 'missing } brace',
+            })} (wrapped)`,
+        );
+
+        expect(parseIpcError(wrapped)).toEqual({
+            code: 'INVALID_ARGUMENT',
+            message: 'missing } brace',
+        });
+    });
+
+    it('parses the JSON payload before arbitrary trailing text', () => {
+        const wrapped = new Error(
+            `IPC_ERROR:${JSON.stringify({
+                code: 'INVALID_ARGUMENT',
+                message: 'ok',
+            })} more error details`,
+        );
+
+        expect(parseIpcError(wrapped)).toEqual({
+            code: 'INVALID_ARGUMENT',
+            message: 'ok',
+        });
+    });
+
+    it('returns null for malformed or non-typed payloads', () => {
+        expect(
+            parseIpcError(new Error('IPC_ERROR:{code:"INVALID_ARGUMENT",message:1}')),
+        ).toBeNull();
+        expect(parseIpcError(new Error('IPC_ERROR:{not-json}'))).toBeNull();
+        expect(parseIpcError(new Error('IPC_ERROR:'))).toBeNull();
+        expect(parseIpcError('IPC_ERROR:{}')).toBeNull();
+    });
+
     it('preserves IpcError code and message', () => {
         expect(createIpcErrorPayload(new IpcError('INVALID_CONFIG_FILE', 'unknown file'))).toEqual({
             code: 'INVALID_CONFIG_FILE',

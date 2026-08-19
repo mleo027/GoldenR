@@ -109,10 +109,6 @@ export function createDbConfig(overrides: Partial<DbConnectionConfig> = {}): DbC
         database: 'kcbp',
         user: 'sa',
         password: 'test',
-        options: {
-            encrypt: false,
-            trustServerCertificate: true,
-        },
         queryTimeoutMs: 10000,
         maxRows: 500,
         ...overrides,

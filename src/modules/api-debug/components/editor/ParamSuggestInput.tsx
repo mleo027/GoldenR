@@ -6,6 +6,8 @@ import {
     useRef,
     useState,
     type ClipboardEvent,
+    type MutableRefObject,
+    type RefObject,
 } from 'react';
 import { App, Dropdown, Input, Spin, Tooltip, Typography } from 'antd';
 import type { TextAreaRef } from 'antd/es/input/TextArea';
@@ -112,69 +114,71 @@ function SuggestDropdownPanel({
     );
 }
 
-function ParamSuggestInput({
-    fieldName,
+function ParamSuggestTextArea({
+    inputRef,
     value,
-    params,
-    disabled = false,
-    placeholder: placeholderProp,
+    placeholder,
+    disabled,
+    className,
+    onFocus,
+    onBlur,
     onChange,
-}: ParamSuggestInputProps) {
-    const { modal } = App.useApp();
-    const inputRef = useRef<TextAreaRef>(null);
-    const focusedRef = useRef(false);
-    const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const commitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const filePromptTimerRef = useRef<number | null>(null);
+    onCopy,
+}: {
+    inputRef: RefObject<TextAreaRef>;
+    value: string;
+    placeholder: string;
+    disabled: boolean;
+    className: string;
+    onFocus: () => void;
+    onBlur: () => void;
+    onChange: (value: string) => void;
+    onCopy: (event: ClipboardEvent<HTMLTextAreaElement>) => void;
+}) {
+    return (
+        <Input.TextArea
+            ref={inputRef}
+            value={value}
+            placeholder={placeholder}
+            size="small"
+            autoSize={{ minRows: 1, maxRows: 5 }}
+            spellCheck={false}
+            className={className}
+            disabled={disabled}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            onChange={(event) => onChange(event.target.value)}
+            onCopy={onCopy}
+        />
+    );
+}
+
+function useFileParamHandlers({
+    inputRef,
+    commitToParent,
+    modal,
+    setLocalValue,
+    setKeyword,
+    setOpen,
+}: {
+    inputRef: RefObject<TextAreaRef>;
+    commitToParent: (value: string, immediate?: boolean) => void;
+    modal: ReturnType<typeof App.useApp>['modal'];
+    setLocalValue: (value: string) => void;
+    setKeyword: (value: string) => void;
+    setOpen: (open: boolean) => void;
+}) {
     const filePickerInFlightRef = useRef(false);
+    const filePromptTimerRef = useRef<number | null>(null);
     const promptedPathsRef = useRef<Set<string>>(new Set());
-    const latestRawRef = useRef(value);
-    const onChangeRef = useRef(onChange);
-    onChangeRef.current = onChange;
-
-    const [localValue, setLocalValue] = useState(value);
-    const [keyword, setKeyword] = useState(value);
-    const [open, setOpen] = useState(false);
-    const [active, setActive] = useState(false);
-
-    const { options, loading, pendingDeps, hasRule, hasFieldRule } = useParamSuggestions({
-        fieldName,
-        params,
-        keyword,
-        enabled: !disabled && active,
-    });
-
-    useEffect(() => {
-        latestRawRef.current = value;
-        if (!focusedRef.current) {
-            setLocalValue(value);
-            setKeyword(value);
-        }
-    }, [value]);
+    const latestRawRef = useRef('');
 
     useEffect(
         () => () => {
-            if (blurTimerRef.current) clearTimeout(blurTimerRef.current);
-            if (commitTimerRef.current) clearTimeout(commitTimerRef.current);
             if (filePromptTimerRef.current) window.clearTimeout(filePromptTimerRef.current);
         },
         [],
     );
-
-    const commitToParent = useCallback((next: string, immediate = false) => {
-        if (commitTimerRef.current) {
-            clearTimeout(commitTimerRef.current);
-            commitTimerRef.current = null;
-        }
-        if (immediate) {
-            onChangeRef.current(next);
-            return;
-        }
-        commitTimerRef.current = setTimeout(() => {
-            onChangeRef.current(next);
-            commitTimerRef.current = null;
-        }, PARENT_COMMIT_MS);
-    }, []);
 
     const openFilePickerForValue = useCallback(
         (triggerValue: string) => {
@@ -200,7 +204,7 @@ function ParamSuggestInput({
                     filePickerInFlightRef.current = false;
                 });
         },
-        [commitToParent],
+        [commitToParent, setKeyword, setLocalValue, setOpen],
     );
 
     const openFileContentConfirm = useCallback(
@@ -223,7 +227,7 @@ function ParamSuggestInput({
                 },
             });
         },
-        [commitToParent, modal],
+        [commitToParent, inputRef, modal, setKeyword, setLocalValue, setOpen],
     );
 
     const scheduleWindowsFilePrompt = useCallback(
@@ -255,6 +259,40 @@ function ParamSuggestInput({
         [openFileContentConfirm],
     );
 
+    return { openFilePickerForValue, scheduleWindowsFilePrompt };
+}
+
+function useParamSuggestInputEvents({
+    inputRef,
+    localValue,
+    placeholderProp,
+    hasRule,
+    pendingDeps,
+    focusedRef,
+    blurTimerRef,
+    setActive,
+    setOpen,
+    commitToParent,
+    setLocalValue,
+    setKeyword,
+    openFilePickerForValue,
+    scheduleWindowsFilePrompt,
+}: {
+    inputRef: RefObject<TextAreaRef>;
+    localValue: string;
+    placeholderProp?: string;
+    hasRule: boolean;
+    pendingDeps: string[];
+    focusedRef: MutableRefObject<boolean>;
+    blurTimerRef: MutableRefObject<ReturnType<typeof setTimeout> | null>;
+    setActive: (value: boolean) => void;
+    setOpen: (value: boolean) => void;
+    commitToParent: (value: string, immediate?: boolean) => void;
+    setLocalValue: (value: string) => void;
+    setKeyword: (value: string) => void;
+    openFilePickerForValue: (value: string) => void;
+    scheduleWindowsFilePrompt: (value: string) => void;
+}) {
     const placeholder = useMemo(() => {
         if (placeholderProp !== undefined) return placeholderProp;
         if (!hasRule) return '';
@@ -273,7 +311,7 @@ function ParamSuggestInput({
         setActive(true);
         setOpen(true);
         scheduleWindowsFilePrompt(localValue);
-    }, [localValue, scheduleWindowsFilePrompt]);
+    }, [blurTimerRef, focusedRef, localValue, scheduleWindowsFilePrompt, setActive, setOpen]);
 
     const handleBlur = useCallback(() => {
         blurTimerRef.current = setTimeout(() => {
@@ -282,7 +320,7 @@ function ParamSuggestInput({
             setOpen(false);
             commitToParent(localValue, true);
         }, BLUR_CLOSE_MS);
-    }, [commitToParent, localValue]);
+    }, [blurTimerRef, commitToParent, focusedRef, localValue, setActive, setOpen]);
 
     const handleInputChange = useCallback(
         (next: string) => {
@@ -294,19 +332,25 @@ function ParamSuggestInput({
             openFilePickerForValue(raw);
             scheduleWindowsFilePrompt(raw);
         },
-        [commitToParent, openFilePickerForValue, scheduleWindowsFilePrompt],
+        [
+            commitToParent,
+            openFilePickerForValue,
+            scheduleWindowsFilePrompt,
+            setKeyword,
+            setLocalValue,
+            setOpen,
+        ],
     );
 
     const handlePick = useCallback(
         (picked: string) => {
-            latestRawRef.current = picked;
             setLocalValue(picked);
             setKeyword(picked);
             commitToParent(picked, true);
             setOpen(false);
             inputRef.current?.focus();
         },
-        [commitToParent],
+        [commitToParent, inputRef, setKeyword, setLocalValue, setOpen],
     );
 
     const handleCopy = useCallback((event: ClipboardEvent<HTMLTextAreaElement>) => {
@@ -321,20 +365,105 @@ function ParamSuggestInput({
         }
     }, []);
 
+    return { placeholder, handleFocus, handleBlur, handleInputChange, handlePick, handleCopy };
+}
+
+function ParamSuggestInput({
+    fieldName,
+    value,
+    params,
+    disabled = false,
+    placeholder: placeholderProp,
+    onChange,
+}: ParamSuggestInputProps) {
+    const { modal } = App.useApp();
+    const inputRef = useRef<TextAreaRef>(null);
+    const focusedRef = useRef(false);
+    const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const commitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const onChangeRef = useRef(onChange);
+    onChangeRef.current = onChange;
+
+    const [localValue, setLocalValue] = useState(value);
+    const [keyword, setKeyword] = useState(value);
+    const [open, setOpen] = useState(false);
+    const [active, setActive] = useState(false);
+
+    const { options, loading, pendingDeps, hasRule, hasFieldRule } = useParamSuggestions({
+        fieldName,
+        params,
+        keyword,
+        enabled: !disabled && active,
+    });
+
+    useEffect(() => {
+        if (!focusedRef.current) {
+            setLocalValue(value);
+            setKeyword(value);
+        }
+    }, [value]);
+
+    useEffect(
+        () => () => {
+            if (blurTimerRef.current) clearTimeout(blurTimerRef.current);
+            if (commitTimerRef.current) clearTimeout(commitTimerRef.current);
+        },
+        [],
+    );
+
+    const commitToParent = useCallback((next: string, immediate = false) => {
+        if (commitTimerRef.current) {
+            clearTimeout(commitTimerRef.current);
+            commitTimerRef.current = null;
+        }
+        if (immediate) {
+            onChangeRef.current(next);
+            return;
+        }
+        commitTimerRef.current = setTimeout(() => {
+            onChangeRef.current(next);
+            commitTimerRef.current = null;
+        }, PARENT_COMMIT_MS);
+    }, []);
+
+    const { openFilePickerForValue, scheduleWindowsFilePrompt } = useFileParamHandlers({
+        inputRef,
+        commitToParent,
+        modal,
+        setLocalValue,
+        setKeyword,
+        setOpen,
+    });
+
+    const { placeholder, handleFocus, handleBlur, handleInputChange, handlePick, handleCopy } =
+        useParamSuggestInputEvents({
+            inputRef,
+            localValue,
+            placeholderProp,
+            hasRule,
+            pendingDeps,
+            focusedRef,
+            blurTimerRef,
+            setActive,
+            setOpen,
+            commitToParent,
+            setLocalValue,
+            setKeyword,
+            openFilePickerForValue,
+            scheduleWindowsFilePrompt,
+        });
+
     if (!hasFieldRule) {
         return (
-            <Input.TextArea
-                ref={inputRef}
+            <ParamSuggestTextArea
+                inputRef={inputRef}
                 value={formatControlCharsForTitle(localValue)}
                 placeholder={placeholder}
-                size="small"
-                autoSize={{ minRows: 1, maxRows: 5 }}
-                spellCheck={false}
-                className="param-input"
                 disabled={disabled}
+                className="param-input"
                 onFocus={handleFocus}
                 onBlur={handleBlur}
-                onChange={(event) => handleInputChange(event.target.value)}
+                onChange={handleInputChange}
                 onCopy={handleCopy}
             />
         );
@@ -357,18 +486,15 @@ function ParamSuggestInput({
                 />
             )}
         >
-            <Input.TextArea
-                ref={inputRef}
+            <ParamSuggestTextArea
+                inputRef={inputRef}
                 value={formatControlCharsForTitle(localValue)}
                 placeholder={placeholder}
-                size="small"
-                autoSize={{ minRows: 1, maxRows: 5 }}
-                spellCheck={false}
-                className="param-input param-suggest-input"
                 disabled={disabled}
+                className="param-input param-suggest-input"
                 onFocus={handleFocus}
                 onBlur={handleBlur}
-                onChange={(event) => handleInputChange(event.target.value)}
+                onChange={handleInputChange}
                 onCopy={handleCopy}
             />
         </Dropdown>

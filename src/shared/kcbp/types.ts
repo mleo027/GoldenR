@@ -24,7 +24,7 @@ export interface KcbpRequestOptions {
 }
 
 export interface KcbpResponseData {
-    code: string | number;
+    code: string;
     msg: string;
     data: unknown[];
     level?: string;

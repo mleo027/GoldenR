@@ -25,6 +25,34 @@ export interface FlowScriptApi {
     runCase(ref: string, input?: Record<string, unknown>): Promise<ResponseData>;
 }
 
+export interface ExecuteCaseScriptOptions {
+    script: string;
+    ctx: CaseScriptContext;
+    consoleApi: ScriptConsoleApi;
+    queryFn: CaseScriptQueryFn;
+    testApi: ScriptTestApi;
+    flowApi: FlowScriptApi;
+    varsApi?: VarsScriptApi;
+    libApi?: ReturnType<typeof mergeLibApi>;
+    assertApi?: AssertScriptApi;
+}
+
+type CaseScriptRunnerArgs = [
+    callFn: CaseCallFn,
+    consoleObj: ScriptConsoleApi,
+    query: CaseScriptQueryFn,
+    test: ScriptTestApi,
+    flow: FlowScriptApi,
+    vars: VarsScriptApi,
+    lib: ReturnType<typeof mergeLibApi>,
+    assert: AssertScriptApi,
+];
+
+type CaseScriptRunner = (
+    context: CaseScriptContext,
+    ...deps: CaseScriptRunnerArgs
+) => Promise<unknown>;
+
 export interface CaseScriptContext {
     msgtype: string;
     address: string;
@@ -193,17 +221,18 @@ return typeof __value === "function" ? __value(ctx) : __value;`,
     return runner(ctx);
 }
 
-export async function executeCaseScript(
-    script: string,
-    ctx: CaseScriptContext,
-    consoleApi: ScriptConsoleApi,
-    queryFn: CaseScriptQueryFn,
-    testApi: ScriptTestApi,
-    flowApi: FlowScriptApi,
-    varsApi: VarsScriptApi = createNoopVarsApi(),
-    libApi: ReturnType<typeof mergeLibApi> = mergeLibApi({}),
-    assertApi: AssertScriptApi = createNoopAssertApi(),
-): Promise<unknown> {
+export async function executeCaseScript(options: ExecuteCaseScriptOptions): Promise<unknown> {
+    const {
+        script,
+        ctx,
+        consoleApi,
+        queryFn,
+        testApi,
+        flowApi,
+        varsApi = createNoopVarsApi(),
+        libApi = mergeLibApi({}),
+        assertApi = createNoopAssertApi(),
+    } = options;
     const trimmed = script.trim();
     if (!trimmed) {
         throw new Error('脚本为空');
@@ -225,80 +254,72 @@ if (typeof main !== "function") {
   throw new Error("请定义 async function main(ctx)");
 }
 return main(ctx);`,
-    ) as (
-        context: CaseScriptContext,
-        callFn: CaseCallFn,
-        consoleObj: ScriptConsoleApi,
-        query: CaseScriptQueryFn,
-        test: ScriptTestApi,
-        flow: FlowScriptApi,
-        vars: VarsScriptApi,
-        lib: ReturnType<typeof mergeLibApi>,
-        assert: AssertScriptApi,
-    ) => Promise<unknown>;
+    ) as CaseScriptRunner;
 
     return runner(ctx, ctx.call, consoleApi, queryFn, testApi, flowApi, varsApi, libApi, assertApi);
 }
 
+function normalizeArrayScriptResult(value: unknown[]): RequestScriptResult {
+    const params: ParamItem[] = [];
+    for (const item of value) {
+        if (!item || typeof item !== 'object') continue;
+        const row = item as {
+            name?: unknown;
+            value?: unknown;
+            enabled?: unknown;
+            type?: unknown;
+        };
+        const name = String(row.name ?? '').trim();
+        if (!name) continue;
+        const enabled = row.enabled !== false && row.type !== 'disabled';
+        const type =
+            row.type === 'file' ? 'file' : enabled ? ('string' as const) : ('disabled' as const);
+        params.push({
+            name,
+            value: row.value == null ? '' : String(row.value),
+            type,
+        });
+    }
+    const { fields, binaryFields } = splitParamsToKcbpFields(params);
+    return {
+        params,
+        fields,
+        binaryFields,
+    };
+}
+
+function normalizeObjectScriptResult(value: object): RequestScriptResult {
+    const fields: Record<string, string> = {};
+    const binaryFields: Record<string, string> = {};
+    for (const [key, rawValue] of Object.entries(value as Record<string, unknown>)) {
+        const name = key.trim();
+        if (!name) continue;
+        if (isFileCallFieldValue(rawValue)) {
+            binaryFields[name] = rawValue.file;
+            continue;
+        }
+        const text = rawValue == null ? '' : String(rawValue);
+        const filePath = parseFileParamPath(text);
+        if (filePath) {
+            binaryFields[name] = filePath;
+            continue;
+        }
+        fields[name] = text;
+    }
+    return {
+        fields,
+        binaryFields,
+        params: mergeKcbpFieldsToParams(fields, binaryFields),
+    };
+}
+
 export function normalizeRequestScriptResult(value: unknown): RequestScriptResult {
     if (Array.isArray(value)) {
-        const params: ParamItem[] = [];
-        for (const item of value) {
-            if (!item || typeof item !== 'object') continue;
-            const row = item as {
-                name?: unknown;
-                value?: unknown;
-                enabled?: unknown;
-                type?: unknown;
-            };
-            const name = String(row.name ?? '').trim();
-            if (!name) continue;
-            const enabled = row.enabled !== false && row.type !== 'disabled';
-            const type =
-                row.type === 'file'
-                    ? 'file'
-                    : enabled
-                      ? ('string' as const)
-                      : ('disabled' as const);
-            params.push({
-                name,
-                value: row.value == null ? '' : String(row.value),
-                type,
-            });
-        }
-        const { fields, binaryFields } = splitParamsToKcbpFields(params);
-        return {
-            params,
-            fields,
-            binaryFields,
-        };
+        return normalizeArrayScriptResult(value);
     }
-
     if (value && typeof value === 'object') {
-        const fields: Record<string, string> = {};
-        const binaryFields: Record<string, string> = {};
-        for (const [key, rawValue] of Object.entries(value as Record<string, unknown>)) {
-            const name = key.trim();
-            if (!name) continue;
-            if (isFileCallFieldValue(rawValue)) {
-                binaryFields[name] = rawValue.file;
-                continue;
-            }
-            const text = rawValue == null ? '' : String(rawValue);
-            const filePath = parseFileParamPath(text);
-            if (filePath) {
-                binaryFields[name] = filePath;
-                continue;
-            }
-            fields[name] = text;
-        }
-        return {
-            fields,
-            binaryFields,
-            params: mergeKcbpFieldsToParams(fields, binaryFields),
-        };
+        return normalizeObjectScriptResult(value);
     }
-
     return { fields: {}, binaryFields: {}, params: [] };
 }
 
