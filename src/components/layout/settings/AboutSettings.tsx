@@ -36,6 +36,12 @@ export default function AboutSettings() {
                     <div className="settings-about-name">Golden API</div>
                     <div className="settings-about-tagline">KCBP 接口调试</div>
                     <div className="settings-about-version">版本 v0.1.0</div>
+                    <div className="settings-about-contact">
+                        开发者联系：
+                        <Typography.Link href="mailto:meilingfeng@szkingdom.com">
+                            meilingfeng@szkingdom.com
+                        </Typography.Link>
+                    </div>
                 </div>
             </div>
 

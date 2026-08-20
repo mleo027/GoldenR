@@ -53,6 +53,7 @@ export function useCaseSidebarController() {
     const [draggingCaseId, setDraggingCaseId] = useState<string | null>(null);
     const [dropTargetProjectIndex, setDropTargetProjectIndex] = useState<number | null>(null);
     const dragSourceProjectIndexRef = useRef<number | null>(null);
+    const dragStartExpandedRef = useRef<string[]>([]);
     const sidebarRef = useRef<HTMLDivElement>(null);
     const sidebarListRef = useRef<HTMLDivElement>(null);
 
@@ -347,13 +348,23 @@ export function useCaseSidebarController() {
 
             dragSourceProjectIndexRef.current = projectIndex;
             setDraggingCaseId(caseId);
+
+            // 拖拽期间折叠全部项目（落点是整个项目，展开无必要）
+            // 先记录当前展开状态，拖拽结束再还原
+            const prevExpanded = state.expandedProjectIds;
+            dragStartExpandedRef.current = prevExpanded;
+            // 延迟到下一帧折叠，确保浏览器已捕获拖拽影像，避免移除源节点中断拖拽
+            requestAnimationFrame(() => {
+                prevExpanded.forEach((id) => toggleProjectExpand(id));
+            });
+
             writeCaseDragData(event.dataTransfer, {
                 fromProjectIndex: projectIndex,
                 fromCaseIndex: caseIndex,
                 caseId,
             });
         },
-        [],
+        [state.expandedProjectIds, toggleProjectExpand],
     );
 
     const handleProjectDragOver = useCallback(
@@ -364,14 +375,10 @@ export function useCaseSidebarController() {
             event.dataTransfer.dropEffect = 'move';
             if (dragSourceProjectIndexRef.current === projectIndex) return;
 
+            // 落点是整个项目（不支持项目内定位），拖拽时保持项目折叠，不自动展开
             setDropTargetProjectIndex(projectIndex);
-
-            const project = state.projects[projectIndex];
-            if (project && !state.expandedProjectIds.includes(project.id)) {
-                toggleProjectExpand(project.id);
-            }
         },
-        [state.expandedProjectIds, state.projects, toggleProjectExpand],
+        [],
     );
 
     const handleProjectDragLeave = useCallback(
@@ -406,7 +413,12 @@ export function useCaseSidebarController() {
 
     const handleCaseDragEnd = useCallback(() => {
         clearCaseDragState();
-    }, [clearCaseDragState]);
+        const prevExpanded = dragStartExpandedRef.current;
+        if (prevExpanded.length > 0) {
+            prevExpanded.forEach((id) => toggleProjectExpand(id));
+            dragStartExpandedRef.current = [];
+        }
+    }, [clearCaseDragState, toggleProjectExpand]);
 
     return {
         state,

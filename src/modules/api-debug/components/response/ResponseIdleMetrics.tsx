@@ -58,6 +58,12 @@ function ResponseIdleMetrics({ response, loading = false }: ResponseIdleMetricsP
                     </span>
                 </div>
             </div>
+            {response?.message ? (
+                <div className="response-idle-msg">
+                    <span className="response-idle-msg-label">Message</span>
+                    <span className="response-idle-msg-value">{response.message}</span>
+                </div>
+            ) : null}
             {!hasResponse && !loading ? (
                 <p className="response-idle-hint">配置地址与入参后点击 Run，响应数据将显示在下方</p>
             ) : null}

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type RefObject } from 'react';
 import type { InputRef } from 'antd';
 import type { MenuProps } from 'antd';
 import VirtualList from 'rc-virtual-list';
+import type { ListRef } from 'rc-virtual-list';
 import { PERFORMANCE_THRESHOLDS } from '../../../../constants/ui';
 import {
     CASE_SIDEBAR_ITEM_HEIGHT,
@@ -9,6 +10,7 @@ import {
     measureCaseListViewportHeight,
 } from '../../utils/workspace/caseSidebarVirtualList';
 import type { VisibleCaseItem } from '../../hooks/useVisibleProjects';
+import { scrollCaseIntoView } from '../../utils/workspace/scrollCaseIntoView';
 import CaseTreeItem from './CaseTreeItem';
 
 interface CaseChildrenListProps {
@@ -52,6 +54,8 @@ function CaseCaseList({
     onCaseDragEnd,
 }: CaseChildrenListProps) {
     const containerRef = useRef<HTMLDivElement>(null);
+    const nonVirtualRef = useRef<HTMLDivElement>(null);
+    const virtualListRef = useRef<ListRef>(null);
     const [listHeight, setListHeight] = useState(CASE_SIDEBAR_ITEM_HEIGHT);
     const useVirtual = cases.length >= PERFORMANCE_THRESHOLDS.sidebarVirtualCases;
 
@@ -85,6 +89,24 @@ function CaseCaseList({
         };
     }, [cases.length, useVirtual]);
 
+    // 激活项（本 project 内）变化时，将其滚入侧边栏可视区域并按需聚焦
+    useEffect(() => {
+        if (projectIndex !== activeProjectIndex) return;
+        const idx = cases.findIndex((c) => c.caseIndex === activeCaseIndex);
+        if (idx < 0) return;
+
+        if (useVirtual) {
+            virtualListRef.current?.scrollTo({ index: idx });
+        }
+
+        const activeId = cases[idx].caseItem.id;
+        const raf = requestAnimationFrame(() => {
+            const root = useVirtual ? containerRef.current : nonVirtualRef.current;
+            scrollCaseIntoView(root, activeId);
+        });
+        return () => cancelAnimationFrame(raf);
+    }, [activeProjectIndex, activeCaseIndex, cases, useVirtual, projectIndex]);
+
     const renderCaseItem = (item: VisibleCaseItem) => (
         <CaseTreeItem
             caseItem={item.caseItem}
@@ -115,7 +137,7 @@ function CaseCaseList({
 
     if (!useVirtual) {
         return (
-            <div className="case-children">
+            <div className="case-children" ref={nonVirtualRef}>
                 {cases.map((item) => (
                     <div key={item.caseItem.id}>{renderCaseItem(item)}</div>
                 ))}
@@ -126,6 +148,7 @@ function CaseCaseList({
     return (
         <div ref={containerRef} className="case-children case-children-virtual ui-scroll">
             <VirtualList
+                ref={virtualListRef}
                 data={cases}
                 height={listHeight}
                 itemHeight={CASE_SIDEBAR_ITEM_HEIGHT}

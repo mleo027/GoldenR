@@ -370,6 +370,33 @@
     color: var(--color-text-muted);
 }
 
+.response-idle-msg {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: min(100%, 420px);
+    padding: 10px 12px;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-control);
+    background: var(--color-bg-subtle);
+}
+
+.response-idle-msg-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.response-idle-msg-value {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-text-body);
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
 .response-idle-loading .response-idle-metric-value {
     color: var(--color-text-secondary);
 }

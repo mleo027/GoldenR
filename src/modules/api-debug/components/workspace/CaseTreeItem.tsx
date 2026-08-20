@@ -116,6 +116,8 @@ function CaseTreeItem({
         <Dropdown menu={{ items: menuItems }} trigger={['contextMenu']}>
             <div
                 className={`case-item group ${isActive ? 'case-item-active' : ''}${favorite ? ' case-item-favorite' : ''}${isDragging ? ' case-item-dragging' : ''}${draggable ? ' case-item-draggable' : ''}`}
+                data-case-id={caseItem.id}
+                tabIndex={isActive ? 0 : -1}
                 draggable={draggable}
                 onDragStart={onDragStart}
                 onDragEnd={onDragEnd}
