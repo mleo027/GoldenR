@@ -118,15 +118,21 @@ function getBridgeScriptPath(): string {
 }
 
 function getBundledNodeExecutable(): string | null {
-    if (!app.isPackaged) return null;
+    if (!app.isPackaged) {
+        console.log('[KCBP] app.isPackaged = false, skipping bundled node');
+        return null;
+    }
 
     const nodeName = process.platform === 'win32' ? 'node.exe' : 'node';
     const bundled = path.join(process.resourcesPath, 'node', nodeName);
-    return fs.existsSync(bundled) ? bundled : null;
+    const exists = fs.existsSync(bundled);
+    console.log(`[KCBP] bundled node check: ${bundled} -> exists=${exists}`);
+    return exists ? bundled : null;
 }
 
 function getNodeExecutable(): string {
     if (process.env.KCBP_NODE_PATH?.trim()) {
+        console.log(`[KCBP] using KCBP_NODE_PATH: ${process.env.KCBP_NODE_PATH}`);
         return process.env.KCBP_NODE_PATH.trim();
     }
 
@@ -136,8 +142,11 @@ function getNodeExecutable(): string {
     }
 
     if (process.env.npm_node_execpath?.trim()) {
+        console.log(`[KCBP] using npm_node_execpath: ${process.env.npm_node_execpath}`);
         return process.env.npm_node_execpath.trim();
     }
+
+    console.log('[KCBP] fallback to system node');
     return 'node';
 }
 
@@ -173,6 +182,7 @@ function encodePayloadForBridge(payload: KcbpRequestOptions): KcbpRequestOptions
 }
 
 interface ActiveKcbpCall {
+    callId: number;
     cancelled: boolean;
     child: ChildProcessWithoutNullStreams;
     settled: boolean;
@@ -181,6 +191,9 @@ interface ActiveKcbpCall {
 
 let nextCallId = 0;
 let activeCall: ActiveKcbpCall | null = null;
+let bridgeChild: ChildProcessWithoutNullStreams | null = null;
+let bridgeStdoutBuffer = '';
+let bridgeStderr = '';
 let cachedBridgeScriptPath: string | null = null;
 let cachedAdapterCandidates: string[] | null = null;
 const CANCEL_FORCE_MS = 3_000;
@@ -201,6 +214,17 @@ function killBridgeChildProcess(child: ChildProcessWithoutNullStreams): void {
     child.kill('SIGTERM');
 }
 
+function invalidateBridge(child: ChildProcessWithoutNullStreams): void {
+    if (bridgeChild === child) {
+        bridgeChild = null;
+    }
+    killBridgeChildProcess(child);
+}
+
+app.once?.('will-quit', () => {
+    if (bridgeChild) invalidateBridge(bridgeChild);
+});
+
 function forceCancelIfStillActive(currentCall: ActiveKcbpCall | null): void {
     if (
         !currentCall ||
@@ -216,6 +240,60 @@ function forceCancelIfStillActive(currentCall: ActiveKcbpCall | null): void {
     });
 }
 
+function ensureBridgeChild(): ChildProcessWithoutNullStreams {
+    if (bridgeChild && bridgeChild.exitCode == null && !bridgeChild.killed) return bridgeChild;
+    const child = spawn(getNodeExecutable(), [getBridgeScriptPath()], {
+        cwd: getWorkspaceDir(), stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true,
+    });
+    bridgeChild = child;
+    bridgeStdoutBuffer = '';
+    bridgeStderr = '';
+    child.stdout.setEncoding('utf8');
+    child.stderr.setEncoding('utf8');
+    child.stdout.on('data', (chunk: string) => {
+        bridgeStdoutBuffer += chunk;
+        let newline = bridgeStdoutBuffer.indexOf('\n');
+        while (newline >= 0) {
+            const line = bridgeStdoutBuffer.slice(0, newline).trim();
+            bridgeStdoutBuffer = bridgeStdoutBuffer.slice(newline + 1);
+            newline = bridgeStdoutBuffer.indexOf('\n');
+            if (!line) continue;
+            try {
+                const message = JSON.parse(line) as { callId?: number; ok?: boolean; raw?: unknown; error?: string };
+                if (message.callId !== undefined && activeCall?.callId === message.callId) {
+                    const current = activeCall;
+                    if (message.ok) current.settle(() => message.raw);
+                    else current.settle(() => { throw new Error(message.error || 'KCBP bridge call failed'); });
+                }
+            } catch {
+                const current = activeCall;
+                if (current?.child === child && !current.settled) {
+                    current.settle(() => {
+                        throw new Error('KCBP bridge returned invalid JSON');
+                    });
+                }
+                invalidateBridge(child);
+            }
+        }
+    });
+    child.stderr.on('data', (chunk: string) => { bridgeStderr += chunk; });
+    child.on('error', (error) => {
+        if (bridgeChild === child) bridgeChild = null;
+        if (bridgeChild === null && activeCall && !activeCall.settled) {
+            activeCall.settle(() => { throw error; });
+        }
+    });
+    child.on('close', (code) => {
+        const isCurrentBridge = bridgeChild === child;
+        if (isCurrentBridge) bridgeChild = null;
+        if (isCurrentBridge && activeCall && !activeCall.settled) {
+            const current = activeCall;
+            current.settle(() => { throw new Error(current.cancelled ? KCBP_CANCELLED_MESSAGE : (bridgeStderr.trim() || `KCBP bridge exited with code ${code ?? 'unknown'}`)); });
+        }
+    });
+    return child;
+}
+
 function invokeKcbpBridge(
     payload: KcbpRequestOptions,
     adapterCandidates: string[],
@@ -224,42 +302,30 @@ function invokeKcbpBridge(
         const callId = ++nextCallId;
 
         if (activeCall) {
-            activeCall.cancelled = true;
-            killBridgeChildProcess(activeCall.child);
+            const previousCall = activeCall;
+            previousCall.cancelled = true;
+            invalidateBridge(previousCall.child);
+            previousCall.settle(() => {
+                throw new Error(KCBP_CANCELLED_MESSAGE);
+            });
         }
 
-        const bridgeScript = getBridgeScriptPath();
-        const nodeExecutable = getNodeExecutable();
+        const child = ensureBridgeChild();
         const bridgeInput = JSON.stringify({
+            callId,
             payload: encodePayloadForBridge(payload),
             adapterCandidates,
         });
 
-        const child = spawn(nodeExecutable, [bridgeScript], {
-            cwd: getWorkspaceDir(),
-            stdio: ['pipe', 'pipe', 'pipe'],
-            windowsHide: true,
-        });
-
-        let stdout = '';
-        let stderr = '';
-
-        child.stdout.setEncoding('utf8');
-        child.stderr.setEncoding('utf8');
-        child.stdout.on('data', (chunk) => {
-            stdout += chunk;
-        });
-        child.stderr.on('data', (chunk) => {
-            stderr += chunk;
-        });
-
         const currentCall: ActiveKcbpCall = {
+            callId,
             cancelled: false,
             child,
             settled: false,
             settle: (action) => {
                 if (currentCall.settled) return;
                 currentCall.settled = true;
+                if (activeCall === currentCall) activeCall = null;
                 try {
                     resolve(action());
                 } catch (error) {
@@ -270,63 +336,7 @@ function invokeKcbpBridge(
 
         activeCall = currentCall;
 
-        child.on('error', (error) => {
-            if (activeCall === currentCall) {
-                activeCall = null;
-            }
-            reject(error);
-        });
-
-        child.on('close', (code) => {
-            if (activeCall === currentCall) {
-                activeCall = null;
-            }
-
-            if (currentCall.cancelled) {
-                currentCall.settle(() => {
-                    throw new Error(KCBP_CANCELLED_MESSAGE);
-                });
-                return;
-            }
-
-            if (!stdout.trim()) {
-                currentCall.settle(() => {
-                    throw new Error(
-                        stderr.trim() || `KCBP bridge exited with code ${code ?? 'unknown'}`,
-                    );
-                });
-                return;
-            }
-
-            try {
-                const message = JSON.parse(stdout.trim()) as {
-                    ok?: boolean;
-                    raw?: unknown;
-                    error?: string;
-                };
-
-                if (message.ok) {
-                    currentCall.settle(() => message.raw);
-                    return;
-                }
-
-                currentCall.settle(() => {
-                    throw new Error(message.error || 'KCBP bridge call failed');
-                });
-            } catch (error) {
-                currentCall.settle(() => {
-                    if (error instanceof Error && error.message === KCBP_CANCELLED_MESSAGE) {
-                        throw error;
-                    }
-                    throw new Error(
-                        stderr.trim() || `KCBP bridge returned invalid JSON (call ${callId})`,
-                    );
-                });
-            }
-        });
-
-        child.stdin.write(bridgeInput);
-        child.stdin.end();
+        child.stdin.write(`${bridgeInput}\n`);
     });
 }
 
@@ -489,7 +499,10 @@ export class KcbpClient {
         }
 
         callToCancel.cancelled = true;
-        killBridgeChildProcess(callToCancel.child);
+        invalidateBridge(callToCancel.child);
+        callToCancel.settle(() => {
+            throw new Error(KCBP_CANCELLED_MESSAGE);
+        });
         setTimeout(() => forceCancelIfStillActive(callToCancel), CANCEL_FORCE_MS);
         return true;
     }

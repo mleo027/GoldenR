@@ -101,12 +101,17 @@ export default function RequestPanel({
 
     const [quickFillOpen, setQuickFillOpen] = useState(false);
     const handleQuickFillApply = useCallback(
-        (result: { params: ParamItem[]; msgtype?: string }) => {
+        (result: { params: ParamItem[]; msgtype?: string; title?: string }) => {
             flushPending();
-            const patch: { params: ParamItem[]; address?: string } = { params: result.params };
+            const patch: { params: ParamItem[]; address?: string; name?: string } = {
+                params: result.params,
+            };
             if (result.msgtype) {
                 const parts = parseKcbpAddress(activeTab.address);
                 patch.address = serializeKcbpAddress({ ...parts, msgtype: result.msgtype });
+            }
+            if (result.title) {
+                patch.name = result.title;
             }
             updateTabUndoable(patch, '快速填充参数');
         },

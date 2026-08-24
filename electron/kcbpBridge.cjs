@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const { createRequire } = require('module');
+const readline = require('readline');
 
 const BINARY_KEY = '__kcbpBinaryBase64';
 
@@ -63,41 +64,52 @@ function loadCallable(adapterCandidates) {
     return null;
 }
 
-function readInputPayload() {
-    const raw = fs.readFileSync(0, 'utf8').trim();
-    if (!raw) {
-        throw new Error('KCBP bridge input is empty');
-    }
-    return JSON.parse(raw);
+let callable = null;
+let initialized = false;
+
+function writeMessage(message) {
+    process.stdout.write(`${JSON.stringify(message)}\n`);
 }
 
-function main() {
-    const { payload, adapterCandidates } = readInputPayload();
-    prependAdapterDllToPath(adapterCandidates);
-    const callable = loadCallable(adapterCandidates);
+function handleMessage(message) {
+    if (!message || typeof message !== 'object') return;
+    const { payload, adapterCandidates, callId } = message;
+    if (!initialized) {
+        prependAdapterDllToPath(adapterCandidates);
+        callable = loadCallable(adapterCandidates);
+        initialized = true;
+    }
 
     if (!callable) {
-        process.stdout.write(
-            JSON.stringify({ ok: false, error: 'Native KCBP adapter not loaded' }),
-        );
+        writeMessage({ callId, ok: false, error: 'Native KCBP adapter not loaded' });
         return;
     }
 
     const normalized = {
         ...payload,
-        param: {
-            ...payload.param,
-            fields: decodeFields(payload.param?.fields),
-        },
+        param: { ...payload?.param, fields: decodeFields(payload?.param?.fields) },
     };
-
     try {
-        const raw = callable(normalized);
-        process.stdout.write(JSON.stringify({ ok: true, raw }));
+        writeMessage({ callId, ok: true, raw: callable(normalized) });
     } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        process.stdout.write(JSON.stringify({ ok: false, error: message }));
+        writeMessage({
+            callId,
+            ok: false,
+            error: error instanceof Error ? error.message : String(error),
+        });
     }
 }
 
-main();
+const input = readline.createInterface({ input: process.stdin, crlfDelay: Infinity });
+input.on('line', (line) => {
+    if (!line.trim()) return;
+    try {
+        handleMessage(JSON.parse(line));
+    } catch (error) {
+        writeMessage({
+            ok: false,
+            error: error instanceof Error ? error.message : String(error),
+        });
+    }
+});
+input.on('close', () => process.exit(0));

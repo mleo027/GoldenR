@@ -11,6 +11,8 @@ export interface ParseQuickFillResult {
     params: ParamItem[];
     /** 从日志头或 funcid/g_funcid 入参中解析的功能号，用于更新地址栏 msgtype */
     msgtype?: string;
+    /** 从「接口名=功能号;」格式中提取的接口标题 */
+    title?: string;
 }
 
 export interface ParseParamsTextError {
@@ -98,17 +100,18 @@ function splitCommaSeparatedPairs(text: string): string[] {
     return parts;
 }
 
-/** 跳过「接口名=功能号;」类前缀，如 深圳普通买=410411;funcid:... */
-function stripLeadingTitlePrefix(text: string): string {
+/** 分离「接口名=功能号;」类前缀，如 深圳普通买=410411;funcid:... */
+function splitLeadingTitlePrefix(text: string): { title?: string; rest: string } {
     const semicolonIndex = text.indexOf(';');
-    if (semicolonIndex === -1) return text;
+    if (semicolonIndex === -1) return { rest: text };
 
     const prefix = text.slice(0, semicolonIndex).trim();
     if (/^[^:;,]+=[^:;,]+$/.test(prefix)) {
-        return text.slice(semicolonIndex + 1).trim();
+        const title = prefix.split('=')[0].trim();
+        return { title, rest: text.slice(semicolonIndex + 1).trim() };
     }
 
-    return text;
+    return { rest: text };
 }
 
 const LOG_PARAM_LINE = /\[入参:([^[\]]+?)\]\s*\[数值:(.*)\]\s*\[说明:/;
@@ -195,14 +198,16 @@ export function parseQuickFillText(text: string): ParseQuickFillOutcome {
 
     let params: ParamItem[];
     let msgtype: string | undefined;
+    let title: string | undefined;
 
     if (isLogFormatText(trimmed)) {
         const logResult = parseLogFormatParams(trimmed);
         params = logResult.params;
         msgtype = logResult.msgtype;
     } else if (trimmed.includes(';') || (trimmed.includes(',') && trimmed.includes(':'))) {
-        const withoutTitle = stripLeadingTitlePrefix(trimmed);
-        params = parseInlineCommaParams(withoutTitle);
+        const { title: parsedTitle, rest } = splitLeadingTitlePrefix(trimmed);
+        if (parsedTitle) title = parsedTitle;
+        params = parseInlineCommaParams(rest);
     } else {
         const outcome = parseParamsText(trimmed);
         if (!outcome.ok) return outcome;
@@ -214,7 +219,12 @@ export function parseQuickFillText(text: string): ParseQuickFillOutcome {
     }
 
     const resolvedMsgtype = msgtype || resolveMsgtypeFromParams(params);
-    return resolvedMsgtype ? { ok: true, params, msgtype: resolvedMsgtype } : { ok: true, params };
+    return {
+        ok: true,
+        params,
+        ...(resolvedMsgtype ? { msgtype: resolvedMsgtype } : {}),
+        ...(title ? { title } : {}),
+    };
 }
 
 export const PARAM_TEXT_PLACEHOLDER = `g_serverid=1

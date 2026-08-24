@@ -6,7 +6,7 @@ import { parseQuickFillText } from '../../utils/workspace/paramText';
 interface ParamQuickFillModalProps {
     open: boolean;
     onClose: () => void;
-    onApply: (result: { params: ParamItem[]; msgtype?: string }) => void;
+    onApply: (result: { params: ParamItem[]; msgtype?: string; title?: string }) => void;
 }
 
 function ParamQuickFillModal({ open, onClose, onApply }: ParamQuickFillModalProps) {
@@ -28,9 +28,10 @@ function ParamQuickFillModal({ open, onClose, onApply }: ParamQuickFillModalProp
         }
 
         const filledCount = outcome.params.length;
-        onApply({ params: outcome.params, msgtype: outcome.msgtype });
+        onApply({ params: outcome.params, msgtype: outcome.msgtype, title: outcome.title });
+        const titleHint = outcome.title ? `「${outcome.title}」` : '';
         const msgtypeHint = outcome.msgtype ? `，功能号 ${outcome.msgtype}` : '';
-        message.success(`已全量填充 ${filledCount} 个入参${msgtypeHint}`);
+        message.success(`已全量填充${titleHint} ${filledCount} 个入参${msgtypeHint}`);
         handleClose();
     }, [handleClose, message, onApply, text]);
 
