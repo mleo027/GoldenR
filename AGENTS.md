@@ -6,7 +6,7 @@ This repository is the standalone Golden API application. It contains only the `
 
 - Do not re-add modules from the original GoldenAPI repository.
 - Keep `D:\KSPB\own_tool\GoldenAPI` read-only.
-- Keep changes inside `D:\KSPB\own_tool\new_golden\开发\plan`.
+- Keep changes inside `D:\KSPB\own_tool\new_golden.
 - Preserve the existing `api-debug` module boundaries: UI, stores, KCBP services, SQL parameter suggestions, import/export, and script automation.
 - Before recursive cleanup, verify absolute target paths and keep a backup outside the working tree.
 

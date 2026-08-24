@@ -10,6 +10,7 @@
     "node": ">=20"
   },
   "scripts": {
+    "prepare": "node scripts/install-git-hooks.mjs",
     "dev": "vite",
     "build": "npm run generate:icon && npm run prepare:node && tsc && vite build && electron-builder",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
@@ -32,9 +33,13 @@
     "test:suggest": "node scripts/run-unit-tests.mjs suggest",
     "test:persist": "node scripts/run-unit-tests.mjs persist",
     "test:core": "node scripts/run-unit-tests.mjs core",
+    "ipc:check": "node scripts/verify-ipc-integrity.mjs",
+    "staged:check": "node scripts/verify-staged-guards.mjs",
+    "commit:check": "npm run staged:check && npm run ipc:check && npm run typecheck && npm run lint",
+    "check:delivery": "npm run check && npm run test:api && npx vite build",
     "scan:encoding": "node scripts/scan-garbled-strings.mjs",
     "check:complexity": "node scripts/check-complexity.mjs",
-    "check": "npm run lint && npm run format:check && npm run scan:encoding && npm run check:complexity && npm run typecheck && npm run test:component && npm run test",
+    "check": "npm run lint && npm run ipc:check && npm run format:check && npm run scan:encoding && npm run check:complexity && npm run typecheck && npm run test:component && npm run test",
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\" \"electron/**/*.{ts,json}\" \"docs/**/*.md\" \"AGENTS.md\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\" \"electron/**/*.{ts,json}\" \"docs/**/*.md\" \"AGENTS.md\"",

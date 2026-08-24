@@ -105,6 +105,7 @@ export function useCaseSidebarController() {
                 title: '删除项目',
                 centered: true,
                 mousePosition: null,
+                autoFocusButton: 'cancel',
                 content: isLastProject
                     ? `确定要删除项目「${projectName}」吗？删除后将重置为空白项目。`
                     : `确定要删除项目「${projectName}」吗？其下 ${caseCount} 个接口将一并删除。`,
@@ -134,6 +135,7 @@ export function useCaseSidebarController() {
                 title: '删除接口',
                 centered: true,
                 mousePosition: null,
+                autoFocusButton: 'cancel',
                 content: isLastCase
                     ? `确定要删除接口「${caseLabel}」吗？这是项目「${projectName}」的最后一个接口，删除后将保留空占位。`
                     : `确定要删除接口「${caseLabel}」吗？`,

@@ -59,7 +59,10 @@ function isNumericColumnKey(key: string): boolean {
 
 function formatCellText(value: unknown): string {
     if (isEmptyCellValue(value)) return '';
-    return typeof value === 'object' ? JSON.stringify(value) : String(value);
+    const text = typeof value === 'object' ? JSON.stringify(value) : String(value);
+    // 修复类似 `.00` 或 `.01` 的格式，在前面补零变成 `0.00` 或 `0.01`
+    // 同时处理负数情况，如 `-.50` 变成 `-0.50`
+    return text.replace(/^-?\.(\d)/, (_, digit) => `${text.startsWith('-') ? '-' : ''}0.${digit}`);
 }
 
 const responseEmpty = (
