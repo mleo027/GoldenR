@@ -260,11 +260,17 @@ function ensureBridgeChild(): ChildProcessWithoutNullStreams {
             if (!line) continue;
             try {
                 const message = JSON.parse(line) as { callId?: number; ok?: boolean; raw?: unknown; error?: string };
-                if (message.callId !== undefined && activeCall?.callId === message.callId) {
-                    const current = activeCall;
-                    if (message.ok) current.settle(() => message.raw);
-                    else current.settle(() => { throw new Error(message.error || 'KCBP bridge call failed'); });
+                const current = activeCall;
+                if (!current || current.child !== child) continue;
+                if (message.callId !== current.callId) {
+                    current.settle(() => {
+                        throw new Error('KCBP bridge returned an unexpected call ID');
+                    });
+                    invalidateBridge(child);
+                    continue;
                 }
+                if (message.ok) current.settle(() => message.raw);
+                else current.settle(() => { throw new Error(message.error || 'KCBP bridge call failed'); });
             } catch {
                 const current = activeCall;
                 if (current?.child === child && !current.settled) {

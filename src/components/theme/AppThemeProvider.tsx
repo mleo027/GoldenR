@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from 'react';
+import { useEffect, useMemo, type ReactNode } from 'react';
 import { ConfigProvider, App, theme } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import { useAppEnv } from '../../store/useAppEnv';
@@ -133,12 +133,31 @@ const DARK_COMPONENTS = {
 export default function AppThemeProvider({ children }: { children: ReactNode }) {
     const { env, loaded } = useAppEnv();
     const isDark = env.darkMode;
+    const accentColor = env.accentColor || (isDark ? DARK_PRIMARY : LIGHT_PRIMARY);
+
+    useEffect(() => {
+        const root = document.documentElement;
+        root.style.setProperty('--color-primary', accentColor);
+        root.style.setProperty('--color-text-accent', accentColor);
+        root.style.setProperty('--color-primary-hover', 'color-mix(in srgb, var(--color-primary) 82%, black)');
+        root.style.setProperty('--color-primary-subtle', 'color-mix(in srgb, var(--color-primary) 8%, transparent)');
+        root.style.setProperty('--color-primary-muted', 'color-mix(in srgb, var(--color-primary) 16%, transparent)');
+        root.style.setProperty('--color-primary-glow', 'color-mix(in srgb, var(--color-primary) 18%, transparent)');
+        return () => {
+            root.style.removeProperty('--color-primary');
+            root.style.removeProperty('--color-text-accent');
+            root.style.removeProperty('--color-primary-hover');
+            root.style.removeProperty('--color-primary-subtle');
+            root.style.removeProperty('--color-primary-muted');
+            root.style.removeProperty('--color-primary-glow');
+        };
+    }, [accentColor]);
 
     const antdTheme = useMemo(
         () => ({
             algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
             token: {
-                colorPrimary: isDark ? DARK_PRIMARY : LIGHT_PRIMARY,
+                colorPrimary: accentColor,
                 colorBgContainer: isDark ? '#111111' : '#ffffff',
                 colorBgElevated: isDark ? '#1a1a1a' : '#ffffff',
                 colorBgLayout: isDark ? '#0a0a0a' : '#f5f6f8',
@@ -151,9 +170,34 @@ export default function AppThemeProvider({ children }: { children: ReactNode }) 
                 fontFamily:
                     '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
             },
-            components: isDark ? DARK_COMPONENTS : LIGHT_COMPONENTS,
+            components: {
+                ...(isDark ? DARK_COMPONENTS : LIGHT_COMPONENTS),
+                Tabs: {
+                    ...(isDark ? DARK_COMPONENTS.Tabs : LIGHT_COMPONENTS.Tabs),
+                    cardBg: isDark ? '#111111' : '#ffffff',
+                    itemActiveColor: accentColor,
+                    itemSelectedColor: accentColor,
+                },
+                Input: {
+                    ...(isDark ? DARK_COMPONENTS.Input : LIGHT_COMPONENTS.Input),
+                    activeBorderColor: accentColor,
+                    hoverBorderColor: accentColor,
+                },
+                Checkbox: {
+                    ...(isDark ? DARK_COMPONENTS.Checkbox : LIGHT_COMPONENTS.Checkbox),
+                    colorPrimary: accentColor,
+                },
+                Pagination: {
+                    ...(isDark ? DARK_COMPONENTS.Pagination : LIGHT_COMPONENTS.Pagination),
+                    itemActiveBg: accentColor,
+                },
+                Table: {
+                    ...(isDark ? DARK_COMPONENTS.Table : LIGHT_COMPONENTS.Table),
+                    headerBg: isDark ? '#141414' : 'color-mix(in srgb, var(--color-primary) 8%, white)',
+                },
+            },
         }),
-        [isDark],
+        [accentColor, isDark],
     );
 
     if (!loaded) {

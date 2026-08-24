@@ -251,6 +251,43 @@
     flex: 1;
 }
 
+.settings-panel-row--stacked {
+    align-items: flex-start;
+}
+
+.appearance-accent-picker {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.appearance-accent-presets {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.appearance-accent-swatch {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.12);
+    transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.appearance-accent-swatch:hover {
+    transform: scale(1.12);
+}
+
+.appearance-accent-swatch.is-selected {
+    box-shadow: 0 0 0 2px var(--color-bg-card), 0 0 0 4px var(--color-primary);
+}
+
 .settings-panel-row {
     display: flex;
     align-items: center;
@@ -403,8 +440,8 @@
 }
 
 [data-theme='dark'] .settings-inline-code {
-    background: #1a1a1a;
-    border-color: #333;
+    background: var(--color-bg-elevated);
+    border-color: var(--color-border);
 }
 
 /* 端点信息卡片 */
@@ -563,18 +600,18 @@
 }
 
 [data-theme='dark'] .settings-status-badge-success {
-    background: rgba(45, 164, 78, 0.12);
-    color: #3fb950;
+    background: var(--color-success-bg);
+    color: var(--color-success);
 }
 
 [data-theme='dark'] .settings-status-badge-warning {
-    background: rgba(217, 119, 6, 0.12);
-    color: #fbbf24;
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
 }
 
 [data-theme='dark'] .settings-status-badge-error {
-    background: rgba(220, 38, 38, 0.12);
-    color: #f87171;
+    background: var(--color-error-bg);
+    color: var(--color-error);
 }
 
 .settings-panel-row-label {

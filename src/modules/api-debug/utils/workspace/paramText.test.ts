@@ -148,6 +148,19 @@ describe('parseQuickFillText', () => {
         });
     });
 
+    it('trims unquoted values but preserves spaces explicitly enclosed by quotes', () => {
+        const outcome = parseQuickFillText(
+            'custid:  600100000570  ,remark:"  保留首尾空格  "',
+        );
+        expect(outcome.ok).toBe(true);
+        if (!outcome.ok) return;
+
+        expect(outcome.params).toEqual([
+            { name: 'custid', value: '600100000570', type: 'string' },
+            { name: 'remark', value: '  保留首尾空格  ', type: 'string' },
+        ]);
+    });
+
     it('parses log format with bracketed values', () => {
         const text = `[2026-06-25 14:33:44] [225453] [15ms  ] [      0 Row(s)] [写子步骤日志        ] [清算步骤日志处理成功!]
            [入参:clearflow ] [数值:A         ] [说明:清算流程                      ]
@@ -211,6 +224,7 @@ describe('parseQuickFillText', () => {
 
         expect(outcome).toEqual({
             ok: true,
+            title: '盘后定价大宗1m',
             msgtype: '150622',
             params: [
                 { name: 'funcid', value: '150622', type: 'string' },

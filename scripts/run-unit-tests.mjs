@@ -18,6 +18,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const suites = {
     kcbp: [
+        'electron/kcbpBridge.test.ts',
         'electron/services/kcbp/kcbp.test.ts',
         'src/modules/api-debug/utils/kcbp/kcbpAddress.test.ts',
         'src/modules/api-debug/utils/kcbp/kcbpParams.test.ts',

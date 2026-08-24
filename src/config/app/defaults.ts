@@ -6,6 +6,7 @@ export const DEFAULT_APP_ENV: AppEnv = {
     showRowIndex: true,
     autoSave: true,
     darkMode: false,
+    accentColor: undefined,
     sidebarVisible: true,
     get activeModuleId() {
         return getDefaultModuleId();

@@ -9,13 +9,13 @@ const lightEditorTheme = EditorView.theme(
             backgroundColor: '#fafafa',
         },
         '.cm-content': {
-            caretColor: '#7c3aed',
+            caretColor: 'var(--color-primary)',
         },
         '.cm-cursor, .cm-dropCursor': {
-            borderLeftColor: '#7c3aed',
+            borderLeftColor: 'var(--color-primary)',
         },
         '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection': {
-            backgroundColor: '#ede9fe !important',
+            backgroundColor: 'var(--color-primary-muted) !important',
         },
         '.cm-gutters': {
             backgroundColor: '#fafafa',
@@ -52,13 +52,13 @@ const darkEditorTheme = EditorView.theme(
             backgroundColor: '#111111',
         },
         '.cm-content': {
-            caretColor: '#3fb950',
+            caretColor: 'var(--color-primary)',
         },
         '.cm-cursor, .cm-dropCursor': {
-            borderLeftColor: '#3fb950',
+            borderLeftColor: 'var(--color-primary)',
         },
         '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection': {
-            backgroundColor: 'rgba(45, 164, 78, 0.18) !important',
+            backgroundColor: 'var(--color-primary-muted) !important',
         },
         '.cm-gutters': {
             backgroundColor: '#111111',
@@ -92,7 +92,7 @@ const lightHighlight = HighlightStyle.define([
     { tag: t.keyword, color: '#cf222e' },
     { tag: [t.name, t.deleted, t.character, t.macroName], color: '#24292f' },
     { tag: [t.propertyName], color: '#0550ae' },
-    { tag: [t.function(t.variableName), t.labelName], color: '#8250df' },
+    { tag: [t.function(t.variableName), t.labelName], color: 'var(--color-primary)' },
     { tag: [t.color, t.constant(t.name), t.standard(t.name)], color: '#0550ae' },
     { tag: [t.definition(t.name), t.separator], color: '#24292f' },
     {
@@ -125,7 +125,7 @@ const darkHighlight = HighlightStyle.define([
     { tag: t.keyword, color: '#ff7b72' },
     { tag: [t.name, t.deleted, t.character, t.macroName], color: '#e6e6ef' },
     { tag: [t.propertyName], color: '#79c0ff' },
-    { tag: [t.function(t.variableName), t.labelName], color: '#d2a8ff' },
+    { tag: [t.function(t.variableName), t.labelName], color: 'var(--color-primary)' },
     { tag: [t.color, t.constant(t.name), t.standard(t.name)], color: '#79c0ff' },
     { tag: [t.definition(t.name), t.separator], color: '#e6e6ef' },
     {

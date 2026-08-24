@@ -4,6 +4,8 @@ export interface AppEnv {
     showRowIndex: boolean;
     autoSave: boolean;
     darkMode: boolean;
+    /** 用户自定义强调色；未设置时按明暗模式使用默认色 */
+    accentColor?: string;
     activeModuleId: string;
     /** 模块侧栏是否展开 */
     sidebarVisible: boolean;

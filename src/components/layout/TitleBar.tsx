@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button, Space, Tooltip } from 'antd';
 import { CloseOutlined, MinusOutlined, BorderOutlined, BlockOutlined } from '@ant-design/icons';
 import { TITLE_BAR_SLOT_ID } from '../../platform/shell/TitleBarSlotPortal';
-import GoldenApiLogo from '../ui/GoldenApiLogo';
+import GoldenBrandLogo from '../ui/GoldenBrandLogo';
 import { getElectronAPI } from '@/lib/electron';
 
 interface TitleBarProps {
@@ -33,15 +33,12 @@ export default function TitleBar({
 
     return (
         <div className="title-bar min-h-10" style={{ userSelect: 'none' } as React.CSSProperties}>
-            <div className="title-bar-brand">
-                <GoldenApiLogo size={28} className="title-bar-logo" title="Golden API" />
-                <span className="title-bar-name font-bold">Golden API</span>
-                {moduleLabel && !useTitleBarSlot ? (
-                    <Tooltip title={moduleLabel}>
-                        <span className="title-bar-module">{moduleLabel}</span>
-                    </Tooltip>
-                ) : null}
-            </div>
+            <GoldenBrandLogo className="title-bar-logo" title="Golden API" />
+            {moduleLabel && !useTitleBarSlot ? (
+                <Tooltip title={moduleLabel}>
+                    <span className="title-bar-module">{moduleLabel}</span>
+                </Tooltip>
+            ) : null}
 
             <div
                 id={TITLE_BAR_SLOT_ID}

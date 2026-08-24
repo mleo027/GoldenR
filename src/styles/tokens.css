@@ -35,6 +35,7 @@
     --color-text-muted: #9ca3af;
     --color-muted: var(--color-text-muted);
     --color-text-accent: #7c3aed;
+    --color-brand-logo-text: #ffffff;
 
     /* 状态色 */
     --color-success: #16a34a;
@@ -127,6 +128,7 @@
     --color-text-muted: #6b6b7a;
     --color-muted: var(--color-text-muted);
     --color-text-accent: #3fb950;
+    --color-brand-logo-text: #ffffff;
 
     --color-success: #3fb950;
     --color-success-bg: rgba(63, 185, 80, 0.12);

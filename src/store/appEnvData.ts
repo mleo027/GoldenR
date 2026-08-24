@@ -30,6 +30,7 @@ function isAppEnv(value: unknown): value is Partial<AppEnv> & LegacyAppEnvFields
         (env.showRowIndex === undefined || typeof env.showRowIndex === 'boolean') &&
         (env.autoSave === undefined || typeof env.autoSave === 'boolean') &&
         (env.darkMode === undefined || typeof env.darkMode === 'boolean') &&
+        (env.accentColor === undefined || (typeof env.accentColor === 'string' && /^#[0-9a-fA-F]{6}$/.test(env.accentColor))) &&
         (env.activeModuleId === undefined || typeof env.activeModuleId === 'string') &&
         (env.sidebarVisible === undefined || typeof env.sidebarVisible === 'boolean')
     );
@@ -42,6 +43,7 @@ export function mergeAppEnv(partial?: Partial<AppEnv>): AppEnv {
         showRowIndex: partial?.showRowIndex ?? DEFAULT_APP_ENV.showRowIndex,
         autoSave: partial?.autoSave ?? DEFAULT_APP_ENV.autoSave,
         darkMode: partial?.darkMode ?? DEFAULT_APP_ENV.darkMode,
+        accentColor: partial?.accentColor ?? DEFAULT_APP_ENV.accentColor,
         sidebarVisible: partial?.sidebarVisible ?? DEFAULT_APP_ENV.sidebarVisible,
         activeModuleId: resolveActiveModuleId(partial?.activeModuleId),
     };
