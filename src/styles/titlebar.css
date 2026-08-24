@@ -3,7 +3,7 @@
     display: flex;
     align-items: center;
     height: 36px;
-    padding: 0 12px;
+    padding: 0 12px 0 0;
     flex-shrink: 0;
     background: var(--color-bg-elevated);
     border-bottom: 1px solid var(--color-divider);
@@ -34,6 +34,7 @@
     align-items: center;
     padding: 0 12px;
     font-size: 15px;
+    font-weight: 800;
     letter-spacing: -0.02em;
 }
 
@@ -148,18 +149,19 @@
 }
 
 .case-tab-bar-title .case-tab-bar-scroll {
-    gap: 2px;
+    gap: 0;
     padding: 0;
     height: 100%;
     align-items: center;
 }
 
 .case-tab-bar-title .case-tab-item-title {
-    height: 26px;
+    height: 36px;
     max-width: 200px;
-    padding: 0 8px;
-    border: none;
-    border-radius: var(--radius-control);
+    padding: 0 12px;
+    border: 0;
+    border-right: 1px solid var(--color-border-light);
+    border-radius: 0;
     background: transparent;
     font-size: 11px;
 }
@@ -170,12 +172,16 @@
 
 .case-tab-bar-title .case-tab-item-title.case-tab-item-active {
     background: var(--color-primary-subtle);
-    box-shadow: inset 0 0 0 1px var(--color-primary-muted);
+    box-shadow: inset 0 -2px 0 var(--color-primary);
     font-weight: 600;
 }
 
 .case-tab-bar-title .case-tab-item-active .case-tab-close {
     opacity: 1;
+}
+
+.app-compact .case-tab-bar-title .case-tab-item-title {
+    height: 32px;
 }
 
 .case-tab-bar {

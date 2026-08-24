@@ -11,7 +11,7 @@
 .platform-module-panels {
     height: 100%;
     min-height: 0;
-    gap: var(--platform-page-gutter);
+    gap: 0;
 }
 
 .platform-module-panels--sidebar-collapsed {

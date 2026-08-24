@@ -1,5 +1,11 @@
 @import 'tailwindcss';
 @import './styles/platform-shell.css';
+
+html,
+body,
+#root {
+    background: var(--color-bg-elevated);
+}
 @import './styles/tokens.css';
 @import './styles/primitives.css';
 @import './styles/base.css';

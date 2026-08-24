@@ -69,7 +69,7 @@ export default function Tab() {
 
     return (
         <div className="flex flex-col flex-1 h-full w-full overflow-hidden">
-            <PanelGroup direction="vertical" className="flex-1 gap-3">
+            <PanelGroup direction="vertical" className="flex-1 gap-0">
                 <Panel
                     ref={requestPanelRef as RefObject<ImperativePanelHandle>}
                     defaultSize={50}
