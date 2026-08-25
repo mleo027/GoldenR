@@ -285,9 +285,25 @@ console.log(result);
 
 运行日志写入项目根目录 `run.log`（追加模式）。
 
+## KGBP 协议
+
+与 KCBP 并行的第二协议，走 `callKGBP` 导出，payload/响应结构与 KCBP 同构：
+
+- `connection`：`ip`、`port`、`connecttimeout`、`requesttimeout`（均为字符串）
+- `param.msgtype`：兼作 KGBP 服务名（`KGBPCLI_OPTION_SERVICE_NAME`）
+- `param.funcid`：可选功能号，缺省取 `msgtype`
+- `param.nodeid` / `param.sessionid`：可选包头字段
+- `param.fields`：与 KCBP 相同的字段规则（Buffer 二进制、file(path)、0x 前缀）
+
+SDK 来源：金证 SVN 分支 6.7.0.3（r97506）`lbmdll/lbm_comm/kgbpcli`，仅收录 x64 产物。
+运行依赖 `kgbpcli.dll`、`hare_socket.dll`、`jstp_pack.dll`、`hare_socket_normal.dll`（位于上级目录）。
+
+编码说明：KGBP 网关为 UTF-8，payload 与应答字段值均直传不转码（区别于 KCBP 的 GBK→UTF-8）。
+已知限制：无真实网关联调环境；`RsGetColInfo` 列名格式未实测，列名解析失败时回退 `col1..colN`。
+
 ## 注意事项
 
-1. 当前仅实现 KCBP，KGBP、KMID 等类型尚未实现。
+1. 当前实现 KCBP 与 KGBP，KMID 等类型尚未实现。
 2. 默认编译依赖 ScopeCppSDK vc15 中的 x64 `cl.exe`；若换机器请调整 `VS_CPP_SDK`。
 3. 编译绑定的 Node 版本应与运行时一致。
 4. 应答解析目前将字段作为 GBK 文本返回；若后台返回二进制字段需额外处理。
