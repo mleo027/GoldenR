@@ -24,6 +24,7 @@
     "test:smoke": "vitest run src/smoke --passWithNoTests",
     "smoke:preview": "node scripts/smoke-preview.mjs",
     "smoke:dev": "node scripts/smoke-dev.mjs",
+    "build:native": "node scripts/build-native.mjs",
     "test:watch": "vitest",
     "test:related": "vitest related --run",
     "test:api": "npm run test:kcbp && npm run test:import && npm run test:script && npm run test:suggest && npm run test:persist && npm run test:core",
