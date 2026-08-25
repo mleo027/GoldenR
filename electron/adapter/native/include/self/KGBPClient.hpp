@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <cstring>
 #include <stdexcept>
 #include <fstream>
 #include <windows.h>
@@ -236,8 +237,9 @@ private:
 		return row;
 	}
 
-	// RsGetColInfo 缓冲区格式文档未明确，按 '\0' 分隔的列名序列解析；
-	// 解析出的名字数量与列数不符时回落 col1..colN（已知风险，见计划头部）。
+	// RsGetColInfo 缓冲区格式文档未明确：先按 '\0' 分隔的列名序列解析；
+	// 数量不符时再尝试按单个逗号分隔字符串切分（SDK 文档示例 "name,age,id"）；
+	// 仍不匹配才回落 col1..colN（已知风险，见计划头部）。
 	std::vector<std::string> parseColNames(size_t colNum)
 	{
 		std::vector<char> buf(colNum * 65 + 1, 0);
@@ -255,9 +257,56 @@ private:
 		}
 		if (names.size() != colNum)
 		{
+			names = splitColNamesByComma(buf.data(), colNum);
+			if (names.size() == colNum)
+			{
+				return names; // 列名已是 UTF-8，不转码
+			}
 			return fallbackColNames(colNum);
 		}
 		return names; // 列名已是 UTF-8，不转码
+	}
+
+	// 整个缓冲区按逗号切分，每项 trim 后数量须恰好等于 colNum 才有效。
+	static std::vector<std::string> splitColNamesByComma(const char *buf, size_t colNum)
+	{
+		std::vector<std::string> names;
+		if (buf == nullptr || colNum == 0 || *buf == '\0')
+		{
+			return names;
+		}
+		names.reserve(colNum);
+		const char *p = buf;
+		while (names.size() < colNum)
+		{
+			const char *comma = std::strchr(p, ',');
+			size_t len = (comma != nullptr ? static_cast<size_t>(comma - p) : std::strlen(p));
+			size_t begin = 0;
+			while (begin < len && (p[begin] == ' ' || p[begin] == '\t'))
+			{
+				++begin;
+			}
+			size_t last = len;
+			while (last > begin && (p[last - 1] == ' ' || p[last - 1] == '\t'))
+			{
+				--last;
+			}
+			if (last == begin)
+			{
+				return {}; // 空列名视为格式不匹配
+			}
+			names.emplace_back(p + begin, last - begin);
+			if (comma == nullptr)
+			{
+				break;
+			}
+			p = comma + 1;
+		}
+		if (names.size() != colNum)
+		{
+			return {};
+		}
+		return names;
 	}
 
 	static std::vector<std::string> fallbackColNames(size_t colNum)
