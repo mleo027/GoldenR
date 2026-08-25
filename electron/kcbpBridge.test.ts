@@ -16,8 +16,15 @@ describe('kcbpBridge persistent protocol', () => {
             `let loads = 0; loads += 1; module.exports = { callKCBP(payload) { return { code: 0, msg: 'ok', data: [{ loads, value: payload.param.fields.text, binary: payload.param.fields.bin.toString('hex') }] }; } };`,
             'utf8',
         );
-        const child = spawn(process.execPath, [bridgePath], { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
-        const messages: Array<{ callId?: number; ok?: boolean; raw?: { data?: Array<{ loads?: number; value?: string; binary?: string }> } }> = [];
+        const child = spawn(process.execPath, [bridgePath], {
+            stdio: ['pipe', 'pipe', 'pipe'],
+            windowsHide: true,
+        });
+        const messages: Array<{
+            callId?: number;
+            ok?: boolean;
+            raw?: { data?: Array<{ loads?: number; value?: string; binary?: string }> };
+        }> = [];
         let buffer = '';
         child.stdout.setEncoding('utf8');
         child.stdout.on('data', (chunk: string) => {
@@ -30,18 +37,37 @@ describe('kcbpBridge persistent protocol', () => {
                 if (line) messages.push(JSON.parse(line));
             }
         });
-        const request = (callId: number) => JSON.stringify({
-            callId,
-            adapterCandidates: [adapterPath],
-            payload: { param: { fields: { text: 'value', bin: { __kcbpBinaryBase64: Buffer.from('abc').toString('base64') } } } },
-        });
+        const request = (callId: number) =>
+            JSON.stringify({
+                callId,
+                adapterCandidates: [adapterPath],
+                payload: {
+                    param: {
+                        fields: {
+                            text: 'value',
+                            bin: { __kcbpBinaryBase64: Buffer.from('abc').toString('base64') },
+                        },
+                    },
+                },
+            });
         child.stdin.write(`${request(1)}\n${request(2)}\n`);
         child.stdin.end();
-        await new Promise<void>((resolve, reject) => { child.once('error', reject); child.once('close', () => resolve()); });
+        await new Promise<void>((resolve, reject) => {
+            child.once('error', reject);
+            child.once('close', () => resolve());
+        });
         await rm(dir, { recursive: true, force: true });
         expect(messages).toHaveLength(2);
-        expect(messages[0]).toMatchObject({ callId: 1, ok: true, raw: { data: [{ loads: 1, value: 'value', binary: '616263' }] } });
-        expect(messages[1]).toMatchObject({ callId: 2, ok: true, raw: { data: [{ loads: 1, value: 'value', binary: '616263' }] } });
+        expect(messages[0]).toMatchObject({
+            callId: 1,
+            ok: true,
+            raw: { data: [{ loads: 1, value: 'value', binary: '616263' }] },
+        });
+        expect(messages[1]).toMatchObject({
+            callId: 2,
+            ok: true,
+            raw: { data: [{ loads: 1, value: 'value', binary: '616263' }] },
+        });
     });
 
     it('processes multiple newline-delimited requests in one bridge process', async () => {

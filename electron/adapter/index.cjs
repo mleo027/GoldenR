@@ -1,9 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const candidatePaths = [
-    path.join(__dirname, 'adapter.node')
-];
+const candidatePaths = [path.join(__dirname, 'adapter.node')];
 
 let nativeAdapter = null;
 let loadError = null;
@@ -27,11 +25,13 @@ function getProtocolCallable(adapter, type) {
     if (!adapter) return null;
     if (type === 'KGBP') {
         if (typeof adapter.callKGBP === 'function') return adapter.callKGBP.bind(adapter);
-        if (typeof adapter.default?.callKGBP === 'function') return adapter.default.callKGBP.bind(adapter.default);
+        if (typeof adapter.default?.callKGBP === 'function')
+            return adapter.default.callKGBP.bind(adapter.default);
         return null;
     }
     if (typeof adapter.callKCBP === 'function') return adapter.callKCBP.bind(adapter);
-    if (typeof adapter.default?.callKCBP === 'function') return adapter.default.callKCBP.bind(adapter.default);
+    if (typeof adapter.default?.callKCBP === 'function')
+        return adapter.default.callKCBP.bind(adapter.default);
     if (typeof adapter === 'function') return adapter;
     return null;
 }

@@ -245,7 +245,9 @@ function forceCancelIfStillActive(currentCall: ActiveKcbpCall | null): void {
 function ensureBridgeChild(): ChildProcessWithoutNullStreams {
     if (bridgeChild && bridgeChild.exitCode == null && !bridgeChild.killed) return bridgeChild;
     const child = spawn(getNodeExecutable(), [getBridgeScriptPath()], {
-        cwd: getWorkspaceDir(), stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true,
+        cwd: getWorkspaceDir(),
+        stdio: ['pipe', 'pipe', 'pipe'],
+        windowsHide: true,
     });
     bridgeChild = child;
     bridgeStdoutBuffer = '';
@@ -261,7 +263,12 @@ function ensureBridgeChild(): ChildProcessWithoutNullStreams {
             newline = bridgeStdoutBuffer.indexOf('\n');
             if (!line) continue;
             try {
-                const message = JSON.parse(line) as { callId?: number; ok?: boolean; raw?: unknown; error?: string };
+                const message = JSON.parse(line) as {
+                    callId?: number;
+                    ok?: boolean;
+                    raw?: unknown;
+                    error?: string;
+                };
                 const current = activeCall;
                 if (!current || current.child !== child) continue;
                 if (message.callId !== current.callId) {
@@ -272,7 +279,10 @@ function ensureBridgeChild(): ChildProcessWithoutNullStreams {
                     continue;
                 }
                 if (message.ok) current.settle(() => message.raw);
-                else current.settle(() => { throw new Error(message.error || 'KCBP bridge call failed'); });
+                else
+                    current.settle(() => {
+                        throw new Error(message.error || 'KCBP bridge call failed');
+                    });
             } catch {
                 const current = activeCall;
                 if (current?.child === child && !current.settled) {
@@ -284,11 +294,15 @@ function ensureBridgeChild(): ChildProcessWithoutNullStreams {
             }
         }
     });
-    child.stderr.on('data', (chunk: string) => { bridgeStderr += chunk; });
+    child.stderr.on('data', (chunk: string) => {
+        bridgeStderr += chunk;
+    });
     child.on('error', (error) => {
         if (bridgeChild === child) bridgeChild = null;
         if (bridgeChild === null && activeCall && !activeCall.settled) {
-            activeCall.settle(() => { throw error; });
+            activeCall.settle(() => {
+                throw error;
+            });
         }
     });
     child.on('close', (code) => {
@@ -296,7 +310,14 @@ function ensureBridgeChild(): ChildProcessWithoutNullStreams {
         if (isCurrentBridge) bridgeChild = null;
         if (isCurrentBridge && activeCall && !activeCall.settled) {
             const current = activeCall;
-            current.settle(() => { throw new Error(current.cancelled ? KCBP_CANCELLED_MESSAGE : (bridgeStderr.trim() || `KCBP bridge exited with code ${code ?? 'unknown'}`)); });
+            current.settle(() => {
+                throw new Error(
+                    current.cancelled
+                        ? KCBP_CANCELLED_MESSAGE
+                        : bridgeStderr.trim() ||
+                              `KCBP bridge exited with code ${code ?? 'unknown'}`,
+                );
+            });
         }
     });
     return child;
