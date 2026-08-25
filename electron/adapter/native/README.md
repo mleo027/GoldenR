@@ -1,20 +1,20 @@
 # adapter
 
-## ÔÚ new_golden ÄÚ¹¹½¨
+## åœ¨ new_golden å†…æ„å»º
 
-±¾Ä¿Â¼ÒÑ²¢Èë Golden API ²Ö¿â£¨`electron/adapter/native/`£©¡£³£¹æÇé¿öÏÂ²»ÒªÔÚ±¾Ä¿Â¼µ¥¶À²Ù×÷£¬¶øÊÇÔÚ²Ö¿â¸ùÄ¿Â¼Ö´ĞĞ£º
+æœ¬ç›®å½•å·²å¹¶å…¥ Golden API ä»“åº“ï¼ˆ`electron/adapter/native/`ï¼‰ã€‚å¸¸è§„æƒ…å†µä¸‹ä¸è¦åœ¨æœ¬ç›®å½•å•ç‹¬æ“ä½œï¼Œè€Œæ˜¯åœ¨ä»“åº“æ ¹ç›®å½•æ‰§è¡Œï¼š
 
 ```bash
 npm run build:native
 ```
 
-¸ÃÃüÁîÒÀ´ÎÍê³É£º`npm install`£¨°²×° node-addon-api£©¡ú `scripts\build-native.cmd`£¨MSVC ±àÒëÁ´½Ó£©¡ú ½« `build/Release/adapter.node` ¸²¸Ç¿½±´µ½ÉÏ¼¶ `electron/adapter/adapter.node` ¹© Electron ¼ÓÔØ¡£
+è¯¥å‘½ä»¤ä¾æ¬¡å®Œæˆï¼š`npm install`ï¼ˆå®‰è£… node-addon-apiï¼‰â†’ `scripts\build-native.cmd`ï¼ˆMSVC ç¼–è¯‘é“¾æ¥ï¼‰â†’ å°† `build/Release/adapter.node` è¦†ç›–æ‹·è´åˆ°ä¸Šçº§ `electron/adapter/adapter.node` ä¾› Electron åŠ è½½ã€‚
 
-¹¤¾ßÁ´ÒªÇó²»±ä£ºWindows + Node.js 18+ + MSVC£¨ScopeCppSDK vc15£¬¿ÉÓÃ»·¾³±äÁ¿ `VS_CPP_SDK` ¸²¸ÇÂ·¾¶£©¡£
+å·¥å…·é“¾è¦æ±‚ä¸å˜ï¼šWindows + Node.js 18+ + MSVCï¼ˆScopeCppSDK vc15ï¼Œå¯ç”¨ç¯å¢ƒå˜é‡ `VS_CPP_SDK` è¦†ç›–è·¯å¾„ï¼‰ã€‚
 
-Node.js Ô­ÉúÀ©Õ¹£¬ÓÃÓÚÔÚ JavaScript ÖĞµ÷ÓÃ½ğÖ¤ KCBP ºóÌ¨½Ó¿Ú¡£Í¨¹ı KCBPCli Óë KCXP ÖĞ¼ä¼şÍ¨ĞÅ£¬Ö§³ÖÎÄ±¾×Ö¶ÎÓë¶ş½øÖÆ×Ö¶ÎÈë²Î¡£
+Node.js åŸç”Ÿæ‰©å±•ï¼Œç”¨äºåœ¨ JavaScript ä¸­è°ƒç”¨é‡‘è¯ KCBP åå°æ¥å£ã€‚é€šè¿‡ KCBPCli ä¸ KCXP ä¸­é—´ä»¶é€šä¿¡ï¼Œæ”¯æŒæ–‡æœ¬å­—æ®µä¸äºŒè¿›åˆ¶å­—æ®µå…¥å‚ã€‚
 
-## ¼Ü¹¹
+## æ¶æ„
 
 ```
 Node.js (app.js)
@@ -23,92 +23,92 @@ Node.js (app.js)
 adapter.node (C++ / node-addon-api)
     |
     v
-KCBPCli.lib -> KCXP ÖĞ¼ä¼ş (TCP, Ä¬ÈÏ¶Ë¿Ú 21000)
+KCBPCli.lib -> KCXP ä¸­é—´ä»¶ (TCP, é»˜è®¤ç«¯å£ 21000)
     |
     v
-KCBP ºóÌ¨·şÎñ
+KCBP åå°æœåŠ¡
 ```
 
-## »·¾³ÒªÇó
+## ç¯å¢ƒè¦æ±‚
 
-| ÒÀÀµ | ËµÃ÷ |
+| ä¾èµ– | è¯´æ˜ |
 |------|------|
-| Windows | µ±Ç°½öÖ§³Ö Windows |
-| Node.js | ½¨Òé 18+£¬±àÒëÓëÔËĞĞÇëÊ¹ÓÃÍ¬Ò»°æ±¾ |
-| MSVC | ScopeCppSDK vc15 »òÍêÕû Visual Studio C++ ¹¤¾ßÁ´ |
-| ½ğÖ¤ SDK | `KCBPCli.lib`£¨±àÒë£©+ `KCBPCli.dll` µÈ£¨ÔËĞĞ£© |
+| Windows | å½“å‰ä»…æ”¯æŒ Windows |
+| Node.js | å»ºè®® 18+ï¼Œç¼–è¯‘ä¸è¿è¡Œè¯·ä½¿ç”¨åŒä¸€ç‰ˆæœ¬ |
+| MSVC | ScopeCppSDK vc15 æˆ–å®Œæ•´ Visual Studio C++ å·¥å…·é“¾ |
+| é‡‘è¯ SDK | `KCBPCli.lib`ï¼ˆç¼–è¯‘ï¼‰+ `KCBPCli.dll` ç­‰ï¼ˆè¿è¡Œï¼‰ |
 
-## Ä¿Â¼½á¹¹
+## ç›®å½•ç»“æ„
 
 ```
 adapter/
-©À©¤©¤ src/adapter.cpp              # Node µ¼³ö²ã£¬µ¼³ö callKCBP
-©À©¤©¤ include/
-©¦   ©À©¤©¤ self/
-©¦   ©¦   ©À©¤©¤ KCBPClient.hpp       # KCBP ¿Í»§¶Ë·â×°
-©¦   ©¦   ©À©¤©¤ tools.hpp            # NAPI Óë JSON ×ª»»
-©¦   ©¦   ©¸©¤©¤ utils.hpp            # Ğ£Ñé¡¢±àÂë×ª»»
-©¦   ©À©¤©¤ kcbpcli/lib/
-©¦   ©¦   ©À©¤©¤ KCBPCli.h            # ½ğÖ¤Í·ÎÄ¼ş
-©¦   ©¦   ©¸©¤©¤ KCBPCli.lib          # Á´½Ó¿â£¨±àÒëÓÃ£©
-©¦   ©¸©¤©¤ json/                    # nlohmann/json
-©À©¤©¤ scripts/build-native.cmd     # Ä¬ÈÏ±àÒë½Å±¾£¨cl + link£©
-©À©¤©¤ binding.gyp                  # node-gyp ÅäÖÃ£¨¿ÉÑ¡£©
-©À©¤©¤ app.js                       # µ÷ÓÃÊ¾Àı
-©¸©¤©¤ package.json
+â”œâ”€â”€ src/adapter.cpp              # Node å¯¼å‡ºå±‚ï¼Œå¯¼å‡º callKCBP
+â”œâ”€â”€ include/
+â”‚   â”œâ”€â”€ self/
+â”‚   â”‚   â”œâ”€â”€ KCBPClient.hpp       # KCBP å®¢æˆ·ç«¯å°è£…
+â”‚   â”‚   â”œâ”€â”€ tools.hpp            # NAPI ä¸ JSON è½¬æ¢
+â”‚   â”‚   â””â”€â”€ utils.hpp            # æ ¡éªŒã€ç¼–ç è½¬æ¢
+â”‚   â”œâ”€â”€ kcbpcli/lib/
+â”‚   â”‚   â”œâ”€â”€ KCBPCli.h            # é‡‘è¯å¤´æ–‡ä»¶
+â”‚   â”‚   â””â”€â”€ KCBPCli.lib          # é“¾æ¥åº“ï¼ˆç¼–è¯‘ç”¨ï¼‰
+â”‚   â””â”€â”€ json/                    # nlohmann/json
+â”œâ”€â”€ scripts/build-native.cmd     # é»˜è®¤ç¼–è¯‘è„šæœ¬ï¼ˆcl + linkï¼‰
+â”œâ”€â”€ binding.gyp                  # node-gyp é…ç½®ï¼ˆå¯é€‰ï¼‰
+â”œâ”€â”€ app.js                       # è°ƒç”¨ç¤ºä¾‹
+â””â”€â”€ package.json
 ```
 
-## SDK ÎÄ¼şËµÃ÷
+## SDK æ–‡ä»¶è¯´æ˜
 
-| Ä¿Â¼ | ÄÚÈİ | ÓÃÍ¾ |
+| ç›®å½• | å†…å®¹ | ç”¨é€” |
 |------|------|------|
-| `include/kcbpcli/lib/` | `KCBPCli.h` + `KCBPCli.lib` | ±àÒë¡¢Á´½Ó |
+| `include/kcbpcli/lib/` | `KCBPCli.h` + `KCBPCli.lib` | ç¼–è¯‘ã€é“¾æ¥ |
 
-> ×¢£ºÔ­¹¤³ÌµÄ `dll/` ÔËĞĞÊ±ÒÀÀµÓë `main/` VS ¹¤³ÌÎ´ËæÇ¨Èë±¾²Ö¿â£»dll ÔËĞĞÊ±ÒÀÀµÓÉ `electron/adapter/` ¼°²¿Êğ»·¾³Ìá¹©¡£
+> æ³¨ï¼šåŸå·¥ç¨‹çš„ `dll/` è¿è¡Œæ—¶ä¾èµ–ä¸ `main/` VS å·¥ç¨‹æœªéšè¿å…¥æœ¬ä»“åº“ï¼›dll è¿è¡Œæ—¶ä¾èµ–ç”± `electron/adapter/` åŠéƒ¨ç½²ç¯å¢ƒæä¾›ã€‚
 
-ÔËĞĞÇ°Ğè½« dll ËùÔÚÄ¿Â¼¼ÓÈë `PATH`£¨ÔÚ±¾²Ö¿âÖĞ¼´ `electron/adapter/`£©£º
+è¿è¡Œå‰éœ€å°† dll æ‰€åœ¨ç›®å½•åŠ å…¥ `PATH`ï¼ˆåœ¨æœ¬ä»“åº“ä¸­å³ `electron/adapter/`ï¼‰ï¼š
 
 ```javascript
 const dllDir = './dll';
 process.env.PATH = dllDir + ';' + process.env.PATH;
 ```
 
-## °²×°Óë±àÒë
+## å®‰è£…ä¸ç¼–è¯‘
 
-### 1. °²×°ÒÀÀµ
+### 1. å®‰è£…ä¾èµ–
 
 ```bash
 npm install
 ```
 
-### 2. ±àÒë£¨ÍÆ¼ö£ºÔ­Éú½Å±¾£©
+### 2. ç¼–è¯‘ï¼ˆæ¨èï¼šåŸç”Ÿè„šæœ¬ï¼‰
 
-Ä¬ÈÏÊ¹ÓÃ `scripts/build-native.cmd`£¬Ö±½Óµ÷ÓÃ MSVC `cl.exe`£¬²»ÒÀÀµ node-gyp Ê¶±ğ Visual Studio£º
+é»˜è®¤ä½¿ç”¨ `scripts/build-native.cmd`ï¼Œç›´æ¥è°ƒç”¨ MSVC `cl.exe`ï¼Œä¸ä¾èµ– node-gyp è¯†åˆ« Visual Studioï¼š
 
 ```bash
 npm run build
 ```
 
-±àÒë²úÎï£º`build/Release/adapter.node`
+ç¼–è¯‘äº§ç‰©ï¼š`build/Release/adapter.node`
 
-Ê×´Î±àÒëÈôÈ±ÉÙ Node Í·ÎÄ¼ş£¬½Å±¾»á×Ô¶¯Ö´ĞĞ `node-gyp install` ÏÂÔØ¡£
+é¦–æ¬¡ç¼–è¯‘è‹¥ç¼ºå°‘ Node å¤´æ–‡ä»¶ï¼Œè„šæœ¬ä¼šè‡ªåŠ¨æ‰§è¡Œ `node-gyp install` ä¸‹è½½ã€‚
 
-#### ×Ô¶¨Òå MSVC Â·¾¶
+#### è‡ªå®šä¹‰ MSVC è·¯å¾„
 
-Ä¬ÈÏ±àÒëÆ÷Â·¾¶£º
+é»˜è®¤ç¼–è¯‘å™¨è·¯å¾„ï¼š
 
 ```
 E:\software\vs_studio\package\SDK\ScopeCppSDK\vc15
 ```
 
-ÈôÂ·¾¶²»Í¬£¬ÉèÖÃ»·¾³±äÁ¿ºó±àÒë£º
+è‹¥è·¯å¾„ä¸åŒï¼Œè®¾ç½®ç¯å¢ƒå˜é‡åç¼–è¯‘ï¼š
 
 ```bat
 set VS_CPP_SDK=E:\software\vs_studio\package\SDK\ScopeCppSDK\vc15
 npm run build
 ```
 
-## ÔËĞĞ
+## è¿è¡Œ
 
 ```bash
 npm test
@@ -118,14 +118,14 @@ npm test
 
 ### `callKCBP(param)`
 
-Í¬²½µ÷ÓÃ KCBP ½Ó¿Ú£¬·µ»Ø JSON ¶ÔÏó¡£
+åŒæ­¥è°ƒç”¨ KCBP æ¥å£ï¼Œè¿”å› JSON å¯¹è±¡ã€‚
 
 ```javascript
 const adapter = require('./build/Release/adapter');
 const result = adapter.callKCBP(param);
 ```
 
-### ÇëÇó²ÎÊı
+### è¯·æ±‚å‚æ•°
 
 ```json
 {
@@ -151,60 +151,60 @@ const result = adapter.callKCBP(param);
 }
 ```
 
-#### connection ×Ö¶Î
+#### connection å­—æ®µ
 
-| ×Ö¶Î | ÀàĞÍ | ËµÃ÷ |
+| å­—æ®µ | ç±»å‹ | è¯´æ˜ |
 |------|------|------|
-| `ip` | string | KCXP ·şÎñ IP |
-| `port` | string | ¶Ë¿Ú£¬Ä¬ÈÏ `21000` |
-| `connecttimeout` | string | Á¬½Ó³¬Ê±£¨Ãë£©£¬Ä¬ÈÏ `5` |
-| `requesttimeout` | string | ÇëÇó³¬Ê±£¨Ãë£©£¬Ä¬ÈÏ `15` |
-| `reqqueue` | string | ÇëÇó¶ÓÁĞÃû |
-| `ansqueue` | string | Ó¦´ğ¶ÓÁĞÃû |
+| `ip` | string | KCXP æœåŠ¡ IP |
+| `port` | string | ç«¯å£ï¼Œé»˜è®¤ `21000` |
+| `connecttimeout` | string | è¿æ¥è¶…æ—¶ï¼ˆç§’ï¼‰ï¼Œé»˜è®¤ `5` |
+| `requesttimeout` | string | è¯·æ±‚è¶…æ—¶ï¼ˆç§’ï¼‰ï¼Œé»˜è®¤ `15` |
+| `reqqueue` | string | è¯·æ±‚é˜Ÿåˆ—å |
+| `ansqueue` | string | åº”ç­”é˜Ÿåˆ—å |
 
-#### param ×Ö¶Î
+#### param å­—æ®µ
 
-| ×Ö¶Î | ÀàĞÍ | ËµÃ÷ |
+| å­—æ®µ | ç±»å‹ | è¯´æ˜ |
 |------|------|------|
-| `msgtype` | string | ·şÎñÃû / ÏûÏ¢ÀàĞÍ |
-| `fields` | object | ÒµÎñÈë²Î×Ö¶Î |
+| `msgtype` | string | æœåŠ¡å / æ¶ˆæ¯ç±»å‹ |
+| `fields` | object | ä¸šåŠ¡å…¥å‚å­—æ®µ |
 
-### ÏìÓ¦¸ñÊ½
+### å“åº”æ ¼å¼
 
-³É¹¦Ê±µäĞÍ½á¹¹£º
+æˆåŠŸæ—¶å…¸å‹ç»“æ„ï¼š
 
 ```json
 {
   "level": "0",
   "code": "0",
-  "msg": "³É¹¦",
+  "msg": "æˆåŠŸ",
   "data": [{ "...": "..." }]
 }
 ```
 
-Ê§°ÜÊ±£º
+å¤±è´¥æ—¶ï¼š
 
 ```json
 {
   "code": -1001,
-  "msg": "´íÎóÃèÊö",
+  "msg": "é”™è¯¯æè¿°",
   "level": "888"
 }
 ```
 
-| code | º¬Òå |
+| code | å«ä¹‰ |
 |------|------|
-| `-1001` | Èë²ÎĞ£ÑéÊ§°Ü |
-| `-1002` | ºó¶Ëµ÷ÓÃÊ§°Ü |
-| `-1003` | Òì³££¨Á¬½ÓÊ§°Ü¡¢µ÷ÓÃÒì³£µÈ£© |
+| `-1001` | å…¥å‚æ ¡éªŒå¤±è´¥ |
+| `-1002` | åç«¯è°ƒç”¨å¤±è´¥ |
+| `-1003` | å¼‚å¸¸ï¼ˆè¿æ¥å¤±è´¥ã€è°ƒç”¨å¼‚å¸¸ç­‰ï¼‰ |
 
-Ó¦´ğÎÄ±¾×Ö¶Î¾­ GBK ×ª UTF-8 ºó·µ»Ø¡£
+åº”ç­”æ–‡æœ¬å­—æ®µç» GBK è½¬ UTF-8 åè¿”å›ã€‚
 
-## ¶ş½øÖÆÈë²Î
+## äºŒè¿›åˆ¶å…¥å‚
 
-`databody` µÈ¶ş½øÖÆ×Ö¶ÎĞè×ßµ×²ã `KCBPCLI_SetVal(key, data, size)`£¬²»ÄÜÊ¹ÓÃÆÕÍ¨×Ö·û´®µÄ `KCBPCLI_SetValue`¡£
+`databody` ç­‰äºŒè¿›åˆ¶å­—æ®µéœ€èµ°åº•å±‚ `KCBPCLI_SetVal(key, data, size)`ï¼Œä¸èƒ½ä½¿ç”¨æ™®é€šå­—ç¬¦ä¸²çš„ `KCBPCLI_SetValue`ã€‚
 
-### ·½Ê½Ò»£º´« Buffer£¨ÍÆ¼ö£©
+### æ–¹å¼ä¸€ï¼šä¼  Bufferï¼ˆæ¨èï¼‰
 
 ```javascript
 const fs = require('fs');
@@ -214,23 +214,23 @@ param.param.fields.databody = content;
 param.param.fields.datasize = String(content.length);
 ```
 
-`Buffer` »ò `Uint8Array` ÔÚ C++ ²ã×Ô¶¯Ê¶±ğÎª¶ş½øÖÆ²¢µ÷ÓÃ `KCBPCLI_SetVal`¡£
+`Buffer` æˆ– `Uint8Array` åœ¨ C++ å±‚è‡ªåŠ¨è¯†åˆ«ä¸ºäºŒè¿›åˆ¶å¹¶è°ƒç”¨ `KCBPCLI_SetVal`ã€‚
 
-### ·½Ê½¶ş£ºÎÄ¼şÂ·¾¶
+### æ–¹å¼äºŒï¼šæ–‡ä»¶è·¯å¾„
 
-C++ ²ãÖ§³Ö `file(...)` Óï·¨£¬ÓÉ±¾µØ¶ÁÈ¡ÎÄ¼ş£º
+C++ å±‚æ”¯æŒ `file(...)` è¯­æ³•ï¼Œç”±æœ¬åœ°è¯»å–æ–‡ä»¶ï¼š
 
 ```javascript
 "databody": "file(D:/data/1.zip)"
 ```
 
-### ÎÄ±¾×Ö¶Î
+### æ–‡æœ¬å­—æ®µ
 
-ÆÕÍ¨×Ö·û´®¡¢Êı×Ö×ß `KCBPCLI_SetValue`¡£ÒÔ `0x` ¿ªÍ·µÄ×Ö·û´®»áÈ¥µôÇ°×ººó´«µİ¡£
+æ™®é€šå­—ç¬¦ä¸²ã€æ•°å­—èµ° `KCBPCLI_SetValue`ã€‚ä»¥ `0x` å¼€å¤´çš„å­—ç¬¦ä¸²ä¼šå»æ‰å‰ç¼€åä¼ é€’ã€‚
 
-×¢Òâ£º²»ÒªÊ¹ÓÃ `readFileSync(path, 'binary')`£¬ÇëÖ±½Ó´« `Buffer`¡£
+æ³¨æ„ï¼šä¸è¦ä½¿ç”¨ `readFileSync(path, 'binary')`ï¼Œè¯·ç›´æ¥ä¼  `Buffer`ã€‚
 
-## µ÷ÓÃÊ¾Àı
+## è°ƒç”¨ç¤ºä¾‹
 
 ```javascript
 const dllDir = './dll';
@@ -267,30 +267,30 @@ const result = adapter.callKCBP(param);
 console.log(result);
 ```
 
-ÍêÕûÊ¾Àı¼û `app.js`¡£
+å®Œæ•´ç¤ºä¾‹è§ `app.js`ã€‚
 
-## npm ½Å±¾
+## npm è„šæœ¬
 
-| ÃüÁî | ËµÃ÷ |
+| å‘½ä»¤ | è¯´æ˜ |
 |------|------|
-| `npm run build` | µÈ¼Û `cmd /c scripts\build-native.cmd`£¬MSVC ±àÒë |
-| `npm test` | ÔËĞĞ `app.js` |
-| `npm run test:call` | ÔËĞĞ `test-call.js` |
+| `npm run build` | ç­‰ä»· `cmd /c scripts\build-native.cmd`ï¼ŒMSVC ç¼–è¯‘ |
+| `npm test` | è¿è¡Œ `app.js` |
+| `npm run test:call` | è¿è¡Œ `test-call.js` |
 
-## ¶ÀÁ¢ C++ ²âÊÔ
+## ç‹¬ç«‹ C++ æµ‹è¯•
 
-Ô­¹¤³Ì¿ÉÓÃ Visual Studio ´ò¿ª `main/main.sln` ±àÒë `main.cpp`£»¸Ã VS ¹¤³ÌÎ´ËæÇ¨Èë±¾²Ö¿â¡£
+åŸå·¥ç¨‹å¯ç”¨ Visual Studio æ‰“å¼€ `main/main.sln` ç¼–è¯‘ `main.cpp`ï¼›è¯¥ VS å·¥ç¨‹æœªéšè¿å…¥æœ¬ä»“åº“ã€‚
 
-## ÈÕÖ¾
+## æ—¥å¿—
 
-ÔËĞĞÈÕÖ¾Ğ´ÈëÏîÄ¿¸ùÄ¿Â¼ `run.log`£¨×·¼ÓÄ£Ê½£©¡£
+è¿è¡Œæ—¥å¿—å†™å…¥é¡¹ç›®æ ¹ç›®å½• `run.log`ï¼ˆè¿½åŠ æ¨¡å¼ï¼‰ã€‚
 
-## ×¢ÒâÊÂÏî
+## æ³¨æ„äº‹é¡¹
 
-1. µ±Ç°½öÊµÏÖ KCBP£¬KGBP¡¢KMID µÈÀàĞÍÉĞÎ´ÊµÏÖ¡£
-2. Ä¬ÈÏ±àÒëÒÀÀµ ScopeCppSDK vc15 ÖĞµÄ x64 `cl.exe`£»Èô»»»úÆ÷Çëµ÷Õû `VS_CPP_SDK`¡£
-3. ±àÒë°ó¶¨µÄ Node °æ±¾Ó¦ÓëÔËĞĞÊ±Ò»ÖÂ¡£
-4. Ó¦´ğ½âÎöÄ¿Ç°½«×Ö¶Î×÷Îª GBK ÎÄ±¾·µ»Ø£»ÈôºóÌ¨·µ»Ø¶ş½øÖÆ×Ö¶ÎĞè¶îÍâ´¦Àí¡£
+1. å½“å‰ä»…å®ç° KCBPï¼ŒKGBPã€KMID ç­‰ç±»å‹å°šæœªå®ç°ã€‚
+2. é»˜è®¤ç¼–è¯‘ä¾èµ– ScopeCppSDK vc15 ä¸­çš„ x64 `cl.exe`ï¼›è‹¥æ¢æœºå™¨è¯·è°ƒæ•´ `VS_CPP_SDK`ã€‚
+3. ç¼–è¯‘ç»‘å®šçš„ Node ç‰ˆæœ¬åº”ä¸è¿è¡Œæ—¶ä¸€è‡´ã€‚
+4. åº”ç­”è§£æç›®å‰å°†å­—æ®µä½œä¸º GBK æ–‡æœ¬è¿”å›ï¼›è‹¥åå°è¿”å›äºŒè¿›åˆ¶å­—æ®µéœ€é¢å¤–å¤„ç†ã€‚
 
 ## License
 
