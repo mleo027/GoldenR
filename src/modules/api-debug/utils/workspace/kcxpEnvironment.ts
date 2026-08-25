@@ -1,10 +1,6 @@
 import type { KcxpEnvironment, KcxpProtocol } from '../../types/kcxp';
 import { DEFAULT_KCXP_ENVIRONMENT_ID, DEFAULT_KCXP_ENVIRONMENTS } from '../../constants/kcxpEnv';
-import {
-    parseKcbpAddress,
-    serializeKcbpAddress,
-    type KcbpAddressParts,
-} from '../kcbp/kcbpAddress';
+import { parseKcbpAddress, serializeKcbpAddress, type KcbpAddressParts } from '../kcbp/kcbpAddress';
 
 const generateId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
@@ -96,9 +92,7 @@ export function findMissingKgbpRequiredFields(
     return missing;
 }
 
-export function isKgbpAddressReady(
-    parts: Pick<KcbpAddressParts, 'service' | 'nodeId'>,
-): boolean {
+export function isKgbpAddressReady(parts: Pick<KcbpAddressParts, 'service' | 'nodeId'>): boolean {
     return findMissingKgbpRequiredFields(parts).length === 0;
 }
 

@@ -96,8 +96,12 @@ describe('findMissingKgbpRequiredFields / isKgbpAddressReady', () => {
     });
 
     it('rejects non-integer nodeId but accepts pure integers', () => {
-        expect(findMissingKgbpRequiredFields({ service: 'srv', nodeId: '12.5' })).toEqual(['NodeId']);
-        expect(findMissingKgbpRequiredFields({ service: 'srv', nodeId: 'abc' })).toEqual(['NodeId']);
+        expect(findMissingKgbpRequiredFields({ service: 'srv', nodeId: '12.5' })).toEqual([
+            'NodeId',
+        ]);
+        expect(findMissingKgbpRequiredFields({ service: 'srv', nodeId: 'abc' })).toEqual([
+            'NodeId',
+        ]);
         expect(isKgbpAddressReady({ service: 'srv', nodeId: '-3' })).toBe(true);
         expect(isKgbpAddressReady({ service: 'srv', nodeId: ' 3 ' })).toBe(true);
     });
