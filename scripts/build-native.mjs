@@ -9,23 +9,23 @@ const builtBinary = path.join(nativeDir, 'build', 'Release', 'adapter.node');
 const targetBinary = path.join(rootDir, 'electron', 'adapter', 'adapter.node');
 
 function run(command, args, options = {}) {
-  const result = spawnSync(command, args, {
-    stdio: 'inherit',
-    shell: process.platform === 'win32',
-    cwd: options.cwd ?? nativeDir,
-  });
-  if (result.status !== 0) {
-    throw new Error(`${command} ${args.join(' ')} failed with code ${result.status}`);
-  }
+    const result = spawnSync(command, args, {
+        stdio: 'inherit',
+        shell: process.platform === 'win32',
+        cwd: options.cwd ?? nativeDir,
+    });
+    if (result.status !== 0) {
+        throw new Error(`${command} ${args.join(' ')} failed with code ${result.status}`);
+    }
 }
 
 run('npm', ['install']);
 run('cmd', ['/c', 'scripts\\build-native.cmd']);
 
 if (!fs.existsSync(builtBinary)) {
-  throw new Error(`Build did not produce ${builtBinary}`);
+    throw new Error(`Build did not produce ${builtBinary}`);
 }
 fs.copyFileSync(builtBinary, targetBinary);
 console.log(
-  `Copied ${path.relative(rootDir, builtBinary)} -> ${path.relative(rootDir, targetBinary)}`,
+    `Copied ${path.relative(rootDir, builtBinary)} -> ${path.relative(rootDir, targetBinary)}`,
 );
