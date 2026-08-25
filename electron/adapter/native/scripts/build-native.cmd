@@ -37,7 +37,7 @@ if not exist "%OUT%" mkdir "%OUT%"
 echo [build-native] ???? adapter.cpp ...
 REM /utf-8: sources are UTF-8 now; tell MSVC to read them as UTF-8
 "%VC%\bin\cl.exe" /nologo /EHsc /std:c++17 /utf-8 /DNAPI_CPP_EXCEPTIONS /DNDEBUG /DWIN32 /D_WINDOWS /D_CRT_SECURE_NO_DEPRECATE ^
-    /I"%ROOT%\include" /I"%ROOT%\include\self" /I"%ROOT%\include\json" /I"%ROOT%\include\kcbpcli\lib" ^
+    /I"%ROOT%\include" /I"%ROOT%\include\self" /I"%ROOT%\include\json" /I"%ROOT%\include\kcbpcli\lib" /I"%ROOT%\include\kgbpcli\include" ^
     /I"%ROOT%\node_modules\node-addon-api" /I"%NODE_INCLUDE%" ^
     /I"%VC%\include" /I"%SDK%\include\um" /I"%SDK%\include\shared" /I"%SDK%\include\ucrt" ^
     /c "%ROOT%\src\adapter.cpp" /Fo"%OBJ%"
@@ -45,7 +45,7 @@ if errorlevel 1 exit /b 1
 
 echo [build-native] ???? adapter.node ...
 "%VC%\bin\link.exe" /nologo /DLL /OUT:"%TARGET%" "%OBJ%" ^
-    "%ROOT%\include\kcbpcli\lib\KCBPCli.lib" "%NODE_GYP_LIB%\node.lib" ^
+    "%ROOT%\include\kcbpcli\lib\KCBPCli.lib" "%ROOT%\include\kgbpcli\lib64\kgbpcli.lib" "%NODE_GYP_LIB%\node.lib" ^
     /LIBPATH:"%VC%\lib" /LIBPATH:"%SDK%\lib" /LIBPATH:"%SDK%\lib\x64" /LIBPATH:"%SDK%\lib\um\x64"
 if errorlevel 1 exit /b 1
 
