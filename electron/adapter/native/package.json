@@ -1,5 +1,6 @@
 {
   "name": "kcbp-native-adapter",
+  "gypfile": false,
   "version": "1.0.0",
   "private": true,
   "description": "KCBP native adapter source project (built via scripts/build-native.cmd)",
