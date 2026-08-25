@@ -71,11 +71,12 @@ build/
 
 - [ ] **步骤 1.3：精简 native/package.json**
 
-将 `electron/adapter/native/package.json` 改为（去掉与 new_golden 无关的 config32/config64/buildandrun 等脚本，保留核心链路）：
+将 `electron/adapter/native/package.json` 改为（去掉与 new_golden 无关的 config32/config64/buildandrun 等脚本，保留核心链路；`"gypfile": false` 为执行期裁定——避免裸 `npm install` 因检测到 binding.gyp 而触发必然失败的 node-gyp rebuild，binding.gyp 仅作备查）：
 
 ```json
 {
   "name": "kcbp-native-adapter",
+  "gypfile": false,
   "version": "1.0.0",
   "private": true,
   "description": "KCBP native adapter source project (built via scripts/build-native.cmd)",
@@ -243,7 +244,7 @@ git commit -m "build(adapter): 根编排脚本 build:native 一键编译原生�
 
 在 `electron/adapter/native/README.md` 顶部（架构图之前）插入以下章节：
 
-````markdown
+```markdown
 ## 在 new_golden 内构建
 
 本目录已并入 Golden API 仓库（`electron/adapter/native/`）。常规情况下不要在本目录单独操作，而是在仓库根目录执行：
@@ -255,7 +256,7 @@ npm run build:native
 该命令依次完成：`npm install`（安装 node-addon-api）→ `scripts\build-native.cmd`（MSVC 编译链接）→ 将 `build/Release/adapter.node` 覆盖拷贝到上级 `electron/adapter/adapter.node` 供 Electron 加载。
 
 工具链要求不变：Windows + Node.js 18+ + MSVC（ScopeCppSDK vc15，可用环境变量 `VS_CPP_SDK` 覆盖路径）。
-````
+```
 
 （注：插入时把 `​```bash` 还原为正常的 ```bash 围栏——上文为避免嵌套围栏加了零宽字符，实际写入时不要带。）
 
