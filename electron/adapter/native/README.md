@@ -1,5 +1,17 @@
 # adapter
 
+## 在 new_golden 内构建
+
+本目录已并入 Golden API 仓库（`electron/adapter/native/`）。常规情况下不要在本目录单独操作，而是在仓库根目录执行：
+
+```bash
+npm run build:native
+```
+
+该命令依次完成：`npm install`（安装 node-addon-api）→ `scripts\build-native.cmd`（MSVC 编译链接）→ 将 `build/Release/adapter.node` 覆盖拷贝到上级 `electron/adapter/adapter.node` 供 Electron 加载。
+
+工具链要求不变：Windows + Node.js 18+ + MSVC（ScopeCppSDK vc15，可用环境变量 `VS_CPP_SDK` 覆盖路径）。
+
 Node.js 原生扩展，用于在 JavaScript 中调用金证 KCBP 后台接口。通过 KCBPCli 与 KCXP 中间件通信，支持文本字段与二进制字段入参。
 
 ## 架构
