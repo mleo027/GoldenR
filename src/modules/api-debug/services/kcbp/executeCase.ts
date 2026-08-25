@@ -3,7 +3,11 @@ import { parseKcbpAddress, serializeKcbpAddress } from '../../utils/kcbp/kcbpAdd
 import { paramsToCaseScript } from '../../utils/script/apiScript';
 import { buildKcbpFields } from '../../utils/kcbp/kcbpFields';
 import { resolveMsgtypeFromParams } from '../../utils/workspace/caseLabel';
-import { applyKcxpEnvironmentToAddress } from '../../utils/workspace/kcxpEnvironment';
+import {
+    KGBP_REQUIRED_FIELDS_MESSAGE,
+    applyKcxpEnvironmentToAddress,
+    isKgbpAddressReady,
+} from '../../utils/workspace/kcxpEnvironment';
 import { invokeKcbpWithFields } from './singleCall';
 import { runScriptOrTcdCase } from './scriptRunner';
 import {
@@ -47,6 +51,11 @@ export async function invokeKcbpCall(
     }
     if (!addressParts.msgtype.trim()) {
         effectiveAddress = serializeKcbpAddress({ ...addressParts, msgtype });
+    }
+
+    // KGBP 必填字段拦截：缺失时不发请求，直接报错（单调用与脚本入口共用此门禁）
+    if (tab.protocol === 'KGBP' && !isKgbpAddressReady(addressParts)) {
+        throw new Error(KGBP_REQUIRED_FIELDS_MESSAGE);
     }
 
     if (editorMode === 'ui') {

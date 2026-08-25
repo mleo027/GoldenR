@@ -1,14 +1,6 @@
 import type { TabData, ProjectData, PersistedWorkspace } from '../types/workspace';
 import { paramsToCaseScript } from '../utils/script/apiScript';
 
-export const protocolOptions = [
-    { label: 'KCBP', key: 'KCBP' },
-    { label: 'KGBP', key: 'KGBP' },
-    { label: 'KMID', key: 'KMID' },
-    { label: 'KJDP', key: 'KJDP' },
-    { label: 'KOCA', key: 'KOCA' },
-];
-
 const generateId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
 export const createEmptyCase = (index: number): TabData => {

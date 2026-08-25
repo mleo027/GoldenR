@@ -30,9 +30,9 @@ function isKcbpResultSet(value: unknown): value is KcbpResultSet {
 }
 
 function parseOptionalInt(value: string | undefined): number | undefined {
-    if (!value) return undefined;
-    const parsed = Number.parseInt(value.trim(), 10);
-    return Number.isFinite(parsed) ? parsed : undefined;
+    const trimmed = value?.trim();
+    if (!trimmed || !/^-?\d+$/.test(trimmed)) return undefined;
+    return Number.parseInt(trimmed, 10);
 }
 
 export function buildKcbpRequest(
@@ -66,7 +66,6 @@ export function buildKcbpRequest(
     }
 
     return {
-        type: protocol === 'KGBP' ? 'KGBP' : undefined,
         connection: {
             ip: ip || undefined,
             port: port || undefined,
