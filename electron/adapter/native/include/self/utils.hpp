@@ -200,3 +200,49 @@ bool isValidKCBPInput(const NJSON &input, std::string &errmsg)
 
     return true;    
 }   
+bool isValidKGBPInput(const NJSON &input, std::string &errmsg)
+{
+    if (!input.is_object())
+    {
+        errmsg = "intput is not an object";
+        return false;
+    }
+    if (!input.contains("connection") || !input["connection"].is_object())
+    {
+        errmsg = "connection is not an object";
+        return false;
+    }
+    NJSON connection = input["connection"];
+    if (!connection.contains("ip") || !connection["ip"].is_string())
+    {
+        errmsg = "connection.ip is not a string";
+        return false;
+    }
+    if (!connection.contains("port") || !connection["port"].is_string())
+    {
+        errmsg = "connection.port is not a string";
+        return false;
+    }
+    if (!connection.contains("connecttimeout") || !connection["connecttimeout"].is_string())
+    {
+        errmsg = "connection.connecttimeout is not a string";
+        return false;
+    }
+    if (!connection.contains("requesttimeout") || !connection["requesttimeout"].is_string())
+    {
+        errmsg = "connection.requesttimeout is not a string";
+        return false;
+    }
+    if (!input.contains("param") || !input["param"].is_object())
+    {
+        errmsg = "param is not an object";
+        return false;
+    }
+    NJSON param = input["param"];
+    if (!param.contains("msgtype") || !param["msgtype"].is_string() || param["msgtype"].get<std::string>().empty())
+    {
+        errmsg = "param.msgtype is not a non-empty string";
+        return false;
+    }
+    return true;
+}

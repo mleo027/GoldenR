@@ -2,6 +2,7 @@
 #include <napi.h>
 #include "tools.hpp"
 #include "KCBPClient.hpp"
+#include "self/KGBPClient.hpp"
 #include <string>
 #include <fstream>
 using std::string;
@@ -35,8 +36,7 @@ bool callBackend(const NJSON &inputJson, NJSON &outputJson, const std::string &t
     }
     else if (type == "KGBP")
     {
-        /* code */
-        return false;
+        callKGBPBackend(inputJson, outputJson);
     }
     else if (type == "KMID")
     {
@@ -101,9 +101,42 @@ Napi::Object callKCBP(const Napi::CallbackInfo &info)
     return Napi::Object::New(env);
 }
 
+Napi::Object callKGBP(const Napi::CallbackInfo &info)
+{
+    Napi::Env env = info.Env(); // 获取当前环境
+    std::string topErrmsg;
+
+    try
+    {
+        NJSON inputJson;
+        getValFromInfo(env, info[0], inputJson);
+
+        if (!isValidKGBPInput(inputJson, topErrmsg))
+        {
+            return errResp(-1001, topErrmsg, env);
+        }
+
+        NJSON outputJson;
+        string backendErrmsg;
+        if (!callBackend(inputJson, outputJson, "KGBP", backendErrmsg))
+        {
+            return errResp(-1002, backendErrmsg, env);
+        }
+
+        Napi::Value napiOutput = ConvertJsonToNapiValue(env, outputJson);
+
+        return napiOutput.As<Napi::Object>();
+    }
+    catch (const std::exception &e)
+    {
+        return errResp(-1003, e.what(), env);
+    }
+}
+
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {
     REGISTER_FUNCTION("callKCBP", callKCBP);
+  REGISTER_FUNCTION("callKGBP", callKGBP);
     return exports;
 }
 
