@@ -1,9 +1,5 @@
 import type { TabData } from '../../types/workspace';
-import type {
-    KcbpRequestOptions,
-    KcbpResponseData,
-    KcbpResultSet,
-} from '../../../../types/kcbp';
+import type { KcbpRequestOptions, KcbpResponseData, KcbpResultSet } from '../../../../types/kcbp';
 import { parseKcbpAddress, splitHost, type KcbpAddressParts } from '../../utils/kcbp/kcbpAddress';
 import {
     extractMissingParamFromKcbpResponse,
@@ -33,6 +29,12 @@ function isKcbpResultSet(value: unknown): value is KcbpResultSet {
     );
 }
 
+function parseOptionalInt(value: string | undefined): number | undefined {
+    if (!value) return undefined;
+    const parsed = Number.parseInt(value.trim(), 10);
+    return Number.isFinite(parsed) ? parsed : undefined;
+}
+
 export function buildKcbpRequest(
     addressParts: KcbpAddressParts,
     msgtype: string,
@@ -41,6 +43,27 @@ export function buildKcbpRequest(
     protocol?: string,
 ): KcbpRequestOptions {
     const { ip, port } = splitHost(addressParts.host);
+
+    if (protocol === 'KGBP') {
+        return {
+            type: 'KGBP',
+            connection: {
+                ip: ip || undefined,
+                port: port || undefined,
+                apiid: msgtype,
+                connecttimeout: addressParts.connectTimeout || undefined,
+                requesttimeout: addressParts.timeout.trim() || undefined,
+            },
+            param: {
+                msgtype,
+                fields,
+                binaryFields: Object.keys(binaryFields).length > 0 ? binaryFields : undefined,
+                servicename: addressParts.service?.trim() || undefined,
+                nodeid: parseOptionalInt(addressParts.nodeId),
+                sessionid: parseOptionalInt(addressParts.sessionId),
+            },
+        };
+    }
 
     return {
         type: protocol === 'KGBP' ? 'KGBP' : undefined,
@@ -67,9 +90,7 @@ export function buildKcbpCallOutcome(
     raw: KcbpResponseData,
 ): KcbpCallOutcome {
     const msgtype = parseKcbpAddress(address).msgtype.trim() || fallbackName;
-    const resultSets = raw.data.every(isKcbpResultSet)
-        ? (raw.data as KcbpResultSet[])
-        : undefined;
+    const resultSets = raw.data.every(isKcbpResultSet) ? (raw.data as KcbpResultSet[]) : undefined;
     const gridData = resultSets ? toGridRows(resultSets[0]?.rows ?? []) : toGridRows(raw.data);
     const response: KcbpCallOutcome['response'] = {
         code: raw.code,

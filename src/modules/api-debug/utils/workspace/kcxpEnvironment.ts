@@ -1,4 +1,4 @@
-import type { KcxpEnvironment } from '../../types/kcxp';
+import type { KcxpEnvironment, KcxpProtocol } from '../../types/kcxp';
 import { DEFAULT_KCXP_ENVIRONMENT_ID, DEFAULT_KCXP_ENVIRONMENTS } from '../../constants/kcxpEnv';
 import { parseKcbpAddress, serializeKcbpAddress } from '../kcbp/kcbpAddress';
 
@@ -16,10 +16,19 @@ export function createKcxpEnvironment(
     return {
         id: createKcxpEnvironmentId(),
         name,
+        protocol: partial?.protocol ?? 'KCBP',
         host: partial?.host ?? template.host,
         queue: partial?.queue ?? template.queue,
         timeout: partial?.timeout ?? template.timeout,
+        service: partial?.service,
+        nodeId: partial?.nodeId,
+        sessionId: partial?.sessionId,
+        connectTimeout: partial?.connectTimeout,
     };
+}
+
+export function resolveKcxpProtocol(environment: KcxpEnvironment): KcxpProtocol {
+    return environment.protocol ?? 'KCBP';
 }
 
 export function isKcxpEnvironment(value: unknown): value is KcxpEnvironment {
@@ -61,11 +70,34 @@ export function getActiveKcxpEnvironment(
     );
 }
 
+function setQueryParam(params: URLSearchParams, key: string, value: string | undefined): void {
+    const trimmed = value?.trim();
+    if (trimmed) {
+        params.set(key, trimmed);
+    }
+}
+
 export function applyKcxpEnvironmentToAddress(
     address: string,
     environment: KcxpEnvironment,
 ): string {
     const parts = parseKcbpAddress(address);
+
+    if (resolveKcxpProtocol(environment) === 'KGBP') {
+        const params = new URLSearchParams();
+        setQueryParam(params, 'service', environment.service);
+        setQueryParam(params, 'nodeid', environment.nodeId);
+        setQueryParam(params, 'sessionid', environment.sessionId);
+        setQueryParam(params, 'connecttimeout', environment.connectTimeout);
+        setQueryParam(params, 'requesttimeout', environment.timeout);
+
+        const host = environment.host.trim();
+        const msgtype = parts.msgtype;
+        const result = msgtype ? `${host}/${msgtype}` : host;
+        const query = params.toString();
+        return query ? `${result}?${query}` : result;
+    }
+
     return serializeKcbpAddress({
         ...parts,
         host: environment.host,
@@ -78,10 +110,5 @@ export function buildAddressFromKcxpEnvironment(
     environment: KcxpEnvironment,
     msgtype = '',
 ): string {
-    return serializeKcbpAddress({
-        host: environment.host,
-        msgtype,
-        queue: environment.queue,
-        timeout: environment.timeout,
-    });
+    return applyKcxpEnvironmentToAddress(msgtype ? `/${msgtype}` : '', environment);
 }

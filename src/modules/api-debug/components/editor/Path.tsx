@@ -291,8 +291,6 @@ export default function Path({
         handleClearParams,
         environmentOptions,
         handleEnvironmentChange,
-        protocolSelectOptions,
-        handleProtocolChange,
         envVariant,
         showInlineActions,
         showOverflowMenu,
@@ -303,20 +301,6 @@ export default function Path({
     return (
         <div className={hideRunButton ? 'path-bar path-bar--command-only' : 'path-bar'}>
             <div className="path-command-bar">
-                <Tooltip title="协议">
-                    <Select
-                        value={activeTab.protocol ?? 'KCBP'}
-                        options={protocolSelectOptions}
-                        onChange={handleProtocolChange}
-                        size="small"
-                        variant="borderless"
-                        className="path-env-badge-select"
-                        popupMatchSelectWidth={false}
-                        optionLabelProp="label"
-                        suffixIcon={<DownOutlined className="path-env-select-chevron" />}
-                    />
-                </Tooltip>
-                <div className="path-command-divider" aria-hidden />
                 {showScriptBadge ? (
                     <>
                         <span className="path-mode-chip">脚本</span>

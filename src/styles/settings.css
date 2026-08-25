@@ -277,7 +277,9 @@
     border-radius: 50%;
     cursor: pointer;
     box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.12);
-    transition: transform 150ms ease, box-shadow 150ms ease;
+    transition:
+        transform 150ms ease,
+        box-shadow 150ms ease;
 }
 
 .appearance-accent-swatch:hover {
@@ -285,7 +287,9 @@
 }
 
 .appearance-accent-swatch.is-selected {
-    box-shadow: 0 0 0 2px var(--color-bg-card), 0 0 0 4px var(--color-primary);
+    box-shadow:
+        0 0 0 2px var(--color-bg-card),
+        0 0 0 4px var(--color-primary);
 }
 
 .settings-panel-row {
@@ -719,6 +723,11 @@
     font-size: 11px;
     font-weight: 600;
     color: var(--color-text-secondary);
+}
+
+.kcxp-env-field-required {
+    margin-left: 2px;
+    color: var(--color-danger);
 }
 
 .kcxp-env-actions {

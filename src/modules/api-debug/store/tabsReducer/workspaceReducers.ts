@@ -1,6 +1,9 @@
 import type { TabData } from '../../types/workspace';
 import { normalizeWorkspace } from '../tabsData';
-import { applyKcxpEnvironmentToAddress } from '../../utils/workspace/kcxpEnvironment';
+import {
+    applyKcxpEnvironmentToAddress,
+    resolveKcxpProtocol,
+} from '../../utils/workspace/kcxpEnvironment';
 import type { TabsAction, TabsState } from './types';
 
 type WorkspaceAction = Extract<
@@ -15,6 +18,7 @@ export function reduceWorkspaceAction(state: TabsState, action: WorkspaceAction)
             const mapCase = (caseItem: TabData): TabData => ({
                 ...caseItem,
                 address: applyKcxpEnvironmentToAddress(caseItem.address, environment),
+                protocol: resolveKcxpProtocol(environment),
                 updatedAt: Date.now(),
             });
 

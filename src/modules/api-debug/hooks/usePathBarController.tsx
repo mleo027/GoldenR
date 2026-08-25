@@ -9,7 +9,6 @@ import {
     ThunderboltOutlined,
 } from '@ant-design/icons';
 import { useTabsActions, useActiveTab } from '../store/useTabs';
-import { protocolOptions } from '../constants/workspace';
 import { useApiDebugEnv } from '../store/useApiDebugEnv';
 import { useResponse } from '../store/useResponse';
 import { useKcbpCall } from './useKcbpCall';
@@ -180,19 +179,6 @@ export function usePathBarController({ layout, onQuickFill }: UsePathBarControll
         [env.kcxpEnvironments],
     );
 
-    const protocolSelectOptions = useMemo(
-        () => protocolOptions.map(({ key, label }) => ({ value: key, label })),
-        [],
-    );
-
-    const handleProtocolChange = useCallback(
-        (protocol: string) => {
-            flushPending();
-            updateTabUndoable({ protocol }, '修改协议');
-        },
-        [flushPending, updateTabUndoable],
-    );
-
     const handleEnvironmentChange = (environmentId: string) => {
         flushPending();
         const environment = getActiveKcxpEnvironment(env.kcxpEnvironments, environmentId);
@@ -285,8 +271,6 @@ export function usePathBarController({ layout, onQuickFill }: UsePathBarControll
         handleClearParams,
         environmentOptions,
         handleEnvironmentChange,
-        protocolSelectOptions,
-        handleProtocolChange,
         envVariant,
         showInlineActions,
         showOverflowMenu,

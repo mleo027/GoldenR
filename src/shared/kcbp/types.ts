@@ -16,6 +16,12 @@ export interface KcbpParamOptions {
     msgtype?: string;
     fields?: Record<string, KcbpTextFieldValue>;
     binaryFields?: Record<string, string>;
+    /** KGBP：网关服务名（native 读 param.servicename），缺省回落 msgtype */
+    servicename?: string;
+    /** KGBP：节点 ID（native 读 param.nodeid，整数） */
+    nodeid?: number;
+    /** KGBP：会话 ID（native 读 param.sessionid，整数） */
+    sessionid?: number;
 }
 
 export interface KcbpRequestOptions {
