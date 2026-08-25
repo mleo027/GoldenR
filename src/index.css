@@ -15,7 +15,6 @@ body,
 @import './styles/layout.css';
 @import './styles/feature-ui.css';
 @import './styles/titlebar.css';
-@import './styles/status-bar.css';
 @import './styles/modal.css';
 @import './styles/settings.css';
 @import './styles/motion.css';

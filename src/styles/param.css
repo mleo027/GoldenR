@@ -13,7 +13,7 @@
     font-weight: 600;
     color: var(--color-text-secondary);
     font-size: 12px;
-    padding: 8px 8px !important;
+    padding: 6px 8px !important;
     text-transform: none;
     letter-spacing: normal;
 }
@@ -30,7 +30,7 @@
 
 .param-table .ant-table-tbody > tr > td {
     border-bottom: 1px solid var(--color-border-light);
-    padding: 6px 8px !important;
+    padding: 3px 8px !important;
     transition: background-color var(--transition-fast);
 }
 
@@ -46,6 +46,17 @@
     background: var(--color-bg-row-hover) !important;
 }
 
+.param-table .ant-table-tbody > tr.param-row-disabled .param-input,
+.param-table .ant-table-tbody > tr.param-row-disabled .param-input .ant-input,
+.param-table .ant-table-tbody > tr.param-row-disabled .param-file-hint {
+    color: var(--color-text-muted) !important;
+}
+
+.param-table .ant-table-tbody > tr.param-row-disabled .param-input,
+.param-table .ant-table-tbody > tr.param-row-disabled .param-value-input {
+    opacity: 0.72;
+}
+
 .param-table .param-key-input {
     text-align: right;
 }
@@ -54,7 +65,7 @@
 .param-table .param-input:hover,
 .param-table .param-input:focus,
 .param-table .param-input.ant-input-focused {
-    padding: 4px 6px !important;
+    padding: 2px 6px !important;
     border-radius: var(--radius-control) !important;
     border-color: transparent !important;
     box-shadow: none !important;
@@ -1033,8 +1044,8 @@
 
 .param-table .param-checkbox .ant-checkbox-checked .ant-checkbox-inner,
 .param-table .param-checkbox.ant-checkbox-wrapper-checked .ant-checkbox-inner {
-    background-color: var(--color-primary-muted) !important;
-    border-color: var(--color-primary) !important;
+    background-color: var(--color-primary-subtle) !important;
+    border-color: var(--color-primary-muted) !important;
 }
 
 .param-table .param-checkbox .ant-checkbox-checked .ant-checkbox-inner::after,
@@ -1054,7 +1065,7 @@
 [data-theme='dark'] .param-table .param-checkbox .ant-checkbox-checked .ant-checkbox-inner,
 [data-theme='dark'] .param-table .param-checkbox.ant-checkbox-wrapper-checked .ant-checkbox-inner {
     background-color: var(--color-primary-subtle) !important;
-    border-color: var(--color-primary) !important;
+    border-color: var(--color-primary-muted) !important;
 }
 
 [data-theme='dark'] .param-table .param-checkbox .ant-checkbox-checked .ant-checkbox-inner::after,

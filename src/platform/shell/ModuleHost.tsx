@@ -42,7 +42,6 @@ function ModuleInstance({
                 {/*
                  * SettingsModalGate 必须在当前激活模块的 RootProviders 子树内，
                  * 以便模块设置面板复用同一 Context（如 useParamSuggest）。
-                 * StatusBar 同理（如 ApiDebugStatusBar 依赖 RunLogProvider）。
                  */}
                 {active ? <SettingsModalGate /> : null}
             </RootProviders>

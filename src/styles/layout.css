@@ -68,8 +68,8 @@
 }
 
 .panel-resize-handle-vertical {
-    height: 2px;
-    background: var(--color-border-light);
+    height: 1px;
+    background: var(--color-border);
     cursor: row-resize;
 }
 

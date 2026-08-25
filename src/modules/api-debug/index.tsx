@@ -16,7 +16,6 @@ import type { AppModuleDefinition } from '../../platform/registry/types';
 import { API_DEBUG_MODULE_ID } from './constants/apiDebugEnv';
 import { ApiDebugProviders } from './providers/ApiDebugProviders';
 import ApiDebugLayout from './layout/ApiDebugLayout';
-import ApiDebugStatusBar from './layout/ApiDebugStatusBar';
 import ApiDebugBreadcrumbSync from './layout/ApiDebugBreadcrumbSync';
 import ApiDebugTitleBarTabs from './layout/ApiDebugTitleBarTabs';
 import RequestSettings from './components/layout/RequestSettings';
@@ -33,7 +32,6 @@ export const apiDebugModule: AppModuleDefinition = {
     Layout: ApiDebugLayout,
     BreadcrumbSync: ApiDebugBreadcrumbSync,
     TitleBarSlot: ApiDebugTitleBarTabs,
-    StatusBar: ApiDebugStatusBar,
     flushPersistedState: flushApiDebugPersistedState,
     settingsSections: [
         {

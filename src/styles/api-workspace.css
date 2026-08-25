@@ -9,6 +9,12 @@
     overflow: hidden;
 }
 
+.workspace-panel.ui-card--workspace {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
 .workspace-panel-request,
 .workspace-panel-response {
     border-top: none;
@@ -61,7 +67,6 @@
 
 .path-command-bar .path-env-block {
     border: none;
-    border-radius: 0;
     background: transparent;
     box-shadow: none;
     height: 100%;

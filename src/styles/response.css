@@ -377,6 +377,16 @@ body.col-resizing {
     font-variant-numeric: tabular-nums;
 }
 
+.response-meta-code-nonzero {
+    background: var(--color-primary-subtle) !important;
+    color: var(--color-primary) !important;
+    border-color: transparent !important;
+}
+
+.response-meta-msg-nonzero {
+    color: var(--color-primary) !important;
+}
+
 .response-fullscreen-body {
     display: flex;
     flex-direction: column;

@@ -39,6 +39,10 @@ function hasTransportMismatch(response: ResponseData): boolean {
     return status.hasBusinessRow && String(status.transportCode) !== String(status.businessCode);
 }
 
+function isNonZeroCode(code: string | number): boolean {
+    return String(code).trim() !== '0';
+}
+
 function ResponseMetaFooter({ response, className }: ResponseMetaProps) {
     const status = parseKcbpResponseStatus(response);
     const dataSize = formatDataSize(response.data);
@@ -51,13 +55,13 @@ function ResponseMetaFooter({ response, className }: ResponseMetaProps) {
                 <>
                     <Tag
                         bordered={false}
-                        className="response-meta-badge response-meta-badge-muted shrink-0"
+                        className={`response-meta-badge response-meta-badge-muted shrink-0${isNonZeroCode(status.businessCode) ? ' response-meta-code-nonzero' : ''}`}
                     >
                         {status.businessCode}
                     </Tag>
                     <Tooltip title={formatControlCharsForTitle(status.businessMsg)}>
                         <ControlCharText
-                            className="response-meta-msg truncate"
+                            className={`response-meta-msg truncate${isNonZeroCode(status.businessCode) ? ' response-meta-msg-nonzero' : ''}`}
                             text={status.businessMsg}
                         />
                     </Tooltip>
@@ -105,11 +109,20 @@ function ResponseMetaDetails({ response, className }: ResponseMetaProps) {
         >
             <StatusBadge kind={status.kind} />
             {status.businessMsg && (
-                <Tooltip title={formatControlCharsForTitle(status.businessMsg)}>
-                    <Tag bordered={false} className="response-meta-badge response-meta-badge-muted">
+                <>
+                    <Tag
+                        bordered={false}
+                        className={`response-meta-badge response-meta-badge-muted${isNonZeroCode(status.businessCode) ? ' response-meta-code-nonzero' : ''}`}
+                    >
                         {status.businessCode}
                     </Tag>
-                </Tooltip>
+                    <Tooltip title={formatControlCharsForTitle(status.businessMsg)}>
+                        <ControlCharText
+                            className={`response-meta-msg truncate${isNonZeroCode(status.businessCode) ? ' response-meta-msg-nonzero' : ''}`}
+                            text={status.businessMsg}
+                        />
+                    </Tooltip>
+                </>
             )}
             <Tooltip title={`返回 ${rowCount} 行`}>
                 <Tag bordered={false} className="response-meta-badge">

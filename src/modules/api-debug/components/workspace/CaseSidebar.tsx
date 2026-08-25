@@ -147,7 +147,7 @@ const CaseSidebar = forwardRef<CaseSidebarHandle, CaseSidebarProps>(function Cas
 
     return (
         <div ref={controller.sidebarRef} className="case-sidebar flex flex-col h-full">
-            <CaseSidebarHeader onAddProject={controller.addProject} onOpenHistory={onOpenHistory} />
+            <CaseSidebarHeader onOpenHistory={onOpenHistory} />
             <CaseSidebarSearch controller={controller} />
             <CaseSidebarTree controller={controller} />
         </div>

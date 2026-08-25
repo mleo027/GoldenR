@@ -100,8 +100,8 @@ function ParamTable({ params, onChange }: ParamEditProps) {
                 pagination={false}
                 tableLayout="fixed"
                 className="param-table"
-                rowClassName={(_, index) =>
-                    `param-row group ${index % 2 === 0 ? 'param-row-even' : 'param-row-odd'}`
+                rowClassName={(record, index) =>
+                    `param-row group ${index % 2 === 0 ? 'param-row-even' : 'param-row-odd'}${record.type === 'disabled' ? ' param-row-disabled' : ''}`
                 }
                 components={{ header: { cell: ResizableHeaderCell } }}
             />

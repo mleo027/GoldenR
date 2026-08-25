@@ -16,6 +16,7 @@ function isSameEnv(a: AppEnv, b: AppEnv): boolean {
         a.showRowIndex === b.showRowIndex &&
         a.autoSave === b.autoSave &&
         a.darkMode === b.darkMode &&
+        a.accentColor === b.accentColor &&
         a.activeModuleId === b.activeModuleId &&
         a.sidebarVisible === b.sidebarVisible
     );
