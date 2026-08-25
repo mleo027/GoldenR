@@ -42,7 +42,7 @@ const param = {
     }
 }
 
-// ¶ş½øÖÆÈë²ÎÇë´« Buffer£¨µ×²ã×ß KCBPCLI_SetVal£©
+// äºŒè¿›åˆ¶å…¥å‚è¯·ä¼  Bufferï¼ˆåº•å±‚èµ° KCBPCLI_SetValï¼‰
 const content = fs.readFileSync('./1.zip');
 
 param.param.fields.databody = content;
@@ -50,7 +50,7 @@ param.param.fields.databody = content;
 console.log(content)
 
 
-// µ÷ÓÃ C++ µ¼³öµÄº¯Êı
+// è°ƒç”¨ C++ å¯¼å‡ºçš„å‡½æ•°
 const result = adapter.callKCBP(param);
 
 console.log(result); 

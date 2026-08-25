@@ -31,12 +31,12 @@ KCBP 后台服务
 
 ## 环境要求
 
-| 依赖 | 说明 |
-|------|------|
-| Windows | 当前仅支持 Windows |
-| Node.js | 建议 18+，编译与运行请使用同一版本 |
-| MSVC | ScopeCppSDK vc15 或完整 Visual Studio C++ 工具链 |
-| 金证 SDK | `KCBPCli.lib`（编译）+ `KCBPCli.dll` 等（运行） |
+| 依赖     | 说明                                             |
+| -------- | ------------------------------------------------ |
+| Windows  | 当前仅支持 Windows                               |
+| Node.js  | 建议 18+，编译与运行请使用同一版本               |
+| MSVC     | ScopeCppSDK vc15 或完整 Visual Studio C++ 工具链 |
+| 金证 SDK | `KCBPCli.lib`（编译）+ `KCBPCli.dll` 等（运行）  |
 
 ## 目录结构
 
@@ -60,8 +60,8 @@ adapter/
 
 ## SDK 文件说明
 
-| 目录 | 内容 | 用途 |
-|------|------|------|
+| 目录                   | 内容                        | 用途       |
+| ---------------------- | --------------------------- | ---------- |
 | `include/kcbpcli/lib/` | `KCBPCli.h` + `KCBPCli.lib` | 编译、链接 |
 
 > 注：原工程的 `dll/` 运行时依赖与 `main/` VS 工程未随迁入本仓库；dll 运行时依赖由 `electron/adapter/` 及部署环境提供。
@@ -153,21 +153,21 @@ const result = adapter.callKCBP(param);
 
 #### connection 字段
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `ip` | string | KCXP 服务 IP |
-| `port` | string | 端口，默认 `21000` |
-| `connecttimeout` | string | 连接超时（秒），默认 `5` |
+| 字段             | 类型   | 说明                      |
+| ---------------- | ------ | ------------------------- |
+| `ip`             | string | KCXP 服务 IP              |
+| `port`           | string | 端口，默认 `21000`        |
+| `connecttimeout` | string | 连接超时（秒），默认 `5`  |
 | `requesttimeout` | string | 请求超时（秒），默认 `15` |
-| `reqqueue` | string | 请求队列名 |
-| `ansqueue` | string | 应答队列名 |
+| `reqqueue`       | string | 请求队列名                |
+| `ansqueue`       | string | 应答队列名                |
 
 #### param 字段
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
+| 字段      | 类型   | 说明              |
+| --------- | ------ | ----------------- |
 | `msgtype` | string | 服务名 / 消息类型 |
-| `fields` | object | 业务入参字段 |
+| `fields`  | object | 业务入参字段      |
 
 ### 响应格式
 
@@ -192,10 +192,10 @@ const result = adapter.callKCBP(param);
 }
 ```
 
-| code | 含义 |
-|------|------|
-| `-1001` | 入参校验失败 |
-| `-1002` | 后端调用失败 |
+| code    | 含义                         |
+| ------- | ---------------------------- |
+| `-1001` | 入参校验失败                 |
+| `-1002` | 后端调用失败                 |
 | `-1003` | 异常（连接失败、调用异常等） |
 
 应答文本字段经 GBK 转 UTF-8 后返回。
@@ -271,11 +271,11 @@ console.log(result);
 
 ## npm 脚本
 
-| 命令 | 说明 |
-|------|------|
-| `npm run build` | 等价 `cmd /c scripts\build-native.cmd`，MSVC 编译 |
-| `npm test` | 运行 `app.js` |
-| `npm run test:call` | 运行 `test-call.js` |
+| 命令                | 说明                                              |
+| ------------------- | ------------------------------------------------- |
+| `npm run build`     | 等价 `cmd /c scripts\build-native.cmd`，MSVC 编译 |
+| `npm test`          | 运行 `app.js`                                     |
+| `npm run test:call` | 运行 `test-call.js`                               |
 
 ## 独立 C++ 测试
 

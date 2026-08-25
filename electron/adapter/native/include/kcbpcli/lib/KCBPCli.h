@@ -67,9 +67,9 @@
 #define KCBP_OPTION_TRACE_DIR 		21
 #define KCBP_OPTION_RESET_RSCONTEXT 	22
 #define KCBP_OPTION_USECORRELID 	23
-#define KCBP_OPTION_AUTO_REC		34  //RsFetchRow时自动接收下一个包的选项
+#define KCBP_OPTION_AUTO_REC		34  //RsFetchRow鏃惰嚜鍔ㄦ帴鏀朵笅涓�涓寘鐨勯�夐」
 
-//外网KCXP 端口和ip
+//澶栫綉KCXP 绔彛鍜宨p
 #define KCBP_OPTION_EXPORTIP   35
 #define KCBP_OPTION_EXPORTPORT 36
 

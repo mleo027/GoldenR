@@ -35,7 +35,8 @@ set "TARGET=%OUT%\adapter.node"
 if not exist "%OUT%" mkdir "%OUT%"
 
 echo [build-native] ???? adapter.cpp ...
-"%VC%\bin\cl.exe" /nologo /EHsc /std:c++17 /DNAPI_CPP_EXCEPTIONS /DNDEBUG /DWIN32 /D_WINDOWS /D_CRT_SECURE_NO_DEPRECATE ^
+REM /utf-8: sources are UTF-8 now; tell MSVC to read them as UTF-8
+"%VC%\bin\cl.exe" /nologo /EHsc /std:c++17 /utf-8 /DNAPI_CPP_EXCEPTIONS /DNDEBUG /DWIN32 /D_WINDOWS /D_CRT_SECURE_NO_DEPRECATE ^
     /I"%ROOT%\include" /I"%ROOT%\include\self" /I"%ROOT%\include\json" /I"%ROOT%\include\kcbpcli\lib" ^
     /I"%ROOT%\node_modules\node-addon-api" /I"%NODE_INCLUDE%" ^
     /I"%VC%\include" /I"%SDK%\include\um" /I"%SDK%\include\shared" /I"%SDK%\include\ucrt" ^

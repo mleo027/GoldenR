@@ -6,7 +6,7 @@
 #include <fstream>
 using std::string;
 
-// ´´½¨ÎÄ¼ş²¢Ğ´³öÈÕÖ¾
+// åˆ›å»ºæ–‡ä»¶å¹¶å†™å‡ºæ—¥å¿—
 void writeLogToFile(const std::string content, const std::string filename = "./run.log")
 {
     std::ofstream file(filename, std::ios::app);
@@ -69,7 +69,7 @@ bool callBackend(const NJSON &inputJson, NJSON &outputJson, const std::string &t
 
 Napi::Object callKCBP(const Napi::CallbackInfo &info)
 {
-    Napi::Env env = info.Env(); // »ñÈ¡µ±Ç°»·¾³
+    Napi::Env env = info.Env(); // è·å–å½“å‰ç¯å¢ƒ
     std::string errmsg;
 
     try

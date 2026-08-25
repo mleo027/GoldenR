@@ -21,26 +21,26 @@ function section(title) {
   console.log('\n--- ' + title + ' ---');
 }
 
-// 1. ¼ÓÔØÔ­ÉúÄ£¿é
-section('¼ÓÔØ adapter.node');
+// 1. åŠ è½½åŸç”Ÿæ¨¡å—
+section('åŠ è½½ adapter.node');
 if (!fs.existsSync(adapterPath)) {
-  fail('ÕÒ²»µ½ ' + adapterPath + '£¬ÇëÏÈ npm run build');
+  fail('æ‰¾ä¸åˆ° ' + adapterPath + 'ï¼Œè¯·å…ˆ npm run build');
   process.exit(1);
 }
 let adapter;
 try {
   adapter = require(adapterPath);
-  ok('Ä£¿é¼ÓÔØ³É¹¦');
+  ok('æ¨¡å—åŠ è½½æˆåŠŸ');
 } catch (e) {
-  fail('Ä£¿é¼ÓÔØÊ§°Ü: ' + e.message);
+  fail('æ¨¡å—åŠ è½½å¤±è´¥: ' + e.message);
   process.exit(1);
 }
 
 if (typeof adapter.callKCBP !== 'function') {
-  fail('callKCBP Î´µ¼³ö');
+  fail('callKCBP æœªå¯¼å‡º');
   process.exit(1);
 }
-ok('callKCBP ÒÑµ¼³ö');
+ok('callKCBP å·²å¯¼å‡º');
 
 const baseConnection = {
   connecttimeout: '5',
@@ -51,18 +51,18 @@ const baseConnection = {
   ansqueue: 'ans1',
 };
 
-// 2. Èë²ÎĞ£Ñé£¨Ó¦¿ìËÙÊ§°Ü£¬²»ÒÀÀµºóÌ¨£©
-section('Èë²ÎĞ£Ñé');
+// 2. å…¥å‚æ ¡éªŒï¼ˆåº”å¿«é€Ÿå¤±è´¥ï¼Œä¸ä¾èµ–åå°ï¼‰
+section('å…¥å‚æ ¡éªŒ');
 const badParam = { connection: {}, param: {} };
 const badResult = adapter.callKCBP(badParam);
 if (badResult && badResult.code === -1001) {
-  ok('·Ç·¨Èë²Î·µ»Ø code=-1001: ' + badResult.msg);
+  ok('éæ³•å…¥å‚è¿”å› code=-1001: ' + badResult.msg);
 } else {
-  fail('·Ç·¨Èë²ÎÎ´·µ»Ø -1001: ' + JSON.stringify(badResult));
+  fail('éæ³•å…¥å‚æœªè¿”å› -1001: ' + JSON.stringify(badResult));
 }
 
-// 3. ´¿ÎÄ±¾×Ö¶Îµ÷ÓÃ
-section('´¿ÎÄ±¾ fields µ÷ÓÃ');
+// 3. çº¯æ–‡æœ¬å­—æ®µè°ƒç”¨
+section('çº¯æ–‡æœ¬ fields è°ƒç”¨');
 const textParam = {
   connection: { ...baseConnection, requesttimeout: '15' },
   param: {
@@ -81,20 +81,20 @@ const textParam = {
   },
 };
 const textResult = adapter.callKCBP(textParam);
-console.log('ÎÄ±¾µ÷ÓÃ½á¹û:', JSON.stringify(textResult, null, 2));
+console.log('æ–‡æœ¬è°ƒç”¨ç»“æœ:', JSON.stringify(textResult, null, 2));
 if (textResult && textResult.code === -1003 && String(textResult.msg).includes('connect')) {
-  ok('ÎÄ±¾µ÷ÓÃµ½´ï C++ ²ã£¨Á¬½ÓÊ§°ÜÊôÔ¤ÆÚ£¬ËµÃ÷Î´ÔÚ JS ²ã±ÀÀ££©');
+  ok('æ–‡æœ¬è°ƒç”¨åˆ°è¾¾ C++ å±‚ï¼ˆè¿æ¥å¤±è´¥å±é¢„æœŸï¼Œè¯´æ˜æœªåœ¨ JS å±‚å´©æºƒï¼‰');
 } else if (textResult && (textResult.code === 0 || textResult.code === '0')) {
-  ok('ÎÄ±¾µ÷ÓÃ³É¹¦');
+  ok('æ–‡æœ¬è°ƒç”¨æˆåŠŸ');
 } else if (textResult && textResult.code < 0) {
-  ok('ÎÄ±¾µ÷ÓÃ·µ»Ø´íÎó¶ÔÏó: code=' + textResult.code);
+  ok('æ–‡æœ¬è°ƒç”¨è¿”å›é”™è¯¯å¯¹è±¡: code=' + textResult.code);
 } else {
-  ok('ÎÄ±¾µ÷ÓÃÒÑ·µ»Ø: ' + JSON.stringify(textResult));
+  ok('æ–‡æœ¬è°ƒç”¨å·²è¿”å›: ' + JSON.stringify(textResult));
 }
 
-// 4. Buffer ¶ş½øÖÆ×Ö¶Î£¨ÈÎÒâ key£¬·ÇĞ´ËÀ databody£©
-section('Buffer ¶ş½øÖÆ fields µ÷ÓÃ');
-const binaryPayload = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00, 0x00]); // Ä£Äâ zip Í· PK..
+// 4. Buffer äºŒè¿›åˆ¶å­—æ®µï¼ˆä»»æ„ keyï¼Œéå†™æ­» databodyï¼‰
+section('Buffer äºŒè¿›åˆ¶ fields è°ƒç”¨');
+const binaryPayload = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00, 0x00]); // æ¨¡æ‹Ÿ zip å¤´ PK..
 const binaryParam = {
   connection: { ...baseConnection, requesttimeout: '65' },
   param: {
@@ -111,36 +111,36 @@ const binaryParam = {
     },
   },
 };
-console.log('databody ³¤¶È:', binaryPayload.length, 'ÀàĞÍ:', binaryPayload.constructor.name);
+console.log('databody é•¿åº¦:', binaryPayload.length, 'ç±»å‹:', binaryPayload.constructor.name);
 const binaryResult = adapter.callKCBP(binaryParam);
-console.log('¶ş½øÖÆµ÷ÓÃ½á¹û:', JSON.stringify(binaryResult, null, 2));
+console.log('äºŒè¿›åˆ¶è°ƒç”¨ç»“æœ:', JSON.stringify(binaryResult, null, 2));
 if (binaryResult && binaryResult.code === -1003) {
-  ok('¶ş½øÖÆÈë²ÎÎ´±ÀÀ££¬C++ ÒÑ´¦Àí Buffer£¨Á¬½ÓÊ§°ÜÊôÔ¤ÆÚ£©');
+  ok('äºŒè¿›åˆ¶å…¥å‚æœªå´©æºƒï¼ŒC++ å·²å¤„ç† Bufferï¼ˆè¿æ¥å¤±è´¥å±é¢„æœŸï¼‰');
 } else if (binaryResult && (binaryResult.code === 0 || binaryResult.code === '0')) {
-  ok('¶ş½øÖÆµ÷ÓÃ³É¹¦');
+  ok('äºŒè¿›åˆ¶è°ƒç”¨æˆåŠŸ');
 } else if (binaryResult && binaryResult.code < 0) {
-  ok('¶ş½øÖÆµ÷ÓÃ·µ»Ø´íÎó¶ÔÏó: code=' + binaryResult.code);
+  ok('äºŒè¿›åˆ¶è°ƒç”¨è¿”å›é”™è¯¯å¯¹è±¡: code=' + binaryResult.code);
 } else {
-  ok('¶ş½øÖÆµ÷ÓÃÒÑ·µ»Ø');
+  ok('äºŒè¿›åˆ¶è°ƒç”¨å·²è¿”å›');
 }
 
-// 5. Èô´æÔÚ 1.zip£¬¶îÍâÓÃÎÄ¼ş Buffer ²âÒ»´Î
+// 5. è‹¥å­˜åœ¨ 1.zipï¼Œé¢å¤–ç”¨æ–‡ä»¶ Buffer æµ‹ä¸€æ¬¡
 const zipPath = path.join(__dirname, '1.zip');
 if (fs.existsSync(zipPath)) {
-  section('1.zip ÎÄ¼ş Buffer µ÷ÓÃ');
+  section('1.zip æ–‡ä»¶ Buffer è°ƒç”¨');
   const zipBuf = fs.readFileSync(zipPath);
   const zipParam = JSON.parse(JSON.stringify(binaryParam));
   zipParam.param.fields.databody = zipBuf;
   zipParam.param.fields.datasize = String(zipBuf.length);
   const zipResult = adapter.callKCBP(zipParam);
-  console.log('1.zip µ÷ÓÃ½á¹û:', JSON.stringify(zipResult, null, 2));
-  ok('1.zip Buffer µ÷ÓÃÍê³É£¬³¤¶È=' + zipBuf.length);
+  console.log('1.zip è°ƒç”¨ç»“æœ:', JSON.stringify(zipResult, null, 2));
+  ok('1.zip Buffer è°ƒç”¨å®Œæˆï¼Œé•¿åº¦=' + zipBuf.length);
 } else {
-  section('Ìø¹ı 1.zip£¨ÎÄ¼ş²»´æÔÚ£©');
-  ok('ÒÑÓÃÄÚ´æ Buffer ÑéÖ¤¶ş½øÖÆÂ·¾¶');
+  section('è·³è¿‡ 1.zipï¼ˆæ–‡ä»¶ä¸å­˜åœ¨ï¼‰');
+  ok('å·²ç”¨å†…å­˜ Buffer éªŒè¯äºŒè¿›åˆ¶è·¯å¾„');
 }
 
-console.log('\n=== ÑéÖ¤½áÊø ===');
+console.log('\n=== éªŒè¯ç»“æŸ ===');
 if (!process.exitCode) {
-  console.log('È«²¿¼ì²éÍ¨¹ı£¨Èô KCXP Î´Æô¶¯£¬Á¬½ÓÊ§°ÜÎªÕı³£ÏÖÏó£©');
+  console.log('å…¨éƒ¨æ£€æŸ¥é€šè¿‡ï¼ˆè‹¥ KCXP æœªå¯åŠ¨ï¼Œè¿æ¥å¤±è´¥ä¸ºæ­£å¸¸ç°è±¡ï¼‰');
 }

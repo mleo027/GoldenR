@@ -39,22 +39,22 @@ bool isInteger(const std::string &s)
     }
 
     size_t start_idx = 0;
-    // ¼ì²éµÚÒ»¸ö×Ö·ûÊÇ·ñÎª¸ººÅ
+    // æ£€æŸ¥ç¬¬ä¸€ä¸ªå­—ç¬¦æ˜¯å¦ä¸ºè´Ÿå·
     if (s[0] == '-')
     {
         start_idx = 1;
-        // Èç¹ûÖ»ÓĞÒ»¸ö¸ººÅ£¬Ôò²»ÊÇÓĞĞ§Êı×Ö
+        // å¦‚æœåªæœ‰ä¸€ä¸ªè´Ÿå·ï¼Œåˆ™ä¸æ˜¯æœ‰æ•ˆæ•°å­—
         if (s.length() == 1)
         {
             return false;
         }
     }
 
-    // ±éÀúÊ£Óà×Ö·û£¬È·±£ËüÃÇ¶¼ÊÇÊı×Ö
+    // éå†å‰©ä½™å­—ç¬¦ï¼Œç¡®ä¿å®ƒä»¬éƒ½æ˜¯æ•°å­—
     for (size_t i = start_idx; i < s.length(); ++i)
     {
         if (!std::isdigit(s[i]))
-        { // std::isdigit Ğ§ÂÊºÜ¸ß
+        { // std::isdigit æ•ˆç‡å¾ˆé«˜
             return false;
         }
     }
@@ -98,7 +98,7 @@ inline string toLower(const std::string &str)
     return result;
 }
 
-// ×ª»»Îª´óĞ´
+// è½¬æ¢ä¸ºå¤§å†™
 inline string toUpper(const std::string &str)
 {
     std::string result = str;
@@ -115,12 +115,12 @@ std::string gbkToUtf8(const std::string &gbk_str)
         return "";
     }
 
-    // 1. GBK -> UTF-16 (¿í×Ö·û£¬¼´ wchar_t)
-    // Ê×ÏÈ»ñÈ¡×ª»»ºóËùĞè»º³åÇø´óĞ¡
+    // 1. GBK -> UTF-16 (å®½å­—ç¬¦ï¼Œå³ wchar_t)
+    // é¦–å…ˆè·å–è½¬æ¢åæ‰€éœ€ç¼“å†²åŒºå¤§å°
     int wchars_num = MultiByteToWideChar(CP_ACP, 0, gbk_str.c_str(), -1, NULL, 0);
     if (wchars_num == 0)
     {
-        // ´¦Àí´íÎó£¬ÀıÈç GetLastError()
+        // å¤„ç†é”™è¯¯ï¼Œä¾‹å¦‚ GetLastError()
         return "";
     }
     std::vector<wchar_t> wide_buf(wchars_num);
@@ -128,11 +128,11 @@ std::string gbkToUtf8(const std::string &gbk_str)
     std::wstring wide_string(wide_buf.data());
 
     // 2. UTF-16 -> UTF-8
-    // »ñÈ¡×ª»»ºóËùĞè»º³åÇø´óĞ¡
+    // è·å–è½¬æ¢åæ‰€éœ€ç¼“å†²åŒºå¤§å°
     int utf8_num = WideCharToMultiByte(CP_UTF8, 0, wide_string.c_str(), -1, NULL, 0, NULL, NULL);
     if (utf8_num == 0)
     {
-        // ´¦Àí´íÎó
+        // å¤„ç†é”™è¯¯
         return "";
     }
     std::vector<char> utf8_buf(utf8_num);
