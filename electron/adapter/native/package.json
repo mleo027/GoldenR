@@ -1,0 +1,15 @@
+{
+  "name": "kcbp-native-adapter",
+  "version": "1.0.0",
+  "private": true,
+  "description": "KCBP native adapter source project (built via scripts/build-native.cmd)",
+  "main": "app.js",
+  "scripts": {
+    "build": "cmd /c scripts\\build-native.cmd",
+    "test": "node app.js",
+    "test:call": "node test-call.js"
+  },
+  "dependencies": {
+    "node-addon-api": "^8.4.0"
+  }
+}
