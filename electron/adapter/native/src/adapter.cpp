@@ -3,6 +3,7 @@
 #include "tools.hpp"
 #include "KCBPClient.hpp"
 #include "self/KGBPClient.hpp"
+#include "self/adapterErrors.hpp"
 #include <string>
 #include <fstream>
 using std::string;
@@ -18,53 +19,45 @@ void writeLogToFile(const std::string content, const std::string filename = "./r
     }
 }
 
-Napi::Object errResp(long long code, const std::string &msg, Napi::Env env)
+Napi::Object errResp(long long code, const std::string &protocol,
+                     const std::string &detail, Napi::Env env)
 {
     Napi::Object obj = Napi::Object::New(env);
     obj.Set("code", Napi::Number::New(env, code));
-    obj.Set("msg", Napi::String::New(env, msg));
+    obj.Set("msg", Napi::String::New(env, adapter_errors::format(code, protocol, detail)));
     obj.Set("level", Napi::String::New(env, std::string("888")));
     return obj;
 }
 
 bool callBackend(const NJSON &inputJson, NJSON &outputJson, const std::string &type, std::string &errmsg)
 {
-
-    if (type == "KCBP")
+    try
     {
-        callKCBPBackend(inputJson, outputJson);
+        if (type == "KCBP")
+        {
+            callKCBPBackend(inputJson, outputJson);
+        }
+        else if (type == "KGBP")
+        {
+            callKGBPBackend(inputJson, outputJson);
+        }
+        else
+        {
+            errmsg = "暂不支持的后端类型：" + type;
+            return false;
+        }
+        return true;
     }
-    else if (type == "KGBP")
+    catch (const std::exception &e)
     {
-        callKGBPBackend(inputJson, outputJson);
-    }
-    else if (type == "KMID")
-    {
-        /* code */
+        errmsg = e.what();
         return false;
     }
-    else if (type == "KGDP")
+    catch (...)
     {
-        /* code */
+        errmsg = "后端调用抛出未知异常";
         return false;
     }
-    else if (type == "KJDP")
-    {
-        /* code */
-        return false;
-    }
-    else if (type == "KOCA")
-    {
-        /* code */
-        return false;
-    }
-    else
-    {
-        errmsg = "type not supported";
-        return false;
-    }
-
-    return true;
 }
 
 Napi::Object callKCBP(const Napi::CallbackInfo &info)
@@ -79,14 +72,13 @@ Napi::Object callKCBP(const Napi::CallbackInfo &info)
 
         if (!isValidKCBPInput(inputJson, errmsg))
         {
-            return errResp(-1001, errmsg, env);
+            return errResp(adapter_errors::INVALID_ARGUMENT, "KCBP", errmsg, env);
         }
 
         NJSON outputJson;
-        string errmsg;
         if (!callBackend(inputJson, outputJson, "KCBP", errmsg))
         {
-            return errResp(-1002, errmsg, env);
+            return errResp(adapter_errors::BACKEND_CALL, "KCBP", errmsg, env);
         }
 
         Napi::Value napiOutput = ConvertJsonToNapiValue(env, outputJson);
@@ -95,7 +87,11 @@ Napi::Object callKCBP(const Napi::CallbackInfo &info)
     }
     catch (const std::exception &e)
     {
-        return errResp(-1003, e.what(), env);
+        return errResp(adapter_errors::INTERNAL, "KCBP", e.what(), env);
+    }
+    catch (...)
+    {
+        return errResp(adapter_errors::INTERNAL, "KCBP", "Native 抛出未知异常", env);
     }
 
     return Napi::Object::New(env);
@@ -113,14 +109,14 @@ Napi::Object callKGBP(const Napi::CallbackInfo &info)
 
         if (!isValidKGBPInput(inputJson, topErrmsg))
         {
-            return errResp(-1001, topErrmsg, env);
+            return errResp(adapter_errors::INVALID_ARGUMENT, "KGBP", topErrmsg, env);
         }
 
         NJSON outputJson;
         string backendErrmsg;
         if (!callBackend(inputJson, outputJson, "KGBP", backendErrmsg))
         {
-            return errResp(-1002, backendErrmsg, env);
+            return errResp(adapter_errors::BACKEND_CALL, "KGBP", backendErrmsg, env);
         }
 
         Napi::Value napiOutput = ConvertJsonToNapiValue(env, outputJson);
@@ -129,7 +125,11 @@ Napi::Object callKGBP(const Napi::CallbackInfo &info)
     }
     catch (const std::exception &e)
     {
-        return errResp(-1003, e.what(), env);
+        return errResp(adapter_errors::INTERNAL, "KGBP", e.what(), env);
+    }
+    catch (...)
+    {
+        return errResp(adapter_errors::INTERNAL, "KGBP", "Native 抛出未知异常", env);
     }
 }
 

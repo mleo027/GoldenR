@@ -187,6 +187,7 @@ private:
 
 	void readReply(NJSON &result)
 	{
+		resultSetSequence_ = 1;
 		// 第一结果集：CODE 必有；LEVEL 可选；MSG 必有。
 		// 编码决策：KGBP 网关为 UTF-8，字段值直传不转码（区别于 KCBPClient 的 GBK→UTF8）
 		int code = 0;
@@ -205,36 +206,52 @@ private:
 			result["level"] = std::to_string(level);
 		}
 
-		// 后续结果集 → data 行数组
-		NJSON rows = NJSON::array();
+		// 第一个结果集是状态信息；RsNext 从第一个业务结果集开始遍历。
+		result["data"] = NJSON::array();
 		while (KGBPCli_RsNext(handle_) == KGBPCLI_OK)
 		{
-			while (KGBPCli_RsFetchRow(handle_) == KGBPCLI_OK)
-			{
-				rows.push_back(readRow());
-			}
-		}
-		if (!rows.empty())
-		{
-			result["data"] = rows;
+			result["data"].push_back(readResultSet());
 		}
 	}
 
-	NJSON readRow()
+	NJSON readResultSet()
 	{
 		size_t colNum = 0;
 		if (KGBPCli_RsGetColNum(handle_, &colNum) != KGBPCLI_OK || colNum == 0)
 		{
-			return NJSON::object();
+			throwBackendError("读取 KGBP 结果集列数失败");
+		}
+
+		char resultSetName[256] = {0};
+		std::string name = "result" + std::to_string(resultSetSequence_++);
+		if (KGBPCli_RsGetName(handle_, resultSetName, sizeof(resultSetName)) == KGBPCLI_OK && resultSetName[0] != '\0')
+		{
+			name = resultSetName;
 		}
 
 		std::vector<std::string> names = parseColNames(colNum);
-		NJSON row = NJSON::object();
-		for (size_t i = 0; i < colNum; ++i)
+		NJSON table = NJSON::object();
+		NJSON columns = NJSON::array();
+		for (const auto &column : names)
 		{
-			row[names[i]] = getColumnValue(static_cast<int>(i) + 1);
+			columns.push_back(column);
 		}
-		return row;
+
+		NJSON rows = NJSON::array();
+		while (KGBPCli_RsFetchRow(handle_) == KGBPCLI_OK)
+		{
+			NJSON row = NJSON::object();
+			for (size_t i = 0; i < colNum; ++i)
+			{
+				row[names[i]] = getColumnValue(static_cast<int>(i) + 1);
+			}
+			rows.push_back(row);
+		}
+
+		table["name"] = name;
+		table["columns"] = columns;
+		table["rows"] = rows;
+		return table;
 	}
 
 	// RsGetColInfo 缓冲区格式文档未明确：先按 '\0' 分隔的列名序列解析；
@@ -351,6 +368,7 @@ private:
 
 	KGBPClientConfig config_;
 	void *handle_ = nullptr;
+	size_t resultSetSequence_ = 1;
 };
 
 // 后端入口：签名与 callKCBPBackend 对齐，异常向上传播由 adapter.cpp 统一转 -1003。

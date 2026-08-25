@@ -24,6 +24,7 @@ const suites = {
         'src/modules/api-debug/utils/kcbp/kcbpParams.test.ts',
         'src/modules/api-debug/utils/kcbp/kcbpResponse.test.ts',
         'src/modules/api-debug/services/kcbpCallService.test.ts',
+        'src/modules/api-debug/components/response/ResponsePanel.test.tsx',
     ],
     import: [
         'src/modules/api-debug/utils/import/kuabImport.test.ts',

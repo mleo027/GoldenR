@@ -11,7 +11,9 @@
 - 渲染端：`src/modules/api-debug`，模块注册只含 `api-debug`。
 - 主进程：KCBP 调用、KCBP 运行时配置、SQL 参数提示、脚本 SQL 查询、JSON/INI 导入、CSV/HTML 导出、窗口控制、通用 JSON 持久化。
 - 共享代码：`shared/kcbp`、`shared/suggest`、`shared/tcd` 中脚本引擎所需子集、`shared/test` 中脚本 API 所需子集、`shared/platform/undo`、`shared/utils/textHighlight`。
-- Native 资源：`electron/adapter`、`kcbpWorker.cjs`、`kcbpBridge.cjs`。
+- Native 资源：`electron/adapter` 和 `kcbpBridge.cjs`。原生模块由独立 Node 子进程通过 bridge 加载，避免 Electron Node ABI 不匹配。
+
+KCBP/KGBP 多结果集约定：后端第一个 `MESSAGE` 结果集提升为 `code`、`level`、`msg`；其后的每个业务结果集以 `{ name, columns, rows }` 形式放入响应 `data` 数组。渲染层将第一张业务表映射为现有响应行，并可切换查看其他结果集。
 
 ## 清理策略
 

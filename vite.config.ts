@@ -37,9 +37,8 @@ function electronPreloadOnstart(args: { startup: () => Promise<void>; reload: ()
     void startElectronApp(args.startup);
 }
 
-function copyKcbpWorkerPlugin(): Plugin {
+function copyKcbpBridgePlugin(): Plugin {
     const files = [
-        { src: path.resolve(__dirname, 'electron/kcbpWorker.cjs'), name: 'kcbpWorker.cjs' },
         { src: path.resolve(__dirname, 'electron/kcbpBridge.cjs'), name: 'kcbpBridge.cjs' },
     ];
     const destDir = path.resolve(__dirname, 'dist-electron');
@@ -52,7 +51,7 @@ function copyKcbpWorkerPlugin(): Plugin {
     };
 
     return {
-        name: 'copy-kcbp-worker',
+        name: 'copy-kcbp-bridge',
         buildStart: copy,
         configureServer() {
             copy();
@@ -65,7 +64,7 @@ export default defineConfig({
     plugins: [
         tailwindcss(),
         react(),
-        copyKcbpWorkerPlugin(),
+        copyKcbpBridgePlugin(),
         electron([
             {
                 entry: 'electron/main.ts',

@@ -33,6 +33,9 @@ interface ResponseBodyProps {
     onToggleResponseCollapse?: () => void;
     onSearchKeywordChange: (value: string) => void;
     onFullscreen: () => void;
+    resultSets: NonNullable<ResponseData['resultSets']>;
+    selectedResultSetIndex: number;
+    onResultSetChange: (index: number) => void;
 }
 
 const ResponseBody = memo(function ResponseBody({
@@ -47,6 +50,9 @@ const ResponseBody = memo(function ResponseBody({
     onToggleResponseCollapse,
     onSearchKeywordChange,
     onFullscreen,
+    resultSets,
+    selectedResultSetIndex,
+    onResultSetChange,
 }: ResponseBodyProps) {
     const hasResponseData = responseData.length > 0;
     const showIdleMetrics = !hasResponseData;
@@ -70,6 +76,20 @@ const ResponseBody = memo(function ResponseBody({
                     <span>响应</span>
                     <span className="param-section-toggle-count">{responseData.length}</span>
                 </button>
+                {resultSets.length > 1 && (
+                    <select
+                        aria-label="选择响应结果集"
+                        className="ml-2 rounded border border-slate-300 bg-transparent px-1.5 py-0.5 text-xs"
+                        value={selectedResultSetIndex}
+                        onChange={(event) => onResultSetChange(Number(event.target.value))}
+                    >
+                        {resultSets.map((resultSet, index) => (
+                            <option key={`${resultSet.name}-${index}`} value={index}>
+                                {index + 1}. {resultSet.name || `结果集 ${index + 1}`}
+                            </option>
+                        ))}
+                    </select>
+                )}
                 {!responseCollapsed && (
                     <div className="response-section-actions">
                         <ResponseTableTools
@@ -137,12 +157,16 @@ export default function ResponsePanel({
     const response = useResponse(activeTab.id);
     const [searchKeyword, setSearchKeyword] = useState('');
     const [fullscreenOpen, setFullscreenOpen] = useState(false);
+    const [selectedResultSetIndex, setSelectedResultSetIndex] = useState(0);
 
-    const responseData = response?.data ?? EMPTY_RESPONSE_ROWS;
+    const resultSets = response?.resultSets ?? [];
+    const selectedResultSet = resultSets[selectedResultSetIndex];
+    const responseData = selectedResultSet?.rows ?? response?.data ?? EMPTY_RESPONSE_ROWS;
 
     useEffect(() => {
         setSearchKeyword('');
         setFullscreenOpen(false);
+        setSelectedResultSetIndex(0);
     }, [activeTab.id, response?.calledAt]);
 
     return (
@@ -159,6 +183,12 @@ export default function ResponsePanel({
                 onToggleResponseCollapse={onToggleResponseCollapse}
                 onSearchKeywordChange={setSearchKeyword}
                 onFullscreen={() => setFullscreenOpen(true)}
+                resultSets={resultSets}
+                selectedResultSetIndex={selectedResultSetIndex}
+                onResultSetChange={(index) => {
+                    setSelectedResultSetIndex(index);
+                    setSearchKeyword('');
+                }}
             />
             {fullscreenOpen && (
                 <Suspense fallback={null}>

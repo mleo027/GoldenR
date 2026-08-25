@@ -33,6 +33,38 @@ describe('KcbpClient response normalization', () => {
         });
     });
 
+    it('counts rows across multiple result sets without flattening their shape', async () => {
+        const client = createClient({
+            code: '0',
+            msg: 'ok',
+            data: [
+                { name: 'DATA', columns: ['id'], rows: [{ id: '1' }, { id: '2' }] },
+                { name: 'DETAIL', columns: ['value'], rows: [{ value: 'a' }] },
+            ],
+        });
+
+        const result = await client.call({ connection: {}, param: {} });
+
+        expect(result.data).toEqual([
+            { name: 'DATA', columns: ['id'], rows: [{ id: '1' }, { id: '2' }] },
+            { name: 'DETAIL', columns: ['value'], rows: [{ value: 'a' }] },
+        ]);
+        expect(result.stats.rows).toBe(3);
+    });
+
+    it('counts empty result sets without dropping them', async () => {
+        const client = createClient({
+            code: '0',
+            msg: 'ok',
+            data: [{ name: 'EMPTY', columns: ['id'], rows: [] }],
+        });
+
+        const result = await client.call({ connection: {}, param: {} });
+
+        expect(result.data).toEqual([{ name: 'EMPTY', columns: ['id'], rows: [] }]);
+        expect(result.stats.rows).toBe(0);
+    });
+
     it('keeps raw response envelope fields at top level with empty data', async () => {
         const client = createClient({
             code: -1001,

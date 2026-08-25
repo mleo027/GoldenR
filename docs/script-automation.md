@@ -84,7 +84,7 @@ sequenceDiagram
     participant Query as query()
     participant Call as call()
     participant IPC as Electron IPC
-    participant KCBP as KCBP Worker
+    participant KCBP as KCBP Bridge
 
     User->>Script: executeCaseScript
     Script->>Query: await query(sql, params)
@@ -207,7 +207,7 @@ type CaseCallFn = (fields: Record<string, CallFieldValue>) => Promise<ResponseDa
 
 1. 将 `fields` 与当前接口地址（Host / Queue / Timeout / Msgtype）组装为 KCBP payload。
 2. 文本字段写入 `param.fields`；`{ file: '绝对路径' }` 写入 `param.binaryFields`，由主进程读取文件为 `Buffer` 后传给 adapter。
-3. 经 `electronAPI.callKcbp` → 主进程 `rpc:call` → KCBP Worker 发送。
+3. 经 `electronAPI.callKcbp` → 主进程 `rpc:call` → KCBP Bridge 子进程发送。
 4. 返回 **`ResponseData`**（不会抛出业务失败；需自行检查 `code`）。
 
 ### 二进制文件入参

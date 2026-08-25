@@ -466,13 +466,23 @@ function parseValidResult(raw: unknown): RawKcbpResponseData | null {
     return null;
 }
 
+function countResponseRows(data: unknown[]): number {
+    return data.reduce<number>((count, item) => {
+        if (item && typeof item === 'object' && !Array.isArray(item)) {
+            const rows = (item as { rows?: unknown }).rows;
+            if (Array.isArray(rows)) return count + rows.length;
+        }
+        return count + 1;
+    }, 0);
+}
+
 function toNormalizedResult(raw: RawKcbpResponseData, timecost: number): KcbpResponseData {
     return {
         ...raw,
         code: String(raw.code),
         stats: {
             timecost,
-            rows: raw.data.length,
+            rows: countResponseRows(raw.data),
         },
     };
 }

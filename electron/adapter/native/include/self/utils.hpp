@@ -146,19 +146,13 @@ bool isValidKCBPInput(const NJSON &input, std::string &errmsg)
 {
     if (!input.is_object())
     {
-        errmsg = "intput is not an object";
+        errmsg = "请求参数必须是对象";
         return false;
     }
 
     if (!input.contains("connection") || !input["connection"].is_object())
     {
-        errmsg = "connection is not an object";
-        return false;
-    }
-
-    if (!input.contains("connection") || !input["connection"].is_object())
-    {
-        errmsg = "connection is not an object";
+        errmsg = "connection 必须是对象";
         return false;
     }
 
@@ -166,22 +160,22 @@ bool isValidKCBPInput(const NJSON &input, std::string &errmsg)
     NJSON connection = input["connection"];
     if (!connection.contains("ip") || !connection["ip"].is_string())
     {
-        errmsg = "connection.ip is not a string";
+        errmsg = "connection.ip 必须是字符串";
         return false;
     }
     if (!connection.contains("port") || !connection["port"].is_string())
     {
-        errmsg = "connection.port is not a string";
+        errmsg = "connection.port 必须是字符串";
         return false;
     }
     if (!connection.contains("reqqueue") || !connection["reqqueue"].is_string())
     {
-        errmsg = "connection.reqqueue is not a string";
+        errmsg = "connection.reqqueue 必须是字符串";
         return false;
     }
     if (!connection.contains("ansqueue") || !connection["ansqueue"].is_string())
     {
-        errmsg = "connection.ansqueue is not a string";
+        errmsg = "connection.ansqueue 必须是字符串";
         return false;
     }
    
@@ -189,12 +183,12 @@ bool isValidKCBPInput(const NJSON &input, std::string &errmsg)
     NJSON param = input["param"];
     if (!param.contains("fields") || !param["fields"].is_object())
     {
-        errmsg = "param.fields is not an array";
+        errmsg = "param.fields 必须是对象";
         return false;
     }
     if (!param.contains("msgtype") || !param["msgtype"].is_string())
     {
-        errmsg = "param.msgtype is not a string";
+        errmsg = "param.msgtype 必须是字符串";
         return false;
     }
 
@@ -204,44 +198,44 @@ bool isValidKGBPInput(const NJSON &input, std::string &errmsg)
 {
     if (!input.is_object())
     {
-        errmsg = "intput is not an object";
+        errmsg = "请求参数必须是对象";
         return false;
     }
     if (!input.contains("connection") || !input["connection"].is_object())
     {
-        errmsg = "connection is not an object";
+        errmsg = "connection 必须是对象";
         return false;
     }
     NJSON connection = input["connection"];
     if (!connection.contains("ip") || !connection["ip"].is_string())
     {
-        errmsg = "connection.ip is not a string";
+        errmsg = "connection.ip 必须是字符串";
         return false;
     }
     if (!connection.contains("port") || !connection["port"].is_string())
     {
-        errmsg = "connection.port is not a string";
+        errmsg = "connection.port 必须是字符串";
         return false;
     }
     if (!connection.contains("connecttimeout") || !connection["connecttimeout"].is_string())
     {
-        errmsg = "connection.connecttimeout is not a string";
+        errmsg = "connection.connecttimeout 必须是字符串";
         return false;
     }
     if (!connection.contains("requesttimeout") || !connection["requesttimeout"].is_string())
     {
-        errmsg = "connection.requesttimeout is not a string";
+        errmsg = "connection.requesttimeout 必须是字符串";
         return false;
     }
     if (!input.contains("param") || !input["param"].is_object())
     {
-        errmsg = "param is not an object";
+        errmsg = "param 必须是对象";
         return false;
     }
     NJSON param = input["param"];
     if (!param.contains("msgtype") || !param["msgtype"].is_string() || param["msgtype"].get<std::string>().empty())
     {
-        errmsg = "param.msgtype is not a non-empty string";
+        errmsg = "param.msgtype 必须是非空字符串";
         return false;
     }
     return true;

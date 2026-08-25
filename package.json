@@ -69,7 +69,6 @@
     "electronVersion": "36.3.1",
     "asar": true,
     "asarUnpack": [
-      "dist-electron/kcbpWorker.cjs",
       "dist-electron/kcbpBridge.cjs"
     ],
     "directories": {

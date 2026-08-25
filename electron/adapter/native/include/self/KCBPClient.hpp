@@ -319,108 +319,116 @@ private:
 		return true;
 	}
 
-	bool getReplyHead(NJSON &result)
+	bool readCurrentResultSet(NJSON &table, int fallbackIndex)
 	{
-		int col_num;
-		std::vector<string> col_names;
-		col_names.push_back("NULL");
+		int col_num = 0;
+		if (KCBPCLI_RsGetColNum(pHandle_, &col_num) != 0 || col_num < 0)
+		{
+			return false;
+		}
 
-		KCBPCLI_SQLNumResultCols(pHandle_, &col_num);
+		char cursor_name[256] = {0};
+		string table_name = "result" + std::to_string(fallbackIndex);
+		if (KCBPCLI_RsGetCursorName(pHandle_, cursor_name, sizeof(cursor_name)) == 0 && cursor_name[0] != '\0')
+		{
+			table_name = gbkToUtf8(string(cursor_name));
+		}
+
+		NJSON columns = NJSON::array();
+		std::vector<string> col_names;
+		col_names.reserve(static_cast<size_t>(col_num));
 		for (int i = 1; i <= col_num; i++)
 		{
 			string col_name;
 			getSingleColName(pHandle_, i, col_name);
 			col_names.push_back(col_name);
+			columns.push_back(col_name);
 		}
 
-		if (KCBPCLI_RsFetchRow(pHandle_) != 0)
+		NJSON rows = NJSON::array();
+		while (KCBPCLI_RsFetchRow(pHandle_) == 0)
 		{
-			throw std::runtime_error("Failed to fetch first result set");
-			return false;
+			NJSON row = NJSON::object();
+			for (int i = 1; i <= col_num; i++)
+			{
+				string val;
+				getSingleField(pHandle_, i, val);
+				row[col_names[static_cast<size_t>(i - 1)]] = val;
+			}
+			rows.push_back(row);
 		}
 
-		// ��ȡ��һ��
-		for (int i = 1; i <= col_num; i++)
-		{
-			string val;
-			string key = col_names[i];
-			getSingleField(pHandle_, i, val);
-
-			if (toLower(key) == "level")
-			{
-				result["level"] = val;
-			}
-			else if (toLower(key) == "code")
-			{
-				result["code"] = val;
-			}
-			else if (toLower(key) == "msg")
-			{
-				result["msg"] = val;
-			}
-			else
-			{
-				result[col_names[i]] = val;
-			}
-		}
-
+		table["name"] = table_name;
+		table["columns"] = columns;
+		table["rows"] = rows;
 		return true;
+	}
+
+	void readMessageResult(const NJSON &messageTable, NJSON &result)
+	{
+		if (!messageTable.contains("rows") || !messageTable["rows"].is_array() || messageTable["rows"].empty())
+		{
+			return;
+		}
+
+		const NJSON &message = messageTable["rows"][0];
+		for (auto &item : message.items())
+		{
+			const string key = toLower(item.key());
+			if (key == "level" || key == "code" || key == "msg")
+			{
+				result[key] = item.value();
+			}
+		}
 	}
 
 	bool getReply(NJSON &result)
 	{
+		bool opened = false;
 		try
 		{
-
 			if (KCBPCLI_RsOpen(pHandle_) != 0)
 			{
 				throw std::runtime_error("Failed to open result set.");
+			}
+			opened = true;
+			// data 统一承载业务结果集数组；MESSAGE 不进入 data。
+			result["data"] = NJSON::array();
+
+			// 后端约定：第一个结果集 MESSAGE 只承载 LEVEL/CODE/MSG。
+			NJSON message_table;
+			if (!readCurrentResultSet(message_table, 1))
+			{
+				throw std::runtime_error("Failed to read MESSAGE result set.");
+			}
+			readMessageResult(message_table, result);
+
+			int result_index = 1;
+			// RsMore 返回 0 表示存在下一个结果集，非 0 表示已经结束。
+			while (KCBPCLI_RsMore(pHandle_) == 0)
+			{
+				NJSON table;
+				++result_index;
+				if (!readCurrentResultSet(table, result_index))
+				{
+					throw std::runtime_error("Failed to read business result set.");
+				}
+
+				result["data"].push_back(table);
+			}
+
+			if (KCBPCLI_RsClose(pHandle_) != 0)
+			{
 				return false;
 			}
-
-			getReplyHead(result);
-
-			if (KCBPCLI_SQLMoreResults(pHandle_) != 0)
-			{
-				return true;
-			}
-
-			while (true)
-			{
-				int col_num;
-				std::vector<string> col_names;
-				col_names.push_back("NULL");
-
-				KCBPCLI_SQLNumResultCols(pHandle_, &col_num);
-				for (int i = 1; i <= col_num; i++)
-				{
-					string col_name;
-					getSingleColName(pHandle_, i, col_name);
-					col_names.push_back(col_name);
-				}
-
-				result["data"] = NJSON::array();
-				while (KCBPCLI_RsFetchRow(pHandle_) == 0)
-				{
-					NJSON row = NJSON::object();
-
-					for (int i = 1; i <= col_num; i++)
-					{
-						string val;
-						string key = col_names[i];
-						getSingleField(pHandle_, i, val);
-						row[key] = val;
-					}
-
-					result["data"].push_back(row);
-				}
-
-				if (KCBPCLI_SQLMoreResults(pHandle_) != 0)
-					break;
-			}
+			opened = false;
 		}
 		catch (const std::exception &e)
 		{
+			if (opened)
+			{
+				KCBPCLI_RsClose(pHandle_);
+			}
 			return false;
 		}
 

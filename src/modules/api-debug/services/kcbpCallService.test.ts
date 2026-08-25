@@ -104,6 +104,39 @@ describe('buildKcbpCallOutcome', () => {
         expect(outcome.missingParam).toEqual({ name: 'fundid', value: '' });
         expect(outcome.nextParams.some((item) => item.name === 'fundid')).toBe(true);
     });
+
+    it('maps KCBP business result sets while displaying the first table by default', () => {
+        const raw: KcbpResponseData = {
+            code: '0',
+            msg: 'ok',
+            data: [
+                {
+                    name: 'DATA',
+                    columns: ['id'],
+                    rows: [{ id: '1' }],
+                },
+                {
+                    name: 'DETAIL',
+                    columns: ['value'],
+                    rows: [{ value: 'a' }],
+                },
+            ],
+            stats: { timecost: 1, rows: 2 },
+        };
+
+        const outcome = buildKcbpCallOutcome(
+            { params: [] },
+            '127.0.0.1:21000/150501',
+            '150501',
+            raw,
+        );
+
+        expect(outcome.response.data).toEqual([{ id: '1' }]);
+        expect(outcome.response.resultSets?.map((table) => table.name)).toEqual([
+            'DATA',
+            'DETAIL',
+        ]);
+    });
 });
 
 describe('getKcbpCallFeedback', () => {

@@ -1,8 +1,38 @@
 // @vitest-environment jsdom
 
-import { cleanup, render } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { ResponseData } from '../../types/workspace';
 import ResponsePanel from './ResponsePanel';
+
+Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: vi.fn().mockImplementation((query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+    })),
+});
+
+class ResizeObserverMock {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+}
+
+Object.defineProperty(globalThis, 'ResizeObserver', {
+    writable: true,
+    value: ResizeObserverMock,
+});
+
+const responseState = vi.hoisted(() => ({
+    value: { code: '0', message: 'ok', data: [] } as ResponseData,
+}));
 
 vi.mock('../../store/useTabs', () => ({
     useActiveTab: () => ({
@@ -19,11 +49,15 @@ vi.mock('../../hooks/useKcbpCall', () => ({
 }));
 
 vi.mock('../../store/useResponse', () => ({
-    useResponse: () => ({ code: '0', message: 'ok', data: [] }),
+    useResponse: () => responseState.value,
 }));
 
 describe('ResponsePanel', () => {
     afterEach(cleanup);
+
+    afterEach(() => {
+        responseState.value = { code: '0', message: 'ok', data: [] };
+    });
 
     it('shows the code and msg footer when there are no response data rows', () => {
         const { container } = render(<ResponsePanel />);
@@ -31,5 +65,27 @@ describe('ResponsePanel', () => {
         expect(container.querySelector('.response-footer')).not.toBeNull();
         expect(container.querySelector('.response-meta-badge')?.textContent).toBe('0');
         expect(container.querySelector('.response-meta-msg')?.textContent).toBe('ok');
+    });
+
+    it('shows and switches between multiple result sets', () => {
+        responseState.value = {
+            code: '0',
+            message: 'ok',
+            data: [{ id: '1' }],
+            resultSets: [
+                { name: 'DATA', columns: ['id'], rows: [{ id: '1' }] },
+                { name: 'DETAIL', columns: ['value'], rows: [{ value: 'a' }] },
+            ],
+        };
+
+        render(<ResponsePanel />);
+
+        const selector = screen.getByRole('combobox', { name: '选择响应结果集' });
+        expect(selector).toBeTruthy();
+        expect(screen.getAllByText('1').length).toBeGreaterThan(0);
+
+        fireEvent.change(selector, { target: { value: '1' } });
+
+        expect(screen.getByText('a')).toBeTruthy();
     });
 });
