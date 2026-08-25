@@ -212,6 +212,7 @@ describe('invokeKcbpCall', () => {
         address: '127.0.0.1:21000/150501',
         name: '150501',
         params: [{ name: 'market', value: '1', type: 'string' }] as ParamItem[],
+        protocol: 'KCBP' as string,
         script: '',
     };
 

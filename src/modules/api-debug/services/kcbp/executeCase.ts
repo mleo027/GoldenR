@@ -17,7 +17,14 @@ import {
 export async function invokeKcbpCall(
     tab: Pick<
         TabData,
-        'address' | 'name' | 'params' | 'script' | 'requestScript' | 'responseScript' | 'runInput'
+        | 'address'
+        | 'name'
+        | 'params'
+        | 'protocol'
+        | 'script'
+        | 'requestScript'
+        | 'responseScript'
+        | 'runInput'
     >,
     editorMode: KcbpInvokeMode = 'script',
     options: InvokeKcbpCallOptions = {},

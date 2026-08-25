@@ -23,6 +23,8 @@ export interface KcbpParamOptions {
 }
 
 export interface KcbpRequestOptions {
+    /** 协议类型：缺省 KCBP，向后兼容 */
+    type?: 'KCBP' | 'KGBP';
     connection: KcbpConnectionOptions;
     param: KcbpParamOptions;
 }
@@ -351,6 +353,7 @@ function normalizePayload(payload: KcbpRequestOptions): KcbpRequestOptions {
     delete param.binaryFields;
 
     return {
+        type: payload.type || 'KCBP',
         connection: {
             ip: payload.connection.ip || '127.0.0.1',
             port: payload.connection.port || '21000',

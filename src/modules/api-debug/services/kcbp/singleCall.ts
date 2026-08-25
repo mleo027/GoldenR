@@ -6,7 +6,7 @@ import { buildKcbpCallOutcome, buildKcbpRequest } from './requestMapper';
 import type { KcbpCallOutcome, TcdElectronDeps } from './types';
 
 export interface InvokeKcbpWithFieldsOptions {
-    tab: Pick<TabData, 'address' | 'name' | 'params'>;
+    tab: Pick<TabData, 'address' | 'name' | 'params' | 'protocol'>;
     msgtype: string;
     fields: Record<string, string>;
     binaryFields: Record<string, string>;
@@ -27,6 +27,7 @@ export async function invokeKcbpWithFields(
         msgtype,
         fields,
         binaryFields,
+        tab.protocol,
     );
     const callKcbp = electronDeps?.callKcbp ?? requireElectronAPI().kcbp.call;
     const raw: KcbpResponseData = await callKcbp(payload);

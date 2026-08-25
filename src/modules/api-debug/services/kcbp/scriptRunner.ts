@@ -37,7 +37,14 @@ import type {
 export async function runScriptOrTcdCase(
     tab: Pick<
         TabData,
-        'address' | 'name' | 'params' | 'script' | 'requestScript' | 'responseScript' | 'runInput'
+        | 'address'
+        | 'name'
+        | 'params'
+        | 'protocol'
+        | 'script'
+        | 'requestScript'
+        | 'responseScript'
+        | 'runInput'
     >,
     editorMode: KcbpInvokeMode,
     msgtype: string,
@@ -159,16 +166,22 @@ export async function runScriptOrTcdCase(
                       flowRuntime.enterRunCase();
                       try {
                           const resolved = resolveCaseRef(ref, caseIndex);
-                          const nestedTab = cloneCaseTab(resolved as TcdCaseTab) as Pick<
+                          // TCD 用例模型无 protocol 字段：缺省 'KCBP'，保留未来扩展口
+                          const nestedSource = resolved as TcdCaseTab & { protocol?: string };
+                          const nestedTab: Pick<
                               TabData,
                               | 'address'
                               | 'name'
                               | 'params'
+                              | 'protocol'
                               | 'script'
                               | 'requestScript'
                               | 'responseScript'
                               | 'runInput'
-                          >;
+                          > = {
+                              ...cloneCaseTab(nestedSource),
+                              protocol: nestedSource.protocol ?? 'KCBP',
+                          };
                           const nestedInput = input
                               ? { ...normalizeRunInput(nestedTab.runInput), ...input }
                               : normalizeRunInput(nestedTab.runInput);

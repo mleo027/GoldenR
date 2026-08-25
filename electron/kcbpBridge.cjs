@@ -44,7 +44,7 @@ function decodeFields(fields) {
     return decoded;
 }
 
-function loadCallable(adapterCandidates) {
+function loadAdapter(adapterCandidates) {
     const req = createRequire(__filename);
     const candidates = Array.isArray(adapterCandidates) ? adapterCandidates : [];
 
@@ -54,7 +54,7 @@ function loadCallable(adapterCandidates) {
         try {
             const loaded = req(adapterPath);
             if (typeof loaded.callKCBP === 'function') {
-                return loaded.callKCBP.bind(loaded);
+                return loaded;
             }
         } catch {
             // try next candidate
@@ -64,7 +64,15 @@ function loadCallable(adapterCandidates) {
     return null;
 }
 
-let callable = null;
+function getProtocolCallable(adapter, type) {
+    if (!adapter) return null;
+    if (type === 'KGBP') {
+        return typeof adapter.callKGBP === 'function' ? adapter.callKGBP.bind(adapter) : null;
+    }
+    return typeof adapter.callKCBP === 'function' ? adapter.callKCBP.bind(adapter) : null;
+}
+
+let adapter = null;
 let initialized = false;
 
 function writeMessage(message) {
@@ -76,12 +84,14 @@ function handleMessage(message) {
     const { payload, adapterCandidates, callId } = message;
     if (!initialized) {
         prependAdapterDllToPath(adapterCandidates);
-        callable = loadCallable(adapterCandidates);
+        adapter = loadAdapter(adapterCandidates);
         initialized = true;
     }
 
+    const callable = getProtocolCallable(adapter, payload?.type);
     if (!callable) {
-        writeMessage({ callId, ok: false, error: 'Native KCBP adapter not loaded' });
+        const wanted = payload?.type === 'KGBP' ? 'KGBP' : 'KCBP';
+        writeMessage({ callId, ok: false, error: `Native ${wanted} adapter not loaded` });
         return;
     }
 

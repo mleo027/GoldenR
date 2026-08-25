@@ -19,6 +19,8 @@ export interface KcbpParamOptions {
 }
 
 export interface KcbpRequestOptions {
+    /** 协议类型：缺省 KCBP，向后兼容 */
+    type?: 'KCBP' | 'KGBP';
     connection: KcbpConnectionOptions;
     param: KcbpParamOptions;
 }

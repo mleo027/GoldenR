@@ -24,10 +24,12 @@ export function buildKcbpRequest(
     msgtype: string,
     fields: Record<string, string>,
     binaryFields: Record<string, string> = {},
+    protocol?: string,
 ): KcbpRequestOptions {
     const { ip, port } = splitHost(addressParts.host);
 
     return {
+        type: protocol === 'KGBP' ? 'KGBP' : undefined,
         connection: {
             ip: ip || undefined,
             port: port || undefined,

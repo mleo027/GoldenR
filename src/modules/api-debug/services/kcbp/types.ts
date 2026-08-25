@@ -39,7 +39,14 @@ export interface ApiDebugExecutionPorts {
 export type RunNestedKcbpCase = (
     tab: Pick<
         TabData,
-        'address' | 'name' | 'params' | 'script' | 'requestScript' | 'responseScript' | 'runInput'
+        | 'address'
+        | 'name'
+        | 'params'
+        | 'protocol'
+        | 'script'
+        | 'requestScript'
+        | 'responseScript'
+        | 'runInput'
     >,
     options: InvokeKcbpCallOptions,
 ) => Promise<KcbpCallOutcome>;
