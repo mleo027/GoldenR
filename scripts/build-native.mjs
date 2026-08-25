@@ -15,7 +15,9 @@ function run(command, args, options = {}) {
         cwd: options.cwd ?? nativeDir,
     });
     if (result.status !== 0) {
-        throw new Error(`${command} ${args.join(' ')} failed with code ${result.status}`);
+        const reason = result.status !== null ? `code ${result.status}` : `signal ${result.signal}`;
+        const detail = result.error?.message ? ` (${result.error.message})` : '';
+        throw new Error(`${command} ${args.join(' ')} failed with ${reason}${detail}`);
     }
 }
 

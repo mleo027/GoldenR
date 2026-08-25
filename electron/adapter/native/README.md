@@ -52,7 +52,6 @@ adapter/
 │   │   ├── KCBPCli.h            # 金证头文件
 │   │   └── KCBPCli.lib          # 链接库（编译用）
 │   └── json/                    # nlohmann/json
-├── dll/                         # 运行时 DLL、证书、ini
 ├── scripts/build-native.cmd     # 默认编译脚本（cl + link）
 ├── binding.gyp                  # node-gyp 配置（可选）
 ├── app.js                       # 调用示例
@@ -64,9 +63,10 @@ adapter/
 | 目录 | 内容 | 用途 |
 |------|------|------|
 | `include/kcbpcli/lib/` | `KCBPCli.h` + `KCBPCli.lib` | 编译、链接 |
-| `dll/` | `KCBPCli.dll`、`kcxpapi.dll` 等 | 运行时加载 |
 
-运行前需将 `dll` 加入 `PATH`：
+> 注：原工程的 `dll/` 运行时依赖与 `main/` VS 工程未随迁入本仓库；dll 运行时依赖由 `electron/adapter/` 及部署环境提供。
+
+运行前需将 dll 所在目录加入 `PATH`（在本仓库中即 `electron/adapter/`）：
 
 ```javascript
 const dllDir = './dll';
@@ -108,20 +108,10 @@ set VS_CPP_SDK=E:\software\vs_studio\package\SDK\ScopeCppSDK\vc15
 npm run build
 ```
 
-### 3. 可选：node-gyp 编译
-
-若本机已正确安装并注册 Visual Studio（含 C++ 工作负载）：
-
-```bash
-npm run build:gyp
-```
-
 ## 运行
 
 ```bash
 npm test
-# 或编译并运行
-npm run buildandrun
 ```
 
 ## API
@@ -283,16 +273,13 @@ console.log(result);
 
 | 命令 | 说明 |
 |------|------|
-| `npm run build` | 使用 `build-native.cmd` 编译（默认） |
-| `npm run build:gyp` | 使用 node-gyp 编译 |
-| `npm run buildandrun` | 编译后运行 `app.js` |
+| `npm run build` | 等价 `cmd /c scripts\build-native.cmd`，MSVC 编译 |
 | `npm test` | 运行 `app.js` |
-| `npm run config64` | node-gyp 配置 x64 |
-| `npm run config32` | node-gyp 配置 ia32 |
+| `npm run test:call` | 运行 `test-call.js` |
 
 ## 独立 C++ 测试
 
-可用 Visual Studio 打开 `main/main.sln` 编译 `main.cpp`，不依赖 Node 环境。
+原工程可用 Visual Studio 打开 `main/main.sln` 编译 `main.cpp`；该 VS 工程未随迁入本仓库。
 
 ## 日志
 
