@@ -4,13 +4,14 @@
 
 **目标：** 将 `D:\KSPB\adapter\adapter` 的 KCBP 原生扩展源码复制到 `electron/adapter/native/`，纳入 new_golden git 管理，并保证在新位置可直接编译产出 `electron/adapter/adapter.node`。
 
-**架构：** 源码作为自包含的 `native/` 子工程放在产物目录旁边，`scripts/build-native.cmd` 原样保留不改路径；根目录新增一个 Node 编排脚本 `scripts/build-native.mjs`（遵循仓库现有 scripts/*.mjs 模式）负责 install → 编译 → 拷贝产物。
+**架构：** 源码作为自包含的 `native/` 子工程放在产物目录旁边，`scripts/build-native.cmd` 原样保留不改路径；根目录新增一个 Node 编排脚本 `scripts/build-native.mjs`（遵循仓库现有 scripts/\*.mjs 模式）负责 install → 编译 → 拷贝产物。
 
 **技术栈：** C++17 / node-addon-api / MSVC (ScopeCppSDK vc15) / node-gyp headers 缓存；编排脚本为 Node ESM (.mjs)。
 
 **规格：** `docs/superpowers/specs/2026-08-25-adapter-native-integration-design.md`
 
 **硬性验收条件：**
+
 1. `npm run build:native` 在新位置编译成功，产出 `electron/adapter/adapter.node`。
 2. `npm run typecheck` 通过。
 3. 原目录 `D:\KSPB\adapter\adapter` 不做任何写入（只读备份原则）。
@@ -19,23 +20,24 @@
 
 ## 文件结构
 
-| 文件 | 操作 | 职责 |
-|------|------|------|
-| `electron/adapter/native/**` | 创建（复制自 `D:\KSPB\adapter\adapter`，见任务 1 清单） | 原生扩展源码子工程 |
-| `electron/adapter/native/.gitignore` | 创建 | 排除 `node_modules/`、`build/` |
-| `electron/adapter/native/package.json` | 复制后微调 | 仅保留依赖 `node-addon-api` 与构建相关 scripts |
-| `electron/adapter/native/scripts/build-native.cmd` | 复制（不改内容） | MSVC 编译 + 链接，输出 `build/Release/adapter.node` |
-| `electron/adapter/native/README.md` | 复制后追加一节 | 说明在 new_golden 内如何构建 |
-| `scripts/build-native.mjs` | 创建 | 根编排脚本：npm install → build-native.cmd → 拷贝 adapter.node 到 `electron/adapter/` |
-| `package.json` | 修改 | 新增 `"build:native"` 脚本 |
-| `AGENTS.md` | 修改 | 架构一节注明 native 源码位置 |
-| `CHANGELOG.md` | 修改 | `[Unreleased] > Added` 记录迁移 |
+| 文件                                               | 操作                                                    | 职责                                                                                  |
+| -------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `electron/adapter/native/**`                       | 创建（复制自 `D:\KSPB\adapter\adapter`，见任务 1 清单） | 原生扩展源码子工程                                                                    |
+| `electron/adapter/native/.gitignore`               | 创建                                                    | 排除 `node_modules/`、`build/`                                                        |
+| `electron/adapter/native/package.json`             | 复制后微调                                              | 仅保留依赖 `node-addon-api` 与构建相关 scripts                                        |
+| `electron/adapter/native/scripts/build-native.cmd` | 复制（不改内容）                                        | MSVC 编译 + 链接，输出 `build/Release/adapter.node`                                   |
+| `electron/adapter/native/README.md`                | 复制后追加一节                                          | 说明在 new_golden 内如何构建                                                          |
+| `scripts/build-native.mjs`                         | 创建                                                    | 根编排脚本：npm install → build-native.cmd → 拷贝 adapter.node 到 `electron/adapter/` |
+| `package.json`                                     | 修改                                                    | 新增 `"build:native"` 脚本                                                            |
+| `AGENTS.md`                                        | 修改                                                    | 架构一节注明 native 源码位置                                                          |
+| `CHANGELOG.md`                                     | 修改                                                    | `[Unreleased] > Added` 记录迁移                                                       |
 
 ---
 
 ### 任务 1：复制源码到 electron/adapter/native/
 
 **文件：**
+
 - 创建：`electron/adapter/native/{src,include,scripts}/**`
 - 创建：`electron/adapter/native/binding.gyp`、`app.js`、`test-call.js`、`README.md`、`package.json`
 - 创建：`electron/adapter/native/.gitignore`
@@ -48,7 +50,6 @@
 SRC="/d/KSPB/adapter/adapter"
 DST="/d/KSPB/own_tool/new_golden/electron/adapter/native"
 mkdir -p "$DST"
-cp "$SRC/src/adapter.cpp"                                  # 目录结构保持
 mkdir -p "$DST/src" && cp "$SRC/src/adapter.cpp" "$DST/src/"
 mkdir -p "$DST/include/self" && cp "$SRC"/include/self/*.hpp "$DST/include/self/"
 mkdir -p "$DST/include/kcbpcli/lib" && cp "$SRC"/include/kcbpcli/lib/KCBPCli.h "$SRC"/include/kcbpcli/lib/KCBPCli.lib "$DST/include/kcbpcli/lib/"
@@ -74,19 +75,19 @@ build/
 
 ```json
 {
-    "name": "kcbp-native-adapter",
-    "version": "1.0.0",
-    "private": true,
-    "description": "KCBP native adapter source project (built via scripts/build-native.cmd)",
-    "main": "app.js",
-    "scripts": {
-        "build": "cmd /c scripts\\build-native.cmd",
-        "test": "node app.js",
-        "test:call": "node test-call.js"
-    },
-    "dependencies": {
-        "node-addon-api": "^8.4.0"
-    }
+  "name": "kcbp-native-adapter",
+  "version": "1.0.0",
+  "private": true,
+  "description": "KCBP native adapter source project (built via scripts/build-native.cmd)",
+  "main": "app.js",
+  "scripts": {
+    "build": "cmd /c scripts\\build-native.cmd",
+    "test": "node app.js",
+    "test:call": "node test-call.js"
+  },
+  "dependencies": {
+    "node-addon-api": "^8.4.0"
+  }
 }
 ```
 
@@ -160,6 +161,7 @@ ls -la build/Release/adapter.node
 ### 任务 3：根编排脚本 scripts/build-native.mjs
 
 **文件：**
+
 - 创建：`scripts/build-native.mjs`
 - 修改：`package.json`（scripts 段）
 
@@ -179,24 +181,26 @@ const builtBinary = path.join(nativeDir, 'build', 'Release', 'adapter.node');
 const targetBinary = path.join(rootDir, 'electron', 'adapter', 'adapter.node');
 
 function run(command, args, options = {}) {
-    const result = spawnSync(command, args, {
-        stdio: 'inherit',
-        shell: process.platform === 'win32',
-        cwd: options.cwd ?? nativeDir,
-    });
-    if (result.status !== 0) {
-        throw new Error(`${command} ${args.join(' ')} failed with code ${result.status}`);
-    }
+  const result = spawnSync(command, args, {
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
+    cwd: options.cwd ?? nativeDir,
+  });
+  if (result.status !== 0) {
+    throw new Error(`${command} ${args.join(' ')} failed with code ${result.status}`);
+  }
 }
 
 run('npm', ['install']);
 run('cmd', ['/c', 'scripts\\build-native.cmd']);
 
 if (!fs.existsSync(builtBinary)) {
-    throw new Error(`Build did not produce ${builtBinary}`);
+  throw new Error(`Build did not produce ${builtBinary}`);
 }
 fs.copyFileSync(builtBinary, targetBinary);
-console.log(`Copied ${path.relative(rootDir, builtBinary)} -> ${path.relative(rootDir, targetBinary)}`);
+console.log(
+  `Copied ${path.relative(rootDir, builtBinary)} -> ${path.relative(rootDir, targetBinary)}`,
+);
 ```
 
 - [ ] **步骤 3.2：在 package.json 增加 build:native 脚本**
@@ -230,6 +234,7 @@ git commit -m "build(adapter): 根编排脚本 build:native 一键编译原生�
 ### 任务 4：文档同步
 
 **文件：**
+
 - 修改：`electron/adapter/native/README.md`
 - 修改：`AGENTS.md`
 - 修改：`CHANGELOG.md`
@@ -238,19 +243,19 @@ git commit -m "build(adapter): 根编排脚本 build:native 一键编译原生�
 
 在 `electron/adapter/native/README.md` 顶部（架构图之前）插入以下章节：
 
-```markdown
+````markdown
 ## 在 new_golden 内构建
 
 本目录已并入 Golden API 仓库（`electron/adapter/native/`）。常规情况下不要在本目录单独操作，而是在仓库根目录执行：
 
-​```bash
+​`bash
 npm run build:native
-​```
+​`
 
 该命令依次完成：`npm install`（安装 node-addon-api）→ `scripts\build-native.cmd`（MSVC 编译链接）→ 将 `build/Release/adapter.node` 覆盖拷贝到上级 `electron/adapter/adapter.node` 供 Electron 加载。
 
 工具链要求不变：Windows + Node.js 18+ + MSVC（ScopeCppSDK vc15，可用环境变量 `VS_CPP_SDK` 覆盖路径）。
-```
+````
 
 （注：插入时把 `​```bash` 还原为正常的 ```bash 围栏——上文为避免嵌套围栏加了零宽字符，实际写入时不要带。）
 

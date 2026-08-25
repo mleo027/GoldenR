@@ -18,11 +18,11 @@
 
 ## 方案选择
 
-| 方案 | 说明 | 结论 |
-|------|------|------|
-| 1. 独立原生子工程 + 根目录编排 | 源码复制到 `electron/adapter/native/`，保留自身 package.json；根 package.json 加编排脚本 | **采纳** |
-| 2. 并入主工程 package.json | node-addon-api 提升为根 devDependency，改写编译脚本路径 | 否决：需改写 build-native.cmd 路径，根包混入 C++ 构建依赖 |
-| 3. 标准 node-gyp 构建 | 只留 binding.gyp，走 node-gyp rebuild | 否决：工具链为独立 ScopeCppSDK vc15（非完整 VS），node-gyp 默认探测风险高 |
+| 方案                           | 说明                                                                                     | 结论                                                                      |
+| ------------------------------ | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| 1. 独立原生子工程 + 根目录编排 | 源码复制到 `electron/adapter/native/`，保留自身 package.json；根 package.json 加编排脚本 | **采纳**                                                                  |
+| 2. 并入主工程 package.json     | node-addon-api 提升为根 devDependency，改写编译脚本路径                                  | 否决：需改写 build-native.cmd 路径，根包混入 C++ 构建依赖                 |
+| 3. 标准 node-gyp 构建          | 只留 binding.gyp，走 node-gyp rebuild                                                    | 否决：工具链为独立 ScopeCppSDK vc15（非完整 VS），node-gyp 默认探测风险高 |
 
 采纳方案 1 的理由：`build-native.cmd` 全部使用相对项目根的路径并自行
 `cd` 到脚本上级目录，原样复制即可编译，改动最小；native 子工程自包含，

@@ -1,4 +1,17 @@
 {
   "version": 1,
-  "recommendations": []
+  "recommendations": [
+    {
+      "rulePath": "D:\\KSPB\\own_tool\\new_golden\\.pi\\rules\\app-env-fields.md",
+      "ruleRelativePath": ".pi/rules/app-env-fields.md",
+      "summary": "AppEnv 新增字段必须同步更新 mergeAppEnv / isAppEnv / isSameEnv 三处",
+      "content": "## AppEnv 字段扩展清单\n\n`src/types.ts` 中的 `AppEnv` 新增字段时，必须同步检查以下三处，否则会出现\"UI 生效但不持久化/不触发保存\"的静默 bug：\n\n1. `src/store/appEnvData.ts` → `mergeAppEnv()`：字段合并与默认值回退。\n2. `src/store/appEnvData.ts` → `isAppEnv()`：从磁盘读取时的类型校验，缺失会导致加载时字段被静默丢弃。\n3. `src/store/appEnvStore.tsx` → `isSameEnv()`：写盘副作用的变化检测；遗漏会导致只改该字段时不调用 `saveAppEnv`（accentColor 曾因此丢失持久化）。\n\n若字段影响 DOM（如 `darkMode`），还需在 `applyDocumentTheme` 或对应 Provider 的 effect 中应用。\n\n背景：2026-01 修复过 `accentColor` 因未加入 `isSameEnv` 导致重启后主题颜色丢失的 bug（commit 9426d9b）。",
+      "reason": "本次修复的 accentColor 持久化 bug 源于新增 AppEnv 字段时漏改 isSameEnv，属于容易复发的结构性陷阱，值得文档化",
+      "status": "pending",
+      "id": "rec_mt8ba1wl_y27karml",
+      "createdAt": 1787640972069,
+      "updatedAt": 1787640972069,
+      "mergeCount": 1
+    }
+  ]
 }
