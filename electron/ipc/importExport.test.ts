@@ -135,4 +135,14 @@ describe('import/export IPC handlers', () => {
         ).resolves.toEqual({ saved: false });
         await expect(invoke('export:saveTxt', { content: 1 })).rejects.toThrow();
     });
+
+    it('reports a friendly error for malformed import JSON', async () => {
+        mock.readFile.mockResolvedValueOnce('{ not json');
+        const result = (await invoke('import:openFile', 'json')) as {
+            opened: boolean;
+            error?: string;
+        };
+        expect(result.opened).toBe(false);
+        expect(result.error).toContain('JSON 解析失败');
+    });
 });

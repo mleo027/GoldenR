@@ -77,7 +77,9 @@ describe('buildAlignedTextTable', () => {
             { fundid: '6001002', stkcode: '600519', flag: '卖出' },
         ]);
         expect(table).toBe(
-            ['fundid   stkcode  flag', '6001001  000001   买入', '6001002  600519   卖出'].join('\n'),
+            ['fundid   stkcode  flag', '6001001  000001   买入', '6001002  600519   卖出'].join(
+                '\n',
+            ),
         );
     });
 
@@ -89,6 +91,20 @@ describe('buildAlignedTextTable', () => {
     it('serializes null as empty string and objects as JSON', () => {
         const table = buildAlignedTextTable([{ a: null, b: { x: 1 } }]);
         expect(table).toBe('a  b\n   {"x":1}');
+    });
+
+    it('counts hangul syllables as double width', () => {
+        const table = buildAlignedTextTable([{ code: '가각', qty: 5 }]);
+        expect(table).toBe('code  qty\n가각  5');
+    });
+
+    it('counts halfwidth katakana as single width', () => {
+        const table = buildAlignedTextTable([{ code: 'ｱｲ', qty: 55555 }]);
+        expect(table).toBe('code  qty\nｱｲ    55555');
+    });
+
+    it('returns empty string for empty data', () => {
+        expect(buildAlignedTextTable([])).toBe('');
     });
 });
 

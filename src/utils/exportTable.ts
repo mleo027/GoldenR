@@ -4,8 +4,10 @@ function stringifyExportValue(value: unknown): string {
     return value == null ? '' : typeof value === 'object' ? JSON.stringify(value) : String(value);
 }
 
-/** CJK 全角字符（汉字、全角标点、韩文等）按 2 个显示宽度计 */
-const WIDE_CHAR_RE = /[\u2E80-\u9FFF\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFFEF]/;
+/** CJK 全角字符（汉字、全角标点、韩文谚文等）按 2 个显示宽度计；
+ *  半角片假名（U+FF61–U+FF9F）为窄字符不计入 */
+const WIDE_CHAR_RE =
+    /[\u1100-\u11FF\u2E80-\u9FFF\uAC00-\uD7A3\uF900-\uFAFF\uFE30-\uFE4F\uFF01-\uFF60\uFFE0-\uFFE6]/;
 
 export function displayWidth(text: string): number {
     let width = 0;
@@ -60,6 +62,9 @@ export function buildCsvContent(data: Record<string, unknown>[]): string {
 
 /** 构建列对齐的纯文本表格：列宽取各列最大显示宽度，右侧补空格，列间两个空格 */
 export function buildAlignedTextTable(data: Record<string, unknown>[]): string {
+    if (data.length === 0) {
+        return '';
+    }
     const keys = Object.keys(data[0]);
     const rows = data.map((row) => keys.map((key) => stringifyExportValue(row[key])));
     const widths = keys.map((key, col) =>
