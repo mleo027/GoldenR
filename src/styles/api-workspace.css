@@ -180,7 +180,7 @@
     gap: 0;
     flex-shrink: 0;
     min-width: 0;
-    max-width: min(280px, 42vw);
+    max-width: none;
     height: var(--control-height);
     padding-inline: 8px 6px;
     border: 1px solid var(--color-border);
