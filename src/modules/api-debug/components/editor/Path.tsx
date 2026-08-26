@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Button, Dropdown, Input, Menu, Select, Tooltip } from 'antd';
+import { Button, Dropdown, Input, Menu, Tooltip } from 'antd';
+import { Select } from '../../../../components/ui/primitives';
 import {
     ClockCircleOutlined,
     CopyOutlined,
@@ -394,7 +395,7 @@ export default function Path({
                         value={env.activeKcxpEnvironmentId}
                         options={environmentOptions}
                         onChange={handleEnvironmentChange}
-                        size="small"
+                        size="sm"
                         variant="borderless"
                         className="path-env-badge-select"
                         popupMatchSelectWidth={false}

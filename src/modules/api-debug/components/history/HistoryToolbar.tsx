@@ -1,4 +1,5 @@
-import { Button, Input, Segmented, Select } from 'antd';
+import { Button, Input, Segmented } from 'antd';
+import { Select } from '../../../../components/ui/primitives';
 import type { ResultFilter, TimeFilter } from './historyFormat';
 
 interface HistoryToolbarProps {
@@ -68,7 +69,7 @@ function ToolbarFilters({
                 ]}
             />
             <Select
-                size="small"
+                size="sm"
                 allowClear
                 placeholder="环境"
                 value={environment}
@@ -77,7 +78,7 @@ function ToolbarFilters({
                 className="w-32"
             />
             <Select
-                size="small"
+                size="sm"
                 allowClear
                 placeholder="类型"
                 value={mode}
@@ -90,7 +91,7 @@ function ToolbarFilters({
                 className="w-28"
             />
             <Select
-                size="small"
+                size="sm"
                 value={timeFilter}
                 onChange={onTimeChange}
                 options={[

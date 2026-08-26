@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
-import { Button, Input, Radio, Select, Switch, Typography } from 'antd';
-import { CheckOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Input, Radio, Switch, Typography } from 'antd';
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Select } from '../../../../components/ui/primitives';
 import { useAppEnv } from '../../../../store/useAppEnv';
 import { useApiDebugEnv } from '../../store/useApiDebugEnv';
 import { useTabsActions } from '../../store/useTabs';
@@ -52,20 +53,8 @@ function EnvironmentRow({
                     value={environment.protocol ?? 'KCBP'}
                     options={PROTOCOL_SELECT_OPTIONS}
                     onChange={(value) => updateField('protocol', value as KcxpProtocol)}
-                    size="small"
+                    size="sm"
                     variant="borderless"
-                    placement="bottomLeft"
-                    popupMatchSelectWidth
-                    className="kcxp-env-protocol-select"
-                    popupClassName="kcxp-env-protocol-dropdown"
-                    optionRender={(option) => (
-                        <span className="kcxp-env-protocol-option">
-                            <span className="kcxp-env-protocol-option-label">{option.label}</span>
-                            {option.value === (environment.protocol ?? 'KCBP') ? (
-                                <CheckOutlined className="kcxp-env-protocol-option-check" />
-                            ) : null}
-                        </span>
-                    )}
                 />
                 <Button
                     type="text"

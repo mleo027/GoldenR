@@ -6,11 +6,11 @@ import {
     Input,
     InputNumber,
     Modal,
-    Select,
     Switch,
     Tag,
     Typography,
 } from 'antd';
+import { Select } from '../../../../components/ui/primitives';
 import type { FormInstance, FormListFieldData } from 'antd';
 import type { ParamFieldRule, ParamSuggestBinding } from '../../types/paramSuggest';
 import {

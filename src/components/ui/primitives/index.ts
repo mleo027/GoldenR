@@ -12,6 +12,8 @@ export { default as Input } from './Input';
 export type { InputProps } from './Input';
 export { default as Modal } from './Modal';
 export type { ModalProps } from './Modal';
+export { default as Select } from './Select';
+export type { SelectProps } from './Select';
 export { default as TextArea } from './TextArea';
 export type { TextAreaProps } from './TextArea';
 export type {
