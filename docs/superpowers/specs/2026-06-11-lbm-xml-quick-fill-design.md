@@ -18,14 +18,14 @@ api-debug 模块的「快速填充入参」目前支持三种文本格式（日�
 
 ## 需求映射
 
-| 来源 | 去向 |
-|------|------|
-| `<lbm>` 的 `name` 属性 | funcid（→ 入参 + 地址栏 msgtype） |
-| `<lbm>` 的 `node_id` 属性 | 地址栏 query `nodeid=` |
-| `<lbm>` 的 `service_name` 属性 | 地址栏 query `service=` |
-| `<lbm>` 的 `describe` 属性 | 接口标题（title） |
-| 每个 `<param>` 的 `name` / `defaultvalue` | 入参 key / value |
-| 其他属性（datatype、InHareSocketDataType、allownull、channel 等） | 忽略 |
+| 来源                                                              | 去向                              |
+| ----------------------------------------------------------------- | --------------------------------- |
+| `<lbm>` 的 `name` 属性                                            | funcid（→ 入参 + 地址栏 msgtype） |
+| `<lbm>` 的 `node_id` 属性                                         | 地址栏 query `nodeid=`            |
+| `<lbm>` 的 `service_name` 属性                                    | 地址栏 query `service=`           |
+| `<lbm>` 的 `describe` 属性                                        | 接口标题（title）                 |
+| 每个 `<param>` 的 `name` / `defaultvalue`                         | 入参 key / value                  |
+| 其他属性（datatype、InHareSocketDataType、allownull、channel 等） | 忽略                              |
 
 关键决策（用户已确认）：
 
@@ -65,10 +65,10 @@ result 携带 `service` / `nodeId` 时合并进地址栏 parts 再序列化；�
 ```ts
 const parts = parseKcbpAddress(activeTab.address);
 patch.address = serializeKcbpAddress({
-    ...parts,
-    ...(result.msgtype ? { msgtype: result.msgtype } : {}),
-    ...(result.service ? { service: result.service } : {}),
-    ...(result.nodeId ? { nodeId: result.nodeId } : {}),
+  ...parts,
+  ...(result.msgtype ? { msgtype: result.msgtype } : {}),
+  ...(result.service ? { service: result.service } : {}),
+  ...(result.nodeId ? { nodeId: result.nodeId } : {}),
 });
 ```
 

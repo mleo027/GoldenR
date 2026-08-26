@@ -12,6 +12,18 @@
       "createdAt": 1787640972069,
       "updatedAt": 1787640972069,
       "mergeCount": 1
+    },
+    {
+      "rulePath": "D:\\KSPB\\own_tool\\new_golden\\.pi\\rules\\ui\\primitives.md",
+      "ruleRelativePath": ".pi/rules/ui/primitives.md",
+      "summary": "下拉选择器统一使用 src/components/ui/primitives/Select 基础组件，禁止直接使用 antd Select",
+      "content": "## 下拉选择器必须使用基础 Select 组件\n\n所有下拉选择一律从 `src/components/ui/primitives` 导入 `Select`（含 `SelectProps` 类型），**禁止**在业务代码中直接 `import { Select } from 'antd'`。\n\n### 基础组件已内置的统一行为\n\n- 弹窗默认向下弹出（`placement=\"bottomLeft\"`），宽度匹配触发器\n- 选中项：浅主色背景 + 左侧竖条指示 + 加粗主题色 + 行尾 CheckOutlined 对勾\n- hover 态独立浅色阶、选项行距加大\n- 弹窗阴影与圆角全局统一（`.ga-select` / `.ga-select-dropdown`，样式在 `src/styles/primitives.css`）\n- 暗色模式通过 tokens.css 主题变量自动适配\n\n### 约定\n\n- 新原语组件放 `src/components/ui/primitives/`，遵循 Input.tsx 的 forwardRef + PrimitiveSize 模式，并在 index.ts barrel 导出\n- 业务 props（options/value/onChange/mode 等）照常传递；确需偏离缺省行为（如窄弹窗）时显式覆盖对应 prop 即可\n- 全局样式类前缀 `ga-`，禁止业务代码覆写 `.ant-select-*` 全局选择器",
+      "reason": "刚完成基础 Select 封装并迁移全部 7 处调用点（46fdd42）。此前下拉样式散落各处（settings.css 专属类、各文件手写 props），导致视觉不一致。需要固化约定防止后续新增页面又直接用 antd Select 造成回退。",
+      "status": "pending",
+      "id": "rec_mt9h8qt3_89iut5ze",
+      "createdAt": 1787711454903,
+      "updatedAt": 1787711454903,
+      "mergeCount": 1
     }
   ]
 }
