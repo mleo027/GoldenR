@@ -1,4 +1,5 @@
 import type { ParamItem, ResponseData } from '../../types/workspace';
+import type { KcbpResultSet } from '../../../../types/kcbp';
 import { mergeParamIntoList } from './kcbpParams';
 
 export type ResponseStatusKind = 'success' | 'warning' | 'error';
@@ -73,3 +74,8 @@ export const statusTagColor: Record<ResponseStatusKind, string> = {
     warning: 'gold',
     error: 'red',
 };
+
+/** 所有结果集的行数总和（用于 stats.rows 兜底） */
+export function sumResultSetRows(resultSets: KcbpResultSet[]): number {
+    return resultSets.reduce((total, set) => total + set.rows.length, 0);
+}

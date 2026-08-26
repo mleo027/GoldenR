@@ -1,5 +1,5 @@
 import type { TabData } from '../../types/workspace';
-import type { KcbpRequestOptions, KcbpResponseData, KcbpResultSet } from '../../../../types/kcbp';
+import type { KcbpRequestOptions, KcbpResponseData } from '../../../../types/kcbp';
 import { parseKcbpAddress, splitHost, type KcbpAddressParts } from '../../utils/kcbp/kcbpAddress';
 import {
     extractMissingParamFromKcbpResponse,
@@ -9,25 +9,6 @@ import { parseKcbpResponseStatus } from '../../utils/kcbp/kcbpResponse';
 import type { KcbpCallOutcome } from './types';
 
 export { buildEnabledParamFields, buildKcbpFields } from '../../utils/kcbp/kcbpFields';
-
-export function toGridRows(data: unknown[]): Record<string, unknown>[] {
-    return data.map((item) => {
-        if (item && typeof item === 'object' && !Array.isArray(item)) {
-            return item as Record<string, unknown>;
-        }
-        return { value: item };
-    });
-}
-
-function isKcbpResultSet(value: unknown): value is KcbpResultSet {
-    if (!value || typeof value !== 'object') return false;
-    const candidate = value as Partial<KcbpResultSet>;
-    return (
-        typeof candidate.name === 'string' &&
-        Array.isArray(candidate.columns) &&
-        Array.isArray(candidate.rows)
-    );
-}
 
 function parseOptionalInt(value: string | undefined): number | undefined {
     const trimmed = value?.trim();
@@ -94,13 +75,10 @@ export function buildKcbpCallOutcome(
     raw: KcbpResponseData,
 ): KcbpCallOutcome {
     const msgtype = parseKcbpAddress(address).msgtype.trim() || fallbackName;
-    const resultSets = raw.data.every(isKcbpResultSet) ? (raw.data as KcbpResultSet[]) : undefined;
-    const gridData = resultSets ? toGridRows(resultSets[0]?.rows ?? []) : toGridRows(raw.data);
     const response: KcbpCallOutcome['response'] = {
         code: raw.code,
         message: raw.msg,
-        data: gridData,
-        resultSets,
+        resultSets: raw.data,
         stats: raw.stats,
         calledAt: Date.now(),
     };

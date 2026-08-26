@@ -3,7 +3,7 @@
 export interface TcdStepResponse {
     code: string | number;
     message: string;
-    data: Record<string, unknown>[];
+    resultSets: { name: string; rows: Record<string, unknown>[] }[];
     calledAt?: number;
     stats?: {
         timecost: number;

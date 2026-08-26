@@ -161,7 +161,7 @@ export default function ResponsePanel({
 
     const resultSets = response?.resultSets ?? [];
     const selectedResultSet = resultSets[selectedResultSetIndex];
-    const responseData = selectedResultSet?.rows ?? response?.data ?? EMPTY_RESPONSE_ROWS;
+    const responseData = selectedResultSet?.rows ?? EMPTY_RESPONSE_ROWS;
 
     useEffect(() => {
         setSearchKeyword('');

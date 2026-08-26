@@ -33,7 +33,8 @@ export interface KcbpRequestOptions {
 export interface KcbpResponseData {
     code: string;
     msg: string;
-    data: unknown[];
+    /** 恒为结果集数组（边界已归一化） */
+    data: KcbpResultSet[];
     level?: string;
     stats: {
         timecost: number;

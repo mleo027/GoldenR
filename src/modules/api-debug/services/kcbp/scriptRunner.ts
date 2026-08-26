@@ -125,7 +125,7 @@ export async function runScriptOrTcdCase(
         };
         callSteps.push(step);
         if (editorMode === 'tcd') {
-            const rows = lastOutcome.response.stats?.rows ?? lastOutcome.response.data.length;
+            const rows = lastOutcome.response.stats?.rows ?? lastOutcome.response.resultSets.reduce((t, s) => t + s.rows.length, 0);
             consoleCapture.append(
                 'log',
                 `[call #${step.index}] ${step.msgtype} → code=${lastOutcome.response.code} rows=${rows} ${step.durationMs}ms`,
@@ -243,7 +243,7 @@ export async function runScriptOrTcdCase(
                 response: {
                     code: '-1',
                     message: '脚本未产生 KCBP 响应',
-                    data: [],
+                    resultSets: [],
                     calledAt: Date.now(),
                 },
                 nextParams: tab.params,
@@ -301,7 +301,7 @@ export async function runScriptOrTcdCase(
             const errorResponse: ResponseData = {
                 code: '-1',
                 message: error.result.message,
-                data: [],
+                resultSets: [],
                 calledAt: Date.now(),
             };
             return attachCallSteps({

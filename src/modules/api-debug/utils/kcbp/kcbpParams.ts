@@ -1,4 +1,5 @@
 import type { ParamItem } from '../../types/workspace';
+import type { KcbpResultSet } from '../../../../types/kcbp';
 
 const MISSING_PARAM_CODE = '90001';
 
@@ -31,21 +32,19 @@ function tryExtractMissingParam(
 export function extractMissingParamFromKcbpResponse(
     code: string | number,
     msg: string,
-    data: unknown[] = [],
+    resultSets: KcbpResultSet[] = [],
 ): { name: string; value: string } | null {
     const fromTop = tryExtractMissingParam(code, msg);
     if (fromTop) return fromTop;
 
-    for (const item of data) {
-        if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
-
-        const row = item as Record<string, unknown>;
-        const rowMsg = row.msg;
-        if (rowMsg == null) continue;
-
-        const rowCode = row.code ?? '';
-        const extracted = tryExtractMissingParam(String(rowCode), String(rowMsg));
-        if (extracted) return extracted;
+    for (const set of resultSets) {
+        for (const row of set.rows) {
+            const rowMsg = (row as Record<string, unknown>)?.msg;
+            if (rowMsg == null) continue;
+            const rowCode = (row as Record<string, unknown>).code ?? '';
+            const extracted = tryExtractMissingParam(String(rowCode), String(rowMsg));
+            if (extracted) return extracted;
+        }
     }
 
     return null;

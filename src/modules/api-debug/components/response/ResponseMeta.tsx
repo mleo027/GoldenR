@@ -45,7 +45,7 @@ function isNonZeroCode(code: string | number): boolean {
 
 function ResponseMetaFooter({ response, className }: ResponseMetaProps) {
     const status = parseKcbpResponseStatus(response);
-    const dataSize = formatDataSize(response.data);
+    const dataSize = formatDataSize(response.resultSets);
 
     return (
         <div
@@ -67,8 +67,8 @@ function ResponseMetaFooter({ response, className }: ResponseMetaProps) {
                     </Tooltip>
                 </>
             )}
-            {response.data.length > 0 && (
-                <>
+            {response.resultSets.length > 0 && (
+            <>
                     {status.businessMsg && (
                         <span className="response-meta-sep shrink-0" aria-hidden="true" />
                     )}
@@ -100,8 +100,8 @@ function ResponseMetaFooter({ response, className }: ResponseMetaProps) {
 
 function ResponseMetaDetails({ response, className }: ResponseMetaProps) {
     const status = parseKcbpResponseStatus(response);
-    const rowCount = response.stats?.rows ?? response.data.length;
-    const dataSize = formatDataSize(response.data);
+    const rowCount = response.stats?.rows ?? response.resultSets.reduce((t, s) => t + s.rows.length, 0);
+    const dataSize = formatDataSize(response.resultSets);
 
     return (
         <div
@@ -136,7 +136,7 @@ function ResponseMetaDetails({ response, className }: ResponseMetaProps) {
                     </Tag>
                 </Tooltip>
             )}
-            {response.data.length > 0 && (
+                    {response.resultSets.length > 0 && (
                 <Tooltip title="响应数据大小">
                     <Tag bordered={false} className="response-meta-badge">
                         {dataSize}
@@ -167,7 +167,7 @@ export default function ResponseMeta({ response, className, variant = 'full' }: 
     if (variant === 'footer') {
         const status = parseKcbpResponseStatus(response);
         const hasContent =
-            status.businessMsg || response.data.length > 0 || hasTransportMismatch(response);
+            status.businessMsg || response.resultSets.length > 0 || hasTransportMismatch(response);
         return hasContent ? <ResponseMetaFooter response={response} className={className} /> : null;
     }
     return <ResponseMetaDetails response={response} className={className} />;

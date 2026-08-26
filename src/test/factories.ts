@@ -64,7 +64,7 @@ export function createKcbpResponse(overrides: Partial<KcbpResponseData> = {}): K
     return {
         code: '0',
         msg: 'ok',
-        data: [{ custid: '1' }],
+        data: [{ name: '', rows: [{ custid: '1' }] }],
         stats: { timecost: 12, rows: 1 },
         ...overrides,
     };

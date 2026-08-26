@@ -3,8 +3,8 @@ import type { KcbpResultSet } from '@/shared/kcbp/types';
 export interface ResponseData {
     code: string | number;
     message: string;
-    data: Record<string, unknown>[];
-    resultSets?: KcbpResultSet[];
+    /** 恒为结果集数组（IPC 层已归一化） */
+    resultSets: KcbpResultSet[];
     calledAt?: number;
     stats?: {
         timecost: number;

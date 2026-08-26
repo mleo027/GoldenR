@@ -39,7 +39,7 @@ export function formatByteSize(bytes: number): string {
     return formatBytes(bytes);
 }
 
-export function estimateDataSize(data: Record<string, unknown>[]): number {
+export function estimateDataSize(data: unknown[]): number {
     try {
         return new Blob([JSON.stringify(data)]).size;
     } catch {
@@ -47,7 +47,7 @@ export function estimateDataSize(data: Record<string, unknown>[]): number {
     }
 }
 
-export function formatDataSize(data: Record<string, unknown>[]): string {
+export function formatDataSize(data: unknown[]): string {
     return formatBytes(estimateDataSize(data));
 }
 

@@ -19,9 +19,9 @@ function formatTime(response?: ResponseData): string {
 }
 
 function formatSize(response?: ResponseData): string {
-    if (!response?.data) return '--';
+    if (!response?.resultSets) return '--';
     try {
-        return formatByteSize(JSON.stringify(response.data).length);
+        return formatByteSize(JSON.stringify(response.resultSets).length);
     } catch {
         return '--';
     }

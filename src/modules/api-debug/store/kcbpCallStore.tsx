@@ -176,7 +176,7 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
                     success: feedback.level === 'success' || feedback.level === 'info',
                     rows: outcome.response.stats?.rows,
                     timecost: outcome.response.stats?.timecost,
-                    dataSize: JSON.stringify(outcome.response.data).length,
+                    dataSize: JSON.stringify(outcome.response.resultSets).length,
                     businessCode: responseStatus.businessCode,
                     transportCode: responseStatus.transportCode,
                     message: feedback.message,
@@ -193,7 +193,7 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
             setResponse(tab.id, {
                 code: '-1',
                 message: errorMessage,
-                data: [],
+                resultSets: [],
                 calledAt: Date.now(),
             });
             if (editorMode === 'script') {
@@ -227,7 +227,7 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
             const errorResponse = {
                 code: '-1',
                 message: errorMessage,
-                data: [],
+                resultSets: [],
                 calledAt: Date.now(),
             };
             addEntry({
