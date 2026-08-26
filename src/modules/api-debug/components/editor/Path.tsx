@@ -94,7 +94,10 @@ function PathAddressFields({
     isKGBP,
 }: {
     addressParts: ReturnType<typeof usePathBarController>['addressParts'];
-    handleAddressPartChange: (field: 'queue' | 'timeout' | 'msgtype' | 'service' | 'nodeId' | 'clientSessionId', value: string) => void;
+    handleAddressPartChange: (
+        field: 'queue' | 'timeout' | 'msgtype' | 'service' | 'nodeId' | 'clientSessionId',
+        value: string,
+    ) => void;
     run: () => void;
     flushPending: () => void;
     defaultTimeout: string;
@@ -150,7 +153,9 @@ function PathAddressFields({
                     <span className="path-field-tooltip-wrap">
                         <Input
                             value={addressParts.clientSessionId ?? ''}
-                            onChange={(e) => handleAddressPartChange('clientSessionId', e.target.value)}
+                            onChange={(e) =>
+                                handleAddressPartChange('clientSessionId', e.target.value)
+                            }
                             onPressEnter={run}
                             onBlur={flushPending}
                             placeholder="@custid"
