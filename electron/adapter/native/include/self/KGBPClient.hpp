@@ -244,7 +244,8 @@ private:
 			NJSON row = NJSON::object();
 			for (size_t i = 0; i < colNum; ++i)
 			{
-				row[names[i]] = getColumnValue(static_cast<int>(i) + 1);
+				// SDK 列索引为 0-based（见 KGBPCli_test.cpp 样例）
+				row[names[i]] = getColumnValue(static_cast<int>(i));
 			}
 			rows.push_back(row);
 		}
