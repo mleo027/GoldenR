@@ -43,7 +43,6 @@ if (typeof adapter.callKCBP !== 'function') {
 ok('callKCBP 已导出');
 
 const baseConnection = {
-  connecttimeout: '5',
   port: '21000',
   requesttimeout: '15',
   ip: '127.0.0.1',

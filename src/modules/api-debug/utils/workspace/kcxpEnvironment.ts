@@ -23,7 +23,6 @@ export function createKcxpEnvironment(
         service: partial?.service,
         nodeId: partial?.nodeId,
         sessionId: partial?.sessionId,
-        connectTimeout: partial?.connectTimeout,
     };
 }
 
@@ -114,7 +113,6 @@ export function applyKcxpEnvironmentToAddress(
         setQueryParam(params, 'service', environment.service);
         setQueryParam(params, 'nodeid', environment.nodeId);
         setQueryParam(params, 'sessionid', environment.sessionId);
-        setQueryParam(params, 'connecttimeout', environment.connectTimeout);
         setQueryParam(params, 'requesttimeout', environment.timeout);
 
         const host = environment.host.trim();
@@ -133,7 +131,6 @@ export function applyKcxpEnvironmentToAddress(
         service: undefined,
         nodeId: undefined,
         sessionId: undefined,
-        connectTimeout: undefined,
     });
 }
 

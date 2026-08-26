@@ -217,11 +217,6 @@ bool isValidKGBPInput(const NJSON &input, std::string &errmsg)
         errmsg = "connection.port 必须是字符串";
         return false;
     }
-    if (!connection.contains("connecttimeout") || !connection["connecttimeout"].is_string())
-    {
-        errmsg = "connection.connecttimeout 必须是字符串";
-        return false;
-    }
     if (!connection.contains("requesttimeout") || !connection["requesttimeout"].is_string())
     {
         errmsg = "connection.requesttimeout 必须是字符串";

@@ -440,14 +440,13 @@ void callKCBPBackend(const NJSON &inputJson, NJSON &outputJson)
 {
 	KCBPCLientConfig config;
 	NJSON connection = inputJson["connection"];
-	string conntimeout = connection["connecttimeout"].get<string>();
-	string port = connection["port"].get<string>();
+ string port = connection["port"].get<string>();
 	string reqtimeout = connection["requesttimeout"].get<string>();
 	string ip = connection["ip"].get<string>();
 	string ansqueue = connection["ansqueue"].get<string>();
 	string reqqueue = connection["reqqueue"].get<string>();
 
-	config.nConnectTimeout = std::stoi(conntimeout);
+ config.nConnectTimeout = DEFAULT_CONNTIMEOUT;
 	config.nPort = std::stoi(port);
 	config.nReqTimeout = std::stoi(reqtimeout);
 	config.sAddress = ip;

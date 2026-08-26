@@ -45,14 +45,13 @@ describe('applyKcxpEnvironmentToAddress (KGBP)', () => {
         service: 'srv-demo',
         nodeId: '3',
         sessionId: '88',
-        connectTimeout: '5',
     };
 
     it('writes kgbp query params and drops queue while keeping msgtype', () => {
         expect(
             applyKcxpEnvironmentToAddress('127.0.0.1:21000/150501?queue=req1&timeout=15', kgbpEnv),
         ).toBe(
-            '10.0.0.2:9100/150501?service=srv-demo&nodeid=3&sessionid=88&connecttimeout=5&requesttimeout=20',
+            '10.0.0.2:9100/150501?service=srv-demo&nodeid=3&sessionid=88&requesttimeout=20',
         );
     });
 
@@ -60,7 +59,6 @@ describe('applyKcxpEnvironmentToAddress (KGBP)', () => {
         const minimal: KcxpEnvironment = {
             ...kgbpEnv,
             sessionId: undefined,
-            connectTimeout: undefined,
         };
         const address = applyKcxpEnvironmentToAddress('/150501?queue=req1&sessionid=7', minimal);
         expect(address).toBe('10.0.0.2:9100/150501?service=srv-demo&nodeid=3&requesttimeout=20');
@@ -79,7 +77,7 @@ describe('applyKcxpEnvironmentToAddress (KGBP → KCBP 切换)', () => {
         };
         expect(
             applyKcxpEnvironmentToAddress(
-                '10.0.0.2:9100/150501?service=srv-demo&nodeid=3&sessionid=88&connecttimeout=5&requesttimeout=20',
+                '10.0.0.2:9100/150501?service=srv-demo&nodeid=3&sessionid=88&requesttimeout=20',
                 kcbpEnv,
             ),
         ).toBe('10.0.0.1:21000/150501?queue=req2&timeout=30');

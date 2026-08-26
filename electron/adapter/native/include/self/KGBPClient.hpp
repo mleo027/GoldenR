@@ -11,6 +11,7 @@
 
 struct KGBPClientConfig
 {
+	static constexpr int CONNECT_TIMEOUT_MS = 5000;
 	std::string ip;
 	uint16_t port = 0;
 	int connectTimeoutMs = 5000;
@@ -378,8 +379,8 @@ inline void callKGBPBackend(const NJSON &inputJson, NJSON &outputJson)
 	KGBPClientConfig config;
 	config.ip = connection["ip"].get<std::string>();
 	config.port = static_cast<uint16_t>(std::stoi(connection["port"].get<std::string>()));
-	config.connectTimeoutMs = std::stoi(connection["connecttimeout"].get<std::string>());
-	config.requestTimeoutMs = std::stoi(connection["requesttimeout"].get<std::string>());
+	config.connectTimeoutMs = KGBPClientConfig::CONNECT_TIMEOUT_MS;
+	config.requestTimeoutMs = std::stoi(connection["requesttimeout"].get<std::string>()) * 1000;
 
 	KGBPClient client(config);
 	client.connect();

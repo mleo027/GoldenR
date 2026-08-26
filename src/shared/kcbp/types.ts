@@ -5,7 +5,6 @@ export interface KcbpConnectionOptions {
     ansqueue?: string;
     service?: string;
     apiid?: string;
-    connecttimeout?: string;
     requesttimeout?: string;
 }
 

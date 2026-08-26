@@ -51,7 +51,6 @@ export function buildKcbpRequest(
                 ip: ip || undefined,
                 port: port || undefined,
                 apiid: msgtype,
-                connecttimeout: addressParts.connectTimeout || undefined,
                 requesttimeout: addressParts.timeout.trim() || undefined,
             },
             param: {

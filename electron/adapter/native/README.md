@@ -132,7 +132,6 @@ const result = adapter.callKCBP(param);
   "connection": {
     "ip": "127.0.0.1",
     "port": "21000",
-    "connecttimeout": "5",
     "requesttimeout": "65",
     "reqqueue": "req1",
     "ansqueue": "ans1"
@@ -157,8 +156,7 @@ const result = adapter.callKCBP(param);
 | ---------------- | ------ | ------------------------- |
 | `ip`             | string | KCXP 服务 IP              |
 | `port`           | string | 端口，默认 `21000`        |
-| `connecttimeout` | string | 连接超时（秒），默认 `5`  |
-| `requesttimeout` | string | 请求超时（秒），默认 `15` |
+| `requesttimeout` | string | 业务请求超时（秒），默认 `15` |
 | `reqqueue`       | string | 请求队列名                |
 | `ansqueue`       | string | 应答队列名                |
 
@@ -241,7 +239,6 @@ const adapter = require('./build/Release/adapter');
 
 const param = {
   connection: {
-    connecttimeout: '5',
     port: '21000',
     requesttimeout: '65',
     ip: '127.0.0.1',
@@ -289,7 +286,7 @@ console.log(result);
 
 与 KCBP 并行的第二协议，走 `callKGBP` 导出，payload/响应结构与 KCBP 同构：
 
-- `connection`：`ip`、`port`、`connecttimeout`、`requesttimeout`（均为字符串）
+- `connection`：`ip`、`port`、`requesttimeout`（超时单位为秒；连接超时由 native 固定为 5 秒）
 - `param.msgtype`：兼作 KGBP 服务名（`KGBPCLI_OPTION_SERVICE_NAME`）
 - `param.funcid`：可选功能号，缺省取 `msgtype`
 - `param.nodeid` / `param.sessionid`：可选包头字段

@@ -12,7 +12,6 @@ export interface KcbpConnectionOptions {
     ansqueue?: string;
     service?: string;
     apiid?: string;
-    connecttimeout?: string;
     requesttimeout?: string;
 }
 
@@ -382,7 +381,6 @@ function normalizePayload(payload: KcbpRequestOptions): KcbpRequestOptions {
             ansqueue: payload.connection.ansqueue || 'ans1',
             service: payload.connection.service || 'kspb',
             apiid: payload.connection.apiid,
-            connecttimeout: payload.connection.connecttimeout || DEFAULT_TIMEOUT.connect,
             requesttimeout: payload.connection.requesttimeout || DEFAULT_TIMEOUT.request,
         },
         param: {

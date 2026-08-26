@@ -9,8 +9,6 @@ export interface KcbpAddressParts {
     nodeId?: string;
     /** KGBP：会话 ID */
     sessionId?: string;
-    /** KGBP：连接超时（秒） */
-    connectTimeout?: string;
 }
 
 export const DEFAULT_KCBP_QUEUE = 'req1';
@@ -27,7 +25,6 @@ export function parseKcbpAddress(address: string): KcbpAddressParts {
             service: undefined,
             nodeId: undefined,
             sessionId: undefined,
-            connectTimeout: undefined,
         };
     }
 
@@ -62,7 +59,6 @@ export function parseKcbpAddress(address: string): KcbpAddressParts {
     const service = params.get('service');
     const nodeId = params.get('nodeid');
     const sessionId = params.get('sessionid');
-    const connectTimeout = params.get('connecttimeout');
 
     return {
         host: hostPart.trim(),
@@ -72,7 +68,6 @@ export function parseKcbpAddress(address: string): KcbpAddressParts {
         service: service?.trim() || undefined,
         nodeId: nodeId?.trim() || undefined,
         sessionId: sessionId?.trim() || undefined,
-        connectTimeout: connectTimeout?.trim() || undefined,
     };
 }
 
@@ -88,7 +83,6 @@ export function serializeKcbpAddress(parts: KcbpAddressParts): string {
     const service = parts.service?.trim() ?? '';
     const nodeId = parts.nodeId?.trim() ?? '';
     const sessionId = parts.sessionId?.trim() ?? '';
-    const connectTimeout = parts.connectTimeout?.trim() ?? '';
 
     if (
         !host &&
@@ -97,8 +91,7 @@ export function serializeKcbpAddress(parts: KcbpAddressParts): string {
         !timeout &&
         !service &&
         !nodeId &&
-        !sessionId &&
-        !connectTimeout
+        !sessionId
     ) {
         return '';
     }
@@ -123,9 +116,6 @@ export function serializeKcbpAddress(parts: KcbpAddressParts): string {
     }
     if (sessionId) {
         params.set('sessionid', sessionId);
-    }
-    if (connectTimeout) {
-        params.set('connecttimeout', connectTimeout);
     }
 
     const query = params.toString();

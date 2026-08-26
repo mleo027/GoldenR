@@ -112,15 +112,6 @@ function EnvironmentRow({
                             />
                         </div>
                         <div className="kcxp-env-field">
-                            <span className="kcxp-env-field-label">ConnectTimeout</span>
-                            <Input
-                                value={environment.connectTimeout ?? ''}
-                                onChange={(e) => updateField('connectTimeout', e.target.value)}
-                                placeholder="秒"
-                                size="small"
-                            />
-                        </div>
-                        <div className="kcxp-env-field">
                             <span className="kcxp-env-field-label">RequestTimeout</span>
                             <Input
                                 value={environment.timeout}

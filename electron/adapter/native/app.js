@@ -9,7 +9,6 @@ const inputJson = `{\"connection\":{\"connecttimeout\":\"5\",\"port\":\"21000\",
 
 const param = {
     "connection": {
-        "connecttimeout": "5",
         "port": "21000",
         "requesttimeout": "65",
         "ip": "127.0.0.1",
