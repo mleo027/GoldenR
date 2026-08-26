@@ -49,6 +49,7 @@
     width: 100%;
     max-width: none;
     min-width: 0;
+    overflow: hidden;
     height: 36px;
     padding-inline: 3px;
     border: 1px solid var(--color-border);
@@ -192,6 +193,54 @@
     user-select: text;
     line-height: 1;
     transition: background var(--transition-fast);
+}
+
+.section-header--layout-compact .path-command-bar {
+    flex: 1 1 0;
+    width: auto;
+    overflow: hidden;
+}
+
+.section-header--layout-compact .path-command-bar .path-field-service,
+.section-header--layout-compact .path-command-bar .path-field-node-id,
+.section-header--layout-compact .path-command-bar .path-field-client-session-id {
+    display: none;
+}
+
+.section-header--layout-compact .path-command-bar .path-env-host-display {
+    max-width: min(34vw, 280px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 760px) {
+    .section-header--layout-compact .path-command-bar .path-env-host-display {
+        max-width: 34vw;
+    }
+
+    .section-header--layout-compact .path-field-timeout .path-field-label {
+        display: none;
+    }
+
+    .section-header--layout-compact .path-field-display {
+        gap: 4px;
+        padding-inline: 5px;
+    }
+}
+
+@media (max-width: 560px) {
+    .section-header--layout-compact .path-command-divider {
+        margin-inline: 3px;
+    }
+
+    .section-header--layout-compact .path-field-timeout,
+    .section-header--layout-compact .path-field-msgtype {
+        display: none;
+    }
+
+    .section-header--layout-compact .path-env-host-display {
+        max-width: 38vw;
+    }
 }
 
 /* 字段采用“语义标签 + 值”结构，避免用户必须依赖 Tooltip 才能理解数字含义。 */
@@ -409,6 +458,14 @@
 
 :root:not([data-theme='dark']) .case-item-active {
     background: color-mix(in srgb, var(--color-primary) 9%, #ffffff);
+}
+
+/* 用例树采用直角列表，依靠留白、分隔线和选中指示建立层级。 */
+.case-sidebar .case-project,
+.case-sidebar .case-item,
+.case-sidebar .case-project-active,
+.case-sidebar .case-item-active {
+    border-radius: 0;
 }
 
 :root:not([data-theme='dark']) .case-tab-bar-title .case-tab-item-title:not(.case-tab-item-active) {

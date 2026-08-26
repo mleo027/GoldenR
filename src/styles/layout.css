@@ -52,7 +52,7 @@
     min-width: 0;
     display: flex;
     justify-content: center;
-    overflow-x: auto;
+    overflow-x: hidden;
     overflow-y: visible;
 }
 
@@ -65,6 +65,15 @@
 
 .section-header--layout-compact {
     gap: 8px;
+}
+
+.section-header--layout-compact .section-header-leading {
+    width: 22px;
+}
+
+.section-header--layout-compact .section-header-trailing {
+    gap: 4px;
+    margin-right: 6px;
 }
 
 .panel-resize-handle-vertical {
