@@ -32,8 +32,8 @@
 
 .param-table .ant-table-tbody > tr > td {
     border-bottom: 1px solid var(--color-border-light);
-    height: 40px;
-    padding: 4px 8px !important;
+    height: 38px;
+    padding: 2px 6px !important;
     transition: background-color var(--transition-fast);
 }
 
@@ -154,7 +154,7 @@
 
 .param-value-cell {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 6px;
     min-width: 0;
 }
@@ -162,6 +162,12 @@
 .param-value-input {
     flex: 1;
     min-width: 0;
+}
+
+.param-value-input .param-input {
+    min-height: 32px;
+    padding: 5px 8px !important;
+    line-height: 20px;
 }
 
 .param-file-hint {
