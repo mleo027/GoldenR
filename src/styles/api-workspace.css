@@ -86,11 +86,11 @@
     padding: 0 5px;
     border-radius: var(--radius-control);
     transition: background var(--transition-fast);
-    background: color-mix(in srgb, var(--color-bg-subtle) 72%, transparent);
+    background: transparent;
 }
 
 .path-env-selector:hover {
-    background: var(--color-bg-subtle);
+    background: transparent;
 }
 
 .path-env-select {
@@ -108,6 +108,8 @@
     letter-spacing: 0.02em;
     line-height: 1 !important;
     color: var(--color-primary) !important;
+    border-radius: var(--radius-control) !important;
+    background: color-mix(in srgb, var(--color-bg-subtle) 72%, transparent) !important;
 }
 
 .path-env-select .ant-select-selection-item {
@@ -151,6 +153,10 @@
 }
 
 .path-env-host-display {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 1 auto;
+    min-width: 0;
     padding: 0 9px;
     font-size: 13px;
     font-weight: 600;
@@ -208,14 +214,14 @@
 }
 
 .section-header--layout-compact .path-command-bar .path-env-host-display {
-    max-width: min(34vw, 280px);
-    overflow: hidden;
-    text-overflow: ellipsis;
+    max-width: none;
 }
 
 @media (max-width: 760px) {
     .section-header--layout-compact .path-command-bar .path-env-host-display {
-        max-width: 34vw;
+        max-width: 45vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .section-header--layout-compact .path-field-timeout .path-field-label {
@@ -359,7 +365,11 @@
 }
 
 :root:not([data-theme='dark']) .path-env-selector {
-    background: color-mix(in srgb, var(--color-primary) 7%, #ffffff);
+    background: transparent;
+}
+
+:root:not([data-theme='dark']) .path-env-select .ant-select-selector {
+    background: color-mix(in srgb, var(--color-primary) 7%, #ffffff) !important;
 }
 
 :root:not([data-theme='dark']) .path-env-host-display {
