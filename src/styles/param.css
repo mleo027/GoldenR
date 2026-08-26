@@ -61,9 +61,13 @@
 }
 
 .param-table .param-key-input {
-    text-align: left;
+    text-align: right;
     color: var(--color-text-body);
     font-weight: 500;
+}
+
+.param-table .ant-table-thead > tr > th:nth-child(2) {
+    text-align: right;
 }
 
 .param-table .param-key-input.ant-input-borderless {
