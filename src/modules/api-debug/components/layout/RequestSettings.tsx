@@ -160,8 +160,13 @@ export default function RequestSettings() {
                 itemIndex === index ? next : item,
             );
             patchEnv({ kcxpEnvironments: environments });
+            // 编辑当前激活环境的字段时同步应用到全部接口，避免单调用使用过期连接参数
+            if (next.id === activeKcxpEnvironmentId) {
+                flushAllTabDrafts();
+                applyKcxpEnvironment(next);
+            }
         },
-        [kcxpEnvironments, patchEnv],
+        [activeKcxpEnvironmentId, applyKcxpEnvironment, kcxpEnvironments, patchEnv],
     );
 
     const handleAddEnvironment = useCallback(() => {
