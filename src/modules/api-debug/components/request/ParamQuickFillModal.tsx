@@ -1,12 +1,11 @@
 import { memo, useCallback, useState } from 'react';
 import { App, Input, Modal, Typography } from 'antd';
-import type { ParamItem } from '../../types/workspace';
-import { parseQuickFillText } from '../../utils/workspace/paramText';
+import { parseQuickFillText, type QuickFillPayload } from '../../utils/workspace/paramText';
 
 interface ParamQuickFillModalProps {
     open: boolean;
     onClose: () => void;
-    onApply: (result: { params: ParamItem[]; msgtype?: string; title?: string }) => void;
+    onApply: (result: QuickFillPayload) => void;
 }
 
 function ParamQuickFillModal({ open, onClose, onApply }: ParamQuickFillModalProps) {
@@ -28,7 +27,7 @@ function ParamQuickFillModal({ open, onClose, onApply }: ParamQuickFillModalProp
         }
 
         const filledCount = outcome.params.length;
-        onApply({ params: outcome.params, msgtype: outcome.msgtype, title: outcome.title });
+        onApply(outcome);
         const titleHint = outcome.title ? `「${outcome.title}」` : '';
         const msgtypeHint = outcome.msgtype ? `，功能号 ${outcome.msgtype}` : '';
         message.success(`已全量填充${titleHint} ${filledCount} 个入参${msgtypeHint}`);
@@ -53,6 +52,9 @@ function ParamQuickFillModal({ open, onClose, onApply }: ParamQuickFillModalProp
             <Typography.Paragraph type="secondary" className="text-xs mb-3">
                 支持：<code>接口名=功能号;key:value,key:value</code> 与{' '}
                 <code>[入参:key] [数值:value] [说明:...]</code> 两种格式。
+            </Typography.Paragraph>
+            <Typography.Paragraph type="secondary" className="text-xs mb-3">
+                支持 KGBP <code>{'<lbm>'}</code> XML 模板：自动提取参数默认值及功能号、节点、服务名。
             </Typography.Paragraph>
             <Input.TextArea
                 rows={12}

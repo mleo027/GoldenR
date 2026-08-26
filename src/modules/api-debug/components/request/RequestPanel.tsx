@@ -22,6 +22,7 @@ import { UI_DEBOUNCE_MS } from '@/constants/ui';
 import type { ParamItem } from '../../types/workspace';
 import { parseKcbpAddress, serializeKcbpAddress } from '../../utils/kcbp/kcbpAddress';
 import { resolveMsgtypeFromParams } from '../../utils/workspace/caseLabel';
+import type { QuickFillPayload } from '../../utils/workspace/paramText';
 
 interface RequestPanelProps {
     paramsCollapsed?: boolean;
@@ -101,14 +102,19 @@ export default function RequestPanel({
 
     const [quickFillOpen, setQuickFillOpen] = useState(false);
     const handleQuickFillApply = useCallback(
-        (result: { params: ParamItem[]; msgtype?: string; title?: string }) => {
+        (result: QuickFillPayload) => {
             flushPending();
             const patch: { params: ParamItem[]; address?: string; name?: string } = {
                 params: result.params,
             };
-            if (result.msgtype) {
+            if (result.msgtype || result.service || result.nodeId) {
                 const parts = parseKcbpAddress(activeTab.address);
-                patch.address = serializeKcbpAddress({ ...parts, msgtype: result.msgtype });
+                patch.address = serializeKcbpAddress({
+                    ...parts,
+                    ...(result.msgtype ? { msgtype: result.msgtype } : {}),
+                    ...(result.service ? { service: result.service } : {}),
+                    ...(result.nodeId ? { nodeId: result.nodeId } : {}),
+                });
             }
             if (result.title) {
                 patch.name = result.title;
