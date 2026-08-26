@@ -21,22 +21,6 @@ interface ResponseTableToolsProps {
     exportFilename?: string;
 }
 
-function ExportSuccessDialog({ filePath, formatLabel }: { filePath: string; formatLabel: string }) {
-    Modal.success({
-        title: '导出成功',
-        centered: true,
-        mousePosition: null,
-        content: (
-            <div className="export-success-modal">
-                <p className="export-success-desc">{formatLabel} 文件已保存至：</p>
-                <p className="export-success-path">{filePath}</p>
-            </div>
-        ),
-        okText: '知道了',
-        width: 520,
-    });
-}
-
 type ExportFormat = 'csv' | 'text';
 
 function toTxtFilename(filename: string): string {
@@ -60,10 +44,8 @@ async function exportResponseTable(
             ? await exportTableToText(exportData, toTxtFilename(exportFilename))
             : await exportTableToCsv(exportData, exportFilename);
     if (result.saved) {
-        ExportSuccessDialog({
-            filePath: result.filePath,
-            formatLabel: format === 'text' ? 'TXT' : 'CSV',
-        });
+        const formatLabel = format === 'text' ? 'TXT' : 'CSV';
+        message.success(`已导出 ${formatLabel}：${result.filePath}`);
     } else if (result.reason === 'empty') {
         message.warning('暂无数据可导出');
     }
