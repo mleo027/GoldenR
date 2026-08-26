@@ -478,33 +478,48 @@
     background: #ffffff;
 }
 
+/* 自定义品牌色下，次级选中态自动降饱和，主色只保留给关键操作。 */
+:root:not([data-theme='dark']) .case-item-active,
+:root:not([data-theme='dark']) .case-project-block-drop-target > .case-project {
+    background: color-mix(in srgb, var(--color-primary) 7%, #ffffff);
+}
+
+:root:not([data-theme='dark']) .param-section-toggle:hover,
+:root:not([data-theme='dark']) .response-section-header:hover {
+    background: color-mix(in srgb, var(--color-primary) 3%, #ffffff);
+}
+
 /* 响应空态指标 */
 .response-idle {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
     height: 100%;
     min-height: 160px;
-    padding: 24px 20px;
+    padding: 18px 20px;
 }
 
 .response-idle-metrics {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(96px, 1fr));
-    gap: 12px;
-    width: min(100%, 420px);
+    display: inline-flex;
+    align-items: stretch;
+    gap: 0;
+    width: min(100%, 560px);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+    overflow: hidden;
+    background: var(--color-bg-subtle);
 }
 
 .response-idle-metric {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 10px 12px;
-    border: 1px solid var(--color-border-light);
-    border-radius: var(--radius-control);
-    background: var(--color-bg-subtle);
+    gap: 3px;
+    flex: 1;
+    padding: 8px 18px;
+    border-right: 1px solid var(--color-border);
+    background: transparent;
     text-align: center;
 }
 
@@ -520,7 +535,11 @@
     font-size: 15px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
-    color: var(--color-text-muted);
+    color: var(--color-text-secondary);
+}
+
+.response-idle-metric:last-child {
+    border-right: none;
 }
 
 .response-idle-metric-value-filled {
@@ -537,14 +556,41 @@
 }
 
 .response-idle-msg {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    width: min(100%, 420px);
-    padding: 10px 12px;
-    border: 1px solid var(--color-border-light);
+    gap: 5px;
+    width: min(100%, 560px);
+    padding: 10px 14px 10px 17px;
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-control);
     background: var(--color-bg-subtle);
+    text-align: left;
+}
+
+.response-idle-msg-indicator {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--color-primary);
+}
+
+.response-idle-msg-warning {
+    border-color: color-mix(in srgb, var(--color-warning) 32%, var(--color-border));
+    background: color-mix(in srgb, var(--color-warning-bg) 55%, var(--color-bg-card));
+}
+
+.response-idle-msg-warning .response-idle-msg-indicator {
+    background: var(--color-warning);
+}
+
+.response-idle-msg-error {
+    border-color: color-mix(in srgb, var(--color-error) 32%, var(--color-border));
+    background: color-mix(in srgb, var(--color-error-bg) 55%, var(--color-bg-card));
+}
+
+.response-idle-msg-error .response-idle-msg-indicator {
+    background: var(--color-error);
 }
 
 .response-idle-msg-label {

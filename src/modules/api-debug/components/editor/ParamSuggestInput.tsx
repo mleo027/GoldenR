@@ -125,6 +125,7 @@ function ParamSuggestTextArea({
     onBlur,
     onChange,
     onCopy,
+    title,
 }: {
     inputRef: RefObject<TextAreaRef>;
     value: string;
@@ -135,6 +136,7 @@ function ParamSuggestTextArea({
     onBlur: () => void;
     onChange: (value: string) => void;
     onCopy: (event: ClipboardEvent<HTMLTextAreaElement>) => void;
+    title?: string;
 }) {
     return (
         <TextArea
@@ -145,6 +147,7 @@ function ParamSuggestTextArea({
             autoSize={{ minRows: 1, maxRows: 5 }}
             spellCheck={false}
             className={className}
+            title={title}
             disabled={disabled}
             onFocus={onFocus}
             onBlur={onBlur}
@@ -466,6 +469,7 @@ function ParamSuggestInput({
                 onBlur={handleBlur}
                 onChange={handleInputChange}
                 onCopy={handleCopy}
+                title={formatControlCharsForTitle(localValue)}
             />
         );
     }
@@ -497,6 +501,7 @@ function ParamSuggestInput({
                 onBlur={handleBlur}
                 onChange={handleInputChange}
                 onCopy={handleCopy}
+                title={formatControlCharsForTitle(localValue)}
             />
         </Dropdown>
     );

@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import type { ResponseData } from '../../types/workspace';
 import { formatByteSize } from '../../../../utils/exportTable';
+import { parseKcbpResponseStatus } from '../../utils/kcbp/kcbpResponse';
 
 interface ResponseIdleMetricsProps {
     response?: ResponseData;
@@ -29,6 +30,7 @@ function formatSize(response?: ResponseData): string {
 
 function ResponseIdleMetrics({ response, loading = false }: ResponseIdleMetricsProps) {
     const hasResponse = Boolean(response);
+    const statusKind = response ? parseKcbpResponseStatus(response).kind : 'idle';
 
     return (
         <div className={`response-idle${loading ? ' response-idle-loading' : ''}`}>
@@ -59,7 +61,8 @@ function ResponseIdleMetrics({ response, loading = false }: ResponseIdleMetricsP
                 </div>
             </div>
             {response?.message ? (
-                <div className="response-idle-msg">
+                <div className={`response-idle-msg response-idle-msg-${statusKind}`} role="status">
+                    <span className="response-idle-msg-indicator" aria-hidden="true" />
                     <span className="response-idle-msg-label">Message</span>
                     <span className="response-idle-msg-value">{response.message}</span>
                 </div>

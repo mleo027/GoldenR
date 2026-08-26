@@ -375,6 +375,24 @@ body.col-resizing {
     font-variant-numeric: tabular-nums;
 }
 
+[data-theme='dark'] .response-idle-metrics {
+    background: #191d24;
+    border-color: #353b46;
+}
+
+[data-theme='dark'] .response-idle-metric {
+    border-right-color: #353b46;
+}
+
+[data-theme='dark'] .response-idle-metric-value-filled {
+    color: #f2f4f8;
+}
+
+[data-theme='dark'] .response-idle-msg {
+    background: #1b2028;
+    border-color: #353b46;
+}
+
 .response-meta-badge-muted {
     background: var(--color-bg-row-even) !important;
     color: var(--color-text-secondary) !important;

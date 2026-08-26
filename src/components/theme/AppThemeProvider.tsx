@@ -4,7 +4,7 @@ import zhCN from 'antd/locale/zh_CN';
 import { useAppEnv } from '../../store/useAppEnv';
 
 const LIGHT_PRIMARY = '#7C3AED';
-const DARK_PRIMARY = '#2DA44E';
+const DARK_PRIMARY = '#FF7A45';
 
 const LIGHT_COMPONENTS = {
     Tabs: {
@@ -160,12 +160,14 @@ export default function AppThemeProvider({ children }: { children: ReactNode }) 
                 colorPrimary: accentColor,
                 colorBgContainer: isDark ? '#111111' : '#ffffff',
                 colorBgElevated: isDark ? '#1a1a1a' : '#ffffff',
-                colorBgLayout: isDark ? '#0a0a0a' : '#f5f6f8',
-                colorBorder: isDark ? '#262626' : '#ececec',
-                colorText: isDark ? '#e6e6ef' : '#374151',
-                colorTextSecondary: isDark ? '#888899' : '#6b7280',
-                colorTextPlaceholder: isDark ? '#737373' : '#9ca3af',
-                borderRadius: 4,
+                colorBgLayout: isDark ? '#141414' : '#f3f6fb',
+                colorBorder: isDark ? '#333333' : '#dce3ec',
+                colorText: isDark ? '#f0f0f0' : '#344054',
+                colorTextSecondary: isDark ? '#a5a5b0' : '#667085',
+                colorTextPlaceholder: isDark ? '#858585' : '#98a2b3',
+                borderRadius: 6,
+                fontSize: 13,
+                controlHeight: 32,
                 lineWidth: 1,
                 fontFamily:
                     '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
