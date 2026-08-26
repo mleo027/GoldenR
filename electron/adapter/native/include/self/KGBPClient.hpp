@@ -240,9 +240,9 @@ private:
 		while (KGBPCli_RsFetchRow(handle_) == KGBPCLI_OK)
 		{
 			NJSON row = NJSON::object();
-			for (size_t i = 1; i <= colNum; ++i)
+			for (size_t i = 0; i < colNum; ++i)
 			{
-				row[names[i]] = getColumnValue(static_cast<int>(i));
+				row[names[i]] = getColumnValue(static_cast<int>(i + 1));
 			}
 			rows.push_back(row);
 		}
