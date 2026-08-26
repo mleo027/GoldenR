@@ -4,7 +4,6 @@
 #include <vector>
 #include <cstring>
 #include <stdexcept>
-#include <fstream>
 #include <windows.h>
 #include <KGBPCli.h>
 #include "utils.hpp"
@@ -63,14 +62,14 @@ public:
 			setBinaryOption(KGBPCLI_OPTION_SERVICE_NAME, serviceName.data(),
 							serviceName.size(), "SERVICE_NAME");
 		}
-		if (param.contains("nodeid") && param["nodeid"].is_number_integer())
+		if (param.contains("nodeid") && param["nodeid"].is_number())
 		{
-			uint32_t nodeId = param["nodeid"].get<uint32_t>();
+			uint32_t nodeId = static_cast<uint32_t>(param["nodeid"].get<double>());
 			setBinaryOption(KGBPCLI_OPTION_NODE_ID, &nodeId, sizeof(nodeId), "NODE_ID");
 		}
-		if (param.contains("clientsessionid") && param["clientsessionid"].is_number_integer())
+		if (param.contains("clientsessionid") && param["clientsessionid"].is_number())
 		{
-			uint64_t clientSessionId = param["clientsessionid"].get<uint64_t>();
+			uint64_t clientSessionId = static_cast<uint64_t>(param["clientsessionid"].get<double>());
 			setBinaryOption(KGBPCLI_OPTION_CLIENT_SESSION_ID, &clientSessionId,
 							sizeof(clientSessionId), "CLIENT_SESSION_ID");
 		}
@@ -85,8 +84,9 @@ public:
 
 		writeFields(param);
 
-		if (KGBPCli_CallProgram(handle_, const_cast<char *>(funcId.c_str()),
-								config_.requestTimeoutMs) != KGBPCLI_OK)
+		int callRet = KGBPCli_CallProgram(handle_, const_cast<char *>(funcId.c_str()),
+										config_.requestTimeoutMs);
+		if (callRet != KGBPCLI_OK)
 		{
 			throwBackendError("KGBPCli_CallProgram failed (funcid: " + funcId + ")");
 		}

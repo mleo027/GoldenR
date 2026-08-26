@@ -13,6 +13,7 @@ export interface KcbpConnectionOptions {
     service?: string;
     apiid?: string;
     requesttimeout?: string;
+    connecttimeout?: string;
 }
 
 export interface KcbpParamOptions {
@@ -372,17 +373,27 @@ function normalizePayload(payload: KcbpRequestOptions): KcbpRequestOptions {
     const param = { ...payload.param };
     delete param.binaryFields;
 
-    return {
-        type: payload.type || 'KCBP',
-        connection: {
-            ip: payload.connection.ip || '127.0.0.1',
-            port: payload.connection.port || '21000',
+    const isKGBP = payload.type === 'KGBP';
+    const connection = {
+        ip: payload.connection.ip || '127.0.0.1',
+        port: payload.connection.port || '21000',
+        apiid: payload.connection.apiid,
+        requesttimeout: payload.connection.requesttimeout || DEFAULT_TIMEOUT.request,
+        // KCBP 专属字段仅对 KCBP 协议注入，KGBP 不携带
+        ...(!isKGBP && {
             reqqueue: payload.connection.reqqueue || 'req1',
             ansqueue: payload.connection.ansqueue || 'ans1',
             service: payload.connection.service || 'kspb',
-            apiid: payload.connection.apiid,
-            requesttimeout: payload.connection.requesttimeout || DEFAULT_TIMEOUT.request,
-        },
+        }),
+        // KGBP 需要 connecttimeout（TS buildKcbpRequest 已处理）
+        ...(isKGBP && payload.connection.connecttimeout && {
+            connecttimeout: payload.connection.connecttimeout,
+        }),
+    };
+
+    return {
+        type: payload.type || 'KCBP',
+        connection,
         param: {
             ...param,
             msgtype: payload.param.msgtype || payload.connection.apiid,
