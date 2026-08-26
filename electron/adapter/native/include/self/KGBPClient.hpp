@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdio>
 #include <string>
 #include <vector>
 #include <cstring>
@@ -257,34 +258,78 @@ private:
 		return table;
 	}
 
-	// RsGetColInfo 缓冲区格式文档未明确：先按 '\0' 分隔的列名序列解析；
-	// 数量不符时再尝试按单个逗号分隔字符串切分（SDK 文档示例 "name,age,id"）；
-	// 仍不匹配才回落 col1..colN（已知风险，见计划头部）。
+	// 使用手册 6.38：RsGetColInfo 的 apColInfo 为「列名,列名,…」逗号隔开无空格的单个字符串。
+	// 解析顺序：① 逗号分隔（文档权威格式）；② '\0' 分隔序列（兼容旧网关）；③ col1..colN 兑底。
+	// 非首选路径触发时向 stderr 输出诊断（桥接进程透传），不再静默兑底。
 	std::vector<std::string> parseColNames(size_t colNum)
 	{
-		std::vector<char> buf(colNum * 65 + 1, 0);
-		if (KGBPCli_RsGetColInfo(handle_, buf.data(), buf.size()) != KGBPCLI_OK)
+		if (colNum == 0)
 		{
+			return {};
+		}
+		// 容量放宽到 256 字节/列，避免超长列名被截断导致数量不符
+		std::vector<char> buf(colNum * 256 + 16, 0);
+		if (KGBPCli_RsGetColInfo(handle_, buf.data(), buf.size() - 1) != KGBPCLI_OK)
+		{
+			reportColInfoFallback("RsGetColInfo failed", buf.data());
 			return fallbackColNames(colNum);
 		}
+
+		auto names = splitColNamesByComma(buf.data(), colNum);
+		if (names.size() == colNum)
+		{
+			for (auto &name : names)
+			{
+				name = ensureUtf8(name);
+			}
+			return names; // 文档权威格式命中
+		}
+
+		// 兼容旧网关：'\0' 分隔的字符串序列
+		names = splitColNamesByNul(buf.data(), buf.size(), colNum);
+		if (names.size() == colNum)
+		{
+			for (auto &name : names)
+			{
+				name = ensureUtf8(name);
+			}
+			reportColInfoFallback("matched nul-separated (non-canonical)", buf.data());
+			return names;
+		}
+
+		reportColInfoFallback("unrecognized format", buf.data());
+		return fallbackColNames(colNum);
+	}
+
+	// 整个缓冲区按 '\0' 分隔切分，数量须恰好等于 colNum 才有效。
+	static std::vector<std::string> splitColNamesByNul(const char *buf, size_t bufSize, size_t colNum)
+	{
 		std::vector<std::string> names;
-		const char *p = buf.data();
-		const char *end = buf.data() + buf.size();
+		if (buf == nullptr || colNum == 0 || *buf == '\0')
+		{
+			return names;
+		}
+		names.reserve(colNum);
+		const char *p = buf;
+		const char *end = buf + bufSize;
 		while (names.size() < colNum && p < end && *p != '\0')
 		{
 			names.emplace_back(p);
 			p += names.back().size() + 1;
 		}
-		if (names.size() != colNum)
+		return names; // 数量由调用方校验
+	}
+
+	// 列名解析失败时的诊断输出；stderr 由 kcbp 桥接进程透传到主进程日志
+	void reportColInfoFallback(const std::string &reason, const char *buf)
+	{
+		std::fprintf(stderr, "[KGBPClient] ColInfo fallback (%s) raw=", reason.c_str());
+		const unsigned char *bytes = reinterpret_cast<const unsigned char *>(buf);
+		for (size_t i = 0; i < 128 && bytes[i] != 0 || i < 32; ++i)
 		{
-			names = splitColNamesByComma(buf.data(), colNum);
-			if (names.size() == colNum)
-			{
-				return names; // 列名已是 UTF-8，不转码
-			}
-			return fallbackColNames(colNum);
+			std::fprintf(stderr, "%02X ", bytes[i]);
 		}
-		return names; // 列名已是 UTF-8，不转码
+		std::fprintf(stderr, "\n");
 	}
 
 	// 整个缓冲区按逗号切分，每项 trim 后数量须恰好等于 colNum 才有效。

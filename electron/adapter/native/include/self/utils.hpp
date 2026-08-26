@@ -142,6 +142,62 @@ std::string gbkToUtf8(const std::string &gbk_str)
     return utf8_string;
 }
 
+/** 宽松校验字节序列是否为合法 UTF-8（用于区分 UTF-8 与 GBK 编码的列名） */
+inline bool looksLikeValidUtf8(const std::string &text)
+{
+    size_t i = 0;
+    const size_t size = text.size();
+    while (i < size)
+    {
+        const unsigned char lead = static_cast<unsigned char>(text[i]);
+        size_t follow = 0;
+        if (lead < 0x80)
+        {
+            i += 1;
+            continue;
+        }
+        else if ((lead & 0xE0) == 0xC0)
+        {
+            follow = 1;
+        }
+        else if ((lead & 0xF0) == 0xE0)
+        {
+            follow = 2;
+        }
+        else if ((lead & 0xF8) == 0xF0)
+        {
+            follow = 3;
+        }
+        else
+        {
+            return false;
+        }
+        if (i + follow >= size)
+        {
+            return false;
+        }
+        for (size_t j = 1; j <= follow; ++j)
+        {
+            if ((static_cast<unsigned char>(text[i + j]) & 0xC0) != 0x80)
+            {
+                return false;
+            }
+        }
+        i += follow + 1;
+    }
+    return true;
+}
+
+/** 列名编码归一：已是合法 UTF-8 则原样返回，否则按 GBK 转 UTF-8 */
+inline std::string ensureUtf8(const std::string &text)
+{
+    if (text.empty() || looksLikeValidUtf8(text))
+    {
+        return text;
+    }
+    return gbkToUtf8(text);
+}
+
 bool isValidKCBPInput(const NJSON &input, std::string &errmsg)
 {
     if (!input.is_object())
