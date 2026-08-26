@@ -217,6 +217,8 @@ private:
 
 	NJSON readResultSet()
 	{
+		// TODO: parseColNames 内部已调 RsGetColInfo，移到 RsFetchRow 后需重构。
+		// 先在行循环外按「ColNum + ColInfo」取列名（数量正确即可），行内只取值。
 		size_t colNum = 0;
 		if (KGBPCli_RsGetColNum(handle_, &colNum) != KGBPCLI_OK || colNum == 0)
 		{
@@ -244,7 +246,6 @@ private:
 			NJSON row = NJSON::object();
 			for (size_t i = 0; i < colNum; ++i)
 			{
-				// SDK 列索引为 0-based（见 KGBPCli_test.cpp 样例）
 				row[names[i]] = getColumnValue(static_cast<int>(i));
 			}
 			rows.push_back(row);
@@ -341,15 +342,14 @@ private:
 
 	std::string getColumnValue(int colIndex)
 	{
-		char *pVal = nullptr;
-		size_t size = 0;
-		if (KGBPCli_RsGetColByIndexByte(handle_, colIndex,
-										reinterpret_cast<void **>(&pVal), &size) != KGBPCLI_OK ||
-			pVal == nullptr)
+		// 用 RsGetColByIndexStr（按列索引取字符串字段值）替代 RsGetColByIndexByte：
+		// 后者返回 SDK 内部指针，游标推进后可能失效；前者拷贝到调用方缓冲区更可靠。
+		char buf[8192] = {0};
+		if (KGBPCli_RsGetColByIndexStr(handle_, colIndex, buf, sizeof(buf)) != KGBPCLI_OK)
 		{
 			return "";
 		}
-		return std::string(pVal, size); // UTF-8 直传
+		return std::string(buf); // KGBP 网关 UTF-8 直传，不转码
 	}
 
 	[[noreturn]] void throwBackendError(const std::string &context)
