@@ -106,18 +106,18 @@ function PathAddressFields({
     if (isKGBP) {
         return (
             <>
-                <Tooltip title="Msgtype">
+                <Tooltip title="Timeout (s)">
                     <span className="path-field-tooltip-wrap">
                         <Input
-                            value={addressParts.msgtype}
-                            onChange={(e) => handleAddressPartChange('msgtype', e.target.value)}
+                            value={addressParts.timeout}
+                            onChange={(e) => handleAddressPartChange('timeout', e.target.value)}
                             onPressEnter={run}
                             onBlur={flushPending}
-                            placeholder="Msgtype"
+                            placeholder={defaultTimeout}
                             size="small"
-                            className="path-field-input path-field-msgtype"
+                            className="path-field-input path-field-timeout"
                             variant="borderless"
-                            prefix={<TagOutlined className="path-field-icon" />}
+                            prefix={<ClockCircleOutlined className="path-field-icon" />}
                         />
                     </span>
                 </Tooltip>
@@ -165,18 +165,18 @@ function PathAddressFields({
                         />
                     </span>
                 </Tooltip>
-                <Tooltip title="Timeout (s)">
+                <Tooltip title="Msgtype">
                     <span className="path-field-tooltip-wrap">
                         <Input
-                            value={addressParts.timeout}
-                            onChange={(e) => handleAddressPartChange('timeout', e.target.value)}
+                            value={addressParts.msgtype}
+                            onChange={(e) => handleAddressPartChange('msgtype', e.target.value)}
                             onPressEnter={run}
                             onBlur={flushPending}
-                            placeholder={defaultTimeout}
+                            placeholder="Msgtype"
                             size="small"
-                            className="path-field-input path-field-timeout"
+                            className="path-field-input path-field-msgtype"
                             variant="borderless"
-                            prefix={<ClockCircleOutlined className="path-field-icon" />}
+                            prefix={<TagOutlined className="path-field-icon" />}
                         />
                     </span>
                 </Tooltip>
