@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { Button, Input, Radio, Select, Switch, Typography } from 'antd';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { CheckOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { useAppEnv } from '../../../../store/useAppEnv';
 import { useApiDebugEnv } from '../../store/useApiDebugEnv';
 import { useTabsActions } from '../../store/useTabs';
@@ -54,8 +54,18 @@ function EnvironmentRow({
                     onChange={(value) => updateField('protocol', value as KcxpProtocol)}
                     size="small"
                     variant="borderless"
-                    className="path-env-badge-select"
-                    popupMatchSelectWidth={false}
+                    placement="bottomLeft"
+                    popupMatchSelectWidth
+                    className="kcxp-env-protocol-select"
+                    popupClassName="kcxp-env-protocol-dropdown"
+                    optionRender={(option) => (
+                        <span className="kcxp-env-protocol-option">
+                            <span className="kcxp-env-protocol-option-label">{option.label}</span>
+                            {option.value === (environment.protocol ?? 'KCBP') ? (
+                                <CheckOutlined className="kcxp-env-protocol-option-check" />
+                            ) : null}
+                        </span>
+                    )}
                 />
                 <Button
                     type="text"
@@ -103,10 +113,10 @@ function EnvironmentRow({
                             />
                         </div>
                         <div className="kcxp-env-field">
-                            <span className="kcxp-env-field-label">SessionId</span>
+                            <span className="kcxp-env-field-label">ClientSessionId</span>
                             <Input
-                                value={environment.sessionId ?? ''}
-                                onChange={(e) => updateField('sessionId', e.target.value)}
+                                value={environment.clientSessionId ?? ''}
+                                onChange={(e) => updateField('clientSessionId', e.target.value)}
                                 placeholder="可选"
                                 size="small"
                             />
