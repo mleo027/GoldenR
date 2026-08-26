@@ -71,7 +71,6 @@
     box-shadow: none;
     height: 100%;
     flex: 1 1 auto;
-    min-width: 0;
     max-width: none;
 }
 
@@ -113,8 +112,7 @@
 
 .path-command-bar .path-field-queue {
     flex: 0 1 auto;
-    min-width: 6ch;
-    field-sizing: content;
+    min-width: max-content;
 }
 
 .path-command-bar .path-field-queue-wrap {
@@ -303,7 +301,7 @@
     flex: 0 1 auto;
     width: auto;
     max-width: none;
-    min-width: 0;
+    min-width: max-content;
     height: calc(var(--control-height) - 4px) !important;
     padding-inline: 6px !important;
     border: none !important;
@@ -317,8 +315,6 @@
     font-size: 12px !important;
     font-weight: 500;
     font-variant-numeric: tabular-nums;
-    min-width: 12ch;
-    field-sizing: content;
 }
 
 .path-env-host-input:hover,
