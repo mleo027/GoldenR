@@ -171,7 +171,7 @@
 }
 
 .case-tab-bar-title .case-tab-item-title.case-tab-item-active {
-    background: var(--color-primary-subtle);
+    background: var(--color-bg-card);
     box-shadow: inset 0 -2px 0 var(--color-primary);
     font-weight: 600;
 }
@@ -293,9 +293,9 @@
     height: 24px;
     padding: 0 8px;
     margin-inline-start: 4px;
-    border: 1px solid var(--color-border-light);
+    border: 1px solid transparent;
     border-radius: var(--radius-control);
-    background: var(--color-bg-card);
+    background: transparent;
     color: var(--color-text-muted);
     font-size: 11px;
     cursor: pointer;

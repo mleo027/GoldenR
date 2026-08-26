@@ -16,6 +16,7 @@ const ACTION_COL_WIDTH = 40;
 const FIXED_COL_WIDTH = CHECK_COL_WIDTH + ACTION_COL_WIDTH;
 const MIN_KEY_WIDTH = 72;
 const KEY_WIDTH_RATIO = 0.3;
+const DEFAULT_KEY_WIDTH_MAX = 280;
 
 function ParamTable({ params, onChange }: ParamEditProps) {
     const wrapRef = useRef<HTMLDivElement>(null);
@@ -35,7 +36,10 @@ function ParamTable({ params, onChange }: ParamEditProps) {
             const width = element.clientWidth;
             setTableWidth(width);
             if (width > FIXED_COL_WIDTH) {
-                const next = Math.floor((width - FIXED_COL_WIDTH) * KEY_WIDTH_RATIO);
+                const next = Math.min(
+                    DEFAULT_KEY_WIDTH_MAX,
+                    Math.floor((width - FIXED_COL_WIDTH) * KEY_WIDTH_RATIO),
+                );
                 setKeyWidth((previous) =>
                     previous == null ? next : Math.min(previous, width - FIXED_COL_WIDTH - 1),
                 );

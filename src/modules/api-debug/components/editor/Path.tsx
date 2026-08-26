@@ -9,6 +9,7 @@ import {
     FormatPainterOutlined,
     LoadingOutlined,
     MoreOutlined,
+    PlayCircleOutlined,
     SnippetsOutlined,
     TagOutlined,
     ThunderboltOutlined,
@@ -74,10 +75,10 @@ export function PathRunButton({ compact = false }: PathRunButtonProps) {
                     Cancel{elapsedSec > 0 ? ` · ${elapsedSec}s` : ''}
                 </span>
             ) : compact ? (
-                <span className="path-run-label">Run</span>
+                <span className="path-run-label"><PlayCircleOutlined /> Run</span>
             ) : (
                 <span className="path-run-content">
-                    <span className="path-run-label">Run</span>
+                    <span className="path-run-label"><PlayCircleOutlined /> Run</span>
                     <span className="path-run-kbd">Ctrl+Enter</span>
                 </span>
             )}
@@ -107,28 +108,32 @@ function PathAddressFields({
                     <span className="path-field-tooltip-wrap">
                         <span className="path-field-display path-field-timeout">
                             <ClockCircleOutlined className="path-field-icon" />
-                            {addressParts.timeout || defaultTimeout}
+                            <span className="path-field-label">Timeout</span>
+                            <span className="path-field-value">{addressParts.timeout || defaultTimeout}s</span>
                         </span>
                     </span>
                 </Tooltip>
                 <Tooltip title="ServiceName">
                     <span className="path-field-tooltip-wrap">
                         <span className="path-field-display path-field-service">
-                            {addressParts.service || 'ServiceName'}
+                            <span className="path-field-label">Service</span>
+                            <span className="path-field-value">{addressParts.service || 'ServiceName'}</span>
                         </span>
                     </span>
                 </Tooltip>
                 <Tooltip title="NodeId">
                     <span className="path-field-tooltip-wrap">
                         <span className="path-field-display path-field-node-id">
-                            {addressParts.nodeId || 'NodeId'}
+                            <span className="path-field-label">Nodeid</span>
+                            <span className="path-field-value">{addressParts.nodeId || 'NodeId'}</span>
                         </span>
                     </span>
                 </Tooltip>
                 <Tooltip title="ClientSessionId，可引用入参，例如 @custid">
                     <span className="path-field-tooltip-wrap">
                         <span className="path-field-display path-field-client-session-id">
-                            {addressParts.clientSessionId || '@custid'}
+                            <span className="path-field-label">Sessionid</span>
+                            <span className="path-field-value">{addressParts.clientSessionId || '@custid'}</span>
                         </span>
                     </span>
                 </Tooltip>
@@ -136,7 +141,8 @@ function PathAddressFields({
                     <span className="path-field-tooltip-wrap">
                         <span className="path-field-display path-field-msgtype">
                             <TagOutlined className="path-field-icon" />
-                            {addressParts.msgtype}
+                            <span className="path-field-label">Msgtype</span>
+                            <span className="path-field-value">{addressParts.msgtype}</span>
                         </span>
                     </span>
                 </Tooltip>
@@ -150,7 +156,8 @@ function PathAddressFields({
                 <span className="path-field-tooltip-wrap">
                     <span className="path-field-display path-field-queue">
                         <UnorderedListOutlined className="path-field-icon" />
-                        {addressParts.queue || 'req1'}
+                        <span className="path-field-label">Queue</span>
+                        <span className="path-field-value">{addressParts.queue || 'req1'}</span>
                     </span>
                 </span>
             </Tooltip>
@@ -158,7 +165,8 @@ function PathAddressFields({
                 <span className="path-field-tooltip-wrap">
                     <span className="path-field-display path-field-timeout">
                         <ClockCircleOutlined className="path-field-icon" />
-                        {addressParts.timeout || defaultTimeout}
+                        <span className="path-field-label">Timeout</span>
+                        <span className="path-field-value">{addressParts.timeout || defaultTimeout}s</span>
                     </span>
                 </span>
             </Tooltip>
@@ -166,7 +174,8 @@ function PathAddressFields({
                 <span className="path-field-tooltip-wrap">
                     <span className="path-field-display path-field-msgtype">
                         <TagOutlined className="path-field-icon" />
-                        {addressParts.msgtype}
+                        <span className="path-field-label">Msgtype</span>
+                        <span className="path-field-value">{addressParts.msgtype}</span>
                     </span>
                 </span>
             </Tooltip>

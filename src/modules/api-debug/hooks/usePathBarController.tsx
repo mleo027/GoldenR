@@ -194,12 +194,12 @@ export function usePathBarController({ layout, onQuickFill }: UsePathBarControll
     const envVariant = getPathEnvVariant(activeEnvironment.name);
 
     const showInlineActions = layout === 'full';
-    const showOverflowMenu = layout !== 'full';
+    const showOverflowMenu = true;
 
     const overflowMenuItems = useMemo((): MenuProps['items'] => {
         const items: NonNullable<MenuProps['items']> = [];
 
-        if (onQuickFill) {
+        if (layout !== 'full' && onQuickFill) {
             items.push({
                 key: 'quick-fill',
                 label: '快速填充入参',
@@ -225,23 +225,25 @@ export function usePathBarController({ layout, onQuickFill }: UsePathBarControll
             });
         }
 
-        items.push(
-            { type: 'divider' },
-            {
-                key: 'copy',
-                label: '复制地址与参数',
-                icon: <CopyOutlined />,
-                disabled: !hasCopyableContent,
-                onClick: () => void handleCopyParams(),
-            },
-            {
-                key: 'clear',
-                label: '清空全部参数',
-                icon: <DeleteOutlined />,
-                disabled: activeTab.params.length === 0,
-                onClick: () => handleClearParams(),
-            },
-        );
+        if (layout !== 'full') {
+            items.push(
+                { type: 'divider' },
+                {
+                    key: 'copy',
+                    label: '复制地址与参数',
+                    icon: <CopyOutlined />,
+                    disabled: !hasCopyableContent,
+                    onClick: () => void handleCopyParams(),
+                },
+            );
+        }
+        items.push({
+            key: 'clear',
+            label: '清空全部参数',
+            icon: <DeleteOutlined />,
+            disabled: activeTab.params.length === 0,
+            onClick: () => handleClearParams(),
+        });
 
         return items;
     }, [
@@ -252,6 +254,7 @@ export function usePathBarController({ layout, onQuickFill }: UsePathBarControll
         handleGenerateTestScript,
         hasCopyableContent,
         isCodeEditorMode,
+        layout,
         onQuickFill,
     ]);
 

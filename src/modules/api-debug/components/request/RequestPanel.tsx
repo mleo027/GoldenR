@@ -7,7 +7,6 @@ import {
 } from '@ant-design/icons';
 import Path, { PathRunButton } from '../editor/Path';
 import ParamEdit from '../editor/ParamEdit';
-import EditorModeToggle from '../editor/EditorModeToggle';
 import ParamQuickFillModal from './ParamQuickFillModal';
 import SectionHeader from '@/components/layout/SectionHeader';
 import { useRequestHeaderLayout } from '../../hooks/useRequestHeaderLayout';
@@ -131,9 +130,8 @@ export default function RequestPanel({
             <SectionHeader
                 ref={headerRef}
                 icon={<SendOutlined className="text-[var(--color-text-secondary)] text-sm" />}
-                title="请求"
+                title=""
                 layout={layout}
-                actions={<EditorModeToggle compact={compact} />}
                 endActions={<PathRunButton compact={compact} />}
             >
                 <Path hideRunButton layout={layout} onQuickFill={() => setQuickFillOpen(true)} />

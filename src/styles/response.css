@@ -4,6 +4,7 @@
     align-items: center;
     flex-shrink: 0;
     border-bottom: 1px solid var(--color-divider);
+    min-height: 38px;
     background: var(--color-bg-card);
 }
 
@@ -15,7 +16,7 @@
 
 .response-section-actions {
     flex-shrink: 0;
-    margin-right: 10px;
+    margin-right: 12px;
 }
 
 /* 响应表格：固定列宽 + 横向滚动 */
@@ -50,8 +51,8 @@
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    min-height: 44px;
-    padding: 8px 10px;
+    min-height: 40px;
+    padding: 6px 12px;
     border-top: 1px solid var(--color-divider);
     background: var(--color-bg-card);
 }
@@ -155,8 +156,10 @@
     border-bottom: 1px solid var(--color-border-light) !important;
     font-weight: 600 !important;
     color: var(--color-text-secondary) !important;
+    height: 38px;
     font-size: 11px;
-    padding: 8px 8px !important;
+    letter-spacing: 0.01em;
+    padding: 7px 10px !important;
     transition: background-color var(--transition-fast);
 }
 
@@ -197,8 +200,9 @@
     word-break: keep-all;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-block: 12px !important;
-    padding-inline: 8px !important;
+    height: 40px;
+    padding-block: 8px !important;
+    padding-inline: 10px !important;
     transition: background-color var(--transition-fast);
 }
 
@@ -207,7 +211,7 @@
 }
 
 .response-table .ant-table-tbody > tr.response-row-odd > td {
-    background: var(--color-bg-row-even);
+    background: var(--color-bg-card);
 }
 
 .response-table .ant-table-tbody > tr:hover > td {
@@ -284,11 +288,11 @@
 }
 
 .response-table .response-row-index {
-    background: var(--color-bg-row-even) !important;
+    background: var(--color-bg-subtle) !important;
 }
 
 .response-table .ant-table-cell-fix-left {
-    background: var(--color-bg-row-even);
+    background: var(--color-bg-subtle);
 }
 
 .col-resizer {

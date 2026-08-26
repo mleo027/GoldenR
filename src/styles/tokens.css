@@ -7,32 +7,32 @@
     --color-primary-glow: rgba(124, 58, 237, 0.12);
 
     /* 背景：中性灰白为主，紫色仅用于交互态 */
-    --color-bg-page: #f5f6f8;
+    --color-bg-page: #f3f6fb;
     --color-bg-card: #ffffff;
     --color-bg-elevated: #ffffff;
-    --color-bg-sidebar: #f8f9fa;
-    --color-settings-sidebar: #f9fafb;
-    --color-bg-subtle: #f3f4f6;
-    --color-table-header: #f1f5f9;
-    --color-bg-hover: #f3f4f6;
-    --color-bg-row-even: #fafafa;
-    --color-bg-row-hover: #f3f4f6;
-    --color-bg-accent: #fafafa;
-    --color-bg-group: #f5f5f5;
+    --color-bg-sidebar: #f7f9fc;
+    --color-settings-sidebar: #f7f9fc;
+    --color-bg-subtle: #f5f7fa;
+    --color-table-header: #f4f7fb;
+    --color-bg-hover: #eef3f9;
+    --color-bg-row-even: #f8fafc;
+    --color-bg-row-hover: #f1f5fb;
+    --color-bg-accent: #f8fafc;
+    --color-bg-group: #f1f4f8;
 
     /* 边框 / 分割线 */
-    --color-border: #ececec;
-    --color-border-subtle: #e5e7eb;
-    --color-border-light: #f3f4f6;
+    --color-border: #dce3ec;
+    --color-border-subtle: #e3e8ef;
+    --color-border-light: #edf1f5;
     --color-border-hover: #c4b5fd;
-    --color-divider: #ececec;
+    --color-divider: #e5eaf0;
 
     /* 文字 */
-    --color-text-primary: #1f2937;
-    --color-text-title: #1f2937;
-    --color-text-body: #374151;
-    --color-text-secondary: #6b7280;
-    --color-text-muted: #9ca3af;
+    --color-text-primary: #172033;
+    --color-text-title: #1e293b;
+    --color-text-body: #3f4b5f;
+    --color-text-secondary: #667085;
+    --color-text-muted: #98a2b3;
     --color-muted: var(--color-text-muted);
     --color-text-accent: #7c3aed;
     --color-brand-logo-text: #ffffff;
@@ -52,7 +52,7 @@
 
     /* 阴影 */
     --shadow-subtle: 0 1px 2px rgba(15, 23, 42, 0.04);
-    --shadow-card: 0 1px 6px rgba(110, 90, 220, 0.08);
+    --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.05);
     --shadow-btn-hover: 0 3px 10px rgba(124, 58, 237, 0.22);
     --shadow-elevated: 0 4px 16px rgba(15, 23, 42, 0.08);
 

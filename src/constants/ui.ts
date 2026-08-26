@@ -30,7 +30,7 @@ export const LAYOUT_MIN_WIDTH_PX = {
 
 /** 模块/子功能侧栏与主区默认宽度比 1:4（react-resizable-panels 百分比） */
 export const MODULE_LAYOUT_SIDEBAR_RATIO = {
-    defaultSize: 20,
+    defaultSize: 18,
     minSize: 14,
     maxSize: 40,
 } as const;

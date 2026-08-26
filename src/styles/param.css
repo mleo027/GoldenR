@@ -1,6 +1,7 @@
 /* 参数表格：扁平工具风格 */
 .param-table-wrap {
-    border-block: 1px solid var(--color-border-light);
+    border-block: 1px solid var(--color-border);
+    background: var(--color-bg-card);
 }
 
 .param-table .ant-table {
@@ -8,11 +9,12 @@
 }
 
 .param-table .ant-table-thead > tr > th {
-    background: var(--color-bg-subtle) !important;
+    height: 34px;
+    background: var(--color-table-header) !important;
     border-bottom: 1px solid var(--color-border) !important;
     font-weight: 600;
-    color: var(--color-text-secondary);
-    font-size: 12px;
+    color: var(--color-text-muted);
+    font-size: var(--font-caption);
     padding: 6px 8px !important;
     text-transform: none;
     letter-spacing: normal;
@@ -30,7 +32,8 @@
 
 .param-table .ant-table-tbody > tr > td {
     border-bottom: 1px solid var(--color-border-light);
-    padding: 3px 8px !important;
+    height: 40px;
+    padding: 4px 8px !important;
     transition: background-color var(--transition-fast);
 }
 
@@ -39,7 +42,7 @@
 }
 
 .param-table .ant-table-tbody > tr.param-row-odd > td {
-    background: var(--color-bg-row-even);
+    background: var(--color-bg-card);
 }
 
 .param-table .ant-table-tbody > tr:hover > td {
@@ -58,7 +61,9 @@
 }
 
 .param-table .param-key-input {
-    text-align: right;
+    text-align: left;
+    color: var(--color-text-body);
+    font-weight: 500;
 }
 
 .param-table .param-key-input.ant-input-borderless {
@@ -89,7 +94,8 @@
 }
 
 .param-table .param-input:hover {
-    background: var(--color-bg-hover) !important;
+    background: var(--color-bg-subtle) !important;
+    box-shadow: inset 0 0 0 1px var(--color-border-light) !important;
 }
 
 .param-table .param-input:focus,
@@ -104,7 +110,11 @@
     opacity: 0;
     padding: 4px !important;
     border-radius: var(--radius-control) !important;
-    transition: opacity var(--transition-fast);
+    color: var(--color-text-muted) !important;
+    transition:
+        opacity var(--transition-fast),
+        color var(--transition-fast),
+        background-color var(--transition-fast);
 }
 
 .param-row:hover .param-delete-btn {
@@ -117,12 +127,14 @@
 }
 
 .param-add-dashed-btn {
+    width: fit-content !important;
+    min-width: 112px;
+    margin-left: 48px !important;
+    border: none !important;
     border-radius: var(--radius-control) !important;
-    border-style: dashed !important;
     color: var(--color-text-secondary) !important;
-    border-color: var(--color-primary-muted) !important;
     background: transparent !important;
-    font-size: 12px;
+    font-size: var(--font-caption);
     height: 32px !important;
     transition:
         border-color var(--transition-fast),
@@ -132,8 +144,7 @@
 
 .param-add-dashed-btn:hover {
     color: var(--color-primary) !important;
-    border-color: var(--color-primary) !important;
-    border-style: solid !important;
+    border: none !important;
     background: var(--color-primary-subtle) !important;
 }
 
@@ -155,7 +166,7 @@
     gap: 4px;
     flex-shrink: 0;
     max-width: 96px;
-    font-size: 11px;
+    font-size: var(--font-caption);
     line-height: 1;
     color: var(--color-text-muted);
 }
@@ -230,14 +241,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 12px;
+    font-size: var(--font-caption);
 }
 
 .param-file-placeholder {
     flex: 1;
     min-width: 0;
     color: var(--color-text-tertiary);
-    font-size: 12px;
+    font-size: var(--font-caption);
 }
 
 .param-file-actions {
@@ -249,7 +260,7 @@
 .param-file-action-btn {
     padding-inline: 4px !important;
     height: auto !important;
-    font-size: 12px !important;
+    font-size: var(--font-caption) !important;
 }
 
 .param-file-clear-btn {
@@ -292,6 +303,7 @@
     min-height: 24px;
     padding: 2px 6px !important;
     line-height: 18px;
+    font-size: var(--font-caption);
 }
 
 .param-table textarea.param-input {
@@ -306,12 +318,13 @@
     align-items: center;
     gap: 6px;
     width: 100%;
-    padding: 6px 10px;
+    min-height: 38px;
+    padding: 7px 12px;
     border: none;
     border-bottom: 1px solid var(--color-divider);
     background: var(--color-bg-card);
     color: var(--color-text-title);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
 }
 
@@ -335,12 +348,12 @@
 }
 
 .param-section-toggle:hover {
-    background: var(--color-bg-hover);
+    background: var(--color-bg-subtle);
 }
 
 .param-section-toggle-icon {
     color: var(--color-text-muted);
-    font-size: 12px;
+    font-size: var(--font-caption);
 }
 
 .response-script-meta {
@@ -666,7 +679,7 @@
 }
 
 .editor-mode-segment .anticon {
-    font-size: 12px;
+    font-size: var(--font-caption);
 }
 
 .editor-mode-segment:hover:not(.editor-mode-segment-active) {
@@ -743,7 +756,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
+    font-size: var(--font-caption);
     font-weight: 600;
     color: var(--color-text-secondary);
 }
@@ -776,10 +789,11 @@
 }
 
 .param-section-toggle-count {
+    min-width: 20px;
     padding: 1px 6px;
     border-radius: var(--radius-pill);
-    background: var(--color-bg-subtle);
-    color: var(--color-text-muted);
+    background: var(--color-bg-group);
+    color: var(--color-text-secondary);
     font-size: 11px;
     font-weight: 500;
     font-variant-numeric: tabular-nums;
@@ -825,7 +839,7 @@
 
 .param-text-textarea {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-    font-size: 12px !important;
+    font-size: var(--font-caption) !important;
     line-height: 1.6 !important;
     border-radius: var(--radius-control) !important;
     background: var(--color-bg-card) !important;
@@ -869,7 +883,7 @@
     padding: 8px 10px;
     background: var(--color-bg-subtle);
     border-bottom: 1px solid var(--color-border);
-    font-size: 12px;
+    font-size: var(--font-caption);
     font-weight: 600;
     color: var(--color-text-muted);
     text-transform: none;
@@ -910,7 +924,7 @@
 .param-empty-desc {
     margin: 0 0 16px;
     max-width: 280px;
-    font-size: 12px;
+    font-size: var(--font-caption);
     line-height: 1.5;
     color: var(--color-text-muted);
 }
@@ -949,7 +963,7 @@
 .panel-empty-desc {
     margin: 0;
     max-width: 320px;
-    font-size: 12px;
+    font-size: var(--font-caption);
     line-height: 1.6;
     color: var(--color-text-muted);
 }
@@ -1219,7 +1233,7 @@
     border: 1px solid var(--color-border-light);
     color: var(--color-text-title);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 12px;
+    font-size: var(--font-caption);
     font-weight: 600;
     line-height: 1.4;
     letter-spacing: 0.02em;
@@ -1238,12 +1252,12 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     text-align: right;
-    font-size: 12px;
+    font-size: var(--font-caption);
     color: var(--color-text-secondary);
 }
 
 .param-suggest-option-fallback {
-    font-size: 12px;
+    font-size: var(--font-caption);
     color: var(--color-text-body);
 }
 
@@ -1254,7 +1268,7 @@
     gap: 8px;
     padding: 16px 12px;
     color: var(--color-text-muted);
-    font-size: 12px;
+    font-size: var(--font-caption);
 }
 
 .param-suggest-empty-icon {

@@ -24,8 +24,8 @@ export default function Tab() {
 
     useEffect(() => {
         if (prevLoadingRef.current && !loading) {
-            requestPanelRef.current?.resize(50);
-            responsePanelRef.current?.resize(50);
+            requestPanelRef.current?.resize(45);
+            responsePanelRef.current?.resize(55);
             setResponseCollapsed(false);
         }
         prevLoadingRef.current = loading;
@@ -72,7 +72,7 @@ export default function Tab() {
             <PanelGroup direction="vertical" className="flex-1 gap-0">
                 <Panel
                     ref={requestPanelRef as RefObject<ImperativePanelHandle>}
-                    defaultSize={50}
+                    defaultSize={45}
                     minSize={12}
                     collapsible
                     collapsedSize={10}
@@ -95,7 +95,7 @@ export default function Tab() {
 
                 <Panel
                     ref={responsePanelRef as RefObject<ImperativePanelHandle>}
-                    defaultSize={50}
+                    defaultSize={55}
                     minSize={12}
                     collapsible
                     collapsedSize={10}

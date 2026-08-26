@@ -25,6 +25,16 @@
     border-bottom: 1px solid var(--color-border-light);
 }
 
+.workspace-panel .section-header-leading {
+    width: 28px;
+    justify-content: center;
+}
+
+.workspace-panel .section-header-leading .anticon {
+    color: var(--color-text-secondary);
+    font-size: 15px;
+}
+
 .workspace-panel-response .response-section-header {
     background: var(--color-bg-card);
     border-bottom-color: var(--color-border-light);
@@ -39,8 +49,8 @@
     width: 100%;
     max-width: none;
     min-width: 0;
-    height: calc(var(--control-height) + 4px);
-    padding-inline: 2px;
+    height: 36px;
+    padding-inline: 3px;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-control);
     background: var(--color-bg-card);
@@ -60,8 +70,8 @@
 .path-command-divider {
     flex-shrink: 0;
     width: 1px;
-    height: 16px;
-    margin-inline: 4px;
+    height: 18px;
+    margin-inline: 6px;
     background: var(--color-border);
     opacity: 0.6;
 }
@@ -71,9 +81,11 @@
     display: inline-flex;
     align-items: center;
     gap: 0;
-    padding: 0 4px;
+    height: 28px;
+    padding: 0 5px;
     border-radius: var(--radius-control);
     transition: background var(--transition-fast);
+    background: color-mix(in srgb, var(--color-bg-subtle) 72%, transparent);
 }
 
 .path-env-selector:hover {
@@ -90,14 +102,18 @@
     border: none !important;
     background: transparent !important;
     box-shadow: none !important;
-    font-size: 11px !important;
+    font-size: 13px !important;
     font-weight: 700 !important;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.02em;
+    line-height: 1 !important;
     color: var(--color-primary) !important;
 }
 
 .path-env-select .ant-select-selection-item {
     padding-inline-end: 0 !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
 }
 
 .path-env-select .ant-select-arrow {
@@ -120,7 +136,7 @@
 }
 
 .path-env-select-chevron {
-    font-size: 10px !important;
+    font-size: 9px !important;
     line-height: 1;
     pointer-events: none;
 }
@@ -134,16 +150,18 @@
 }
 
 .path-env-host-display {
-    padding: 0 8px;
-    font-size: 12px;
-    font-weight: 500;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    padding: 0 9px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: ui-monospace, 'Cascadia Mono', 'SFMono-Regular', Consolas, monospace;
     font-variant-numeric: tabular-nums;
-    color: var(--color-text-secondary);
+    letter-spacing: 0.01em;
+    color: var(--color-text);
     border-left: 1px solid var(--color-border);
     white-space: nowrap;
     user-select: text;
-    opacity: 0.8;
+    opacity: 0.9;
+    line-height: 1;
 }
 
 .path-env-selector:hover .path-env-host-display {
@@ -153,32 +171,78 @@
 .path-command-bar .path-field-tooltip-wrap {
     flex: 0 0 auto;
     min-width: 0;
+    margin-inline: 0;
+    padding-inline: 0;
+    border-radius: var(--radius-control);
+    background: color-mix(in srgb, var(--color-bg-subtle) 52%, transparent);
 }
 
 .path-field-display {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    height: calc(var(--control-height) + 2px);
-    padding: 0 6px;
-    font-size: 12px;
+    gap: 6px;
+    height: 28px;
+    padding: 0 7px;
+    font-size: var(--font-caption);
     font-weight: 500;
     color: var(--color-text);
     background: transparent;
     border-radius: var(--radius-control);
     white-space: nowrap;
     user-select: text;
+    line-height: 1;
     transition: background var(--transition-fast);
 }
 
+/* 字段采用“语义标签 + 值”结构，避免用户必须依赖 Tooltip 才能理解数字含义。 */
+.path-field-label {
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1;
+}
+
+/* 各字段标签宽度固定，保证同一请求栏内的值起点整齐。 */
+.path-field-timeout .path-field-label { min-width: 42px; }
+.path-field-service .path-field-label { min-width: 40px; }
+.path-field-node-id .path-field-label { min-width: 34px; }
+.path-field-client-session-id .path-field-label { min-width: 50px; }
+.path-field-queue .path-field-label { min-width: 36px; }
+.path-field-msgtype .path-field-label { min-width: 46px; }
+
+.path-field-value {
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-text);
+    font-size: var(--font-caption);
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
 .path-field-display:hover {
-    background: var(--color-bg-subtle);
+    /* 只读字段保持轻微反馈，但不伪装成输入框。 */
+    background: color-mix(in srgb, var(--color-bg-subtle) 65%, transparent);
+}
+
+.path-run-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.path-run-label .anticon {
+    font-size: 13px;
 }
 
 .path-field-icon {
-    font-size: 12px;
+    font-size: var(--font-caption);
     color: var(--color-text-muted);
     flex-shrink: 0;
+    line-height: 1;
 }
 
 .path-field-msgtype .path-field-display {
@@ -186,13 +250,30 @@
     font-weight: 600;
 }
 
+.path-field-service .path-field-value,
+.path-field-client-session-id .path-field-value {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
 .path-command-bar .path-actions {
     flex-shrink: 0;
-    padding-inline: 4px 2px;
+    margin-left: 4px;
+    padding-inline: 6px 2px;
+    border-left: 1px solid var(--color-border-light);
+    border-radius: var(--radius-control);
+    background: color-mix(in srgb, var(--color-bg-subtle) 58%, transparent);
+}
+
+/* 高频操作留在栏内；脚本生成/格式化与清空参数收纳到更多菜单。 */
+.path-command-bar .path-actions .path-helper-btn:has(.anticon-format-painter),
+.path-command-bar .path-actions .path-helper-btn:has(.anticon-snippets),
+.path-command-bar .path-actions .path-helper-btn:has(.anticon-delete) {
+    display: none;
 }
 
 .path-overflow {
     padding-inline: 2px 4px;
+    margin-left: auto;
 }
 
 .path-overflow-panel {
@@ -212,11 +293,132 @@
 .path-mode-chip {
     flex-shrink: 0;
     padding: 0 8px;
-    font-size: 11px;
+    font-size: var(--font-caption);
     font-weight: 600;
     letter-spacing: 0.02em;
     color: var(--color-text-secondary);
     white-space: nowrap;
+}
+
+/* 浅色模式：减少“每个字段一张卡片”的感觉，突出地址与执行操作。 */
+:root:not([data-theme='dark']) .path-command-bar {
+    border-color: #d7dee8;
+    background: #ffffff;
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+:root:not([data-theme='dark']) .path-env-selector {
+    background: color-mix(in srgb, var(--color-primary) 7%, #ffffff);
+}
+
+:root:not([data-theme='dark']) .path-env-host-display {
+    color: #334155;
+    border-left-color: #e2e8f0;
+}
+
+:root:not([data-theme='dark']) .path-command-bar .path-field-tooltip-wrap {
+    background: transparent;
+}
+
+:root:not([data-theme='dark']) .path-field-label {
+    color: #7a8699;
+}
+
+:root:not([data-theme='dark']) .path-field-value {
+    color: #1e293b;
+}
+
+:root:not([data-theme='dark']) .path-command-bar .path-actions {
+    background: transparent;
+    border-left-color: #e2e8f0;
+}
+
+:root:not([data-theme='dark']) .path-command-bar .path-helper-btn {
+    color: #64748b !important;
+}
+
+/* 浅色专业工作台：用结构化边界和稳定对比度取代大面积浅灰块。 */
+:root:not([data-theme='dark']) .workspace-panel-request {
+    background: #fbfcfe;
+}
+
+:root:not([data-theme='dark']) .workspace-panel .section-header {
+    min-height: 50px;
+    background: #fbfcfe;
+    border-bottom-color: #e3e8ef;
+}
+
+:root:not([data-theme='dark']) .workspace-panel-response .response-section-header,
+:root:not([data-theme='dark']) .param-section-toggle {
+    background: #ffffff;
+    border-bottom-color: #e5eaf0;
+}
+
+:root:not([data-theme='dark']) .param-table .ant-table-thead > tr > th,
+:root:not([data-theme='dark']) .response-table .ant-table-thead > tr > th {
+    color: #667085 !important;
+    background: #f5f7fa !important;
+    border-bottom-color: #dfe5ec !important;
+}
+
+:root:not([data-theme='dark']) .param-table .ant-table-tbody > tr > td,
+:root:not([data-theme='dark']) .response-table .ant-table-tbody > tr > td {
+    color: #344054;
+    background: #ffffff;
+    border-bottom-color: #edf1f5;
+}
+
+:root:not([data-theme='dark']) .param-table .ant-table-tbody > tr:hover > td,
+:root:not([data-theme='dark']) .response-table .ant-table-tbody > tr:hover > td {
+    background: #f7f9fd !important;
+}
+
+:root:not([data-theme='dark']) .path-run-btn {
+    --path-run-btn-min-width: 116px;
+    height: 36px !important;
+    min-height: 36px !important;
+    border-radius: 6px !important;
+    box-shadow: 0 1px 2px rgba(20, 35, 80, 0.14) !important;
+}
+
+:root:not([data-theme='dark']) .path-run-btn:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 12px color-mix(in srgb, var(--color-primary) 22%, transparent) !important;
+}
+
+:root:not([data-theme='dark']) .path-run-kbd {
+    border-color: rgba(255, 255, 255, 0.32);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+:root:not([data-theme='dark']) .case-sidebar {
+    background: #f7f9fc;
+    border-right: 1px solid #e3e8ef;
+}
+
+:root:not([data-theme='dark']) .case-sidebar-header,
+:root:not([data-theme='dark']) .case-sidebar-search {
+    background: #f7f9fc;
+}
+
+:root:not([data-theme='dark']) .case-project-active {
+    background: #eef2f7;
+}
+
+:root:not([data-theme='dark']) .case-item-active {
+    background: color-mix(in srgb, var(--color-primary) 9%, #ffffff);
+}
+
+:root:not([data-theme='dark']) .case-tab-bar-title .case-tab-item-title:not(.case-tab-item-active) {
+    color: #7a8699;
+    background: transparent;
+}
+
+:root:not([data-theme='dark']) .case-tab-bar-title .case-tab-item-title.case-tab-item-active {
+    color: var(--color-primary);
+    background: #ffffff;
 }
 
 /* 响应空态指标 */

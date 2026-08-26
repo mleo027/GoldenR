@@ -31,12 +31,14 @@ const SectionHeader = forwardRef<HTMLDivElement, SectionHeaderProps>(function Se
         >
             <div className="section-header-leading flex items-center gap-2 shrink-0">
                 <span className={iconClassName}>{icon}</span>
-                <Typography.Text
-                    strong
-                    className="section-header-title text-sm text-[var(--color-text-title)]"
-                >
-                    {title}
-                </Typography.Text>
+                {title ? (
+                    <Typography.Text
+                        strong
+                        className="section-header-title text-sm text-[var(--color-text-title)]"
+                    >
+                        {title}
+                    </Typography.Text>
+                ) : null}
             </div>
             {children != null ? (
                 <div className="section-header-path-wrap ui-scroll">{children}</div>
