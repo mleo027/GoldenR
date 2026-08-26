@@ -1,12 +1,20 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { buildCsvContent, estimateDataSize, exportTableToCsv, formatDataSize } from './exportTable';
+import {
+    buildAlignedTextTable,
+    buildCsvContent,
+    estimateDataSize,
+    exportTableToCsv,
+    formatDataSize,
+} from './exportTable';
 
 const mockSaveCsvFile = vi.fn();
+const mockSaveTxtFile = vi.fn();
 
 vi.mock('../lib/electron', () => ({
     getElectronAPI: () => ({
         importExport: {
             saveCsv: mockSaveCsvFile,
+            saveTxt: mockSaveTxtFile,
         },
     }),
 }));
@@ -58,5 +66,27 @@ describe('exportTableToCsv', () => {
             saved: false,
             reason: 'cancelled',
         });
+    });
+});
+
+describe('buildAlignedTextTable', () => {
+    it('aligns columns by max display width with two-space gaps', () => {
+        const table = buildAlignedTextTable([
+            { fundid: '6001001', stkcode: '000001', flag: '买入' },
+            { fundid: '6001002', stkcode: '600519', flag: '卖出' },
+        ]);
+        expect(table).toBe(
+            ['fundid   stkcode  flag', '6001001  000001   买入', '6001002  600519   卖出'].join('\n'),
+        );
+    });
+
+    it('pads cells wider than header including CJK width', () => {
+        const table = buildAlignedTextTable([{ name: '长长长的中文名称', qty: 5 }]);
+        expect(table).toBe('name              qty\n长长长的中文名称  5');
+    });
+
+    it('serializes null as empty string and objects as JSON', () => {
+        const table = buildAlignedTextTable([{ a: null, b: { x: 1 } }]);
+        expect(table).toBe('a  b\n   {"x":1}');
     });
 });
