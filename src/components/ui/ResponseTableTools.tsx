@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
-import { Button, Input, Modal, Tooltip, message } from 'antd';
+import { Button, Input, Modal, Radio, Space, Tooltip, message } from 'antd';
 import type { InputRef } from 'antd';
 import {
     ExportOutlined,
@@ -9,7 +9,7 @@ import {
 } from '@ant-design/icons';
 import { UI_DEBOUNCE_MS, PERFORMANCE_THRESHOLDS } from '../../constants/ui';
 import { useDebouncedDraft } from '../../hooks/useDebouncedDraft';
-import { exportTableToCsv } from '../../utils/exportTable';
+import { exportTableToCsv, exportTableToText } from '../../utils/exportTable';
 
 interface ResponseTableToolsProps {
     disabled?: boolean;
@@ -21,14 +21,14 @@ interface ResponseTableToolsProps {
     exportFilename?: string;
 }
 
-function ExportSuccessDialog({ filePath }: { filePath: string }) {
+function ExportSuccessDialog({ filePath, formatLabel }: { filePath: string; formatLabel: string }) {
     Modal.success({
         title: '导出成功',
         centered: true,
         mousePosition: null,
         content: (
             <div className="export-success-modal">
-                <p className="export-success-desc">CSV 文件已保存至：</p>
+                <p className="export-success-desc">{formatLabel} 文件已保存至：</p>
                 <p className="export-success-path">{filePath}</p>
             </div>
         ),
@@ -37,9 +37,16 @@ function ExportSuccessDialog({ filePath }: { filePath: string }) {
     });
 }
 
+type ExportFormat = 'csv' | 'text';
+
+function toTxtFilename(filename: string): string {
+    return `${filename.replace(/\.csv$/i, '')}.txt`;
+}
+
 async function exportResponseTable(
     exportData: Record<string, unknown>[],
     exportFilename: string,
+    format: ExportFormat,
 ): Promise<void> {
     if (exportData.length >= PERFORMANCE_THRESHOLDS.largeExportRows) {
         message.warning(
@@ -48,9 +55,15 @@ async function exportResponseTable(
         );
     }
 
-    const result = await exportTableToCsv(exportData, exportFilename);
+    const result =
+        format === 'text'
+            ? await exportTableToText(exportData, toTxtFilename(exportFilename))
+            : await exportTableToCsv(exportData, exportFilename);
     if (result.saved) {
-        ExportSuccessDialog({ filePath: result.filePath });
+        ExportSuccessDialog({
+            filePath: result.filePath,
+            formatLabel: format === 'text' ? 'TXT' : 'CSV',
+        });
     } else if (result.reason === 'empty') {
         message.warning('暂无数据可导出');
     }
@@ -102,6 +115,8 @@ export default function ResponseTableTools({
 }: ResponseTableToolsProps) {
     const inputRef = useRef<InputRef>(null);
     const [searchExpanded, setSearchExpanded] = useState(false);
+    const [formatModalOpen, setFormatModalOpen] = useState(false);
+    const [exportFormat, setExportFormat] = useState<ExportFormat>('csv');
 
     const { draft, setDraftDebounced, commitNow, clearDraft, flushPending } = useDebouncedDraft(
         searchKeyword,
@@ -147,8 +162,13 @@ export default function ResponseTableTools({
         }
     };
 
-    const handleExport = async () => {
-        await exportResponseTable(exportData, exportFilename);
+    const handleExport = () => {
+        setFormatModalOpen(true);
+    };
+
+    const handleExportConfirm = async () => {
+        setFormatModalOpen(false);
+        await exportResponseTable(exportData, exportFilename, exportFormat);
     };
 
     return (
@@ -175,12 +195,12 @@ export default function ResponseTableTools({
                     onClick={handleToggleSearch}
                 />
             </Tooltip>
-            <Tooltip title="导出 CSV">
+            <Tooltip title="导出">
                 <Button
                     type="text"
                     size="small"
                     icon={<ExportOutlined />}
-                    aria-label="导出 CSV"
+                    aria-label="导出"
                     className="response-table-tools-btn"
                     disabled={disabled}
                     onClick={handleExport}
@@ -197,6 +217,25 @@ export default function ResponseTableTools({
                     onClick={onFullscreen}
                 />
             </Tooltip>
+            <Modal
+                open={formatModalOpen}
+                title="选择导出格式"
+                okText="导出"
+                cancelText="取消"
+                width={380}
+                onOk={handleExportConfirm}
+                onCancel={() => setFormatModalOpen(false)}
+            >
+                <Radio.Group
+                    value={exportFormat}
+                    onChange={(event) => setExportFormat(event.target.value)}
+                >
+                    <Space direction="vertical">
+                        <Radio value="csv">CSV 文件（逗号分隔）</Radio>
+                        <Radio value="text">纯文本（对齐表格）</Radio>
+                    </Space>
+                </Radio.Group>
+            </Modal>
         </div>
     );
 }
