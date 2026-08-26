@@ -338,6 +338,7 @@ export default function Path({
                         size="sm"
                         variant="borderless"
                         className="path-env-select"
+                        popupClassName="path-env-dropdown"
                         popupMatchSelectWidth={false}
                         optionLabelProp="label"
                         suffixIcon={<DownOutlined className="path-env-select-chevron" />}

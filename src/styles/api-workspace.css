@@ -332,8 +332,8 @@
 }
 
 .path-overflow-panel {
-    min-width: 200px;
-    padding: 4px 0 0;
+    min-width: 216px;
+    padding: 5px;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-control);
     background: var(--color-bg-card);
@@ -343,6 +343,77 @@
 .path-overflow-panel .ant-menu {
     border-inline-end: none !important;
     box-shadow: none;
+    background: transparent !important;
+}
+
+.path-overflow-panel .ant-menu-item {
+    height: 36px;
+    margin: 1px 0 !important;
+    padding-inline: 10px !important;
+    border-radius: var(--radius-control);
+    line-height: 36px;
+    color: var(--color-text-body);
+    font-size: 13px;
+}
+
+.path-overflow-panel .ant-menu-item .anticon {
+    color: var(--color-text-secondary);
+    font-size: 14px;
+}
+
+.path-overflow-panel .ant-menu-item:hover {
+    color: var(--color-primary);
+    background: var(--color-bg-hover) !important;
+}
+
+.path-overflow-panel .ant-menu-item:hover .anticon {
+    color: var(--color-primary);
+}
+
+.path-overflow-panel .ant-menu-item-disabled {
+    color: var(--color-text-muted) !important;
+    opacity: 0.55;
+}
+
+.path-overflow-panel .ant-menu-item-divider {
+    margin: 5px 0 !important;
+    background: var(--color-border) !important;
+}
+
+.path-env-dropdown {
+    min-width: 140px;
+    padding: 5px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+    background: var(--color-bg-elevated);
+    box-shadow: var(--shadow-elevated);
+}
+
+.path-env-dropdown .ant-select-item {
+    min-height: 36px;
+    margin: 1px 0;
+    padding: 0 10px;
+    border-radius: var(--radius-control);
+    line-height: 36px;
+    color: var(--color-text-body);
+}
+
+.path-env-dropdown .ant-select-item-option-active:not(.ant-select-item-option-selected) {
+    background: var(--color-bg-hover);
+}
+
+.path-env-dropdown .ant-select-item-option-selected {
+    background: var(--color-primary-subtle);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.path-env-dropdown .ant-select-item-option-selected::before {
+    left: 3px;
+    top: 8px;
+    bottom: 8px;
+    width: 3px;
+    border-radius: 2px;
 }
 
 .path-mode-chip {
