@@ -4,6 +4,7 @@ import path from 'path';
 import { spawn, type ChildProcessWithoutNullStreams } from 'child_process';
 import { fileURLToPath } from 'url';
 import { app } from 'electron';
+import type { KcbpResultSet } from '../../../src/shared/kcbp/types';
 
 export interface KcbpConnectionOptions {
     ip?: string;
@@ -45,6 +46,40 @@ interface RawKcbpResponseData {
     msg: string;
     data: unknown[];
     level?: string;
+}
+
+function isResultSetLike(item: unknown): boolean {
+    return Boolean(
+        item &&
+        typeof item === 'object' &&
+        !Array.isArray(item) &&
+        Array.isArray((item as { rows?: unknown }).rows),
+    );
+}
+
+function toResultSet(item: unknown): KcbpResultSet {
+    const source = (item ?? {}) as Record<string, unknown>;
+    return {
+        name: typeof source.name === 'string' ? source.name : '',
+        rows: source.rows as Record<string, unknown>[],
+    };
+}
+
+/** 边界归一化：结构化条目补齐缺省字段；平铺行/混合结构包装为单集。
+ *  列名与列序一律以行对象的 key 为准（key=value），协议表头元数据已废弃。 */
+export function normalizeResultSets(data: unknown[]): KcbpResultSet[] {
+    if (data.length === 0) {
+        return [];
+    }
+    if (data.every(isResultSetLike)) {
+        return data.map(toResultSet);
+    }
+    return [
+        {
+            name: '',
+            rows: data as Record<string, unknown>[],
+        },
+    ];
 }
 
 interface NativeKcbpAdapter {
@@ -386,9 +421,10 @@ function normalizePayload(payload: KcbpRequestOptions): KcbpRequestOptions {
             service: payload.connection.service || 'kspb',
         }),
         // KGBP 需要 connecttimeout（TS buildKcbpRequest 已处理）
-        ...(isKGBP && payload.connection.connecttimeout && {
-            connecttimeout: payload.connection.connecttimeout,
-        }),
+        ...(isKGBP &&
+            payload.connection.connecttimeout && {
+                connecttimeout: payload.connection.connecttimeout,
+            }),
     };
 
     return {
@@ -489,6 +525,7 @@ function toNormalizedResult(raw: RawKcbpResponseData, timecost: number): KcbpRes
     return {
         ...raw,
         code: String(raw.code),
+        data: normalizeResultSets(raw.data),
         stats: {
             timecost,
             rows: countResponseRows(raw.data),

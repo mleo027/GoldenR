@@ -334,7 +334,6 @@ private:
 			table_name = gbkToUtf8(string(cursor_name));
 		}
 
-		NJSON columns = NJSON::array();
 		std::vector<string> col_names;
 		col_names.reserve(static_cast<size_t>(col_num));
 		for (int i = 1; i <= col_num; i++)
@@ -342,7 +341,6 @@ private:
 			string col_name;
 			getSingleColName(pHandle_, i, col_name);
 			col_names.push_back(col_name);
-			columns.push_back(col_name);
 		}
 
 		NJSON rows = NJSON::array();
@@ -359,7 +357,6 @@ private:
 		}
 
 		table["name"] = table_name;
-		table["columns"] = columns;
 		table["rows"] = rows;
 		return true;
 	}

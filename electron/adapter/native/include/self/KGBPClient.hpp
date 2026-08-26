@@ -235,17 +235,12 @@ private:
 
 		std::vector<std::string> names = parseColNames(colNum);
 		NJSON table = NJSON::object();
-		NJSON columns = NJSON::array();
-		for (const auto &column : names)
-		{
-			columns.push_back(column);
-		}
 
 		NJSON rows = NJSON::array();
 		while (KGBPCli_RsFetchRow(handle_) == KGBPCLI_OK)
 		{
 			NJSON row = NJSON::object();
-			for (size_t i = 0; i < colNum; ++i)
+			for (size_t i = 1; i <= colNum; ++i)
 			{
 				row[names[i]] = getColumnValue(static_cast<int>(i));
 			}
@@ -253,7 +248,6 @@ private:
 		}
 
 		table["name"] = name;
-		table["columns"] = columns;
 		table["rows"] = rows;
 		return table;
 	}

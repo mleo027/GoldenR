@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Button, Dropdown, Input, Menu, Tooltip } from 'antd';
+import { Button, Dropdown, Menu, Tooltip } from 'antd';
+import { DownOutlined } from '@ant-design/icons';
 import { Select } from '../../../../components/ui/primitives';
 import {
     ClockCircleOutlined,
     CopyOutlined,
     DeleteOutlined,
-    DownOutlined,
     FormatPainterOutlined,
     LoadingOutlined,
     MoreOutlined,
@@ -87,9 +87,6 @@ export function PathRunButton({ compact = false }: PathRunButtonProps) {
 
 function PathAddressFields({
     addressParts,
-    handleAddressPartChange,
-    run,
-    flushPending,
     defaultTimeout,
     isKGBP,
 }: {
@@ -108,76 +105,39 @@ function PathAddressFields({
             <>
                 <Tooltip title="Timeout (s)">
                     <span className="path-field-tooltip-wrap">
-                        <Input
-                            value={addressParts.timeout}
-                            onChange={(e) => handleAddressPartChange('timeout', e.target.value)}
-                            onPressEnter={run}
-                            onBlur={flushPending}
-                            placeholder={defaultTimeout}
-                            size="small"
-                            className="path-field-input path-field-timeout"
-                            variant="borderless"
-                            prefix={<ClockCircleOutlined className="path-field-icon" />}
-                        />
+                        <span className="path-field-display path-field-timeout">
+                            <ClockCircleOutlined className="path-field-icon" />
+                            {addressParts.timeout || defaultTimeout}
+                        </span>
                     </span>
                 </Tooltip>
                 <Tooltip title="ServiceName">
                     <span className="path-field-tooltip-wrap">
-                        <Input
-                            value={addressParts.service ?? ''}
-                            onChange={(e) => handleAddressPartChange('service', e.target.value)}
-                            onPressEnter={run}
-                            onBlur={flushPending}
-                            placeholder="ServiceName"
-                            size="small"
-                            className="path-field-input path-field-service"
-                            variant="borderless"
-                        />
+                        <span className="path-field-display path-field-service">
+                            {addressParts.service || 'ServiceName'}
+                        </span>
                     </span>
                 </Tooltip>
                 <Tooltip title="NodeId">
                     <span className="path-field-tooltip-wrap">
-                        <Input
-                            value={addressParts.nodeId ?? ''}
-                            onChange={(e) => handleAddressPartChange('nodeId', e.target.value)}
-                            onPressEnter={run}
-                            onBlur={flushPending}
-                            placeholder="NodeId"
-                            size="small"
-                            className="path-field-input path-field-node-id"
-                            variant="borderless"
-                        />
+                        <span className="path-field-display path-field-node-id">
+                            {addressParts.nodeId || 'NodeId'}
+                        </span>
                     </span>
                 </Tooltip>
                 <Tooltip title="ClientSessionId，可引用入参，例如 @custid">
                     <span className="path-field-tooltip-wrap">
-                        <Input
-                            value={addressParts.clientSessionId ?? ''}
-                            onChange={(e) =>
-                                handleAddressPartChange('clientSessionId', e.target.value)
-                            }
-                            onPressEnter={run}
-                            onBlur={flushPending}
-                            placeholder="@custid"
-                            size="small"
-                            className="path-field-input path-field-client-session-id"
-                            variant="borderless"
-                        />
+                        <span className="path-field-display path-field-client-session-id">
+                            {addressParts.clientSessionId || '@custid'}
+                        </span>
                     </span>
                 </Tooltip>
                 <Tooltip title="Msgtype">
                     <span className="path-field-tooltip-wrap">
-                        <Input
-                            value={addressParts.msgtype}
-                            onChange={(e) => handleAddressPartChange('msgtype', e.target.value)}
-                            onPressEnter={run}
-                            onBlur={flushPending}
-                            placeholder="Msgtype"
-                            size="small"
-                            className="path-field-input path-field-msgtype"
-                            variant="borderless"
-                            prefix={<TagOutlined className="path-field-icon" />}
-                        />
+                        <span className="path-field-display path-field-msgtype">
+                            <TagOutlined className="path-field-icon" />
+                            {addressParts.msgtype}
+                        </span>
                     </span>
                 </Tooltip>
             </>
@@ -187,60 +147,27 @@ function PathAddressFields({
     return (
         <>
             <Tooltip title="Queue">
-                <span className="path-field-tooltip-wrap path-field-queue-wrap">
-                    <Input
-                        value={addressParts.queue}
-                        onChange={(e) => handleAddressPartChange('queue', e.target.value)}
-                        onPressEnter={run}
-                        onBlur={flushPending}
-                        placeholder="req1"
-                        size="small"
-                        className="path-field-input path-field-queue"
-                        variant="borderless"
-                        prefix={
-                            <span className="path-field-prefix path-field-prefix--icon-only">
-                                <UnorderedListOutlined className="path-field-icon" />
-                            </span>
-                        }
-                    />
+                <span className="path-field-tooltip-wrap">
+                    <span className="path-field-display path-field-queue">
+                        <UnorderedListOutlined className="path-field-icon" />
+                        {addressParts.queue || 'req1'}
+                    </span>
                 </span>
             </Tooltip>
             <Tooltip title="Timeout (s)">
                 <span className="path-field-tooltip-wrap">
-                    <Input
-                        value={addressParts.timeout}
-                        onChange={(e) => handleAddressPartChange('timeout', e.target.value)}
-                        onPressEnter={run}
-                        onBlur={flushPending}
-                        placeholder={defaultTimeout}
-                        size="small"
-                        className="path-field-input path-field-timeout"
-                        variant="borderless"
-                        prefix={
-                            <span className="path-field-prefix path-field-prefix--icon-only">
-                                <ClockCircleOutlined className="path-field-icon" />
-                            </span>
-                        }
-                    />
+                    <span className="path-field-display path-field-timeout">
+                        <ClockCircleOutlined className="path-field-icon" />
+                        {addressParts.timeout || defaultTimeout}
+                    </span>
                 </span>
             </Tooltip>
             <Tooltip title="Msgtype">
                 <span className="path-field-tooltip-wrap">
-                    <Input
-                        value={addressParts.msgtype}
-                        onChange={(e) => handleAddressPartChange('msgtype', e.target.value)}
-                        onPressEnter={run}
-                        onBlur={flushPending}
-                        placeholder=""
-                        size="small"
-                        className="path-field-input path-field-msgtype"
-                        variant="borderless"
-                        prefix={
-                            <span className="path-field-prefix path-field-prefix--icon-only">
-                                <TagOutlined className="path-field-icon" />
-                            </span>
-                        }
-                    />
+                    <span className="path-field-display path-field-msgtype">
+                        <TagOutlined className="path-field-icon" />
+                        {addressParts.msgtype}
+                    </span>
                 </span>
             </Tooltip>
         </>
@@ -378,7 +305,6 @@ export default function Path({
         handleClearParams,
         environmentOptions,
         handleEnvironmentChange,
-        envVariant,
         showInlineActions,
         showOverflowMenu,
         overflowMenuItems,
@@ -395,32 +321,23 @@ export default function Path({
                         <div className="path-command-divider" aria-hidden />
                     </>
                 ) : null}
-                <div className={`path-env-block path-env-block--${envVariant}`}>
+                <div className="path-env-selector">
                     <Select
                         value={env.activeKcxpEnvironmentId}
                         options={environmentOptions}
                         onChange={handleEnvironmentChange}
                         size="sm"
                         variant="borderless"
-                        className="path-env-badge-select"
+                        className="path-env-select"
                         popupMatchSelectWidth={false}
                         optionLabelProp="label"
                         suffixIcon={<DownOutlined className="path-env-select-chevron" />}
                     />
-                    <Input
-                        value={addressParts.host}
-                        onChange={(e) => handleAddressPartChange('host', e.target.value)}
-                        onPressEnter={run}
-                        onBlur={flushPending}
-                        placeholder="127.0.0.1:21000"
-                        size="small"
-                        variant="borderless"
-                        className="path-env-host-input"
-                    />
+                    <span className="path-env-host-display">
+                        {addressParts.host || '127.0.0.1:21000'}
+                    </span>
                 </div>
-
                 <div className="path-command-divider" aria-hidden />
-
                 <PathAddressFields
                     addressParts={addressParts}
                     handleAddressPartChange={handleAddressPartChange}

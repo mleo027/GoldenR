@@ -43,7 +43,6 @@ export interface KcbpResponseData {
 
 export interface KcbpResultSet {
     name: string;
-    columns: string[];
     rows: Record<string, unknown>[];
 }
 
