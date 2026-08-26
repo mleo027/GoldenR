@@ -1,6 +1,6 @@
 import type { RefObject } from 'react';
-import type { InputRef } from 'antd';
-import { Input } from 'antd';
+import { Input } from '../../../../components/ui/primitives';
+import type { InputRef } from '../../../../components/ui/primitives';
 
 interface InlineRenameInputProps {
     inputRef: RefObject<InputRef | null>;
@@ -20,7 +20,7 @@ export default function InlineRenameInput({
     return (
         <Input
             ref={inputRef as React.Ref<InputRef>}
-            size="small"
+            size="sm"
             value={value}
             onChange={(event) => onChange(event.target.value)}
             onPressEnter={onFinish}

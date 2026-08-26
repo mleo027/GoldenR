@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState, type DragEvent } from 'react';
 import { App, message } from 'antd';
-import type { InputRef, MenuProps } from 'antd';
+import type { MenuProps } from 'antd';
+import type { InputRef } from '../../../components/ui/primitives';
 import {
     CloseOutlined,
     CopyOutlined,

@@ -1,5 +1,6 @@
-import { Input, Tag } from 'antd';
+import {Tag} from 'antd';
 import { parseRuleFields } from '../../utils/suggest/paramSuggestResolve';
+import { Input } from '../../../../components/ui/primitives';
 
 interface ParamSuggestFieldTagsProps {
     value?: string;

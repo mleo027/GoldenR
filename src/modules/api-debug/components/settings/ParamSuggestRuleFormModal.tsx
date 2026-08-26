@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { App, Collapse, Form, Input, InputNumber, Modal, Switch, Tag, Typography } from 'antd';
-import { Select } from '../../../../components/ui/primitives';
+import { App, Collapse, Form, InputNumber, Modal, Switch, Tag, Typography } from 'antd';
+import { Input, Select } from '../../../../components/ui/primitives';
 import type { FormInstance, FormListFieldData } from 'antd';
 import type { ParamFieldRule, ParamSuggestBinding } from '../../types/paramSuggest';
 import {

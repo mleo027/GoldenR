@@ -1,9 +1,10 @@
-import { Button, Input, Tooltip, Typography } from 'antd';
+import {Button, Tooltip, Typography} from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import type { RuleFieldGroup } from '../../utils/suggest/paramSuggestResolve';
 import { summarizeFieldGroup } from '../../utils/suggest/paramSuggestResolve';
 import type { FieldHealth } from '../../utils/suggest/paramSuggestRuleDisplay';
 import { summarizeFieldHealth } from '../../utils/suggest/paramSuggestRuleDisplay';
+import { Input } from '../../../../components/ui/primitives';
 
 interface ParamSuggestFieldSidebarProps {
     groups: RuleFieldGroup[];
@@ -40,13 +41,13 @@ export default function ParamSuggestFieldSidebar({
                 <Typography.Text strong className="text-sm">
                     字段列表
                 </Typography.Text>
-                <Button type="link" size="small" icon={<PlusOutlined />} onClick={onCreateField}>
+                <Button type="link" size="sm" icon={<PlusOutlined />} onClick={onCreateField}>
                     新建
                 </Button>
             </div>
             <Input
                 allowClear
-                size="small"
+                size="sm"
                 className="param-suggest-field-search"
                 prefix={<SearchOutlined className="text-[var(--color-text-muted)]" />}
                 placeholder="搜索字段"

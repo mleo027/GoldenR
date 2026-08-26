@@ -9,7 +9,7 @@ import {
     type MutableRefObject,
     type RefObject,
 } from 'react';
-import { App, Dropdown, Input, Spin, Tooltip, Typography } from 'antd';
+import {App, Dropdown, Spin, Tooltip, Typography} from 'antd';
 import type { TextAreaRef } from 'antd/es/input/TextArea';
 import { SearchOutlined } from '@ant-design/icons';
 import type { ParamItem } from '../../types/workspace';
@@ -25,6 +25,7 @@ import {
     trimPathQuotes,
 } from '../../utils/kcbp/kcbpFields';
 import { decodeSohMarkers, formatControlCharsForTitle } from '../../../../utils/controlCharDisplay';
+import { TextArea } from '../../../../components/ui/primitives';
 
 interface ParamSuggestInputProps {
     fieldName: string;
@@ -136,7 +137,7 @@ function ParamSuggestTextArea({
     onCopy: (event: ClipboardEvent<HTMLTextAreaElement>) => void;
 }) {
     return (
-        <Input.TextArea
+        <TextArea
             ref={inputRef}
             value={value}
             placeholder={placeholder}

@@ -61,6 +61,18 @@
     text-align: right;
 }
 
+.param-table .param-key-input.ant-input-borderless {
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.param-table .param-key-input.ant-input-borderless:focus,
+.param-table .param-key-input.ant-input-borderless.ant-input-focused {
+    background: var(--color-bg-card) !important;
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 2px var(--color-primary-glow) !important;
+}
+
 .param-table .param-input,
 .param-table .param-input:hover,
 .param-table .param-input:focus,
@@ -70,7 +82,10 @@
     border-color: transparent !important;
     box-shadow: none !important;
     background: transparent !important;
-    transition: background-color var(--transition-fast) !important;
+    transition:
+        background-color 200ms var(--ease-out),
+        border-color 250ms var(--ease-out),
+        box-shadow 350ms var(--ease-out) !important;
 }
 
 .param-table .param-input:hover {
@@ -80,8 +95,9 @@
 .param-table .param-input:focus,
 .param-table .param-input.ant-input-focused {
     background: var(--color-bg-card) !important;
-    outline: 1px solid var(--color-primary) !important;
-    outline-offset: -1px;
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 2px var(--color-primary-glow) !important;
+    outline: none !important;
 }
 
 .param-delete-btn {
@@ -273,15 +289,16 @@
 
 .param-table .param-input {
     min-width: 0;
+    min-height: 24px;
+    padding: 2px 6px !important;
+    line-height: 18px;
 }
 
 .param-table textarea.param-input {
-    min-height: 24px;
     resize: none;
     overflow-y: hidden;
     white-space: pre-wrap;
     word-break: break-all;
-    line-height: 18px;
 }
 
 .param-section-toggle {

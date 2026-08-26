@@ -190,11 +190,12 @@
 .ga-input.ant-input,
 .ga-input.ant-input-affix-wrapper {
     border-radius: var(--radius-control);
-    border-color: var(--color-input-border);
+    background: var(--color-bg-card);
+    border-color: var(--color-border-light);
     font-size: var(--font-body);
     transition:
-        border-color var(--duration-fast) var(--ease-out),
-        box-shadow var(--duration-fast) var(--ease-out);
+        border-color 250ms var(--ease-out),
+        box-shadow 350ms var(--ease-out);
 }
 
 .ga-input--md.ant-input,
@@ -210,29 +211,38 @@
 
 .ga-input.ant-input:hover,
 .ga-input.ant-input-affix-wrapper:hover {
-    border-color: var(--color-input-border-hover);
+    border-color: var(--color-border-hover);
 }
 
 .ga-input.ant-input:focus,
 .ga-input.ant-input-affix-wrapper-focused {
     border-color: var(--color-primary);
-    box-shadow: var(--focus-ring);
+    box-shadow: 0 0 0 2px var(--color-primary-glow);
+}
+
+.ga-input.ant-input::placeholder {
+    color: var(--color-text-muted);
 }
 
 .ga-textarea.ant-input {
     border-radius: var(--radius-control);
     font-size: var(--font-body);
     line-height: 1.5;
+    background: var(--color-bg-card);
+    border-color: var(--color-border-light);
     resize: vertical;
+    transition:
+        border-color 250ms var(--ease-out),
+        box-shadow 350ms var(--ease-out);
 }
 
 .ga-textarea.ant-input:hover {
-    border-color: var(--color-input-border-hover);
+    border-color: var(--color-border-hover);
 }
 
 .ga-textarea.ant-input:focus {
     border-color: var(--color-primary);
-    box-shadow: var(--focus-ring);
+    box-shadow: 0 0 0 2px var(--color-primary-glow);
 }
 
 /* --- Select --- */

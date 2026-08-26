@@ -3,6 +3,7 @@ import type { InputProps as AntInputProps, InputRef } from 'antd';
 import { forwardRef } from 'react';
 import type { PrimitiveSize } from './types';
 
+export type { InputRef };
 export type InputProps = Omit<AntInputProps, 'size'> & {
     size?: PrimitiveSize;
 };

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Button, Input, Space, Tag, Tooltip, Typography } from 'antd';
+import {Button, Space, Tag, Tooltip, Typography} from 'antd';
 import { ThunderboltOutlined } from '@ant-design/icons';
 import type { DbSuggestResponse, ParamFieldRule } from '../../types/paramSuggest';
 import { formatExecutedSqlPreview } from '../../utils/suggest/paramSuggestSql';
@@ -10,6 +10,7 @@ import {
 import { formatRuleFields } from '../../utils/suggest/paramSuggestResolve';
 import { parseContextParams } from '../../utils/suggest/paramSuggestRuleForm';
 import ParamSuggestOptionsPreview from './ParamSuggestOptionsPreview';
+import { Input, TextArea } from '../../../../components/ui/primitives';
 
 interface ParamSuggestRuleTestPanelProps {
     rules: ParamFieldRule[];
@@ -61,7 +62,7 @@ function RuleTestControls({
                 <Typography.Text className="text-xs text-[var(--color-text-secondary)] self-start pt-1">
                     上下文
                 </Typography.Text>
-                <Input.TextArea
+                <TextArea
                     rows={4}
                     placeholder={'market=1\nsecuid=123'}
                     value={testContext}

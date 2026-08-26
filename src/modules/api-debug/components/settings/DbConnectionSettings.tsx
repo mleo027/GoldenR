@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { App, Button, Form, Input, InputNumber, Typography } from 'antd';
+import { App, Button, Form, InputNumber, Typography } from 'antd';
 import { DatabaseOutlined } from '@ant-design/icons';
 import SettingsConfigPath from '../../../../components/layout/SettingsConfigPath';
 import type { DbConnectionConfig } from '../../types/paramSuggest';
 import { DB_CONFIG_FILE, DEFAULT_DB_CONFIG } from '../../constants/paramSuggest';
 import { testDbConnection } from '../../services/paramSuggestService';
 import { useParamSuggest } from '../../store/useParamSuggest';
+import { Input, Password } from '../../../../components/ui/primitives';
 
 function buildDbConfig(values: DbConnectionConfig): DbConnectionConfig {
     return {
@@ -46,7 +47,7 @@ function DbConnectionFormFields() {
                 name="password"
                 rules={[{ required: true, message: '请输入密码' }]}
             >
-                <Input.Password />
+                <Password />
             </Form.Item>
             <Form.Item label="查询超时（毫秒）" name="queryTimeoutMs">
                 <InputNumber className="w-full" min={1000} max={60000} step={1000} />

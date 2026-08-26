@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { App, Button, Input, Typography } from 'antd';
+import { App, Button, Typography } from 'antd';
 import { ThunderboltOutlined } from '@ant-design/icons';
 import type { DbSuggestResponse } from '../../types/paramSuggest';
 import { fetchParamSuggestions } from '../../services/paramSuggestService';
@@ -11,6 +11,7 @@ import {
 } from '../../utils/suggest/paramSuggestRuleForm';
 import { parseRuleFields } from '../../utils/suggest/paramSuggestResolve';
 import ParamSuggestOptionsPreview from './ParamSuggestOptionsPreview';
+import { TextArea } from '../../../../components/ui/primitives';
 
 interface ParamSuggestRuleFormTestProps {
     formValues: RuleFormValues;
@@ -132,7 +133,7 @@ export default function ParamSuggestRuleFormTest({
             <Typography.Text className="text-xs text-[var(--color-text-secondary)] block mb-1">
                 输入参数（key=value，逗号/换行分隔）
             </Typography.Text>
-            <Input.TextArea
+            <TextArea
                 rows={3}
                 value={testContext}
                 placeholder={'market=1\norgid=100'}

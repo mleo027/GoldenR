@@ -1,10 +1,11 @@
-import { Button, Checkbox, Input } from 'antd';
+import {Button, Checkbox} from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import type { ParamItem } from '../../types/workspace';
 import { isParamEnabled } from '../../utils/workspace/paramItem';
 import ParamFileHint from './ParamFileHint';
 import ParamSuggestInput from './ParamSuggestInput';
+import { Input } from '../../../../components/ui/primitives';
 
 export interface ParamTableRow extends ParamItem {
     key: string;
@@ -54,7 +55,7 @@ export function createParamTableColumns({
                 <Input
                     value={text}
                     variant="borderless"
-                    size="small"
+                    size="sm"
                     className="param-input param-key-input"
                     onChange={(event) => onChange(index, 'name', event.target.value)}
                 />
@@ -90,7 +91,7 @@ export function createParamTableColumns({
                 <Button
                     type="text"
                     danger
-                    size="small"
+                    size="sm"
                     icon={<DeleteOutlined />}
                     onClick={() => onRemove(Number(record.key))}
                     className="param-delete-btn"

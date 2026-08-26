@@ -1,10 +1,11 @@
 import { forwardRef, useImperativeHandle } from 'react';
-import { Input } from 'antd';
+import {} from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useCaseSidebarController } from '../../hooks/useCaseSidebarController';
 import CaseChildrenList from './CaseChildrenList';
 import CaseSidebarHeader from './CaseSidebarHeader';
 import ProjectTreeItem from './ProjectTreeItem';
+import { Input } from '../../../../components/ui/primitives';
 
 export interface CaseSidebarHandle {
     focusSearch: () => void;
@@ -22,7 +23,7 @@ function CaseSidebarSearch({ controller }: { controller: CaseSidebarController }
             <Input
                 ref={controller.searchInputRef}
                 allowClear
-                size="small"
+                size="sm"
                 placeholder="搜索接口..."
                 prefix={<SearchOutlined className="text-[var(--color-text-muted)]" />}
                 suffix={<span className="case-search-kbd">Ctrl+K</span>}

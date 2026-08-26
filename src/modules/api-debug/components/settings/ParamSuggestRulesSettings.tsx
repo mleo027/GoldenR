@@ -1,4 +1,4 @@
-import { Button, Input, Modal, Space, Typography } from 'antd';
+import { Button, Modal, Space, Typography } from 'antd';
 import { ExportOutlined, ImportOutlined, PlusOutlined } from '@ant-design/icons';
 import SettingsConfigPath from '../../../../components/layout/SettingsConfigPath';
 import { useParamSuggestRulesSettings } from '../../hooks/useParamSuggestRulesSettings';
@@ -9,6 +9,7 @@ import ParamSuggestRuleTable from './ParamSuggestRuleTable';
 import ParamSuggestRuleTestPanel from './ParamSuggestRuleTestPanel';
 import ParamSuggestSqlDrawer from './ParamSuggestSqlDrawer';
 import ParamSuggestRuleFormModal from './ParamSuggestRuleFormModal';
+import { TextArea } from '../../../../components/ui/primitives';
 
 function RuleManagementToolbar({
     onImport,
@@ -117,7 +118,7 @@ function ImportRulesModal({
             <Typography.Paragraph type="secondary" className="text-xs">
                 请粘贴 <code>{`{ "rules": [ ... ] }`}</code> 格式的规则 JSON，导入后会覆盖当前规则。
             </Typography.Paragraph>
-            <Input.TextArea
+            <TextArea
                 rows={12}
                 value={value}
                 onChange={(event) => onChange(event.target.value)}

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Button, Input, Radio, Switch, Typography } from 'antd';
+import {Button, Radio, Switch, Typography} from 'antd';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { Select } from '../../../../components/ui/primitives';
 import { useAppEnv } from '../../../../store/useAppEnv';
@@ -9,6 +9,7 @@ import type { KcxpEnvironment, KcxpProtocol } from '../../types/kcxp';
 import { DEFAULT_KCBP_TIMEOUT } from '../../utils/kcbp/kcbpAddress';
 import { createKcxpEnvironment } from '../../utils/workspace/kcxpEnvironment';
 import { flushAllTabDrafts } from '../../utils/workspace/tabDraftRegistry';
+import { Input } from '../../../../components/ui/primitives';
 
 const PROTOCOL_SELECT_OPTIONS = [
     { value: 'KCBP', label: 'KCBP' },
@@ -44,7 +45,7 @@ function EnvironmentRow({
                         value={environment.name}
                         onChange={(e) => updateField('name', e.target.value)}
                         placeholder="环境名称"
-                        size="small"
+                        size="sm"
                         className="kcxp-env-name-input"
                         onClick={(e) => e.stopPropagation()}
                     />
@@ -58,7 +59,7 @@ function EnvironmentRow({
                 />
                 <Button
                     type="text"
-                    size="small"
+                    size="sm"
                     danger
                     icon={<DeleteOutlined />}
                     disabled={!canDelete}
@@ -72,7 +73,7 @@ function EnvironmentRow({
                         value={environment.host}
                         onChange={(e) => updateField('host', e.target.value)}
                         placeholder="127.0.0.1:21000"
-                        size="small"
+                        size="sm"
                     />
                 </div>
                 {isKGBP ? (
@@ -85,7 +86,7 @@ function EnvironmentRow({
                                 value={environment.service ?? ''}
                                 onChange={(e) => updateField('service', e.target.value)}
                                 placeholder="网关服务名（必填）"
-                                size="small"
+                                size="sm"
                                 status={!environment.service?.trim() ? 'error' : undefined}
                             />
                         </div>
@@ -97,7 +98,7 @@ function EnvironmentRow({
                                 value={environment.nodeId ?? ''}
                                 onChange={(e) => updateField('nodeId', e.target.value)}
                                 placeholder="节点 ID（必填）"
-                                size="small"
+                                size="sm"
                                 status={!environment.nodeId?.trim() ? 'error' : undefined}
                             />
                         </div>
@@ -107,7 +108,7 @@ function EnvironmentRow({
                                 value={environment.clientSessionId ?? ''}
                                 onChange={(e) => updateField('clientSessionId', e.target.value)}
                                 placeholder="可选"
-                                size="small"
+                                size="sm"
                             />
                         </div>
                         <div className="kcxp-env-field">
@@ -116,7 +117,7 @@ function EnvironmentRow({
                                 value={environment.timeout}
                                 onChange={(e) => updateField('timeout', e.target.value)}
                                 placeholder={DEFAULT_KCBP_TIMEOUT}
-                                size="small"
+                                size="sm"
                             />
                         </div>
                     </>
@@ -128,7 +129,7 @@ function EnvironmentRow({
                                 value={environment.queue}
                                 onChange={(e) => updateField('queue', e.target.value)}
                                 placeholder="req1"
-                                size="small"
+                                size="sm"
                             />
                         </div>
                         <div className="kcxp-env-field">
@@ -137,7 +138,7 @@ function EnvironmentRow({
                                 value={environment.timeout}
                                 onChange={(e) => updateField('timeout', e.target.value)}
                                 placeholder={DEFAULT_KCBP_TIMEOUT}
-                                size="small"
+                                size="sm"
                             />
                         </div>
                     </>
@@ -219,7 +220,7 @@ export default function RequestSettings() {
                     </div>
                     <Switch
                         className="settings-switch"
-                        size="small"
+                        size="sm"
                         checked={autoSave}
                         onChange={(checked) => updateAppEnv('autoSave', checked)}
                     />

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
-import { Button, Input, Modal, Radio, Space, Tooltip, message } from 'antd';
-import type { InputRef } from 'antd';
+import { Button, Modal, Radio, Space, Tooltip, message } from 'antd';
 import {
     ExportOutlined,
     FullscreenExitOutlined,
@@ -10,6 +9,8 @@ import {
 import { UI_DEBOUNCE_MS, PERFORMANCE_THRESHOLDS } from '../../constants/ui';
 import { useDebouncedDraft } from '../../hooks/useDebouncedDraft';
 import { exportTableToCsv, exportTableToText } from '../../utils/exportTable';
+import { Input } from './primitives';
+import type { InputRef } from './primitives';
 
 interface ResponseTableToolsProps {
     disabled?: boolean;
@@ -72,7 +73,7 @@ function ResponseTableSearchInput({
         <Input
             ref={inputRef}
             allowClear
-            size="small"
+            size="sm"
             placeholder="搜索表格内容"
             prefix={<SearchOutlined className="text-[var(--color-text-muted)]" />}
             value={draft}

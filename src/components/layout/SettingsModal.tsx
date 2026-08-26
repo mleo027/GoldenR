@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ComponentType } from 'react';
-import { Input, Modal } from 'antd';
+import { Modal } from 'antd';
 import { SettingOutlined, SearchOutlined } from '@ant-design/icons';
 import SettingsNavHighlight from './SettingsNavHighlight';
 import { useAppEnv } from '../../store/useAppEnv';
@@ -16,6 +16,7 @@ import {
     matchesSettingsSearch,
     toSettingsNavItem,
 } from './settingsNav';
+import { Input } from '../ui/primitives';
 
 interface SettingsModalProps {
     open: boolean;
@@ -46,7 +47,7 @@ function SettingsModalNav({
             <div className="settings-modal-nav-search">
                 <Input
                     allowClear
-                    size="small"
+                    size="sm"
                     prefix={<SearchOutlined className="settings-modal-search-icon" />}
                     placeholder="搜索设置…"
                     value={searchQuery}

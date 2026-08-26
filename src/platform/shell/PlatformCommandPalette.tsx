@@ -1,4 +1,5 @@
-import { Input, Modal } from 'antd';
+import { Modal } from 'antd';
+import { Input } from '../../components/ui/primitives';
 import { SearchOutlined } from '@ant-design/icons';
 import { useCallback, useEffect, useMemo, useState, type KeyboardEvent } from 'react';
 import type { AppModuleDefinition } from '../registry/types';
@@ -155,7 +156,7 @@ export default function PlatformCommandPalette({
         >
             <Input
                 autoFocus
-                size="large"
+                size="md"
                 prefix={<SearchOutlined className="text-[var(--color-text-muted)]" />}
                 placeholder="切换模块或执行命令…"
                 suffix={

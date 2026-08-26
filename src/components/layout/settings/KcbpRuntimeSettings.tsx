@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { App, Button, Form, Input, Typography } from 'antd';
+import { App, Button, Form, Typography } from 'antd';
 import { FileOutlined, FolderOpenOutlined, SaveOutlined } from '@ant-design/icons';
 import SettingsConfigPath from '../SettingsConfigPath';
 import {
@@ -14,6 +14,7 @@ import {
     pickKcbpRuntimeFile,
     saveKcbpRuntimeConfig,
 } from '@/lib/kcbpRuntimeConfigClient';
+import { Input, TextArea } from '../../../components/ui/primitives';
 
 export default function KcbpRuntimeSettings() {
     const { message } = App.useApp();
@@ -96,7 +97,7 @@ export default function KcbpRuntimeSettings() {
                         />
                     </Form.Item>
                     <Form.Item label="KCBP 启动参数（每行一条）" name="argsText">
-                        <Input.TextArea rows={2} placeholder="可选，传给 KCBP 的参数" />
+                        <TextArea rows={2} placeholder="可选，传给 KCBP 的参数" />
                     </Form.Item>
                     <Button
                         type="primary"

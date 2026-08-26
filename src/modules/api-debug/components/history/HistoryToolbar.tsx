@@ -1,6 +1,7 @@
-import { Button, Input, Segmented } from 'antd';
+import {Button, Segmented} from 'antd';
 import { Select } from '../../../../components/ui/primitives';
 import type { ResultFilter, TimeFilter } from './historyFormat';
+import { Input } from '../../../../components/ui/primitives';
 
 interface HistoryToolbarProps {
     counts: Record<ResultFilter, number>;
@@ -52,14 +53,14 @@ function ToolbarFilters({
         <div className="flex flex-wrap items-center gap-2 px-3 pb-2">
             <Input
                 allowClear
-                size="small"
+                size="sm"
                 placeholder="搜索历史记录..."
                 value={query}
                 onChange={(event) => onQueryChange(event.target.value)}
                 className="w-56"
             />
             <Segmented<ResultFilter>
-                size="small"
+                size="sm"
                 value={resultFilter}
                 onChange={onResultChange}
                 options={[
@@ -102,7 +103,7 @@ function ToolbarFilters({
                 ]}
                 className="w-32"
             />
-            <Button type="link" size="small" onClick={onClear}>
+            <Button type="link" size="sm" onClick={onClear}>
                 清除筛选
             </Button>
         </div>
