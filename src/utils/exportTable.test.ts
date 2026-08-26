@@ -4,6 +4,7 @@ import {
     buildCsvContent,
     estimateDataSize,
     exportTableToCsv,
+    exportTableToText,
     formatDataSize,
 } from './exportTable';
 
@@ -88,5 +89,30 @@ describe('buildAlignedTextTable', () => {
     it('serializes null as empty string and objects as JSON', () => {
         const table = buildAlignedTextTable([{ a: null, b: { x: 1 } }]);
         expect(table).toBe('a  b\n   {"x":1}');
+    });
+});
+
+describe('exportTableToText', () => {
+    beforeEach(() => {
+        mockSaveTxtFile.mockReset();
+    });
+
+    it('returns empty when data is empty', async () => {
+        await expect(exportTableToText([])).resolves.toEqual({ saved: false, reason: 'empty' });
+    });
+
+    it('delegates to electron saveTxt when available', async () => {
+        mockSaveTxtFile.mockResolvedValue({ saved: true, filePath: 'D:/out.txt' });
+        const result = await exportTableToText([{ custid: '1' }], 'response.txt');
+        expect(result).toEqual({ saved: true, filePath: 'D:/out.txt' });
+        expect(mockSaveTxtFile).toHaveBeenCalledOnce();
+    });
+
+    it('returns cancelled when user dismisses dialog', async () => {
+        mockSaveTxtFile.mockResolvedValue({ saved: false });
+        await expect(exportTableToText([{ custid: '1' }])).resolves.toEqual({
+            saved: false,
+            reason: 'cancelled',
+        });
     });
 });

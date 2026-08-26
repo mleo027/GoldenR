@@ -116,4 +116,23 @@ describe('import/export IPC handlers', () => {
         await expect(invoke('export:saveCsv', { content: 1 })).rejects.toThrow();
         await expect(invoke('export:saveIni', { content: 1 })).rejects.toThrow();
     });
+
+    it('saves TXT exports through export:saveTxt', async () => {
+        mock.showSaveDialog.mockResolvedValueOnce({
+            canceled: false,
+            filePath: 'C:/data/out.txt',
+        });
+        const txt = await invoke('export:saveTxt', {
+            content: 'a  b\n1  2',
+            defaultFilename: 'out',
+        });
+        expect(txt).toEqual({ saved: true, filePath: 'C:/data/out.txt' });
+        expect(mock.writeFile).toHaveBeenCalledWith('C:/data/out.txt', 'a  b\n1  2', 'utf-8');
+
+        mock.showSaveDialog.mockResolvedValueOnce({ canceled: true, filePath: '' });
+        await expect(
+            invoke('export:saveTxt', { content: 'x', defaultFilename: 'out.txt' }),
+        ).resolves.toEqual({ saved: false });
+        await expect(invoke('export:saveTxt', { content: 1 })).rejects.toThrow();
+    });
 });

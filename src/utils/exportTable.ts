@@ -76,12 +76,12 @@ export type ExportCsvResult =
     | { saved: true; filePath: string }
     | { saved: false; reason: 'empty' | 'cancelled' };
 
-function downloadCsvInBrowser(content: string, filename: string): string {
-    const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
+function downloadInBrowser(content: string, mime: string, filename: string): string {
+    const blob = new Blob([content], { type: mime });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = filename.endsWith('.csv') ? filename : `${filename}.csv`;
+    anchor.download = filename;
     anchor.click();
     URL.revokeObjectURL(url);
     return anchor.download;
@@ -106,7 +106,45 @@ export async function exportTableToCsv(
         return { saved: true, filePath: result.filePath ?? filename };
     }
 
-    const savedFilename = downloadCsvInBrowser(content, filename);
+    const savedFilename = downloadInBrowser(
+        content,
+        'text/csv;charset=utf-8',
+        filename.endsWith('.csv') ? filename : `${filename}.csv`,
+    );
+    return {
+        saved: true,
+        filePath: `浏览器默认下载目录 / ${savedFilename}`,
+    };
+}
+
+export type ExportTextResult =
+    | { saved: true; filePath: string }
+    | { saved: false; reason: 'empty' | 'cancelled' };
+
+export async function exportTableToText(
+    data: Record<string, unknown>[],
+    filename = 'response.txt',
+): Promise<ExportTextResult> {
+    if (data.length === 0) {
+        return { saved: false, reason: 'empty' };
+    }
+
+    const content = buildAlignedTextTable(data);
+    const electronAPI = getElectronAPI();
+
+    if (electronAPI?.importExport.saveTxt) {
+        const result = await electronAPI.importExport.saveTxt(content, filename);
+        if (!result.saved) {
+            return { saved: false, reason: 'cancelled' };
+        }
+        return { saved: true, filePath: result.filePath ?? filename };
+    }
+
+    const savedFilename = downloadInBrowser(
+        content,
+        'text/plain;charset=utf-8',
+        filename.endsWith('.txt') ? filename : `${filename}.txt`,
+    );
     return {
         saved: true,
         filePath: `浏览器默认下载目录 / ${savedFilename}`,

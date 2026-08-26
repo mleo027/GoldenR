@@ -24,6 +24,56 @@ async function showSaveDialog(
     return win ? dialog.showSaveDialog(win, options) : dialog.showSaveDialog(options);
 }
 
+interface SaveFileOptions {
+    /** invalidIpcArgument 错误信息中的格式名，如 'CSV export' */
+    errorLabel: string;
+    dialogTitle: string;
+    /** 用户未填扩展名时的兑底默认文件名，如 'response.csv' */
+    fallbackFilename: string;
+    filterName: string;
+    extension: string;
+}
+
+async function saveTextFileViaDialog(
+    event: Electron.IpcMainInvokeEvent,
+    payload: unknown,
+    options: SaveFileOptions,
+): Promise<{ saved: false } | { saved: true; filePath: string } | { saved: false; error: string }> {
+    if (
+        !payload ||
+        typeof payload !== 'object' ||
+        typeof (payload as { content?: unknown }).content !== 'string' ||
+        typeof (payload as { defaultFilename?: unknown }).defaultFilename !== 'string'
+    ) {
+        throw invalidIpcArgument(`Invalid ${options.errorLabel} payload`);
+    }
+    const typedPayload = payload as { content: string; defaultFilename: string };
+    const win = BrowserWindow.fromWebContents(event.sender);
+    const ext = options.extension;
+    const defaultFilename = typedPayload.defaultFilename.trim() || options.fallbackFilename;
+    const defaultPath = defaultFilename.endsWith(`.${ext}`)
+        ? defaultFilename
+        : `${defaultFilename}.${ext}`;
+
+    const result = await showSaveDialog(win, {
+        title: options.dialogTitle,
+        defaultPath,
+        filters: [{ name: options.filterName, extensions: [ext] }],
+    });
+
+    if (result.canceled || !result.filePath) {
+        return { saved: false as const };
+    }
+
+    try {
+        await writeFile(result.filePath, typedPayload.content, 'utf-8');
+        return { saved: true as const, filePath: result.filePath };
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        return { saved: false as const, error: message };
+    }
+}
+
 export function registerImportExportIpc(): void {
     ipcMain.handle(
         'import:openFile',
@@ -49,12 +99,17 @@ export function registerImportExportIpc(): void {
 
             if (isJson) {
                 const content = await readFile(filePath, 'utf-8');
-                return {
-                    opened: true as const,
-                    format: 'json' as const,
-                    data: JSON.parse(content),
-                    filePath,
-                };
+                try {
+                    return {
+                        opened: true as const,
+                        format: 'json' as const,
+                        data: JSON.parse(content),
+                        filePath,
+                    };
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : String(error);
+                    return { opened: false as const, error: `JSON 解析失败：${message}` };
+                }
             }
 
             const iniBuffer = await readFile(filePath);
@@ -109,115 +164,53 @@ export function registerImportExportIpc(): void {
 
     ipcMain.handle(
         'export:saveCsv',
-        withIpcError(async (event, payload: unknown) => {
-            if (
-                !payload ||
-                typeof payload !== 'object' ||
-                typeof (payload as { content?: unknown }).content !== 'string' ||
-                typeof (payload as { defaultFilename?: unknown }).defaultFilename !== 'string'
-            ) {
-                throw invalidIpcArgument('Invalid CSV export payload');
-            }
-            const typedPayload = payload as { content: string; defaultFilename: string };
-            const win = BrowserWindow.fromWebContents(event.sender);
-            const defaultFilename = typedPayload.defaultFilename.trim() || 'response.csv';
-            const defaultPath = defaultFilename.endsWith('.csv')
-                ? defaultFilename
-                : `${defaultFilename}.csv`;
+        withIpcError((event, payload: unknown) =>
+            saveTextFileViaDialog(event, payload, {
+                errorLabel: 'CSV export',
+                dialogTitle: '导出 CSV',
+                fallbackFilename: 'response.csv',
+                filterName: 'CSV',
+                extension: 'csv',
+            }),
+        ),
+    );
 
-            const result = await showSaveDialog(win, {
-                title: '导出 CSV',
-                defaultPath,
-                filters: [{ name: 'CSV', extensions: ['csv'] }],
-            });
-
-            if (result.canceled || !result.filePath) {
-                return { saved: false as const };
-            }
-
-            try {
-                await writeFile(result.filePath, typedPayload.content, 'utf-8');
-                return { saved: true as const, filePath: result.filePath };
-            } catch (error) {
-                const message = error instanceof Error ? error.message : String(error);
-                return { saved: false as const, error: message };
-            }
-        }),
+    ipcMain.handle(
+        'export:saveTxt',
+        withIpcError((event, payload: unknown) =>
+            saveTextFileViaDialog(event, payload, {
+                errorLabel: 'TXT export',
+                dialogTitle: '导出纯文本',
+                fallbackFilename: 'response.txt',
+                filterName: 'TXT',
+                extension: 'txt',
+            }),
+        ),
     );
 
     ipcMain.handle(
         'export:saveHtml',
-        withIpcError(async (event, payload: unknown) => {
-            if (
-                !payload ||
-                typeof payload !== 'object' ||
-                typeof (payload as { content?: unknown }).content !== 'string' ||
-                typeof (payload as { defaultFilename?: unknown }).defaultFilename !== 'string'
-            ) {
-                throw invalidIpcArgument('Invalid HTML export payload');
-            }
-            const typedPayload = payload as { content: string; defaultFilename: string };
-            const win = BrowserWindow.fromWebContents(event.sender);
-            const defaultFilename = typedPayload.defaultFilename.trim() || 'report.html';
-            const defaultPath = defaultFilename.endsWith('.html')
-                ? defaultFilename
-                : `${defaultFilename}.html`;
-
-            const result = await showSaveDialog(win, {
-                title: '导出 HTML 报告',
-                defaultPath,
-                filters: [{ name: 'HTML', extensions: ['html'] }],
-            });
-
-            if (result.canceled || !result.filePath) {
-                return { saved: false as const };
-            }
-
-            try {
-                await writeFile(result.filePath, typedPayload.content, 'utf-8');
-                return { saved: true as const, filePath: result.filePath };
-            } catch (error) {
-                const message = error instanceof Error ? error.message : String(error);
-                return { saved: false as const, error: message };
-            }
-        }),
+        withIpcError((event, payload: unknown) =>
+            saveTextFileViaDialog(event, payload, {
+                errorLabel: 'HTML export',
+                dialogTitle: '导出 HTML 报告',
+                fallbackFilename: 'report.html',
+                filterName: 'HTML',
+                extension: 'html',
+            }),
+        ),
     );
 
     ipcMain.handle(
         'export:saveIni',
-        withIpcError(async (event, payload: unknown) => {
-            if (
-                !payload ||
-                typeof payload !== 'object' ||
-                typeof (payload as { content?: unknown }).content !== 'string' ||
-                typeof (payload as { defaultFilename?: unknown }).defaultFilename !== 'string'
-            ) {
-                throw invalidIpcArgument('Invalid INI export payload');
-            }
-            const typedPayload = payload as { content: string; defaultFilename: string };
-            const win = BrowserWindow.fromWebContents(event.sender);
-            const defaultFilename = typedPayload.defaultFilename.trim() || 'project.ini';
-            const defaultPath = defaultFilename.endsWith('.ini')
-                ? defaultFilename
-                : `${defaultFilename}.ini`;
-
-            const result = await showSaveDialog(win, {
-                title: '导出 INI',
-                defaultPath,
-                filters: [{ name: 'INI', extensions: ['ini'] }],
-            });
-
-            if (result.canceled || !result.filePath) {
-                return { saved: false as const };
-            }
-
-            try {
-                await writeFile(result.filePath, typedPayload.content, 'utf-8');
-                return { saved: true as const, filePath: result.filePath };
-            } catch (error) {
-                const message = error instanceof Error ? error.message : String(error);
-                return { saved: false as const, error: message };
-            }
-        }),
+        withIpcError((event, payload: unknown) =>
+            saveTextFileViaDialog(event, payload, {
+                errorLabel: 'INI export',
+                dialogTitle: '导出 INI',
+                fallbackFilename: 'project.ini',
+                filterName: 'INI',
+                extension: 'ini',
+            }),
+        ),
     );
 }
