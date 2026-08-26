@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include "json.hpp"
-typedef nlohmann::json NJSON;
+typedef nlohmann::ordered_json NJSON;
 
 #define THROW_ERROR(env, msg) \
     Napi::TypeError::New(env, msg).ThrowAsJavaScriptException();

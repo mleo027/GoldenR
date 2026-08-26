@@ -6,7 +6,7 @@
 #include <windows.h>
 #include <algorithm>
 
-typedef nlohmann::json NJSON;
+typedef nlohmann::ordered_json NJSON;
 
 using std::string;
 
