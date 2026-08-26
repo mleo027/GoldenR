@@ -128,6 +128,18 @@
     flex: 0 0 auto;
 }
 
+.path-command-bar .path-field-service {
+    width: 120px;
+}
+
+.path-command-bar .path-field-node-id {
+    width: 82px;
+}
+
+.path-command-bar .path-field-client-session-id {
+    width: 150px;
+}
+
 .path-command-bar .path-actions {
     flex-shrink: 0;
     padding-inline: 4px 2px;

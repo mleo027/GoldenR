@@ -289,7 +289,7 @@ console.log(result);
 - `connection`：`ip`、`port`、`requesttimeout`（超时单位为秒；连接超时由 native 固定为 5 秒）
 - `param.msgtype`：兼作 KGBP 服务名（`KGBPCLI_OPTION_SERVICE_NAME`）
 - `param.funcid`：可选功能号，缺省取 `msgtype`
-- `param.nodeid` / `param.sessionid`：可选包头字段
+- `param.nodeid` / `param.clientsessionid`：可选包头字段
 - `param.fields`：与 KCBP 相同的字段规则（Buffer 二进制、file(path)、0x 前缀）
 
 SDK 来源：金证 SVN 分支 6.7.0.3（r97506）`lbmdll/lbm_comm/kgbpcli`，仅收录 x64 产物。

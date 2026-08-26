@@ -8,7 +8,7 @@ export interface KcbpAddressParts {
     /** KGBP：节点 ID */
     nodeId?: string;
     /** KGBP：会话 ID */
-    sessionId?: string;
+    clientSessionId?: string;
 }
 
 export const DEFAULT_KCBP_QUEUE = 'req1';
@@ -24,7 +24,7 @@ export function parseKcbpAddress(address: string): KcbpAddressParts {
             timeout: '',
             service: undefined,
             nodeId: undefined,
-            sessionId: undefined,
+            clientSessionId: undefined,
         };
     }
 
@@ -58,7 +58,7 @@ export function parseKcbpAddress(address: string): KcbpAddressParts {
     const timeout = params.get('timeout') ?? params.get('requesttimeout');
     const service = params.get('service');
     const nodeId = params.get('nodeid');
-    const sessionId = params.get('sessionid');
+    const clientSessionId = params.get('clientsessionid');
 
     return {
         host: hostPart.trim(),
@@ -67,7 +67,7 @@ export function parseKcbpAddress(address: string): KcbpAddressParts {
         timeout: timeout?.trim() ?? '',
         service: service?.trim() || undefined,
         nodeId: nodeId?.trim() || undefined,
-        sessionId: sessionId?.trim() || undefined,
+        clientSessionId: clientSessionId?.trim() || undefined,
     };
 }
 
@@ -82,7 +82,7 @@ export function serializeKcbpAddress(parts: KcbpAddressParts): string {
     const timeout = parts.timeout.trim();
     const service = parts.service?.trim() ?? '';
     const nodeId = parts.nodeId?.trim() ?? '';
-    const sessionId = parts.sessionId?.trim() ?? '';
+    const clientSessionId = parts.clientSessionId?.trim() ?? '';
 
     if (
         !host &&
@@ -91,7 +91,7 @@ export function serializeKcbpAddress(parts: KcbpAddressParts): string {
         !timeout &&
         !service &&
         !nodeId &&
-        !sessionId
+        !clientSessionId
     ) {
         return '';
     }
@@ -114,8 +114,8 @@ export function serializeKcbpAddress(parts: KcbpAddressParts): string {
     if (nodeId) {
         params.set('nodeid', nodeId);
     }
-    if (sessionId) {
-        params.set('sessionid', sessionId);
+    if (clientSessionId) {
+        params.set('clientsessionid', clientSessionId);
     }
 
     const query = params.toString();

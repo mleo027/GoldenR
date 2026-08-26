@@ -9,9 +9,9 @@ const baseParts = {
 };
 
 describe('buildKcbpRequest (KGBP)', () => {
-    it('parses pure integer nodeid/sessionid', () => {
+    it('parses pure integer nodeid/clientsessionid', () => {
         const payload = buildKcbpRequest(
-            { ...baseParts, service: 'srv-demo', nodeId: '3', sessionId: '88' },
+            { ...baseParts, service: 'srv-demo', nodeId: '3', clientSessionId: '88' },
             '150501',
             {},
             {},
@@ -19,19 +19,30 @@ describe('buildKcbpRequest (KGBP)', () => {
         );
         expect(payload.type).toBe('KGBP');
         expect(payload.param.nodeid).toBe(3);
-        expect(payload.param.sessionid).toBe(88);
+        expect(payload.param.clientsessionid).toBe(88);
     });
 
     it('returns undefined for non-pure-integer values instead of silent coercion', () => {
         const payload = buildKcbpRequest(
-            { ...baseParts, service: 'srv-demo', nodeId: '12.5', sessionId: 'abc' },
+            { ...baseParts, service: 'srv-demo', nodeId: '12.5', clientSessionId: 'abc' },
             '150501',
             {},
             {},
             'KGBP',
         );
         expect(payload.param.nodeid).toBeUndefined();
-        expect(payload.param.sessionid).toBeUndefined();
+        expect(payload.param.clientsessionid).toBeUndefined();
+    });
+
+    it('resolves @field references for ClientSessionId', () => {
+        const payload = buildKcbpRequest(
+            { ...baseParts, service: 'srv-demo', nodeId: '3', clientSessionId: '@custid' },
+            '150501',
+            { custid: '600100000570' },
+            {},
+            'KGBP',
+        );
+        expect(payload.param.clientsessionid).toBe(600100000570);
     });
 });
 

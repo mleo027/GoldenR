@@ -258,6 +258,7 @@ export function usePathBarController({ layout, onQuickFill }: UsePathBarControll
     return {
         activeTab,
         env,
+        activeEnvironment,
         run,
         flushPending,
         addressDraft,

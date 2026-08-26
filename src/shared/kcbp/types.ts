@@ -19,8 +19,8 @@ export interface KcbpParamOptions {
     servicename?: string;
     /** KGBP：节点 ID（native 读 param.nodeid，整数） */
     nodeid?: number;
-    /** KGBP：会话 ID（native 读 param.sessionid，整数） */
-    sessionid?: number;
+    /** KGBP：客户端会话 ID（native 读 param.clientsessionid，整数） */
+    clientsessionid?: number;
 }
 
 export interface KcbpRequestOptions {

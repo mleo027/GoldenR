@@ -68,11 +68,11 @@ public:
 			uint32_t nodeId = param["nodeid"].get<uint32_t>();
 			setBinaryOption(KGBPCLI_OPTION_NODE_ID, &nodeId, sizeof(nodeId), "NODE_ID");
 		}
-		if (param.contains("sessionid") && param["sessionid"].is_number_integer())
+		if (param.contains("clientsessionid") && param["clientsessionid"].is_number_integer())
 		{
-			uint64_t sessionId = param["sessionid"].get<uint64_t>();
-			setBinaryOption(KGBPCLI_OPTION_CLIENT_SESSION_ID, &sessionId,
-							sizeof(sessionId), "CLIENT_SESSION_ID");
+			uint64_t clientSessionId = param["clientsessionid"].get<uint64_t>();
+			setBinaryOption(KGBPCLI_OPTION_CLIENT_SESSION_ID, &clientSessionId,
+							sizeof(clientSessionId), "CLIENT_SESSION_ID");
 		}
 		uint32_t headTimeout = static_cast<uint32_t>(config_.requestTimeoutMs);
 		setBinaryOption(KGBPCLI_OPTION_HEAD_TIMEOUT, &headTimeout,

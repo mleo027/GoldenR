@@ -90,13 +90,94 @@ function PathAddressFields({
     run,
     flushPending,
     defaultTimeout,
+    isKGBP,
 }: {
     addressParts: ReturnType<typeof usePathBarController>['addressParts'];
-    handleAddressPartChange: (field: 'queue' | 'timeout' | 'msgtype', value: string) => void;
+    handleAddressPartChange: (field: 'queue' | 'timeout' | 'msgtype' | 'service' | 'nodeId' | 'clientSessionId', value: string) => void;
     run: () => void;
     flushPending: () => void;
     defaultTimeout: string;
+    isKGBP: boolean;
 }) {
+    if (isKGBP) {
+        return (
+            <>
+                <Tooltip title="Msgtype">
+                    <span className="path-field-tooltip-wrap">
+                        <Input
+                            value={addressParts.msgtype}
+                            onChange={(e) => handleAddressPartChange('msgtype', e.target.value)}
+                            onPressEnter={run}
+                            onBlur={flushPending}
+                            placeholder="Msgtype"
+                            size="small"
+                            className="path-field-input path-field-msgtype"
+                            variant="borderless"
+                            prefix={<TagOutlined className="path-field-icon" />}
+                        />
+                    </span>
+                </Tooltip>
+                <Tooltip title="ServiceName">
+                    <span className="path-field-tooltip-wrap">
+                        <Input
+                            value={addressParts.service ?? ''}
+                            onChange={(e) => handleAddressPartChange('service', e.target.value)}
+                            onPressEnter={run}
+                            onBlur={flushPending}
+                            placeholder="ServiceName"
+                            size="small"
+                            className="path-field-input path-field-service"
+                            variant="borderless"
+                        />
+                    </span>
+                </Tooltip>
+                <Tooltip title="NodeId">
+                    <span className="path-field-tooltip-wrap">
+                        <Input
+                            value={addressParts.nodeId ?? ''}
+                            onChange={(e) => handleAddressPartChange('nodeId', e.target.value)}
+                            onPressEnter={run}
+                            onBlur={flushPending}
+                            placeholder="NodeId"
+                            size="small"
+                            className="path-field-input path-field-node-id"
+                            variant="borderless"
+                        />
+                    </span>
+                </Tooltip>
+                <Tooltip title="ClientSessionId，可引用入参，例如 @custid">
+                    <span className="path-field-tooltip-wrap">
+                        <Input
+                            value={addressParts.clientSessionId ?? ''}
+                            onChange={(e) => handleAddressPartChange('clientSessionId', e.target.value)}
+                            onPressEnter={run}
+                            onBlur={flushPending}
+                            placeholder="@custid"
+                            size="small"
+                            className="path-field-input path-field-client-session-id"
+                            variant="borderless"
+                        />
+                    </span>
+                </Tooltip>
+                <Tooltip title="Timeout (s)">
+                    <span className="path-field-tooltip-wrap">
+                        <Input
+                            value={addressParts.timeout}
+                            onChange={(e) => handleAddressPartChange('timeout', e.target.value)}
+                            onPressEnter={run}
+                            onBlur={flushPending}
+                            placeholder={defaultTimeout}
+                            size="small"
+                            className="path-field-input path-field-timeout"
+                            variant="borderless"
+                            prefix={<ClockCircleOutlined className="path-field-icon" />}
+                        />
+                    </span>
+                </Tooltip>
+            </>
+        );
+    }
+
     return (
         <>
             <Tooltip title="Queue">
@@ -296,6 +377,7 @@ export default function Path({
         showOverflowMenu,
         overflowMenuItems,
         DEFAULT_KCBP_TIMEOUT,
+        activeEnvironment,
     } = usePathBarController({ layout, onQuickFill });
 
     return (
@@ -339,6 +421,7 @@ export default function Path({
                     run={run}
                     flushPending={flushPending}
                     defaultTimeout={DEFAULT_KCBP_TIMEOUT}
+                    isKGBP={activeEnvironment.protocol === 'KGBP'}
                 />
 
                 {showInlineActions ? (

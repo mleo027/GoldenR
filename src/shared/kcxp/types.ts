@@ -13,5 +13,5 @@ export interface KcxpEnvironment {
     /** KGBP 必填（表单层校验）：节点 ID */
     nodeId?: string;
     /** KGBP 可选：会话 ID */
-    sessionId?: string;
+    clientSessionId?: string;
 }

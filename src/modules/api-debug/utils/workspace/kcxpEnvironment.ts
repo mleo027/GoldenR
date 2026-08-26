@@ -13,16 +13,18 @@ export function createKcxpEnvironment(
     partial?: Partial<KcxpEnvironment>,
 ): KcxpEnvironment {
     const template = DEFAULT_KCXP_ENVIRONMENTS[0];
+    const protocol = partial?.protocol ?? 'KCBP';
     return {
         id: createKcxpEnvironmentId(),
         name,
-        protocol: partial?.protocol ?? 'KCBP',
+        protocol,
         host: partial?.host ?? template.host,
         queue: partial?.queue ?? template.queue,
         timeout: partial?.timeout ?? template.timeout,
         service: partial?.service,
         nodeId: partial?.nodeId,
-        sessionId: partial?.sessionId,
+        clientSessionId:
+            partial?.clientSessionId ?? (protocol === 'KGBP' ? '@custid' : undefined),
     };
 }
 
@@ -44,7 +46,11 @@ export function isKcxpEnvironment(value: unknown): value is KcxpEnvironment {
 
 export function normalizeKcxpEnvironments(value: unknown): KcxpEnvironment[] {
     if (!Array.isArray(value)) return [...DEFAULT_KCXP_ENVIRONMENTS];
-    const valid = value.filter(isKcxpEnvironment);
+    const valid = value.filter(isKcxpEnvironment).map((environment) =>
+        environment.protocol === 'KGBP' && !environment.clientSessionId?.trim()
+            ? { ...environment, clientSessionId: '@custid' }
+            : environment,
+    );
     return valid.length > 0 ? valid : [...DEFAULT_KCXP_ENVIRONMENTS];
 }
 
@@ -112,7 +118,7 @@ export function applyKcxpEnvironmentToAddress(
         const params = new URLSearchParams();
         setQueryParam(params, 'service', environment.service);
         setQueryParam(params, 'nodeid', environment.nodeId);
-        setQueryParam(params, 'sessionid', environment.sessionId);
+        setQueryParam(params, 'clientsessionid', environment.clientSessionId || '@custid');
         setQueryParam(params, 'requesttimeout', environment.timeout);
 
         const host = environment.host.trim();
@@ -130,7 +136,7 @@ export function applyKcxpEnvironmentToAddress(
         timeout: environment.timeout,
         service: undefined,
         nodeId: undefined,
-        sessionId: undefined,
+        clientSessionId: undefined,
     });
 }
 

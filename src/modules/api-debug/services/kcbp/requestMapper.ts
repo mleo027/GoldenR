@@ -35,6 +35,12 @@ function parseOptionalInt(value: string | undefined): number | undefined {
     return Number.parseInt(trimmed, 10);
 }
 
+function resolveClientSessionId(value: string | undefined, fields: Record<string, string>): number | undefined {
+    const trimmed = value?.trim();
+    const resolved = trimmed?.startsWith('@') ? fields[trimmed.slice(1)] : trimmed;
+    return parseOptionalInt(resolved);
+}
+
 export function buildKcbpRequest(
     addressParts: KcbpAddressParts,
     msgtype: string,
@@ -59,7 +65,7 @@ export function buildKcbpRequest(
                 binaryFields: Object.keys(binaryFields).length > 0 ? binaryFields : undefined,
                 servicename: addressParts.service?.trim() || undefined,
                 nodeid: parseOptionalInt(addressParts.nodeId),
-                sessionid: parseOptionalInt(addressParts.sessionId),
+                clientsessionid: resolveClientSessionId(addressParts.clientSessionId, fields),
             },
         };
     }

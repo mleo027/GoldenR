@@ -44,24 +44,32 @@ describe('applyKcxpEnvironmentToAddress (KGBP)', () => {
         timeout: '20',
         service: 'srv-demo',
         nodeId: '3',
-        sessionId: '88',
+        clientSessionId: '88',
     };
 
     it('writes kgbp query params and drops queue while keeping msgtype', () => {
         expect(
             applyKcxpEnvironmentToAddress('127.0.0.1:21000/150501?queue=req1&timeout=15', kgbpEnv),
         ).toBe(
-            '10.0.0.2:9100/150501?service=srv-demo&nodeid=3&sessionid=88&requesttimeout=20',
+            '10.0.0.2:9100/150501?service=srv-demo&nodeid=3&clientsessionid=88&requesttimeout=20',
         );
     });
 
     it('omits empty optional params and keeps address parseable roundtrip', () => {
         const minimal: KcxpEnvironment = {
             ...kgbpEnv,
-            sessionId: undefined,
+            clientSessionId: undefined,
         };
-        const address = applyKcxpEnvironmentToAddress('/150501?queue=req1&sessionid=7', minimal);
-        expect(address).toBe('10.0.0.2:9100/150501?service=srv-demo&nodeid=3&requesttimeout=20');
+        const address = applyKcxpEnvironmentToAddress('/150501?queue=req1&clientsessionid=7', minimal);
+        expect(address).toBe(
+            '10.0.0.2:9100/150501?service=srv-demo&nodeid=3&clientsessionid=%40custid&requesttimeout=20',
+        );
+    });
+
+    it('defaults ClientSessionId to @custid for new KGBP environments', () => {
+        expect(createKcxpEnvironment('KGBP-NEW', { protocol: 'KGBP' }).clientSessionId).toBe(
+            '@custid',
+        );
     });
 });
 
@@ -77,7 +85,7 @@ describe('applyKcxpEnvironmentToAddress (KGBP → KCBP 切换)', () => {
         };
         expect(
             applyKcxpEnvironmentToAddress(
-                '10.0.0.2:9100/150501?service=srv-demo&nodeid=3&sessionid=88&requesttimeout=20',
+                '10.0.0.2:9100/150501?service=srv-demo&nodeid=3&clientsessionid=88&requesttimeout=20',
                 kcbpEnv,
             ),
         ).toBe('10.0.0.1:21000/150501?queue=req2&timeout=30');

@@ -10,7 +10,7 @@
 
 ## 已确认的设计决策
 
-1. **服务名与功能号**：`param.msgtype` 兼作 KGBP 服务名（`KGBPCLI_OPTION_SERVICE_NAME`）；功能号取 `param.funcid`（可选，缺省回落到 `msgtype`）。可选包头字段 `nodeid`（uint32）、`sessionid`（uint64）放 `param`。
+1. **服务名与功能号**：`param.msgtype` 兼作 KGBP 服务名（`KGBPCLI_OPTION_SERVICE_NAME`）；功能号取 `param.funcid`（可选，缺省回落到 `msgtype`）。可选包头字段 `nodeid`（uint32）、`clientsessionid`（uint64）放 `param`。
 2. **应答编码**：KGBP 网关编码为 **UTF-8**，字段值直传不转码（区别于 KCBP 的 GBK→UTF8）。
 3. **验收边界**：无真实 KGBP 联调环境。验收 = 编译成功 + `require` 冒烟导出 `callKGBP` + 入参校验返回 -1001 + 连接失败报错可读 + mock 单测通过。
 4. SDK 来源：SVN `D:\KSPB\svn\6702\lbmdll\lbm_comm\kgbpcli`（r97506），只取 x64 产物，排除 pdb/32 位/jni。
@@ -233,11 +233,11 @@ public:
 			uint32_t nodeId = param["nodeid"].get<uint32_t>();
 			setBinaryOption(KGBPCLI_OPTION_NODE_ID, &nodeId, sizeof(nodeId), "NODE_ID");
 		}
-		if (param.contains("sessionid") && param["sessionid"].is_number_integer())
+		if (param.contains("clientsessionid") && param["clientsessionid"].is_number_integer())
 		{
-			uint64_t sessionId = param["sessionid"].get<uint64_t>();
-			setBinaryOption(KGBPCLI_OPTION_CLIENT_SESSION_ID, &sessionId,
-							sizeof(sessionId), "CLIENT_SESSION_ID");
+			uint64_t clientSessionId = param["clientsessionid"].get<uint64_t>();
+			setBinaryOption(KGBPCLI_OPTION_CLIENT_SESSION_ID, &clientSessionId,
+							sizeof(clientSessionId), "CLIENT_SESSION_ID");
 		}
 		uint32_t headTimeout = static_cast<uint32_t>(config_.requestTimeoutMs);
 		setBinaryOption(KGBPCLI_OPTION_HEAD_TIMEOUT, &headTimeout,
@@ -778,7 +778,7 @@ git commit -m "feat(api-debug): JS 桥接按 type 统一分发 KCBP/KGBP"
 - `connection`：`ip`、`port`、`connecttimeout`、`requesttimeout`（均为字符串）
 - `param.msgtype`：兼作 KGBP 服务名（`KGBPCLI_OPTION_SERVICE_NAME`）
 - `param.funcid`：可选功能号，缺省取 `msgtype`
-- `param.nodeid` / `param.sessionid`：可选包头字段
+- `param.nodeid` / `param.clientsessionid`：可选包头字段
 - `param.fields`：与 KCBP 相同的字段规则（Buffer 二进制、file(path)、0x 前缀）
 
 SDK 来源：金证 SVN 分支 6.7.0.3（r97506）`lbmdll/lbm_comm/kgbpcli`，仅收录 x64 产物。
