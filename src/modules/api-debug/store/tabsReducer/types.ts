@@ -1,5 +1,5 @@
 import type { TabData, ProjectData, PersistedWorkspace } from '../../types/workspace';
-import type { KcxpEnvironment } from '../../types/kcxp';
+import type { KcxpEnvironment, KcxpProtocol } from '../../types/kcxp';
 import { createInitialWorkspace } from '../tabsData';
 
 export interface TabsState {
@@ -12,11 +12,11 @@ export interface TabsState {
 }
 
 export type TabsAction =
-    | { type: 'ADD_PROJECT'; initialAddress?: string }
+    | { type: 'ADD_PROJECT'; initialAddress?: string; initialProtocol?: KcxpProtocol }
     | { type: 'DELETE_PROJECT'; projectIndex: number }
     | { type: 'RENAME_PROJECT'; projectIndex: number; name: string }
     | { type: 'TOGGLE_PROJECT_EXPAND'; projectId: string }
-    | { type: 'ADD_CASE'; projectIndex?: number; initialAddress?: string }
+    | { type: 'ADD_CASE'; projectIndex?: number; initialAddress?: string; initialProtocol?: KcxpProtocol }
     | { type: 'DUPLICATE_CASE'; projectIndex: number; caseIndex: number }
     | { type: 'DELETE_CASE'; projectIndex: number; caseIndex: number }
     | { type: 'SELECT_CASE'; projectIndex: number; caseIndex: number }

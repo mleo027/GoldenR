@@ -16,6 +16,7 @@ import { registerWorkspaceDraftFlusher } from './workspaceFlushRegistry';
 import {
     buildAddressFromKcxpEnvironment,
     getActiveKcxpEnvironment,
+    resolveKcxpProtocol,
 } from '../utils/workspace/kcxpEnvironment';
 import { useAppEnv } from '../../../store/useAppEnv';
 import { useApiDebugEnv } from './useApiDebugEnv';
@@ -32,12 +33,27 @@ export type { TabsContextValue };
 
 export function TabsProvider({ children }: { children: ReactNode }) {
     const { env } = useAppEnv();
-    const { env: apiEnv } = useApiDebugEnv();
+    const { env: apiEnv, loaded: apiEnvLoaded } = useApiDebugEnv();
     const [state, dispatch] = useReducer(tabsReducer, initialState);
     const workspaceRef = useRef(state);
     const latestWorkspaceRef = useRef(state);
     const lastSavedProjectsHashRef = useRef<string | null>(null);
     latestWorkspaceRef.current = state;
+
+    // 启动引导：workspace 与环境配置都加载完成后，将当前激活 KCXP 环境
+    // 应用到全部接口一次，消除持久化快照与激活环境的脱节（仅执行一次）
+    const bootstrappedRef = useRef(false);
+    useEffect(() => {
+        if (bootstrappedRef.current || !state.loaded || !apiEnvLoaded) return;
+        bootstrappedRef.current = true;
+        dispatch({
+            type: 'APPLY_KCXP_ENV',
+            environment: getActiveKcxpEnvironment(
+                apiEnv.kcxpEnvironments,
+                apiEnv.activeKcxpEnvironmentId,
+            ),
+        });
+    }, [apiEnv.activeKcxpEnvironmentId, apiEnv.kcxpEnvironments, apiEnvLoaded, state.loaded]);
 
     useEffect(() => {
         void loadWorkspace()
@@ -157,9 +173,23 @@ export function TabsProvider({ children }: { children: ReactNode }) {
         return buildAddressFromKcxpEnvironment(environment);
     }, [apiEnv.activeKcxpEnvironmentId, apiEnv.kcxpEnvironments]);
 
+    // 新建接口/项目时同步激活环境的协议，避免出现“KGBP 地址 + KCBP 协议”的错配
+    const getInitialProtocol = useCallback(
+        () =>
+            resolveKcxpProtocol(
+                getActiveKcxpEnvironment(apiEnv.kcxpEnvironments, apiEnv.activeKcxpEnvironmentId),
+            ),
+        [apiEnv.activeKcxpEnvironmentId, apiEnv.kcxpEnvironments],
+    );
+
     const addProject = useCallback(
-        () => dispatch({ type: 'ADD_PROJECT', initialAddress: getInitialAddress() }),
-        [getInitialAddress],
+        () =>
+            dispatch({
+                type: 'ADD_PROJECT',
+                initialAddress: getInitialAddress(),
+                initialProtocol: getInitialProtocol(),
+            }),
+        [getInitialAddress, getInitialProtocol],
     );
     const deleteProject = useCallback(
         (projectIndex: number) => dispatch({ type: 'DELETE_PROJECT', projectIndex }),
@@ -176,8 +206,13 @@ export function TabsProvider({ children }: { children: ReactNode }) {
     );
     const addCase = useCallback(
         (projectIndex?: number) =>
-            dispatch({ type: 'ADD_CASE', projectIndex, initialAddress: getInitialAddress() }),
-        [getInitialAddress],
+            dispatch({
+                type: 'ADD_CASE',
+                projectIndex,
+                initialAddress: getInitialAddress(),
+                initialProtocol: getInitialProtocol(),
+            }),
+        [getInitialAddress, getInitialProtocol],
     );
     const duplicateCase = useCallback(
         (projectIndex: number, caseIndex: number) =>

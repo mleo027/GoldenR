@@ -18,6 +18,7 @@ export function reduceProjectAction(state: TabsState, action: ProjectAction): Ta
                 newProject.cases[0] = {
                     ...newProject.cases[0],
                     address: action.initialAddress,
+                    ...(action.initialProtocol ? { protocol: action.initialProtocol } : {}),
                 };
             }
             return withLoaded(state, {
