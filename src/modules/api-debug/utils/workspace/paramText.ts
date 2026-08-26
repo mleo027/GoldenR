@@ -11,9 +11,16 @@ export interface ParseQuickFillResult {
     params: ParamItem[];
     /** 从日志头或 funcid/g_funcid 入参中解析的功能号，用于更新地址栏 msgtype */
     msgtype?: string;
-    /** 从「接口名=功能号;」格式中提取的接口标题 */
+    /** 从「接口名=功能号;」格式或 lbm@describe 中提取的接口标题 */
     title?: string;
+    /** lbm@service_name → 地址栏 ?service=（仅 lbm 格式提供） */
+    service?: string;
+    /** lbm@node_id → 地址栏 ?nodeid=（仅 lbm 格式提供） */
+    nodeId?: string;
 }
+
+/** 快速填充成功后的应用载荷（Modal onApply 与 RequestPanel 共用） */
+export type QuickFillPayload = Omit<ParseQuickFillResult, 'ok'>;
 
 export interface ParseParamsTextError {
     ok: false;
@@ -157,6 +164,67 @@ function isLogFormatText(text: string): boolean {
     );
 }
 
+/** 提取 XML 开标签属性串中的属性（兼容双引号/单引号），属性名统一小写 */
+function extractXmlAttrs(tagBody: string): Record<string, string> {
+    const attrs: Record<string, string> = {};
+    const attrRe = /([A-Za-z_][\w.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
+    let match: RegExpExecArray | null;
+    while ((match = attrRe.exec(tagBody))) {
+        attrs[match[1].toLowerCase()] = match[2] ?? match[3] ?? '';
+    }
+    return attrs;
+}
+
+function isLbmXmlText(text: string): boolean {
+    return /<\s*lbm[\s>]/i.test(text);
+}
+
+/** 解析 KGBP <lbm> 接口定义模板：<param> 的 name/defaultvalue 为入参，
+ *  lbm 的 name/describe/node_id/service_name 分别映射到 msgtype/title/nodeId/service */
+function parseLbmXmlParams(text: string): ParseQuickFillOutcome {
+    const lbmMatch = text.match(/<\s*lbm\b([^>]*)>/i);
+    if (!lbmMatch) {
+        return { ok: false, error: '未找到有效的 <lbm> 标签，请检查粘贴的模板内容' };
+    }
+
+    const lbmAttrs = extractXmlAttrs(lbmMatch[1]);
+    const msgtype = lbmAttrs.name?.trim();
+    if (!msgtype) {
+        return { ok: false, error: '<lbm> 标签缺少 name 属性，无法确定功能号' };
+    }
+
+    const params: ParamItem[] = [];
+    const paramRe = /<\s*param\b([^>]*?)\/?>/gi;
+    let paramMatch: RegExpExecArray | null;
+    while ((paramMatch = paramRe.exec(text))) {
+        const attrs = extractXmlAttrs(paramMatch[1]);
+        const name = attrs.name?.trim();
+        if (!name) continue;
+        params.push({ name, value: attrs.defaultvalue?.trim() ?? '', type: 'string' });
+    }
+
+    if (params.length === 0) {
+        return { ok: false, error: '未能识别有效入参，请检查文本格式' };
+    }
+
+    if (!params.some((p) => p.name === 'funcid')) {
+        params.unshift({ name: 'funcid', value: msgtype, type: 'string' });
+    }
+
+    const service = lbmAttrs.service_name?.trim() || undefined;
+    const nodeId = lbmAttrs.node_id?.trim() || undefined;
+    const title = lbmAttrs.describe?.trim() || undefined;
+
+    return {
+        ok: true,
+        params,
+        msgtype,
+        ...(service ? { service } : {}),
+        ...(nodeId ? { nodeId } : {}),
+        ...(title ? { title } : {}),
+    };
+}
+
 function parseInlineCommaParams(text: string): ParamItem[] {
     const params: ParamItem[] = [];
 
@@ -199,6 +267,10 @@ export function parseQuickFillText(text: string): ParseQuickFillOutcome {
     let params: ParamItem[];
     let msgtype: string | undefined;
     let title: string | undefined;
+
+    if (isLbmXmlText(trimmed)) {
+        return parseLbmXmlParams(trimmed);
+    }
 
     if (isLogFormatText(trimmed)) {
         const logResult = parseLogFormatParams(trimmed);

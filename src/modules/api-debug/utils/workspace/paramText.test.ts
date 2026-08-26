@@ -252,3 +252,78 @@ describe('parseQuickFillText', () => {
         });
     });
 });
+
+describe('parseQuickFillText with lbm xml template', () => {
+    // 真实模板节选：保留 netaddr（含空格/分号/冒号）、缺省 defaultvalue、多余属性等边界
+    const LBM_XML = `<lbm name="O100410512" describe="当日成交查询"  node_id="4" channel="300000000001">
+        <param name="funcid"        datatype="C"   defaultvalue="O100410512"           InHareSocketDataType="S"       allownull="yes"/>
+        <param name="custid"        datatype="L"   defaultvalue="300000000001"         InHareSocketDataType="S"       allownull="yes"/>
+        <param name="netaddr"       datatype="C"   defaultvalue="PC;IIP:10.40.81.6;MAC:000C298A11DA;"            InHareSocketDataType="S"        allownull="yes"/>
+        <param name="ticket"        datatype="C"   defaultvalue=""                     InHareSocketDataType="S"       allownull="yes"/>
+        <param name="stkcode"       datatype="C"                                       allownull="yes"/>
+</lbm>`;
+
+    it('parses lbm template params and routing attributes', () => {
+        const result = parseQuickFillText(LBM_XML);
+        if (!result.ok) throw new Error(result.error);
+
+        expect(result.msgtype).toBe('O100410512');
+        expect(result.title).toBe('当日成交查询');
+        expect(result.nodeId).toBe('4');
+        expect(result.service).toBeUndefined();
+
+        // 已有 funcid 参数时保留其 defaultvalue，不重复 unshift
+        expect(result.params[0]).toEqual({ name: 'funcid', value: 'O100410512', type: 'string' });
+
+        const names = result.params.map((p) => p.name);
+        expect(names).toEqual(['funcid', 'custid', 'netaddr', 'ticket', 'stkcode']);
+
+        const custid = result.params.find((p) => p.name === 'custid');
+        expect(custid?.value).toBe('300000000001');
+
+        // netaddr 的值含分号、冒号，必须原样保留
+        const netaddr = result.params.find((p) => p.name === 'netaddr');
+        expect(netaddr?.value).toBe('PC;IIP:10.40.81.6;MAC:000C298A11DA;');
+    });
+
+    it('unshifts funcid from lbm name when param list lacks it', () => {
+        const result = parseQuickFillText(`<lbm name="410511" node_id="7" service_name="gw.svc">
+        <param name="custid" datatype="L" defaultvalue="6001"/>
+</lbm>`);
+        if (!result.ok) throw new Error(result.error);
+
+        expect(result.params[0]).toEqual({ name: 'funcid', value: '410511', type: 'string' });
+        expect(result.service).toBe('gw.svc');
+        expect(result.nodeId).toBe('7');
+        expect(result.title).toBeUndefined();
+    });
+
+    it('treats missing defaultvalue as empty string', () => {
+        const result = parseQuickFillText(LBM_XML);
+        if (!result.ok) throw new Error(result.error);
+        expect(result.params.find((p) => p.name === 'stkcode')).toEqual({
+            name: 'stkcode',
+            value: '',
+            type: 'string',
+        });
+    });
+
+    it('tolerates single-quoted attributes', () => {
+        const result = parseQuickFillText(
+            `<lbm name='150501'><param name='custid' defaultvalue='6002'/></lbm>`,
+        );
+        if (!result.ok) throw new Error(result.error);
+        expect(result.msgtype).toBe('150501');
+        expect(result.params).toEqual([
+            { name: 'funcid', value: '150501', type: 'string' },
+            { name: 'custid', value: '6002', type: 'string' },
+        ]);
+    });
+
+    it('returns error when lbm tag lacks name attribute', () => {
+        const result = parseQuickFillText(
+            `<lbm node_id="4"><param name="custid" defaultvalue="1"/></lbm>`,
+        );
+        expect(result.ok).toBe(false);
+    });
+});
