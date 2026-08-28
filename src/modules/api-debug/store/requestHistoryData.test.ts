@@ -20,7 +20,7 @@ const entry: RequestHistoryEntry = {
     response: {
         code: '0',
         message: 'ok',
-        data: [{ market: '1' }],
+        resultSets: [{ name: '', rows: [{ market: '1' }] }],
     },
     outcome: {
         success: true,
@@ -52,6 +52,20 @@ describe('requestHistoryData', () => {
         await expect(loadRequestHistory()).resolves.toEqual([entry]);
     });
 
+    it('migrates legacy response data when loading history', async () => {
+        const legacyEntry = {
+            ...entry,
+            response: {
+                code: '0',
+                message: 'ok',
+                data: [{ market: '1' }],
+            },
+        };
+        stubElectronApi({ version: 1, entries: [legacyEntry] });
+
+        await expect(loadRequestHistory()).resolves.toEqual([entry]);
+    });
+
     it('returns an empty list for missing or invalid history files', async () => {
         stubElectronApi(null);
         await expect(loadRequestHistory()).resolves.toEqual([]);
@@ -75,7 +89,7 @@ describe('requestHistoryData', () => {
         await flushRequestHistoryAsync();
 
         expect(write).toHaveBeenCalledWith('request-history.json', {
-            version: 1,
+            version: 2,
             entries: [entry],
         });
     });

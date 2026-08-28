@@ -28,11 +28,17 @@ function isParamItem(value: unknown): boolean {
 
 function isResponseData(value: unknown): boolean {
     if (!value || typeof value !== 'object') return false;
-    const response = value as { code?: unknown; message?: unknown; data?: unknown };
+    const response = value as {
+        code?: unknown;
+        message?: unknown;
+        data?: unknown;
+        resultSets?: unknown;
+    };
     return (
         (typeof response.code === 'string' || typeof response.code === 'number') &&
         typeof response.message === 'string' &&
-        Array.isArray(response.data)
+        // v2 新格式：resultSets 数组；v1 旧格式：data 数组（加载时迁移）
+        (Array.isArray(response.resultSets) || Array.isArray(response.data))
     );
 }
 
@@ -76,15 +82,39 @@ function isRequestHistoryFile(value: unknown): value is RequestHistoryFile {
     return Array.isArray(file.entries) && file.entries.every(isRequestHistoryEntry);
 }
 
+function migrateResponseData(
+    response: RequestHistoryEntry['response'],
+): RequestHistoryEntry['response'] {
+    const legacyResponse = response as RequestHistoryEntry['response'] & {
+        data?: unknown;
+    };
+    if (Array.isArray(response.resultSets)) return response;
+    if (!Array.isArray(legacyResponse.data)) return { ...response, resultSets: [] };
+
+    const responseWithoutLegacyData = { ...legacyResponse };
+    delete responseWithoutLegacyData.data;
+    return {
+        ...responseWithoutLegacyData,
+        resultSets: [{ name: '', rows: legacyResponse.data as Record<string, unknown>[] }],
+    };
+}
+
+function migrateHistoryEntry(entry: RequestHistoryEntry): RequestHistoryEntry {
+    return {
+        ...entry,
+        response: migrateResponseData(entry.response),
+    };
+}
+
 export async function loadRequestHistory(): Promise<RequestHistoryEntry[]> {
     const raw = await configStorage.read(REQUEST_HISTORY_FILE, false);
     if (!isRequestHistoryFile(raw)) return [];
-    return raw.entries.slice(0, MAX_REQUEST_HISTORY);
+    return raw.entries.slice(0, MAX_REQUEST_HISTORY).map(migrateHistoryEntry);
 }
 
 export function saveRequestHistory(entries: RequestHistoryEntry[]): void {
     historyWriter.schedule({
-        version: 1,
+        version: 2,
         entries: entries.slice(0, MAX_REQUEST_HISTORY),
     });
 }

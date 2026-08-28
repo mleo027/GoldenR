@@ -20,7 +20,6 @@ import { paramsEqual } from '@/hooks/useStableHandlerMap';
 import { UI_DEBOUNCE_MS } from '@/constants/ui';
 import type { ParamItem } from '../../types/workspace';
 import { parseKcbpAddress, serializeKcbpAddress } from '../../utils/kcbp/kcbpAddress';
-import { resolveMsgtypeFromParams } from '../../utils/workspace/caseLabel';
 import type { QuickFillPayload } from '../../utils/workspace/paramText';
 
 interface RequestPanelProps {
@@ -52,7 +51,6 @@ function ParamsSection({
                 >
                     {collapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}
                     <FormOutlined className="param-section-toggle-icon" />
-                    <span>请求参数</span>
                     <span className="param-section-toggle-count">{count}</span>
                 </button>
             </div>
@@ -72,7 +70,7 @@ export default function RequestPanel({
     onToggleParamsCollapse,
 }: RequestPanelProps) {
     const { activeTab } = useActiveTab();
-    const { updateTab, updateTabUndoable } = useTabsActions();
+    const { updateTabUndoable } = useTabsActions();
     const commitParams = useCallback(
         (params: ParamItem[]) => updateTabUndoable({ params }, '修改请求参数'),
         [updateTabUndoable],
@@ -89,12 +87,6 @@ export default function RequestPanel({
     const paramsDraftRef = useRef(paramsDraft);
     paramsDraftRef.current = paramsDraft;
 
-    useEffect(() => {
-        const parts = parseKcbpAddress(activeTab.address);
-        const msgtype = parts.msgtype.trim() || resolveMsgtypeFromParams(activeTab.params);
-        if (parts.msgtype.trim() || !msgtype) return;
-        updateTab({ address: serializeKcbpAddress({ ...parts, msgtype }) });
-    }, [activeTab.address, activeTab.id, activeTab.params, updateTab]);
     useEffect(() => registerTabDraftFlusher(flushPending), [flushPending]);
     useEffect(() => registerTabDraftReader(() => ({ params: paramsDraftRef.current })), []);
     useEffect(() => () => flushPending(), [activeTab.id, flushPending]);

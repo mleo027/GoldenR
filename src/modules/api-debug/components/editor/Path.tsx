@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button, Dropdown, Menu, Tooltip } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
-import { Select } from '../../../../components/ui/primitives';
+import { Input, Select } from '../../../../components/ui/primitives';
 import {
     ClockCircleOutlined,
     CopyOutlined,
@@ -88,6 +88,7 @@ export function PathRunButton({ compact = false }: PathRunButtonProps) {
 
 function PathAddressFields({
     addressParts,
+    handleAddressPartChange,
     defaultTimeout,
     isKGBP,
 }: {
@@ -101,6 +102,16 @@ function PathAddressFields({
     defaultTimeout: string;
     isKGBP: boolean;
 }) {
+    const msgtypeInput = (
+        <Input
+            aria-label="Msgtype"
+            className="path-field-input path-field-msgtype-input"
+            value={addressParts.msgtype}
+            onChange={(event) => handleAddressPartChange('msgtype', event.target.value)}
+            placeholder="Msgtype"
+        />
+    );
+
     if (isKGBP) {
         return (
             <>
@@ -142,7 +153,7 @@ function PathAddressFields({
                         <span className="path-field-display path-field-msgtype">
                             <TagOutlined className="path-field-icon" />
                             <span className="path-field-label">Msgtype</span>
-                            <span className="path-field-value">{addressParts.msgtype}</span>
+                            {msgtypeInput}
                         </span>
                     </span>
                 </Tooltip>
@@ -175,7 +186,7 @@ function PathAddressFields({
                     <span className="path-field-display path-field-msgtype">
                         <TagOutlined className="path-field-icon" />
                         <span className="path-field-label">Msgtype</span>
-                        <span className="path-field-value">{addressParts.msgtype}</span>
+                        {msgtypeInput}
                     </span>
                 </span>
             </Tooltip>

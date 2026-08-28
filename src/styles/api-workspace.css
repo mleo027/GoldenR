@@ -278,6 +278,29 @@
     line-height: 1;
 }
 
+.path-field-msgtype-input {
+    width: 92px;
+    min-width: 0;
+    height: 24px;
+    padding: 0 5px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: var(--color-text);
+    font-size: var(--font-caption);
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    line-height: 22px;
+    box-shadow: none;
+}
+
+.path-field-msgtype-input:hover,
+.path-field-msgtype-input:focus {
+    border-color: var(--color-primary-muted);
+    background: var(--color-bg-card);
+    box-shadow: none;
+}
+
 .path-field-display:hover {
     /* 只读字段保持轻微反馈，但不伪装成输入框。 */
     background: color-mix(in srgb, var(--color-bg-subtle) 65%, transparent);

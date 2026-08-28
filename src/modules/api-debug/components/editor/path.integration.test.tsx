@@ -156,6 +156,22 @@ describe('Path integration', () => {
         );
     });
 
+    it('debounces msgtype edits and commits the serialized address', async () => {
+        const user = userEvent.setup();
+        renderPath();
+
+        const msgtypeInput = screen.getByRole('textbox', { name: 'Msgtype' });
+        await user.clear(msgtypeInput);
+        await user.type(msgtypeInput, '150502');
+
+        await waitFor(
+            () => {
+                expect(screen.getByTestId('address').textContent).toContain('/150502');
+            },
+            { timeout: 3000 },
+        );
+    });
+
     it('applies the selected environment to all cases from the request dropdown', async () => {
         const user = userEvent.setup();
         renderPath();

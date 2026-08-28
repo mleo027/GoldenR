@@ -240,6 +240,8 @@ function RequestDetail({ entry }: { entry: RequestHistoryEntry }) {
 }
 
 function ResponseDetail({ entry }: { entry: RequestHistoryEntry }) {
+    const data = entry.response.resultSets.flatMap((resultSet) => resultSet.rows);
+
     return (
         <div className="space-y-3">
             <div className="flex items-center gap-2">
@@ -252,7 +254,7 @@ function ResponseDetail({ entry }: { entry: RequestHistoryEntry }) {
                     />
                 ) : null}
             </div>
-            <ResponseDataTable data={entry.response.data} />
+            <ResponseDataTable data={data} />
         </div>
     );
 }

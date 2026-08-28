@@ -45,6 +45,6 @@ export interface RequestHistoryEntry {
 }
 
 export interface RequestHistoryFile {
-    version: 1;
+    version: 1 | 2;
     entries: RequestHistoryEntry[];
 }
