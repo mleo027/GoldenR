@@ -125,7 +125,9 @@ export async function runScriptOrTcdCase(
         };
         callSteps.push(step);
         if (editorMode === 'tcd') {
-            const rows = lastOutcome.response.stats?.rows ?? lastOutcome.response.resultSets.reduce((t, s) => t + s.rows.length, 0);
+            const rows =
+                lastOutcome.response.stats?.rows ??
+                lastOutcome.response.resultSets.reduce((t, s) => t + s.rows.length, 0);
             consoleCapture.append(
                 'log',
                 `[call #${step.index}] ${step.msgtype} → code=${lastOutcome.response.code} rows=${rows} ${step.durationMs}ms`,

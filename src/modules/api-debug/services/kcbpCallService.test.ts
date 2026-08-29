@@ -129,10 +129,7 @@ describe('buildKcbpCallOutcome', () => {
             raw,
         );
 
-        expect(outcome.response.resultSets.map((table) => table.name)).toEqual([
-            'DATA',
-            'DETAIL',
-        ]);
+        expect(outcome.response.resultSets.map((table) => table.name)).toEqual(['DATA', 'DETAIL']);
     });
 });
 
@@ -445,7 +442,12 @@ describe('invokeKcbpCall', () => {
     it('runs tcd mode with ctx.input and records call steps', async () => {
         mockCallKcbp
             .mockResolvedValueOnce({ ...successRaw, code: '0', msg: 'ok1' })
-            .mockResolvedValueOnce({ ...successRaw, code: '0', msg: 'ok2', data: [{ name: '', rows: [{ sno: '9' }] }] });
+            .mockResolvedValueOnce({
+                ...successRaw,
+                code: '0',
+                msg: 'ok2',
+                data: [{ name: '', rows: [{ sno: '9' }] }],
+            });
 
         const scriptTab = {
             ...tab,

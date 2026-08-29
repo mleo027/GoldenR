@@ -1,7 +1,8 @@
 import { memo, type ClipboardEvent } from 'react';
-import { Input } from 'antd';
+import {} from 'antd';
 import { PARAM_TEXT_PLACEHOLDER } from '../../utils/workspace/paramText';
 import { decodeSohMarkers, formatControlCharsForTitle } from '../../../../utils/controlCharDisplay';
+import { TextArea } from '../../../../components/ui/primitives';
 
 interface ParamTextEditProps {
     value: string;
@@ -24,7 +25,7 @@ function ParamTextEdit({ value, error, onChange }: ParamTextEditProps) {
 
     return (
         <div className="param-text-edit">
-            <Input.TextArea
+            <TextArea
                 value={formatControlCharsForTitle(value)}
                 onChange={(e) => onChange(decodeSohMarkers(e.target.value))}
                 placeholder={PARAM_TEXT_PLACEHOLDER}

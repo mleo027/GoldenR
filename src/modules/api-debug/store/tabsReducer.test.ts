@@ -243,4 +243,31 @@ describe('tabsReducer', () => {
             '10.0.0.5:22000/150502?queue=req2&timeout=30',
         );
     });
+
+    it('ADD_CASE applies the initial protocol from the active environment', () => {
+        const state = withLoadedState();
+
+        const next = tabsReducer(state, {
+            type: 'ADD_CASE',
+            initialAddress: '10.201.64.200:21006?service=fs-oms&nodeid=4&clientsessionid=%40custid',
+            initialProtocol: 'KGBP',
+        });
+
+        const project = next.projects[next.activeProjectIndex];
+        const newCase = project.cases.find((item) => item.address.includes('service=fs-oms'));
+        expect(newCase?.protocol).toBe('KGBP');
+    });
+
+    it('ADD_PROJECT applies the initial protocol to its first case', () => {
+        const state = withLoadedState();
+
+        const next = tabsReducer(state, {
+            type: 'ADD_PROJECT',
+            initialAddress: '10.201.64.200:21006?service=fs-oms&nodeid=4',
+            initialProtocol: 'KGBP',
+        });
+
+        const newProject = next.projects[next.projects.length - 1];
+        expect(newProject.cases[0].protocol).toBe('KGBP');
+    });
 });

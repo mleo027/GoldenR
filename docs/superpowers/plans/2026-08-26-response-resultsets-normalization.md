@@ -12,22 +12,22 @@
 
 ## 文件结构
 
-| 文件 | 操作 | 任务 |
-|------|------|------|
-| `src/shared/kcbp/types.ts` | 修改：data 类型 | 1 |
-| `electron/services/kcbp/kcbp.ts` | 修改：normalizeResultSets | 1 |
-| `electron/services/kcbp/kcbp.test.ts` | 修改：归一化用例 | 1 |
-| `electron/preload.ts` | 类型跟随 | 1 |
-| `src/shared/test/response.ts` | ResponseData 重构 | 2 |
-| `src/modules/api-debug/services/kcbp/requestMapper.ts` (+test) | 修改 | 2 |
-| `src/modules/api-debug/utils/kcbp/kcbpParams.ts` (+test) | 修改签名 | 2 |
-| `src/modules/api-debug/utils/kcbp/kcbpResponse.ts` (+test) | 新增 sumResultSetRows | 2 |
-| `src/test/factories.ts`、`src/test/fakes.ts` | 工厂新形态 | 2 |
-| `src/modules/api-debug/components/response/ResponsePanel.tsx` (+test) | 修改 | 3 |
-| `src/modules/api-debug/components/response/ResponseMeta.tsx` | 修改 | 3 |
-| `src/modules/api-debug/services/kcbp/scriptRunner.ts` (+test) | 修改+兼容视图 | 3 |
-| `src/modules/api-debug/store/requestHistoryData.ts` (+test)、`types/requestHistory.ts` | v1→v2 迁移 | 3 |
-| 集成/组件测试 | 全量适配 | 4 |
+| 文件                                                                                   | 操作                      | 任务 |
+| -------------------------------------------------------------------------------------- | ------------------------- | ---- |
+| `src/shared/kcbp/types.ts`                                                             | 修改：data 类型           | 1    |
+| `electron/services/kcbp/kcbp.ts`                                                       | 修改：normalizeResultSets | 1    |
+| `electron/services/kcbp/kcbp.test.ts`                                                  | 修改：归一化用例          | 1    |
+| `electron/preload.ts`                                                                  | 类型跟随                  | 1    |
+| `src/shared/test/response.ts`                                                          | ResponseData 重构         | 2    |
+| `src/modules/api-debug/services/kcbp/requestMapper.ts` (+test)                         | 修改                      | 2    |
+| `src/modules/api-debug/utils/kcbp/kcbpParams.ts` (+test)                               | 修改签名                  | 2    |
+| `src/modules/api-debug/utils/kcbp/kcbpResponse.ts` (+test)                             | 新增 sumResultSetRows     | 2    |
+| `src/test/factories.ts`、`src/test/fakes.ts`                                           | 工厂新形态                | 2    |
+| `src/modules/api-debug/components/response/ResponsePanel.tsx` (+test)                  | 修改                      | 3    |
+| `src/modules/api-debug/components/response/ResponseMeta.tsx`                           | 修改                      | 3    |
+| `src/modules/api-debug/services/kcbp/scriptRunner.ts` (+test)                          | 修改+兼容视图             | 3    |
+| `src/modules/api-debug/store/requestHistoryData.ts` (+test)、`types/requestHistory.ts` | v1→v2 迁移                | 3    |
+| 集成/组件测试                                                                          | 全量适配                  | 4    |
 
 ## 任务 1：类型 + Electron 归一化收口
 
@@ -39,34 +39,34 @@
 
 ```ts
 describe('normalizeResultSets', () => {
-    it('normalizes structured items filling default name and columns', () => {
-        expect(
-            normalizeResultSets([
-                { name: '持仓', columns: ['fundid'], rows: [{ fundid: '6001' }] },
-                { rows: [{}] },
-            ]),
-        ).toEqual([
-            { name: '持仓', columns: ['fundid'], rows: [{ fundid: '6001' }] },
-            { name: '', columns: [], rows: [{}] },
-        ]);
-    });
+  it('normalizes structured items filling default name and columns', () => {
+    expect(
+      normalizeResultSets([
+        { name: '持仓', columns: ['fundid'], rows: [{ fundid: '6001' }] },
+        { rows: [{}] },
+      ]),
+    ).toEqual([
+      { name: '持仓', columns: ['fundid'], rows: [{ fundid: '6001' }] },
+      { name: '', columns: [], rows: [{}] },
+    ]);
+  });
 
-    it('wraps flat rows into a single set with columns from first row', () => {
-        expect(normalizeResultSets([{ custid: '1' }, { custid: '2' }])).toEqual([
-            { name: '', columns: ['custid'], rows: [{ custid: '1' }, { custid: '2' }] },
-        ]);
-    });
+  it('wraps flat rows into a single set with columns from first row', () => {
+    expect(normalizeResultSets([{ custid: '1' }, { custid: '2' }])).toEqual([
+      { name: '', columns: ['custid'], rows: [{ custid: '1' }, { custid: '2' }] },
+    ]);
+  });
 
-    it('wraps mixed structures as a single flat set', () => {
-        const mixed = [{ rows: [] }, { custid: '9' }];
-        expect(normalizeResultSets(mixed)).toEqual([
-            { name: '', columns: ['custid', 'rows'], rows: mixed },
-        ]);
-    });
+  it('wraps mixed structures as a single flat set', () => {
+    const mixed = [{ rows: [] }, { custid: '9' }];
+    expect(normalizeResultSets(mixed)).toEqual([
+      { name: '', columns: ['custid', 'rows'], rows: mixed },
+    ]);
+  });
 
-    it('returns empty array for empty data', () => {
-        expect(normalizeResultSets([])).toEqual([]);
-    });
+  it('returns empty array for empty data', () => {
+    expect(normalizeResultSets([])).toEqual([]);
+  });
 });
 ```
 
@@ -78,15 +78,15 @@ describe('normalizeResultSets', () => {
 
 ```ts
 export interface KcbpResponseData {
-    code: string;
-    msg: string;
-    /** 恒为结果集数组（边界已归一化），单结果集即长度 1 */
-    data: KcbpResultSet[];
-    level?: string;
-    stats: {
-        timecost: number;
-        rows: number;
-    };
+  code: string;
+  msg: string;
+  /** 恒为结果集数组（边界已归一化），单结果集即长度 1 */
+  data: KcbpResultSet[];
+  level?: string;
+  stats: {
+    timecost: number;
+    rows: number;
+  };
 }
 ```
 
@@ -94,54 +94,53 @@ export interface KcbpResponseData {
 
 ```ts
 function isResultSetLike(item: unknown): boolean {
-    return Boolean(
-        item &&
-            typeof item === 'object' &&
-            !Array.isArray(item) &&
-            Array.isArray((item as { rows?: unknown }).rows),
-    );
+  return Boolean(
+    item &&
+    typeof item === 'object' &&
+    !Array.isArray(item) &&
+    Array.isArray((item as { rows?: unknown }).rows),
+  );
 }
 
 function toResultSet(item: unknown): KcbpResultSet {
-    const source = (item ?? {}) as Record<string, unknown>;
-    return {
-        name: typeof source.name === 'string' ? source.name : '',
-        columns: Array.isArray(source.columns)
-            ? source.columns.filter((column): column is string => typeof column === 'string')
-            : [],
-        rows: source.rows as Record<string, unknown>[],
-    };
+  const source = (item ?? {}) as Record<string, unknown>;
+  return {
+    name: typeof source.name === 'string' ? source.name : '',
+    columns: Array.isArray(source.columns)
+      ? source.columns.filter((column): column is string => typeof column === 'string')
+      : [],
+    rows: source.rows as Record<string, unknown>[],
+  };
 }
 
 /** 边界归一化：结构化条目补齐缺省字段；平铺行/混合结构包装为单集 */
 function normalizeResultSets(data: unknown[]): KcbpResultSet[] {
-    if (data.length === 0) return [];
-    if (data.every(isResultSetLike)) {
-        return data.map(toResultSet);
-    }
-    const firstRow = data.find(
-        (item): item is Record<string, unknown> =>
-            Boolean(item && typeof item === 'object' && !Array.isArray(item)),
-    );
-    return [
-        {
-            name: '',
-            columns: firstRow ? Object.keys(firstRow) : [],
-            rows: data as Record<string, unknown>[],
-        },
-    ];
+  if (data.length === 0) return [];
+  if (data.every(isResultSetLike)) {
+    return data.map(toResultSet);
+  }
+  const firstRow = data.find((item): item is Record<string, unknown> =>
+    Boolean(item && typeof item === 'object' && !Array.isArray(item)),
+  );
+  return [
+    {
+      name: '',
+      columns: firstRow ? Object.keys(firstRow) : [],
+      rows: data as Record<string, unknown>[],
+    },
+  ];
 }
 
 function toNormalizedResult(raw: RawKcbpResponseData, timecost: number): KcbpResponseData {
-    return {
-        ...raw,
-        code: String(raw.code),
-        data: normalizeResultSets(raw.data),
-        stats: {
-            timecost,
-            rows: countResponseRows(raw.data),
-        },
-    };
+  return {
+    ...raw,
+    code: String(raw.code),
+    data: normalizeResultSets(raw.data),
+    stats: {
+      timecost,
+      rows: countResponseRows(raw.data),
+    },
+  };
 }
 ```
 
@@ -173,13 +172,13 @@ git commit -m "refactor(kcbp): 响应 data 归一化为结果集数组（1/4）"
 
 ```ts
 export function createKcbpResponse(overrides: Partial<KcbpResponseData> = {}): KcbpResponseData {
-    return {
-        code: '0',
-        msg: 'ok',
-        data: [{ name: '', columns: ['custid'], rows: [{ custid: '1' }] }],
-        stats: { timecost: 12, rows: 1 },
-        ...overrides,
-    };
+  return {
+    code: '0',
+    msg: 'ok',
+    data: [{ name: '', columns: ['custid'], rows: [{ custid: '1' }] }],
+    stats: { timecost: 12, rows: 1 },
+    ...overrides,
+  };
 }
 ```
 
@@ -187,7 +186,7 @@ export function createKcbpResponse(overrides: Partial<KcbpResponseData> = {}): K
 
 ```ts
 expect(outcome.response.resultSets).toEqual([
-    { name: '', columns: ['custid'], rows: [{ custid: '1' }] },
+  { name: '', columns: ['custid'], rows: [{ custid: '1' }] },
 ]);
 ```
 
@@ -199,7 +198,7 @@ expect(outcome.response.resultSets).toEqual([
 // 旧: extractMissingParamFromKcbpResponse(code, msg, [{ msg: '缺少参数 stkcode', code: '-1' }])
 // 新:
 extractMissingParamFromKcbpResponse(code, msg, [
-    { name: '', columns: ['msg'], rows: [{ msg: '缺少参数 stkcode', code: '-1' }] },
+  { name: '', columns: ['msg'], rows: [{ msg: '缺少参数 stkcode', code: '-1' }] },
 ]);
 ```
 
@@ -207,11 +206,11 @@ extractMissingParamFromKcbpResponse(code, msg, [
 
 ```ts
 it('scans every result set rows for missing param hints', () => {
-    const found = extractMissingParamFromKcbpResponse('-1', 'fail', [
-        { name: 'a', columns: [], rows: [{ foo: 1 }] },
-        { name: 'b', columns: [], rows: [{ msg: '资金不足', code: '1001' }] },
-    ]);
-    expect(found).toEqual({ name: 'stkcode', value: '' }); // 以 tryExtractMissingParam 实际规则为准对齐现有用例期望
+  const found = extractMissingParamFromKcbpResponse('-1', 'fail', [
+    { name: 'a', columns: [], rows: [{ foo: 1 }] },
+    { name: 'b', columns: [], rows: [{ msg: '资金不足', code: '1001' }] },
+  ]);
+  expect(found).toEqual({ name: 'stkcode', value: '' }); // 以 tryExtractMissingParam 实际规则为准对齐现有用例期望
 });
 ```
 
@@ -221,17 +220,17 @@ it('scans every result set rows for missing param hints', () => {
 import { parseKcbpResponseStatus, sumResultSetRows } from './kcbpResponse';
 
 describe('sumResultSetRows', () => {
-    it('sums rows across all sets', () => {
-        expect(
-            sumResultSetRows([
-                { name: 'a', columns: [], rows: [{}, {}] },
-                { name: 'b', columns: [], rows: [{}] },
-            ]),
-        ).toBe(3);
-    });
-    it('returns 0 for empty sets', () => {
-        expect(sumResultSetRows([])).toBe(0);
-    });
+  it('sums rows across all sets', () => {
+    expect(
+      sumResultSetRows([
+        { name: 'a', columns: [], rows: [{}, {}] },
+        { name: 'b', columns: [], rows: [{}] },
+      ]),
+    ).toBe(3);
+  });
+  it('returns 0 for empty sets', () => {
+    expect(sumResultSetRows([])).toBe(0);
+  });
 });
 ```
 
@@ -241,15 +240,15 @@ describe('sumResultSetRows', () => {
 
 ```ts
 export interface ResponseData {
-    code: string | number;
-    message: string;
-    /** 恒为结果集数组（IPC 层已归一化） */
-    resultSets: KcbpResultSet[];
-    calledAt?: number;
-    stats?: {
-        timecost: number;
-        rows: number;
-    };
+  code: string | number;
+  message: string;
+  /** 恒为结果集数组（IPC 层已归一化） */
+  resultSets: KcbpResultSet[];
+  calledAt?: number;
+  stats?: {
+    timecost: number;
+    rows: number;
+  };
 }
 ```
 
@@ -257,32 +256,32 @@ export interface ResponseData {
 
 ```ts
 export function buildKcbpCallOutcome(
-    tab: Pick<TabData, 'params'>,
-    address: string,
-    fallbackName: string,
-    raw: KcbpResponseData,
+  tab: Pick<TabData, 'params'>,
+  address: string,
+  fallbackName: string,
+  raw: KcbpResponseData,
 ): KcbpCallOutcome {
-    const msgtype = parseKcbpAddress(address).msgtype.trim() || fallbackName;
-    const response: KcbpCallOutcome['response'] = {
-        code: raw.code,
-        message: raw.msg,
-        resultSets: raw.data,
-        stats: raw.stats,
-        calledAt: Date.now(),
-    };
+  const msgtype = parseKcbpAddress(address).msgtype.trim() || fallbackName;
+  const response: KcbpCallOutcome['response'] = {
+    code: raw.code,
+    message: raw.msg,
+    resultSets: raw.data,
+    stats: raw.stats,
+    calledAt: Date.now(),
+  };
 
-    const missingParam = extractMissingParamFromKcbpResponse(raw.code, raw.msg, raw.data);
-    const nextParams = missingParam
-        ? mergeParamIntoList(tab.params, missingParam.name, missingParam.value)
-        : tab.params;
+  const missingParam = extractMissingParamFromKcbpResponse(raw.code, raw.msg, raw.data);
+  const nextParams = missingParam
+    ? mergeParamIntoList(tab.params, missingParam.name, missingParam.value)
+    : tab.params;
 
-    return {
-        response,
-        nextParams,
-        status: parseKcbpResponseStatus(response),
-        missingParam,
-        msgtype,
-    };
+  return {
+    response,
+    nextParams,
+    status: parseKcbpResponseStatus(response),
+    missingParam,
+    msgtype,
+  };
 }
 ```
 
@@ -292,23 +291,23 @@ export function buildKcbpCallOutcome(
 
 ```ts
 export function extractMissingParamFromKcbpResponse(
-    code: string | number,
-    msg: string,
-    resultSets: KcbpResultSet[] = [],
+  code: string | number,
+  msg: string,
+  resultSets: KcbpResultSet[] = [],
 ): { name: string; value: string } | null {
-    const fromTop = tryExtractMissingParam(code, msg);
-    if (fromTop) return fromTop;
+  const fromTop = tryExtractMissingParam(code, msg);
+  if (fromTop) return fromTop;
 
-    for (const set of resultSets) {
-        for (const row of set.rows) {
-            const rowMsg = (row as Record<string, unknown> | null)?.msg;
-            if (rowMsg == null) continue;
-            const rowCode = (row as Record<string, unknown>).code ?? '';
-            const extracted = tryExtractMissingParam(String(rowCode), String(rowMsg));
-            if (extracted) return extracted;
-        }
+  for (const set of resultSets) {
+    for (const row of set.rows) {
+      const rowMsg = (row as Record<string, unknown> | null)?.msg;
+      if (rowMsg == null) continue;
+      const rowCode = (row as Record<string, unknown>).code ?? '';
+      const extracted = tryExtractMissingParam(String(rowCode), String(rowMsg));
+      if (extracted) return extracted;
     }
-    return null;
+  }
+  return null;
 }
 ```
 
@@ -316,7 +315,7 @@ export function extractMissingParamFromKcbpResponse(
 
 ```ts
 export function sumResultSetRows(resultSets: KcbpResultSet[]): number {
-    return resultSets.reduce((total, set) => total + set.rows.length, 0);
+  return resultSets.reduce((total, set) => total + set.rows.length, 0);
 }
 ```
 
@@ -341,9 +340,9 @@ git commit -m "refactor(api-debug): renderer 响应模型归一化为 resultSets
 1a. `ResponsePanel.tsx:162-165`：
 
 ```tsx
-    const resultSets = response?.resultSets ?? [];
-    const selectedResultSet = resultSets[selectedResultSetIndex];
-    const responseData = selectedResultSet?.rows ?? EMPTY_RESPONSE_ROWS;
+const resultSets = response?.resultSets ?? [];
+const selectedResultSet = resultSets[selectedResultSetIndex];
+const responseData = selectedResultSet?.rows ?? EMPTY_RESPONSE_ROWS;
 ```
 
 （删除 `?? response?.data` fallback 分支）
@@ -367,27 +366,27 @@ const rowCount = response.stats?.rows ?? sumResultSetRows(response.resultSets);
 
 ```ts
 const rows =
-    lastOutcome.response.stats?.rows ??
-    lastOutcome.response.resultSets.reduce((total, set) => total + set.rows.length, 0);
+  lastOutcome.response.stats?.rows ??
+  lastOutcome.response.resultSets.reduce((total, set) => total + set.rows.length, 0);
 ```
 
 - **脚本兼容视图**：`call()` 返回前包装（L123 附近）：
 
 ```ts
-        const response = lastOutcome.response;
-        callSteps.push({
-            index: callCounter,
-            msgtype: callMsgtype,
-            fields: { ...normalized.fields },
-            response,
-            durationMs: Date.now() - startedAt,
-        });
-        if (editorMode === 'tcd') {
-            const rows = response.stats?.rows ?? response.resultSets.reduce((t, s) => t + s.rows.length, 0);
-            consoleCapture.append('log', `[call #${step.index}] ...`);
-        }
-        // 兼容视图：存量脚本依赖 ctx.call()/ctx.response.data 为平铺行
-        return { ...response, data: response.resultSets[0]?.rows ?? [] };
+const response = lastOutcome.response;
+callSteps.push({
+  index: callCounter,
+  msgtype: callMsgtype,
+  fields: { ...normalized.fields },
+  response,
+  durationMs: Date.now() - startedAt,
+});
+if (editorMode === 'tcd') {
+  const rows = response.stats?.rows ?? response.resultSets.reduce((t, s) => t + s.rows.length, 0);
+  consoleCapture.append('log', `[call #${step.index}] ...`);
+}
+// 兼容视图：存量脚本依赖 ctx.call()/ctx.response.data 为平铺行
+return { ...response, data: response.resultSets[0]?.rows ?? [] };
 ```
 
 同文件内若有其他向脚本暴露 `response` 的 ctx 构造点（grep `response:` 于 executeCase/scriptRunner），一律套用 `{ ...response, data: firstRows }` 视图。
@@ -399,23 +398,22 @@ const rows =
 ```ts
 /** v1 条目迁移：旧 response.data（平铺行）包装为单集 resultSets */
 function migrateResponse(value: unknown): Record<string, unknown> {
-    const response = { ...(value as Record<string, unknown>) };
-    if (!Array.isArray(response.resultSets)) {
-        const legacyRows = Array.isArray(response.data) ? response.data : [];
-        const firstRow = legacyRows.find(
-            (item): item is Record<string, unknown> =>
-                Boolean(item && typeof item === 'object' && !Array.isArray(item)),
-        );
-        response.resultSets = [
-            { name: '', columns: firstRow ? Object.keys(firstRow) : [], rows: legacyRows },
-        ];
-    }
-    delete response.data;
-    return response;
+  const response = { ...(value as Record<string, unknown>) };
+  if (!Array.isArray(response.resultSets)) {
+    const legacyRows = Array.isArray(response.data) ? response.data : [];
+    const firstRow = legacyRows.find((item): item is Record<string, unknown> =>
+      Boolean(item && typeof item === 'object' && !Array.isArray(item)),
+    );
+    response.resultSets = [
+      { name: '', columns: firstRow ? Object.keys(firstRow) : [], rows: legacyRows },
+    ];
+  }
+  delete response.data;
+  return response;
 }
 
 function migrateEntry(entry: RequestHistoryEntry): RequestHistoryEntry {
-    return { ...entry, response: migrateResponse(entry.response) as RequestHistoryEntry['response'] };
+  return { ...entry, response: migrateResponse(entry.response) as RequestHistoryEntry['response'] };
 }
 ```
 

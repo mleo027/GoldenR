@@ -2,11 +2,11 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createRef } from 'react';
-import type { InputRef } from 'antd';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import { createCaseTab } from '@/test/factories';
 import type { VisibleCaseItem } from '@/modules/api-debug/hooks/useVisibleProjects';
 import CaseChildrenList from './CaseChildrenList';
+import type { InputRef } from '../../../../components/ui/primitives';
 
 const CONTAINER_RECT = {
     top: 0,

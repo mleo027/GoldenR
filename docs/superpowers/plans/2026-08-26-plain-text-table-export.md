@@ -12,19 +12,20 @@
 
 ## 文件结构
 
-| 文件 | 操作 | 职责 |
-|------|------|------|
-| `src/utils/exportTable.ts` | 修改 | 新增显示宽度计算、对齐文本表格构建、`exportTableToText`；抽取浏览器下载通用函数 |
-| `src/utils/exportTable.test.ts` | 修改 | 新增纯函数与导出函数单测 |
-| `electron/ipc/importExport.ts` | 修改 | 抽取共享保存 helper；新增 `export:saveTxt` |
-| `electron/ipc/importExport.test.ts` | 修改 | `export:saveTxt` 用例 |
-| `electron/preload.ts` | 修改 | 暴露 `importExport.saveTxt` |
-| `src/shared/electron/api.ts` | 修改 | `ImportExportApi` 增加 `saveTxt` 类型 |
-| `src/components/ui/ResponseTableTools.tsx` | 修改 | 导出按钮改为弹出格式选择对话框，按格式分发 |
+| 文件                                       | 操作 | 职责                                                                            |
+| ------------------------------------------ | ---- | ------------------------------------------------------------------------------- |
+| `src/utils/exportTable.ts`                 | 修改 | 新增显示宽度计算、对齐文本表格构建、`exportTableToText`；抽取浏览器下载通用函数 |
+| `src/utils/exportTable.test.ts`            | 修改 | 新增纯函数与导出函数单测                                                        |
+| `electron/ipc/importExport.ts`             | 修改 | 抽取共享保存 helper；新增 `export:saveTxt`                                      |
+| `electron/ipc/importExport.test.ts`        | 修改 | `export:saveTxt` 用例                                                           |
+| `electron/preload.ts`                      | 修改 | 暴露 `importExport.saveTxt`                                                     |
+| `src/shared/electron/api.ts`               | 修改 | `ImportExportApi` 增加 `saveTxt` 类型                                           |
+| `src/components/ui/ResponseTableTools.tsx` | 修改 | 导出按钮改为弹出格式选择对话框，按格式分发                                      |
 
 ## 任务 1：纯函数与导出函数 — `exportTable.ts`
 
 **文件：**
+
 - 修改：`src/utils/exportTable.ts`
 - 测试：`src/utils/exportTable.test.ts`
 
@@ -37,12 +38,12 @@ const mockSaveCsvFile = vi.fn();
 const mockSaveTxtFile = vi.fn();
 
 vi.mock('../lib/electron', () => ({
-    getElectronAPI: () => ({
-        importExport: {
-            saveCsv: mockSaveCsvFile,
-            saveTxt: mockSaveTxtFile,
-        },
-    }),
+  getElectronAPI: () => ({
+    importExport: {
+      saveCsv: mockSaveCsvFile,
+      saveTxt: mockSaveTxtFile,
+    },
+  }),
 }));
 ```
 
@@ -50,11 +51,11 @@ vi.mock('../lib/electron', () => ({
 
 ```ts
 import {
-    buildAlignedTextTable,
-    buildCsvContent,
-    estimateDataSize,
-    exportTableToCsv,
-    formatDataSize,
+  buildAlignedTextTable,
+  buildCsvContent,
+  estimateDataSize,
+  exportTableToCsv,
+  formatDataSize,
 } from './exportTable';
 ```
 
@@ -62,50 +63,50 @@ import {
 
 ```ts
 describe('buildAlignedTextTable', () => {
-    it('aligns columns by max display width with two-space gaps', () => {
-        const table = buildAlignedTextTable([
-            { fundid: '6001001', stkcode: '000001', flag: '买入' },
-            { fundid: '6001002', stkcode: '600519', flag: '卖出' },
-        ]);
-        expect(table).toBe(
-            ['fundid   stkcode  flag', '6001001  000001  买入 ', '6001002  600519  卖出 '].join('\n'),
-        );
-    });
+  it('aligns columns by max display width with two-space gaps', () => {
+    const table = buildAlignedTextTable([
+      { fundid: '6001001', stkcode: '000001', flag: '买入' },
+      { fundid: '6001002', stkcode: '600519', flag: '卖出' },
+    ]);
+    expect(table).toBe(
+      ['fundid   stkcode  flag', '6001001  000001  买入 ', '6001002  600519  卖出 '].join('\n'),
+    );
+  });
 
-    it('pads cells wider than header including CJK width', () => {
-        const table = buildAlignedTextTable([{ name: '长长长的中文名称', qty: 5 }]);
-        expect(table).toBe('name            qty\n长长长的中文名称  5  ');
-    });
+  it('pads cells wider than header including CJK width', () => {
+    const table = buildAlignedTextTable([{ name: '长长长的中文名称', qty: 5 }]);
+    expect(table).toBe('name            qty\n长长长的中文名称  5  ');
+  });
 
-    it('serializes null as empty string and objects as JSON', () => {
-        const table = buildAlignedTextTable([{ a: null, b: { x: 1 } }]);
-        expect(table).toBe('a  b\n   {"x":1}');
-    });
+  it('serializes null as empty string and objects as JSON', () => {
+    const table = buildAlignedTextTable([{ a: null, b: { x: 1 } }]);
+    expect(table).toBe('a  b\n   {"x":1}');
+  });
 });
 
 describe('exportTableToText', () => {
-    beforeEach(() => {
-        mockSaveTxtFile.mockReset();
-    });
+  beforeEach(() => {
+    mockSaveTxtFile.mockReset();
+  });
 
-    it('returns empty when data is empty', async () => {
-        await expect(exportTableToText([])).resolves.toEqual({ saved: false, reason: 'empty' });
-    });
+  it('returns empty when data is empty', async () => {
+    await expect(exportTableToText([])).resolves.toEqual({ saved: false, reason: 'empty' });
+  });
 
-    it('delegates to electron saveTxt when available', async () => {
-        mockSaveTxtFile.mockResolvedValue({ saved: true, filePath: 'D:/out.txt' });
-        const result = await exportTableToText([{ custid: '1' }], 'response.txt');
-        expect(result).toEqual({ saved: true, filePath: 'D:/out.txt' });
-        expect(mockSaveTxtFile).toHaveBeenCalledOnce();
-    });
+  it('delegates to electron saveTxt when available', async () => {
+    mockSaveTxtFile.mockResolvedValue({ saved: true, filePath: 'D:/out.txt' });
+    const result = await exportTableToText([{ custid: '1' }], 'response.txt');
+    expect(result).toEqual({ saved: true, filePath: 'D:/out.txt' });
+    expect(mockSaveTxtFile).toHaveBeenCalledOnce();
+  });
 
-    it('returns cancelled when user dismisses dialog', async () => {
-        mockSaveTxtFile.mockResolvedValue({ saved: false });
-        await expect(exportTableToText([{ custid: '1' }])).resolves.toEqual({
-            saved: false,
-            reason: 'cancelled',
-        });
+  it('returns cancelled when user dismisses dialog', async () => {
+    mockSaveTxtFile.mockResolvedValue({ saved: false });
+    await expect(exportTableToText([{ custid: '1' }])).resolves.toEqual({
+      saved: false,
+      reason: 'cancelled',
     });
+  });
 });
 ```
 
@@ -122,22 +123,22 @@ describe('exportTableToText', () => {
 
 ```ts
 function stringifyExportValue(value: unknown): string {
-    return value == null ? '' : typeof value === 'object' ? JSON.stringify(value) : String(value);
+  return value == null ? '' : typeof value === 'object' ? JSON.stringify(value) : String(value);
 }
 
 /** CJK 全角字符（汉字、全角标点、韩文等）按 2 个显示宽度计 */
 const WIDE_CHAR_RE = /[\u2E80-\u9FFF\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFFEF]/;
 
 export function displayWidth(text: string): number {
-    let width = 0;
-    for (const char of text) {
-        width += WIDE_CHAR_RE.test(char) ? 2 : 1;
-    }
-    return width;
+  let width = 0;
+  for (const char of text) {
+    width += WIDE_CHAR_RE.test(char) ? 2 : 1;
+  }
+  return width;
 }
 
 function padToWidth(text: string, width: number): string {
-    return text + ' '.repeat(Math.max(0, width - displayWidth(text)));
+  return text + ' '.repeat(Math.max(0, width - displayWidth(text)));
 }
 ```
 
@@ -145,11 +146,11 @@ function padToWidth(text: string, width: number): string {
 
 ```ts
 function escapeCsvCell(value: unknown): string {
-    const text = stringifyExportValue(value);
-    if (/[",\n\r]/.test(text)) {
-        return `"${text.replace(/"/g, '""')}"`;
-    }
-    return text;
+  const text = stringifyExportValue(value);
+  if (/[",\n\r]/.test(text)) {
+    return `"${text.replace(/"/g, '""')}"`;
+  }
+  return text;
 }
 ```
 
@@ -158,21 +159,21 @@ function escapeCsvCell(value: unknown): string {
 ```ts
 /** 构建列对齐的纯文本表格：列宽取各列最大显示宽度，右侧补空格，列间两个空格 */
 export function buildAlignedTextTable(data: Record<string, unknown>[]): string {
-    const keys = Object.keys(data[0]);
-    const rows = data.map((row) => keys.map((key) => stringifyExportValue(row[key])));
-    const widths = keys.map((key, col) =>
-        Math.max(displayWidth(key), ...rows.map((row) => displayWidth(row[col]))),
-    );
-    const lines = [
-        keys.map((key, col) => padToWidth(key, widths[col])).join('  '),
-        ...rows.map((row) => row.map((cell, col) => padToWidth(cell, widths[col])).join('  ')),
-    ];
-    return lines.join('\n');
+  const keys = Object.keys(data[0]);
+  const rows = data.map((row) => keys.map((key) => stringifyExportValue(row[key])));
+  const widths = keys.map((key, col) =>
+    Math.max(displayWidth(key), ...rows.map((row) => displayWidth(row[col]))),
+  );
+  const lines = [
+    keys.map((key, col) => padToWidth(key, widths[col])).join('  '),
+    ...rows.map((row) => row.map((cell, col) => padToWidth(cell, widths[col])).join('  ')),
+  ];
+  return lines.join('\n');
 }
 
 export type ExportTextResult =
-    | { saved: true; filePath: string }
-    | { saved: false; reason: 'empty' | 'cancelled' };
+  | { saved: true; filePath: string }
+  | { saved: false; reason: 'empty' | 'cancelled' };
 ```
 
 3d. **移入任务 2**：`downloadInBrowser` 通用化与 `exportTableToText` 实现依赖 `saveTxt` 类型定义，统一在任务 2 完成。
@@ -181,14 +182,14 @@ export type ExportTextResult =
 
 ```ts
 function downloadInBrowser(content: string, mime: string, filename: string): string {
-    const blob = new Blob([content], { type: mime });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = filename;
-    anchor.click();
-    URL.revokeObjectURL(url);
-    return anchor.download;
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.click();
+  URL.revokeObjectURL(url);
+  return anchor.download;
 }
 ```
 
@@ -220,6 +221,7 @@ git commit -m "feat(export): 新增对齐文本表格构建函数（任务 1/3�
 ## 任务 2：导出函数 + Electron 通道 — `exportTableToText` 与 `export:saveTxt`
 
 **文件：**
+
 - 修改：`src/utils/exportTable.ts`、`src/utils/exportTable.test.ts`
 - 修改：`electron/ipc/importExport.ts`
 - 修改：`electron/ipc/importExport.test.ts`
@@ -235,24 +237,24 @@ git commit -m "feat(export): 新增对齐文本表格构建函数（任务 1/3�
 1b. `electron/ipc/importExport.test.ts` 的「saves CSV and HTML exports」用例后追加一个用例：
 
 ```ts
-    it('saves TXT exports through export:saveTxt', async () => {
-        mock.showSaveDialog.mockResolvedValueOnce({
-            canceled: false,
-            filePath: 'C:/data/out.txt',
-        });
-        const txt = await invoke('export:saveTxt', {
-            content: 'a  b\n1  2',
-            defaultFilename: 'out',
-        });
-        expect(txt).toEqual({ saved: true, filePath: 'C:/data/out.txt' });
-        expect(mock.writeFile).toHaveBeenCalledWith('C:/data/out.txt', 'a  b\n1  2', 'utf-8');
+it('saves TXT exports through export:saveTxt', async () => {
+  mock.showSaveDialog.mockResolvedValueOnce({
+    canceled: false,
+    filePath: 'C:/data/out.txt',
+  });
+  const txt = await invoke('export:saveTxt', {
+    content: 'a  b\n1  2',
+    defaultFilename: 'out',
+  });
+  expect(txt).toEqual({ saved: true, filePath: 'C:/data/out.txt' });
+  expect(mock.writeFile).toHaveBeenCalledWith('C:/data/out.txt', 'a  b\n1  2', 'utf-8');
 
-        mock.showSaveDialog.mockResolvedValueOnce({ canceled: true });
-        await expect(
-            invoke('export:saveTxt', { content: 'x', defaultFilename: 'out.txt' }),
-        ).resolves.toEqual({ saved: false });
-        await expect(invoke('export:saveTxt', { content: 1 })).rejects.toThrow();
-    });
+  mock.showSaveDialog.mockResolvedValueOnce({ canceled: true });
+  await expect(
+    invoke('export:saveTxt', { content: 'x', defaultFilename: 'out.txt' }),
+  ).resolves.toEqual({ saved: false });
+  await expect(invoke('export:saveTxt', { content: 1 })).rejects.toThrow();
+});
 ```
 
 - [ ] **步骤 2：运行测试验证失败**
@@ -279,80 +281,88 @@ git commit -m "feat(export): 新增对齐文本表格构建函数（任务 1/3�
 
 ```ts
 interface SaveFileOptions {
-    /** invalidIpcArgument 错误信息中的格式名，如 'CSV export' */
-    errorLabel: string;
-    dialogTitle: string;
-    /** 用户未填扩展名时的兜底默认文件名，如 'response.csv' */
-    fallbackFilename: string;
-    filterName: string;
-    extension: string;
+  /** invalidIpcArgument 错误信息中的格式名，如 'CSV export' */
+  errorLabel: string;
+  dialogTitle: string;
+  /** 用户未填扩展名时的兜底默认文件名，如 'response.csv' */
+  fallbackFilename: string;
+  filterName: string;
+  extension: string;
 }
 
 async function saveTextFileViaDialog(
-    event: Electron.IpcMainInvokeEvent,
-    payload: unknown,
-    options: SaveFileOptions,
+  event: Electron.IpcMainInvokeEvent,
+  payload: unknown,
+  options: SaveFileOptions,
 ): Promise<{ saved: false } | { saved: true; filePath: string } | { saved: false; error: string }> {
-    if (
-        !payload ||
-        typeof payload !== 'object' ||
-        typeof (payload as { content?: unknown }).content !== 'string' ||
-        typeof (payload as { defaultFilename?: unknown }).defaultFilename !== 'string'
-    ) {
-        throw invalidIpcArgument(`Invalid ${options.errorLabel} payload`);
-    }
-    const typedPayload = payload as { content: string; defaultFilename: string };
-    const win = BrowserWindow.fromWebContents(event.sender);
-    const ext = options.extension;
-    const defaultFilename = typedPayload.defaultFilename.trim() || options.fallbackFilename;
-    const defaultPath = defaultFilename.endsWith(`.${ext}`) ? defaultFilename : `${defaultFilename}.${ext}`;
+  if (
+    !payload ||
+    typeof payload !== 'object' ||
+    typeof (payload as { content?: unknown }).content !== 'string' ||
+    typeof (payload as { defaultFilename?: unknown }).defaultFilename !== 'string'
+  ) {
+    throw invalidIpcArgument(`Invalid ${options.errorLabel} payload`);
+  }
+  const typedPayload = payload as { content: string; defaultFilename: string };
+  const win = BrowserWindow.fromWebContents(event.sender);
+  const ext = options.extension;
+  const defaultFilename = typedPayload.defaultFilename.trim() || options.fallbackFilename;
+  const defaultPath = defaultFilename.endsWith(`.${ext}`)
+    ? defaultFilename
+    : `${defaultFilename}.${ext}`;
 
-    const result = await showSaveDialog(win, {
-        title: options.dialogTitle,
-        defaultPath,
-        filters: [{ name: options.filterName, extensions: [ext] }],
-    });
+  const result = await showSaveDialog(win, {
+    title: options.dialogTitle,
+    defaultPath,
+    filters: [{ name: options.filterName, extensions: [ext] }],
+  });
 
-    if (result.canceled || !result.filePath) {
-        return { saved: false as const };
-    }
+  if (result.canceled || !result.filePath) {
+    return { saved: false as const };
+  }
 
-    try {
-        await writeFile(result.filePath, typedPayload.content, 'utf-8');
-        return { saved: true as const, filePath: result.filePath };
-    } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        return { saved: false as const, error: message };
-    }
+  try {
+    await writeFile(result.filePath, typedPayload.content, 'utf-8');
+    return { saved: true as const, filePath: result.filePath };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { saved: false as const, error: message };
+  }
 }
 ```
 
 四个通道全部改为薄封装（保持原 channel 名、标题、默认名、过滤器不变）：
 
 ```ts
-    ipcMain.handle('export:saveCsv', withIpcError((event, payload: unknown) =>
-        saveTextFileViaDialog(event, payload, {
-            errorLabel: 'CSV export',
-            dialogTitle: '导出 CSV',
-            fallbackFilename: 'response.csv',
-            filterName: 'CSV',
-            extension: 'csv',
-        }),
-    ));
+ipcMain.handle(
+  'export:saveCsv',
+  withIpcError((event, payload: unknown) =>
+    saveTextFileViaDialog(event, payload, {
+      errorLabel: 'CSV export',
+      dialogTitle: '导出 CSV',
+      fallbackFilename: 'response.csv',
+      filterName: 'CSV',
+      extension: 'csv',
+    }),
+  ),
+);
 
-    ipcMain.handle('export:saveTxt', withIpcError((event, payload: unknown) =>
-        saveTextFileViaDialog(event, payload, {
-            errorLabel: 'TXT export',
-            dialogTitle: '导出纯文本',
-            fallbackFilename: 'response.txt',
-            filterName: 'TXT',
-            extension: 'txt',
-        }),
-    ));
+ipcMain.handle(
+  'export:saveTxt',
+  withIpcError((event, payload: unknown) =>
+    saveTextFileViaDialog(event, payload, {
+      errorLabel: 'TXT export',
+      dialogTitle: '导出纯文本',
+      fallbackFilename: 'response.txt',
+      filterName: 'TXT',
+      extension: 'txt',
+    }),
+  ),
+);
 
-    // export:saveHtml、export:saveIni 同样模式：
-    // html → errorLabel 'HTML export' / '导出 HTML 报告' / 'report.html' / 'HTML' / 'html'
-    // ini  → errorLabel 'INI export' / '导出 INI' / 'project.ini' / 'INI' / 'ini'
+// export:saveHtml、export:saveIni 同样模式：
+// html → errorLabel 'HTML export' / '导出 HTML 报告' / 'report.html' / 'HTML' / 'html'
+// ini  → errorLabel 'INI export' / '导出 INI' / 'project.ini' / 'INI' / 'ini'
 ```
 
 3d. `src/utils/exportTable.ts`：完成任务 1 步骤 3d（`downloadInBrowser` 通用化）与 3e（`exportTableToText`，此时 `importExport.saveTxt` 类型已存在，直接正式访问）。
@@ -374,6 +384,7 @@ git commit -m "feat(export): 纯文本导出函数与 export:saveTxt 通道（�
 ## 任务 3：UI — 格式选择对话框
 
 **文件：**
+
 - 修改：`src/components/ui/ResponseTableTools.tsx`
 
 前置：任务 2 已完成。
@@ -393,19 +404,19 @@ import { exportTableToCsv, exportTableToText } from '../../utils/exportTable';
 
 ```tsx
 function ExportSuccessDialog({ filePath, formatLabel }: { filePath: string; formatLabel: string }) {
-    Modal.success({
-        title: '导出成功',
-        centered: true,
-        mousePosition: null,
-        content: (
-            <div className="export-success-modal">
-                <p className="export-success-desc">{formatLabel} 文件已保存至：</p>
-                <p className="export-success-path">{filePath}</p>
-            </div>
-        ),
-        okText: '知道了',
-        width: 520,
-    });
+  Modal.success({
+    title: '导出成功',
+    centered: true,
+    mousePosition: null,
+    content: (
+      <div className="export-success-modal">
+        <p className="export-success-desc">{formatLabel} 文件已保存至：</p>
+        <p className="export-success-path">{filePath}</p>
+      </div>
+    ),
+    okText: '知道了',
+    width: 520,
+  });
 }
 ```
 
@@ -415,71 +426,68 @@ function ExportSuccessDialog({ filePath, formatLabel }: { filePath: string; form
 type ExportFormat = 'csv' | 'text';
 
 async function exportResponseTable(
-    exportData: Record<string, unknown>[],
-    exportFilename: string,
-    format: ExportFormat,
+  exportData: Record<string, unknown>[],
+  exportFilename: string,
+  format: ExportFormat,
 ): Promise<void> {
-    if (exportData.length >= PERFORMANCE_THRESHOLDS.largeExportRows) {
-        message.warning(
-            `将导出 ${exportData.length} 行数据，文件可能较大，导出过程可能略有延迟`,
-            3,
-        );
-    }
+  if (exportData.length >= PERFORMANCE_THRESHOLDS.largeExportRows) {
+    message.warning(`将导出 ${exportData.length} 行数据，文件可能较大，导出过程可能略有延迟`, 3);
+  }
 
-    const result =
-        format === 'text'
-            ? await exportTableToText(exportData, toTxtFilename(exportFilename))
-            : await exportTableToCsv(exportData, exportFilename);
-    if (result.saved) {
-        ExportSuccessDialog({ filePath: result.filePath, formatLabel: format === 'text' ? 'TXT' : 'CSV' });
-    } else if (result.reason === 'empty') {
-        message.warning('暂无数据可导出');
-    }
+  const result =
+    format === 'text'
+      ? await exportTableToText(exportData, toTxtFilename(exportFilename))
+      : await exportTableToCsv(exportData, exportFilename);
+  if (result.saved) {
+    ExportSuccessDialog({
+      filePath: result.filePath,
+      formatLabel: format === 'text' ? 'TXT' : 'CSV',
+    });
+  } else if (result.reason === 'empty') {
+    message.warning('暂无数据可导出');
+  }
 }
 
 function toTxtFilename(filename: string): string {
-    return `${filename.replace(/\.csv$/i, '')}.txt`;
+  return `${filename.replace(/\.csv$/i, '')}.txt`;
 }
 ```
 
 1d. 组件内新增状态并把 `handleExport` 改为先弹对话框：
 
 ```tsx
-    const [formatModalOpen, setFormatModalOpen] = useState(false);
-    const [exportFormat, setExportFormat] = useState<ExportFormat>('csv');
+const [formatModalOpen, setFormatModalOpen] = useState(false);
+const [exportFormat, setExportFormat] = useState<ExportFormat>('csv');
 
-    const handleExport = () => {
-        setFormatModalOpen(true);
-    };
+const handleExport = () => {
+  setFormatModalOpen(true);
+};
 
-    const handleExportConfirm = async () => {
-        setFormatModalOpen(false);
-        await exportResponseTable(exportData, exportFilename, exportFormat);
-    };
+const handleExportConfirm = async () => {
+  setFormatModalOpen(false);
+  await exportResponseTable(exportData, exportFilename, exportFormat);
+};
 ```
 
 1e. JSX：导出按钮 Tooltip 文案改为「导出」，组件返回片段末尾（`</div>` 前）追加对话框：
 
 ```tsx
-            <Modal
-                open={formatModalOpen}
-                title="选择导出格式"
-                okText="导出"
-                cancelText="取消"
-                width={380}
-                onOk={handleExportConfirm}
-                onCancel={() => setFormatModalOpen(false)}
-            >
-                <Radio.Group
-                    value={exportFormat}
-                    onChange={(event) => setExportFormat(event.target.value)}
-                >
-                    <Space direction="vertical">
-                        <Radio value="csv">CSV 文件（逗号分隔）</Radio>
-                        <Radio value="text">纯文本（对齐表格）</Radio>
-                    </Space>
-                </Radio.Group>
-            </Modal>
+<Modal
+  open={formatModalOpen}
+  title="选择导出格式"
+  okText="导出"
+  cancelText="取消"
+  width={380}
+  onOk={handleExportConfirm}
+  onCancel={() => setFormatModalOpen(false)}
+>
+  <Radio.Group value={exportFormat} onChange={(event) => setExportFormat(event.target.value)}>
+    <Space direction="vertical">
+      <Radio value="csv">CSV 文件（逗号分隔）</Radio>
+      <Radio value="text">纯文本（对齐表格）</Radio>
+    </Space>
+  </Radio.Group>
+</Modal>
 ```
 
 - [ ] **步骤 2：全量验证**

@@ -16,7 +16,12 @@ export type TabsAction =
     | { type: 'DELETE_PROJECT'; projectIndex: number }
     | { type: 'RENAME_PROJECT'; projectIndex: number; name: string }
     | { type: 'TOGGLE_PROJECT_EXPAND'; projectId: string }
-    | { type: 'ADD_CASE'; projectIndex?: number; initialAddress?: string; initialProtocol?: KcxpProtocol }
+    | {
+          type: 'ADD_CASE';
+          projectIndex?: number;
+          initialAddress?: string;
+          initialProtocol?: KcxpProtocol;
+      }
     | { type: 'DUPLICATE_CASE'; projectIndex: number; caseIndex: number }
     | { type: 'DELETE_CASE'; projectIndex: number; caseIndex: number }
     | { type: 'SELECT_CASE'; projectIndex: number; caseIndex: number }

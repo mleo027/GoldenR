@@ -9,9 +9,9 @@ import {
     ImportOutlined,
 } from '@ant-design/icons';
 import { memo, type RefObject } from 'react';
-import type { InputRef } from 'antd';
 import type { ProjectData } from '../../types/workspace';
 import InlineRenameInput from './InlineRenameInput';
+import type { InputRef } from '../../../../components/ui/primitives';
 
 interface ProjectTreeItemProps {
     project: ProjectData;

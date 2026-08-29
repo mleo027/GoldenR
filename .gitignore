@@ -59,3 +59,9 @@ coverage/
 # Cursor MCP debugging screenshots (local only)
 .cursor-mcp-screenshot.png
 .cursor-mcp-screenshot.png.encrypted
+
+# Pi subagents artifacts
+.pi-subagents/
+.pi/
+.superpowers/
+.vscode/

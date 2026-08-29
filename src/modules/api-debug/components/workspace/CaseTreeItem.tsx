@@ -1,5 +1,4 @@
 import { memo, type RefObject } from 'react';
-import type { InputRef } from 'antd';
 import { Button, Dropdown, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import { CopyOutlined, StarFilled, StarOutlined } from '@ant-design/icons';
@@ -7,6 +6,7 @@ import TextHighlight from '../../../../components/ui/TextHighlight';
 import type { TabData } from '../../types/workspace';
 import { getCaseDisplayParts, getCaseLabel, getCaseMsgtype } from '../../utils/workspace/caseLabel';
 import InlineRenameInput from './InlineRenameInput';
+import type { InputRef } from '../../../../components/ui/primitives';
 
 interface CaseTreeItemProps {
     caseItem: TabData;

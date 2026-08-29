@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
-import type { InputRef } from 'antd';
 import type { MenuProps } from 'antd';
 import VirtualList from 'rc-virtual-list';
 import type { ListRef } from 'rc-virtual-list';
@@ -12,6 +11,7 @@ import {
 import type { VisibleCaseItem } from '../../hooks/useVisibleProjects';
 import { scrollCaseIntoView } from '../../utils/workspace/scrollCaseIntoView';
 import CaseTreeItem from './CaseTreeItem';
+import type { InputRef } from '../../../../components/ui/primitives';
 
 interface CaseChildrenListProps {
     cases: VisibleCaseItem[];

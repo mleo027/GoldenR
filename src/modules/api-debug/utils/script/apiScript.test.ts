@@ -80,7 +80,7 @@ describe('executeCaseScript', () => {
         const response: ResponseData = {
             code: '0',
             message: 'ok',
-            data: [{ a: 1 }],
+            resultSets: [{ name: '', rows: [{ a: 1 }] }],
         };
 
         const consoleCapture = createScriptConsole();

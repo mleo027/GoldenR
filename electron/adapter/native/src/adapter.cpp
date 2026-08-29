@@ -136,7 +136,7 @@ Napi::Object callKGBP(const Napi::CallbackInfo &info)
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {
     REGISTER_FUNCTION("callKCBP", callKCBP);
-  REGISTER_FUNCTION("callKGBP", callKGBP);
+    REGISTER_FUNCTION("callKGBP", callKGBP);
     return exports;
 }
 

@@ -1,6 +1,7 @@
 import { memo, useCallback, useState } from 'react';
-import { App, Input, Modal, Typography } from 'antd';
+import {App, Modal, Typography} from 'antd';
 import { parseQuickFillText, type QuickFillPayload } from '../../utils/workspace/paramText';
+import { TextArea } from '../../../../components/ui/primitives';
 
 interface ParamQuickFillModalProps {
     open: boolean;
@@ -54,9 +55,10 @@ function ParamQuickFillModal({ open, onClose, onApply }: ParamQuickFillModalProp
                 <code>[入参:key] [数值:value] [说明:...]</code> 两种格式。
             </Typography.Paragraph>
             <Typography.Paragraph type="secondary" className="text-xs mb-3">
-                支持 KGBP <code>{'<lbm>'}</code> XML 模板：自动提取参数默认值及功能号、节点、服务名。
+                支持 KGBP <code>{'<lbm>'}</code> XML
+                模板：自动提取参数默认值及功能号、节点、服务名。
             </Typography.Paragraph>
-            <Input.TextArea
+            <TextArea
                 rows={12}
                 value={text}
                 spellCheck={false}

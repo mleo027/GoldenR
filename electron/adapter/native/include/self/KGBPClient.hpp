@@ -317,6 +317,7 @@ private:
 	// 列名解析失败时的诊断输出；stderr 由 kcbp 桥接进程透传到主进程日志
 	void reportColInfoFallback(const std::string &reason, const char *buf)
 	{
+		
 		std::fprintf(stderr, "[KGBPClient] ColInfo fallback (%s) raw=", reason.c_str());
 		const unsigned char *bytes = reinterpret_cast<const unsigned char *>(buf);
 		for (size_t i = 0; i < 128 && bytes[i] != 0 || i < 32; ++i)

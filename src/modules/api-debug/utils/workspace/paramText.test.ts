@@ -149,9 +149,7 @@ describe('parseQuickFillText', () => {
     });
 
     it('trims unquoted values but preserves spaces explicitly enclosed by quotes', () => {
-        const outcome = parseQuickFillText(
-            'custid:  600100000570  ,remark:"  保留首尾空格  "',
-        );
+        const outcome = parseQuickFillText('custid:  600100000570  ,remark:"  保留首尾空格  "');
         expect(outcome.ok).toBe(true);
         if (!outcome.ok) return;
 

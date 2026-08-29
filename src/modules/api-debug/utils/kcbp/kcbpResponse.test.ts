@@ -4,6 +4,7 @@ import {
     extractFieldsFromMsg,
     mergeExtractedFieldsIntoParams,
     parseKcbpResponseStatus,
+    sumResultSetRows,
 } from './kcbpResponse';
 
 describe('parseKcbpResponseStatus', () => {
@@ -11,7 +12,7 @@ describe('parseKcbpResponseStatus', () => {
         const response: ResponseData = {
             code: '0',
             message: 'ok',
-            data: [{ custid: '1' }],
+            resultSets: [{ name: '', rows: [{ custid: '1' }] }],
         };
         const status = parseKcbpResponseStatus(response);
         expect(status.kind).toBe('success');
@@ -24,7 +25,7 @@ describe('parseKcbpResponseStatus', () => {
         const response: ResponseData = {
             code: '-1',
             message: 'timeout',
-            data: [],
+            resultSets: [],
         };
         const status = parseKcbpResponseStatus(response);
         expect(status.kind).toBe('error');
@@ -58,5 +59,24 @@ describe('mergeExtractedFieldsIntoParams', () => {
     it('skips empty extracted values', () => {
         const params: ParamItem[] = [{ name: 'fundid', value: '1', type: 'string' }];
         expect(mergeExtractedFieldsIntoParams(params, { fundid: '' })).toBe(params);
+    });
+});
+
+describe('sumResultSetRows', () => {
+    it('returns 0 for an empty array', () => {
+        expect(sumResultSetRows([])).toBe(0);
+    });
+
+    it('counts rows across multiple result sets', () => {
+        expect(
+            sumResultSetRows([
+                { name: 'DATA', rows: [{ a: 1 }, { a: 2 }] },
+                { name: 'DETAIL', rows: [{ b: 1 }] },
+            ]),
+        ).toBe(3);
+    });
+
+    it('handles a single empty result set', () => {
+        expect(sumResultSetRows([{ name: 'EMPTY', rows: [] }])).toBe(0);
     });
 });

@@ -14,8 +14,8 @@ interface ParamEditProps {
 const CHECK_COL_WIDTH = 40;
 const ACTION_COL_WIDTH = 40;
 const FIXED_COL_WIDTH = CHECK_COL_WIDTH + ACTION_COL_WIDTH;
-const MIN_KEY_WIDTH = 72;
-const KEY_WIDTH_RATIO = 0.3;
+const MIN_KEY_WIDTH = 60;
+const KEY_WIDTH_RATIO = 0.2;
 const DEFAULT_KEY_WIDTH_MAX = 280;
 
 function ParamTable({ params, onChange }: ParamEditProps) {
@@ -140,10 +140,13 @@ function ParamEmptyState({ onAdd }: { onAdd: () => void }) {
 function ParamEdit({ params, onChange }: ParamEditProps) {
     const paramsRef = useRef(params);
     paramsRef.current = params;
+    
     const handleAdd = useCallback(
         () => onChange([...paramsRef.current, createParamItem('')]),
         [onChange],
     );
+
+    
     return (
         <div className="param-edit flex flex-col py-2">
             {params.length > 0 ? (

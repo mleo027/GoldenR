@@ -5,7 +5,7 @@ import {
     ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import type { ResponseData } from '../../types/workspace';
-import { parseKcbpResponseStatus } from '../../utils/kcbp/kcbpResponse';
+import { parseKcbpResponseStatus, sumResultSetRows } from '../../utils/kcbp/kcbpResponse';
 import { formatDateTime } from '../../../../utils/formatDateTime';
 import { formatDataSize } from '../../../../utils/exportTable';
 import { ControlCharText } from '../../../../utils/ControlCharText';
@@ -68,7 +68,7 @@ function ResponseMetaFooter({ response, className }: ResponseMetaProps) {
                 </>
             )}
             {response.resultSets.length > 0 && (
-            <>
+                <>
                     {status.businessMsg && (
                         <span className="response-meta-sep shrink-0" aria-hidden="true" />
                     )}
@@ -100,7 +100,7 @@ function ResponseMetaFooter({ response, className }: ResponseMetaProps) {
 
 function ResponseMetaDetails({ response, className }: ResponseMetaProps) {
     const status = parseKcbpResponseStatus(response);
-    const rowCount = response.stats?.rows ?? response.resultSets.reduce((t, s) => t + s.rows.length, 0);
+    const rowCount = response.stats?.rows ?? sumResultSetRows(response.resultSets);
     const dataSize = formatDataSize(response.resultSets);
 
     return (
@@ -136,7 +136,7 @@ function ResponseMetaDetails({ response, className }: ResponseMetaProps) {
                     </Tag>
                 </Tooltip>
             )}
-                    {response.resultSets.length > 0 && (
+            {response.resultSets.length > 0 && (
                 <Tooltip title="响应数据大小">
                     <Tag bordered={false} className="response-meta-badge">
                         {dataSize}

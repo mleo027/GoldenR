@@ -12,7 +12,7 @@ describe('ResponseMeta', () => {
         const response: ResponseData = {
             code: '0',
             message: 'ok',
-            data: [{ id: 1 }],
+            resultSets: [{ name: '', rows: [{ id: 1 }] }],
             calledAt: 1_700_000_000_000,
             stats: { rows: 1, timecost: 12 },
         };
@@ -25,7 +25,7 @@ describe('ResponseMeta', () => {
     });
 
     it('renders no footer for an empty successful response', () => {
-        const response: ResponseData = { code: '0', message: '', data: [] };
+        const response: ResponseData = { code: '0', message: '', resultSets: [] };
 
         expect(
             render(<ResponseMeta response={response} variant="footer" />).container.innerHTML,

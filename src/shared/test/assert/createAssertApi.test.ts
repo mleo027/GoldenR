@@ -31,7 +31,7 @@ describe('createAssertApi', () => {
         const assert = createAssertApi(test, queryFn);
 
         assert.eq(1, 1, 'same');
-        assert.ok({ code: '0', message: 'ok', data: [] }, 'business');
+        assert.ok({ code: '0', message: 'ok', resultSets: [] }, 'business');
         await assert.sqlExists('select 1', undefined, 'row exists');
 
         expect(expectFn).toHaveBeenCalledTimes(3);

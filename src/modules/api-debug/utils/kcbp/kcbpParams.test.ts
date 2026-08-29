@@ -21,7 +21,7 @@ describe('extractMissingParamFromKcbpResponse', () => {
     it('scans data rows when top-level message has no match', () => {
         expect(
             extractMissingParamFromKcbpResponse('0', 'ok', [
-                { code: '90001', msg: '没有custid项的数据 custid=999' },
+                { name: '', rows: [{ code: '90001', msg: '没有custid项的数据 custid=999' }] },
             ]),
         ).toEqual({ name: 'custid', value: '999' });
     });

@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { buildKcbpRequest } from './requestMapper';
+import type { KcbpResponseData } from '../../../../types/kcbp';
+import type { TabData } from '../../types/workspace';
+import { buildKcbpCallOutcome, buildKcbpRequest } from './requestMapper';
 
 const baseParts = {
     host: '10.0.0.2:9100',
@@ -52,5 +54,84 @@ describe('buildKcbpRequest (KCBP)', () => {
         expect(payload.type).toBeUndefined();
         expect(payload.connection.reqqueue).toBe('req1');
         expect(payload.param.nodeid).toBeUndefined();
+    });
+});
+
+describe('buildKcbpCallOutcome', () => {
+    const tab = { params: [] as TabData['params'] } as Pick<TabData, 'params'>;
+
+    const raw = (overrides: Partial<KcbpResponseData> = {}): KcbpResponseData => ({
+        code: '0',
+        msg: 'ok',
+        data: [{ name: 'DATA', rows: [{ custid: '1' }] }],
+        stats: { timecost: 12, rows: 1 },
+        ...overrides,
+    });
+
+    it('normalizes raw.data into resultSets passthrough (no grid flattening)', () => {
+        const outcome = buildKcbpCallOutcome(tab, '127.0.0.1:21000/150501', 'fallback', raw());
+        expect(outcome.response.resultSets).toEqual([{ name: 'DATA', rows: [{ custid: '1' }] }]);
+        expect(outcome.response.code).toBe('0');
+        expect(outcome.response.message).toBe('ok');
+        expect(outcome.response.stats).toEqual({ timecost: 12, rows: 1 });
+        expect(typeof outcome.response.calledAt).toBe('number');
+    });
+
+    it('derives msgtype from the address and falls back to the case name', () => {
+        const outcome = buildKcbpCallOutcome(tab, '127.0.0.1:21000/150501', 'unused', raw());
+        expect(outcome.msgtype).toBe('150501');
+
+        const fallbackOutcome = buildKcbpCallOutcome(tab, '127.0.0.1:21000/', 'myCase', raw());
+        expect(fallbackOutcome.msgtype).toBe('myCase');
+    });
+
+    it('marks success for zero business code', () => {
+        const outcome = buildKcbpCallOutcome(tab, '127.0.0.1:21000/150501', 'fallback', raw());
+        expect(outcome.status.kind).toBe('success');
+        expect(outcome.missingParam).toBeNull();
+        expect(outcome.nextParams).toBe(tab.params);
+    });
+
+    it('marks non-zero business code as error', () => {
+        const outcome = buildKcbpCallOutcome(
+            tab,
+            '127.0.0.1:21000/150501',
+            'fallback',
+            raw({ code: '-1', msg: 'timeout' }),
+        );
+        expect(outcome.status.kind).toBe('error');
+        expect(outcome.status.businessCode).toBe('-1');
+    });
+
+    it('merges a missing param extracted from result set rows', () => {
+        const outcome = buildKcbpCallOutcome(
+            tab,
+            '127.0.0.1:21000/150501',
+            'fallback',
+            raw({
+                code: '90001',
+                msg: '没有fundid项的数据 fundid=12345',
+                data: [],
+            }),
+        );
+        expect(outcome.missingParam).toEqual({ name: 'fundid', value: '12345' });
+        expect(outcome.nextParams).toEqual([{ name: 'fundid', value: '12345', type: 'string' }]);
+    });
+
+    it('scans result set rows for a missing param when top-level message has no match', () => {
+        const outcome = buildKcbpCallOutcome(
+            tab,
+            '127.0.0.1:21000/150501',
+            'fallback',
+            raw({
+                code: '-1',
+                msg: 'failed',
+                data: [
+                    { name: '', rows: [] },
+                    { name: 'ERR', rows: [{ code: '90001', msg: '入参 market 缺失 market: SH' }] },
+                ],
+            }),
+        );
+        expect(outcome.missingParam).toEqual({ name: 'market', value: 'SH' });
     });
 });

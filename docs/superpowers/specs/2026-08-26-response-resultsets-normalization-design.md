@@ -32,7 +32,7 @@ data: KcbpResultSet[];   // unknown[] → 恒为结果集数组，单集即长�
 `electron/services/kcbp/kcbp.ts` 新增：
 
 ```ts
-function normalizeResultSets(data: unknown[]): KcbpResultSet[]
+function normalizeResultSets(data: unknown[]): KcbpResultSet[];
 ```
 
 - 元素全部具备 `rows: []` 结构 → 规范化补齐缺省 `name: ''` / `columns: []`
@@ -42,22 +42,22 @@ function normalizeResultSets(data: unknown[]): KcbpResultSet[]
 
 ## 消费方改造清单（14 处）
 
-| # | 位置 | 改法 |
-|---|------|------|
-| 1 | `shared/kcbp/types.ts` | 类型签名 |
-| 2 | `electron/services/kcbp/kcbp.ts` | 注入 normalizeResultSets + 单测 |
-| 3 | `electron/preload.ts` | 类型跟随 |
-| 4 | `requestMapper.buildKcbpCallOutcome` | 删 every 判定；`resultSets = raw.data` |
-| 5 | `kcbpParams.extractMissingParamFromKcbpResponse` | 入参改收 resultSets，遍历各集 rows |
-| 6 | `ResponsePanel` | responseData = resultSets[selectedIdx]?.rows ?? EMPTY；fallback 分支删除 |
-| 7 | `ResponseFullscreenModal` | props 不变，零改动 |
-| 8 | `ResponseMeta` | dataSize 用 formatDataSize(resultSets)；rowCount 用 stats 或全集求和 |
-| 9 | `scriptRunner.ts` | outcome 构造改 resultSets: []；行数统计读 resultSets |
-| 10 | `apiScript` 脚本 API | ctx.response.data 兼容视图（首集 rows）不破存量脚本；新增 ctx.response.resultSets |
-| 11 | `requestHistoryData.ts` | 历史文件 version 1→2 惰性迁移；isResponseData 同步 |
-| 12 | `factories.createKcbpResponse` / `fakes.ts` | 测试工厂改新形态 |
-| 13 | 相关测试 | requestMapper / kcbpResponse / kcbpCallService / scriptRunner / integration 全量适配 |
-| 14 | `parseKcbpResponseStatus` 等 | 仅用 code/message，零改动（验证项） |
+| #   | 位置                                             | 改法                                                                                 |
+| --- | ------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| 1   | `shared/kcbp/types.ts`                           | 类型签名                                                                             |
+| 2   | `electron/services/kcbp/kcbp.ts`                 | 注入 normalizeResultSets + 单测                                                      |
+| 3   | `electron/preload.ts`                            | 类型跟随                                                                             |
+| 4   | `requestMapper.buildKcbpCallOutcome`             | 删 every 判定；`resultSets = raw.data`                                               |
+| 5   | `kcbpParams.extractMissingParamFromKcbpResponse` | 入参改收 resultSets，遍历各集 rows                                                   |
+| 6   | `ResponsePanel`                                  | responseData = resultSets[selectedIdx]?.rows ?? EMPTY；fallback 分支删除             |
+| 7   | `ResponseFullscreenModal`                        | props 不变，零改动                                                                   |
+| 8   | `ResponseMeta`                                   | dataSize 用 formatDataSize(resultSets)；rowCount 用 stats 或全集求和                 |
+| 9   | `scriptRunner.ts`                                | outcome 构造改 resultSets: []；行数统计读 resultSets                                 |
+| 10  | `apiScript` 脚本 API                             | ctx.response.data 兼容视图（首集 rows）不破存量脚本；新增 ctx.response.resultSets    |
+| 11  | `requestHistoryData.ts`                          | 历史文件 version 1→2 惰性迁移；isResponseData 同步                                   |
+| 12  | `factories.createKcbpResponse` / `fakes.ts`      | 测试工厂改新形态                                                                     |
+| 13  | 相关测试                                         | requestMapper / kcbpResponse / kcbpCallService / scriptRunner / integration 全量适配 |
+| 14  | `parseKcbpResponseStatus` 等                     | 仅用 code/message，零改动（验证项）                                                  |
 
 已核实：`persist.ts` 不持久化响应；响应仅存于内存 store 与请求历史文件。
 

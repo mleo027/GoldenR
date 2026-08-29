@@ -31,7 +31,7 @@ Object.defineProperty(globalThis, 'ResizeObserver', {
 });
 
 const responseState = vi.hoisted(() => ({
-    value: { code: '0', message: 'ok', data: [] } as ResponseData,
+    value: { code: '0', message: 'ok', resultSets: [] } as ResponseData,
 }));
 
 vi.mock('../../store/useTabs', () => ({
@@ -56,7 +56,7 @@ describe('ResponsePanel', () => {
     afterEach(cleanup);
 
     afterEach(() => {
-        responseState.value = { code: '0', message: 'ok', data: [] };
+        responseState.value = { code: '0', message: 'ok', resultSets: [] };
     });
 
     it('shows the code and msg footer when there are no response data rows', () => {
@@ -71,10 +71,9 @@ describe('ResponsePanel', () => {
         responseState.value = {
             code: '0',
             message: 'ok',
-            data: [{ id: '1' }],
             resultSets: [
-                { name: 'DATA', columns: ['id'], rows: [{ id: '1' }] },
-                { name: 'DETAIL', columns: ['value'], rows: [{ value: 'a' }] },
+                { name: 'DATA', rows: [{ id: '1' }] },
+                { name: 'DETAIL', rows: [{ value: 'a' }] },
             ],
         };
 

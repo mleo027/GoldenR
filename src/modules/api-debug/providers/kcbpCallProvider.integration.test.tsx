@@ -15,7 +15,7 @@ import { registerTabDraftReader } from '../utils/workspace/tabDraftRegistry';
 const successRaw: KcbpResponseData = {
     code: '0',
     msg: 'ok',
-    data: [{ custid: '1' }],
+    data: [{ name: '', rows: [{ custid: '1' }] }],
     stats: { timecost: 12, rows: 1 },
 };
 

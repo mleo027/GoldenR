@@ -16,7 +16,10 @@ function parseOptionalInt(value: string | undefined): number | undefined {
     return Number.parseInt(trimmed, 10);
 }
 
-function resolveClientSessionId(value: string | undefined, fields: Record<string, string>): number | undefined {
+function resolveClientSessionId(
+    value: string | undefined,
+    fields: Record<string, string>,
+): number | undefined {
     const trimmed = value?.trim();
     const resolved = trimmed?.startsWith('@') ? fields[trimmed.slice(1)] : trimmed;
     return parseOptionalInt(resolved);
