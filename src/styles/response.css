@@ -14,6 +14,60 @@
     border-bottom: none;
 }
 
+.response-result-tabs {
+    display: flex;
+    align-items: stretch;
+    align-self: stretch;
+    gap: 2px;
+    min-width: 0;
+    max-width: min(46vw, 520px);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.response-result-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.response-result-tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    min-height: 38px;
+    padding: 0 10px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+    transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.response-result-tab:hover {
+    color: var(--color-text-body);
+    background: var(--color-bg-hover);
+}
+
+.response-result-tab-active {
+    border-bottom-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.response-result-tab-count {
+    color: var(--color-text-muted);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+}
+
+.response-result-tab-active .response-result-tab-count {
+    color: var(--color-primary);
+}
+
 .response-section-actions {
     flex-shrink: 0;
     margin-right: 12px;

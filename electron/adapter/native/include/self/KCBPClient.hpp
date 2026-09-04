@@ -319,6 +319,18 @@ private:
 		return true;
 	}
 
+	string getCurrentResultSetName(int fallbackIndex)
+	{
+		char cursor_name[256] = {0};
+		const int ret = KCBPCLI_RsGetCursorName(
+			pHandle_, cursor_name, static_cast<int>(sizeof(cursor_name)));
+		if (ret == 0 && cursor_name[0] != '\0')
+		{
+			return gbkToUtf8(string(cursor_name));
+		}
+		return "result" + std::to_string(fallbackIndex);
+	}
+
 	bool readCurrentResultSet(NJSON &table, int fallbackIndex)
 	{
 		int col_num = 0;
@@ -327,12 +339,7 @@ private:
 			return false;
 		}
 
-		char cursor_name[256] = {0};
-		string table_name = "result" + std::to_string(fallbackIndex);
-		if (KCBPCLI_RsGetCursorName(pHandle_, cursor_name, sizeof(cursor_name)) == 0 && cursor_name[0] != '\0')
-		{
-			table_name = gbkToUtf8(string(cursor_name));
-		}
+		const string table_name = getCurrentResultSetName(fallbackIndex);
 
 		std::vector<string> col_names;
 		col_names.reserve(static_cast<size_t>(col_num));
@@ -384,7 +391,8 @@ private:
 		bool opened = false;
 		try
 		{
-			if (KCBPCLI_RsOpen(pHandle_) != 0)
+			const int openCode = KCBPCLI_RsOpen(pHandle_);
+			if (openCode != 0 && openCode != 100)
 			{
 				throw std::runtime_error("Failed to open result set.");
 			}

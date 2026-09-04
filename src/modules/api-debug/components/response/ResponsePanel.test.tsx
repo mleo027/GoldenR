@@ -79,12 +79,35 @@ describe('ResponsePanel', () => {
 
         render(<ResponsePanel />);
 
-        const selector = screen.getByRole('combobox', { name: '选择响应结果集' });
-        expect(selector).toBeTruthy();
+        const tabs = screen.getAllByRole('tab');
+        expect(tabs).toHaveLength(2);
+        expect(tabs[0].textContent).toContain('DATA');
+        expect(tabs[1].textContent).toContain('DETAIL');
         expect(screen.getAllByText('1').length).toBeGreaterThan(0);
 
-        fireEvent.change(selector, { target: { value: '1' } });
+        fireEvent.click(tabs[1]);
 
         expect(screen.getByText('a')).toBeTruthy();
+    });
+
+    it('keeps duplicate native result-set names as separate tabs', () => {
+        responseState.value = {
+            code: '0',
+            message: '查询成功',
+            resultSets: [
+                { name: 'DATA', rows: [{ id: '1' }, { id: '2' }] },
+                { name: 'DATA', rows: [{ id: '3' }] },
+            ],
+        };
+
+        render(<ResponsePanel />);
+
+        const tabs = screen.getAllByRole('tab');
+        expect(tabs).toHaveLength(2);
+        expect(tabs[0].textContent).toBe('DATA 12');
+        expect(tabs[1].textContent).toBe('DATA 21');
+
+        fireEvent.click(tabs[1]);
+        expect(screen.getByText('3')).toBeTruthy();
     });
 });

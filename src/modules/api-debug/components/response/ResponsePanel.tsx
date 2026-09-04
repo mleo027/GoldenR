@@ -77,18 +77,30 @@ const ResponseBody = memo(function ResponseBody({
                     <span className="param-section-toggle-count">{responseData.length}</span>
                 </button>
                 {resultSets.length > 1 && (
-                    <select
-                        aria-label="选择响应结果集"
-                        className="ml-2 rounded border border-slate-300 bg-transparent px-1.5 py-0.5 text-xs"
-                        value={selectedResultSetIndex}
-                        onChange={(event) => onResultSetChange(Number(event.target.value))}
-                    >
-                        {resultSets.map((resultSet, index) => (
-                            <option key={`${resultSet.name}-${index}`} value={index}>
-                                {index + 1}. {resultSet.name || `结果集 ${index + 1}`}
-                            </option>
-                        ))}
-                    </select>
+                    <div className="response-result-tabs" role="tablist" aria-label="响应结果集">
+                        {resultSets.map((resultSet, index) => {
+                            const baseLabel = resultSet.name || `结果集 ${index + 1}`;
+                            const duplicateName = resultSets.filter(
+                                (candidate) => (candidate.name || `结果集 ${index + 1}`) === baseLabel,
+                            ).length > 1;
+                            const label = duplicateName ? `${baseLabel} ${index + 1}` : baseLabel;
+                            const rowCount = resultSet.rows?.length ?? 0;
+                            const selected = selectedResultSetIndex === index;
+                            return (
+                                <button
+                                    key={`${resultSet.name}-${index}`}
+                                    type="button"
+                                    role="tab"
+                                    aria-selected={selected}
+                                    className={`response-result-tab${selected ? ' response-result-tab-active' : ''}`}
+                                    onClick={() => onResultSetChange(index)}
+                                >
+                                    <span>{label}</span>
+                                    <span className="response-result-tab-count">{rowCount}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
                 )}
                 {!responseCollapsed && (
                     <div className="response-section-actions">
