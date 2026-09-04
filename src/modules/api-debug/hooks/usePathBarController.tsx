@@ -31,14 +31,12 @@ import {
 } from '../utils/kcbp/kcbpAddress';
 import { getActiveKcxpEnvironment } from '../utils/workspace/kcxpEnvironment';
 import { getPathEnvVariant, getPathEnvShortLabel } from '../utils/workspace/pathEnvVariant';
-import type { PathBarLayout } from '../utils/pathBarLayout';
 
 interface UsePathBarControllerOptions {
-    layout: PathBarLayout;
     onQuickFill?: () => void;
 }
 
-export function usePathBarController({ layout, onQuickFill }: UsePathBarControllerOptions) {
+export function usePathBarController({ onQuickFill }: UsePathBarControllerOptions) {
     const { modal } = App.useApp();
     const { activeTab } = useActiveTab();
     const { updateTab, updateTabUndoable, applyKcxpEnvironment } = useTabsActions();
@@ -174,7 +172,10 @@ export function usePathBarController({ layout, onQuickFill }: UsePathBarControll
         () =>
             env.kcxpEnvironments.map((item) => ({
                 value: item.id,
-                label: getPathEnvShortLabel(item.name),
+                // 触发器允许显示完整名称（CSS 负责省略），下拉项则渲染完整名称与连接详情。
+                label: item.name.trim() || getPathEnvShortLabel(item.name),
+                environmentName: item.name,
+                environment: item,
             })),
         [env.kcxpEnvironments],
     );
@@ -193,13 +194,13 @@ export function usePathBarController({ layout, onQuickFill }: UsePathBarControll
 
     const envVariant = getPathEnvVariant(activeEnvironment.name);
 
-    const showInlineActions = layout === 'full';
+    const showInlineActions = false;
     const showOverflowMenu = true;
 
     const overflowMenuItems = useMemo((): MenuProps['items'] => {
         const items: NonNullable<MenuProps['items']> = [];
 
-        if (layout !== 'full' && onQuickFill) {
+        if (onQuickFill) {
             items.push({
                 key: 'quick-fill',
                 label: '快速填充入参',
@@ -225,7 +226,6 @@ export function usePathBarController({ layout, onQuickFill }: UsePathBarControll
             });
         }
 
-        if (layout !== 'full') {
             items.push(
                 { type: 'divider' },
                 {
@@ -236,7 +236,6 @@ export function usePathBarController({ layout, onQuickFill }: UsePathBarControll
                     onClick: () => void handleCopyParams(),
                 },
             );
-        }
         items.push({
             key: 'clear',
             label: '清空全部参数',
@@ -254,7 +253,6 @@ export function usePathBarController({ layout, onQuickFill }: UsePathBarControll
         handleGenerateTestScript,
         hasCopyableContent,
         isCodeEditorMode,
-        layout,
         onQuickFill,
     ]);
 

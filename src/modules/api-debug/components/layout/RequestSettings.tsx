@@ -59,7 +59,7 @@ function EnvironmentRow({
                 />
                 <Button
                     type="text"
-                    size="sm"
+                    size="small"
                     danger
                     icon={<DeleteOutlined />}
                     disabled={!canDelete}
@@ -220,7 +220,7 @@ export default function RequestSettings() {
                     </div>
                     <Switch
                         className="settings-switch"
-                        size="sm"
+                        size="small"
                         checked={autoSave}
                         onChange={(checked) => updateAppEnv('autoSave', checked)}
                     />

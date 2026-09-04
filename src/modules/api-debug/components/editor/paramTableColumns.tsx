@@ -91,7 +91,7 @@ export function createParamTableColumns({
                 <Button
                     type="text"
                     danger
-                    size="sm"
+                    size="small"
                     icon={<DeleteOutlined />}
                     onClick={() => onRemove(Number(record.key))}
                     className="param-delete-btn"

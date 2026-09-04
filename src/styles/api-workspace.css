@@ -50,10 +50,10 @@
     max-width: none;
     min-width: 0;
     overflow: hidden;
-    height: 36px;
-    padding-inline: 3px;
+    height: 40px;
+    padding-inline: 5px;
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-control);
+    border-radius: 0;
     background: var(--color-bg-card);
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     transition:
@@ -95,7 +95,8 @@
 
 .path-env-select {
     width: auto !important;
-    min-width: 48px;
+    min-width: 88px;
+    max-width: 190px;
 }
 
 .path-env-select .ant-select-selector {
@@ -104,7 +105,7 @@
     background: transparent !important;
     box-shadow: none !important;
     font-size: 13px !important;
-    font-weight: 700 !important;
+    font-weight: 650 !important;
     letter-spacing: 0.02em;
     line-height: 1 !important;
     color: var(--color-primary) !important;
@@ -114,6 +115,9 @@
 
 .path-env-select .ant-select-selection-item {
     padding-inline-end: 0 !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: 13px !important;
     font-weight: 700 !important;
     line-height: 1 !important;
@@ -148,6 +152,38 @@
     display: block;
 }
 
+.path-env-dropdown {
+    min-width: 260px !important;
+}
+
+.path-env-dropdown .ant-select-item-option {
+    min-height: 48px;
+    padding: 7px 12px !important;
+}
+
+.path-env-option {
+    min-width: 0;
+    line-height: 1.25;
+}
+
+.path-env-option-name {
+    overflow: visible;
+    color: var(--color-text-body);
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.path-env-option-detail {
+    overflow: hidden;
+    margin-top: 3px;
+    color: var(--color-text-muted);
+    font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    font-size: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .path-env-select .ant-select-arrow > *:not(:first-child) {
     display: none;
 }
@@ -155,17 +191,19 @@
 .path-env-host-display {
     display: inline-flex;
     align-items: center;
-    flex: 0 1 auto;
+    flex: 0 1 clamp(140px, 22vw, 260px);
     min-width: 0;
     padding: 0 9px;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 550;
     font-family: ui-monospace, 'Cascadia Mono', 'SFMono-Regular', Consolas, monospace;
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.01em;
     color: var(--color-text);
     border-left: 1px solid var(--color-border);
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     user-select: text;
     opacity: 0.9;
     line-height: 1;
@@ -213,8 +251,108 @@
     display: none;
 }
 
+/* KGBP 连接的 Service / NodeId 是定位网关和节点的关键字段，即使紧凑布局也保留。 */
+.section-header--layout-compact .path-command-bar--kgbp .path-field-service,
+.section-header--layout-compact .path-command-bar--kgbp .path-field-node-id {
+    display: inline-flex;
+    flex: 0 1 auto;
+    min-width: 0;
+    margin-left: 4px;
+    padding-inline: 9px;
+    border-left: 1px solid var(--color-border-light);
+}
+
+.section-header--layout-compact .path-command-bar--kgbp .path-field-service + .path-field-tooltip-wrap,
+.section-header--layout-compact .path-command-bar--kgbp .path-field-node-id + .path-field-tooltip-wrap {
+    margin-left: 2px;
+}
+
+.section-header--layout-compact .path-command-bar--kgbp .path-field-service .path-field-value {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.section-header--layout-compact .path-command-bar--kgbp .path-field-node-id .path-field-value {
+    max-width: 72px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.section-header--layout-compact .path-command-bar--kgbp .path-field-service .path-field-label,
+.section-header--layout-compact .path-command-bar--kgbp .path-field-node-id .path-field-label {
+    margin-right: 4px;
+}
+
+.section-header--layout-compact .path-command-bar--kgbp .path-field-client-session-id {
+    display: none;
+}
+
+.section-header--layout-compact .path-command-bar--kgbp:not(.path-command-bar--advanced-open) .path-field-timeout,
+.section-header--layout-compact .path-command-bar--kgbp:not(.path-command-bar--advanced-open) .path-field-service,
+.section-header--layout-compact .path-command-bar--kgbp:not(.path-command-bar--advanced-open) .path-field-node-id,
+.section-header--layout-compact .path-command-bar--kgbp:not(.path-command-bar--advanced-open) .path-field-client-session-id {
+    display: none;
+}
+
+.section-header--layout-compact .path-command-bar--kgbp.path-command-bar--advanced-open .path-field-client-session-id {
+    display: inline-flex;
+    flex: 0 1 auto;
+    min-width: 0;
+    margin-left: 4px;
+    padding-inline: 9px;
+    border-left: 1px solid var(--color-border-light);
+}
+
+.section-header--layout-compact .path-command-bar--kgbp.path-command-bar--advanced-open .path-field-client-session-id .path-field-value {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.path-advanced-btn {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 auto;
+    height: 30px !important;
+    margin-inline: 3px;
+    padding-inline: 9px !important;
+    border-left: 1px solid var(--color-border-light) !important;
+    border-radius: var(--radius-control) !important;
+    color: var(--color-text-muted) !important;
+    font-size: 11px !important;
+}
+
+.path-advanced-btn:hover,
+.path-advanced-btn-active {
+    color: var(--color-primary) !important;
+    background: var(--color-primary-subtle) !important;
+}
+
+.path-advanced-btn .anticon {
+    font-size: 13px;
+}
+
 .section-header--layout-compact .path-command-bar .path-env-host-display {
-    max-width: none;
+    max-width: min(24vw, 240px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.section-header--layout-compact .path-command-bar .path-env-selector {
+    min-width: 0;
+}
+
+.section-header--layout-compact .path-command-bar .path-field-tooltip-wrap {
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+.section-header--layout-compact .path-command-bar .path-field-msgtype-input {
+    width: 118px;
+    min-width: 118px;
+    flex-basis: 118px;
 }
 
 @media (max-width: 760px) {
@@ -279,7 +417,9 @@
 }
 
 .path-field-msgtype-input {
-    width: 92px;
+    width: 118px;
+    min-width: 118px;
+    flex: 0 0 118px;
     min-width: 0;
     height: 24px;
     padding: 0 5px;

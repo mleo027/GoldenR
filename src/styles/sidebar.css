@@ -274,6 +274,10 @@
     background: var(--color-bg-sidebar);
 }
 
+.case-header-history {
+    border-radius: 0 !important;
+}
+
 .case-sidebar-search {
     background: var(--color-bg-sidebar);
 }

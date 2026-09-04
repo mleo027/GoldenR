@@ -140,20 +140,11 @@ describe('Path integration', () => {
         delete (window as { electronAPI?: unknown }).electronAPI;
     });
 
-    it('debounces host edits and commits the serialized address', async () => {
-        const user = userEvent.setup();
+    it('keeps host details out of the address bar while preserving the serialized address', async () => {
         renderPath();
 
-        const hostInput = screen.getByPlaceholderText('127.0.0.1:21000');
-        await user.clear(hostInput);
-        await user.type(hostInput, '127.0.0.2:22000');
-
-        await waitFor(
-            () => {
-                expect(screen.getByTestId('address').textContent).toContain('127.0.0.2:22000');
-            },
-            { timeout: 3000 },
-        );
+        expect(screen.queryByPlaceholderText('127.0.0.1:21000')).toBeNull();
+        expect(screen.getByTestId('address').textContent).toContain('127.0.0.1:21000');
     });
 
     it('debounces msgtype edits and commits the serialized address', async () => {

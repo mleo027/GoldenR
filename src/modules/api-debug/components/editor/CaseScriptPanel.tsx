@@ -36,7 +36,7 @@ function ScriptHeader({ layout, compact }: { layout: 'full' | 'compact'; compact
             </div>
             <div className="section-header-trailing shrink-0">
                 <EditorModeToggle compact={compact} />
-                <PathRunButton compact={compact} />
+                <PathRunButton />
             </div>
         </div>
     );

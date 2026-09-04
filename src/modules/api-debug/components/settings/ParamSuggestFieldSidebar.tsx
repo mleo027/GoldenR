@@ -41,7 +41,7 @@ export default function ParamSuggestFieldSidebar({
                 <Typography.Text strong className="text-sm">
                     字段列表
                 </Typography.Text>
-                <Button type="link" size="sm" icon={<PlusOutlined />} onClick={onCreateField}>
+                <Button type="link" size="small" icon={<PlusOutlined />} onClick={onCreateField}>
                     新建
                 </Button>
             </div>

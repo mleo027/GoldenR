@@ -1,8 +1,13 @@
+html {
+    min-width: 1400px;
+}
+
 body {
     margin: 0;
     padding: 0;
     height: 100vh;
     width: 100vw;
+    min-width: 1400px;
     overflow: hidden;
     font-family:
         -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -11,6 +16,7 @@ body {
 #root {
     height: 100%;
     width: 100%;
+    min-width: 1400px;
 }
 
 .param-table .ant-table-cell {

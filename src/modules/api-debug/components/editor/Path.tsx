@@ -3,7 +3,6 @@ import { Button, Dropdown, Menu, Tooltip } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
 import { Input, Select } from '../../../../components/ui/primitives';
 import {
-    ClockCircleOutlined,
     CopyOutlined,
     DeleteOutlined,
     FormatPainterOutlined,
@@ -30,12 +29,7 @@ interface PathProps {
     onQuickFill?: () => void;
 }
 
-interface PathRunButtonProps {
-    /** 隐藏 Ctrl+Enter 快捷键提示 */
-    compact?: boolean;
-}
-
-export function PathRunButton({ compact = false }: PathRunButtonProps) {
+export function PathRunButton() {
     const { loading, run, cancel } = useKcbpCall();
     const canRun = Boolean(getElectronAPI()?.kcbp.call);
     const [elapsedSec, setElapsedSec] = useState(0);
@@ -74,8 +68,6 @@ export function PathRunButton({ compact = false }: PathRunButtonProps) {
                     <LoadingOutlined spin className="path-run-cancel-spinner" />
                     Cancel{elapsedSec > 0 ? ` · ${elapsedSec}s` : ''}
                 </span>
-            ) : compact ? (
-                <span className="path-run-label"><PlayCircleOutlined /> Run</span>
             ) : (
                 <span className="path-run-content">
                     <span className="path-run-label"><PlayCircleOutlined /> Run</span>
@@ -89,7 +81,6 @@ export function PathRunButton({ compact = false }: PathRunButtonProps) {
 function PathAddressFields({
     addressParts,
     handleAddressPartChange,
-    defaultTimeout,
     isKGBP,
 }: {
     addressParts: ReturnType<typeof usePathBarController>['addressParts'];
@@ -99,7 +90,6 @@ function PathAddressFields({
     ) => void;
     run: () => void;
     flushPending: () => void;
-    defaultTimeout: string;
     isKGBP: boolean;
 }) {
     const msgtypeInput = (
@@ -115,20 +105,11 @@ function PathAddressFields({
     if (isKGBP) {
         return (
             <>
-                <Tooltip title="Timeout (s)">
-                    <span className="path-field-tooltip-wrap">
-                        <span className="path-field-display path-field-timeout">
-                            <ClockCircleOutlined className="path-field-icon" />
-                            <span className="path-field-label">Timeout</span>
-                            <span className="path-field-value">{addressParts.timeout || defaultTimeout}s</span>
-                        </span>
-                    </span>
-                </Tooltip>
                 <Tooltip title="ServiceName">
                     <span className="path-field-tooltip-wrap">
                         <span className="path-field-display path-field-service">
                             <span className="path-field-label">Service</span>
-                            <span className="path-field-value">{addressParts.service || 'ServiceName'}</span>
+                            <span className="path-field-value">{addressParts.service || '—'}</span>
                         </span>
                     </span>
                 </Tooltip>
@@ -136,7 +117,7 @@ function PathAddressFields({
                     <span className="path-field-tooltip-wrap">
                         <span className="path-field-display path-field-node-id">
                             <span className="path-field-label">Nodeid</span>
-                            <span className="path-field-value">{addressParts.nodeId || 'NodeId'}</span>
+                            <span className="path-field-value">{addressParts.nodeId || '—'}</span>
                         </span>
                     </span>
                 </Tooltip>
@@ -169,15 +150,6 @@ function PathAddressFields({
                         <UnorderedListOutlined className="path-field-icon" />
                         <span className="path-field-label">Queue</span>
                         <span className="path-field-value">{addressParts.queue || 'req1'}</span>
-                    </span>
-                </span>
-            </Tooltip>
-            <Tooltip title="Timeout (s)">
-                <span className="path-field-tooltip-wrap">
-                    <span className="path-field-display path-field-timeout">
-                        <ClockCircleOutlined className="path-field-icon" />
-                        <span className="path-field-label">Timeout</span>
-                        <span className="path-field-value">{addressParts.timeout || defaultTimeout}s</span>
                     </span>
                 </span>
             </Tooltip>
@@ -307,7 +279,6 @@ function PathOverflowMenu({
 export default function Path({
     showScriptBadge = false,
     hideRunButton = false,
-    layout = 'full',
     onQuickFill,
 }: PathProps) {
     const {
@@ -330,11 +301,10 @@ export default function Path({
         overflowMenuItems,
         DEFAULT_KCBP_TIMEOUT,
         activeEnvironment,
-    } = usePathBarController({ layout, onQuickFill });
-
+    } = usePathBarController({ onQuickFill });
     return (
         <div className={hideRunButton ? 'path-bar path-bar--command-only' : 'path-bar'}>
-            <div className="path-command-bar">
+            <div className={`path-command-bar${activeEnvironment.protocol === 'KGBP' ? ' path-command-bar--kgbp path-command-bar--advanced-open' : ''}`}>
                 {showScriptBadge ? (
                     <>
                         <span className="path-mode-chip">脚本</span>
@@ -352,11 +322,29 @@ export default function Path({
                         popupClassName="path-env-dropdown"
                         popupMatchSelectWidth={false}
                         optionLabelProp="label"
+                        optionRender={(option) => {
+                            const environment = option.data?.environment;
+                            const name = option.data?.environmentName || option.label;
+                            const protocol = environment?.protocol || 'KCBP';
+                            const detailParts = [protocol, environment?.host, `timeout=${environment?.timeout || DEFAULT_KCBP_TIMEOUT}s`];
+                            if (protocol === 'KGBP') {
+                                if (environment?.service) detailParts.push(`service=${environment.service}`);
+                                if (environment?.nodeId) detailParts.push(`node=${environment.nodeId}`);
+                                if (environment?.clientSessionId)
+                                    detailParts.push(`session=${environment.clientSessionId}`);
+                            } else if (environment?.queue) {
+                                detailParts.push(`queue=${environment.queue}`);
+                            }
+                            const detail = detailParts.filter(Boolean).join(' · ');
+                            return (
+                                <div className="path-env-option">
+                                    <div className="path-env-option-name">{name}</div>
+                                    <div className="path-env-option-detail">{detail}</div>
+                                </div>
+                            );
+                        }}
                         suffixIcon={<DownOutlined className="path-env-select-chevron" />}
                     />
-                    <span className="path-env-host-display">
-                        {addressParts.host || '127.0.0.1:21000'}
-                    </span>
                 </div>
                 <div className="path-command-divider" aria-hidden />
                 <PathAddressFields
@@ -364,7 +352,6 @@ export default function Path({
                     handleAddressPartChange={handleAddressPartChange}
                     run={run}
                     flushPending={flushPending}
-                    defaultTimeout={DEFAULT_KCBP_TIMEOUT}
                     isKGBP={activeEnvironment.protocol === 'KGBP'}
                 />
 

@@ -293,8 +293,8 @@
     /* 固定最小宽度：覆盖最宽的 Run+Ctrl+Enter 状态，保证 Run/Cancel 切换时按钮宽度恒定，避免布局突变。
        如后续需要精确调整，可覆盖 --path-run-btn-min-width。 */
     min-width: var(--path-run-btn-min-width, 132px);
-    height: calc(var(--control-height) + 4px) !important;
-    min-height: calc(var(--control-height) + 4px) !important;
+    height: 40px !important;
+    min-height: 40px !important;
     flex-shrink: 0;
     padding-inline: 12px !important;
     padding-block: 0 !important;

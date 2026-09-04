@@ -60,7 +60,7 @@ function ToolbarFilters({
                 className="w-56"
             />
             <Segmented<ResultFilter>
-                size="sm"
+                size="small"
                 value={resultFilter}
                 onChange={onResultChange}
                 options={[
@@ -103,7 +103,7 @@ function ToolbarFilters({
                 ]}
                 className="w-32"
             />
-            <Button type="link" size="sm" onClick={onClear}>
+            <Button type="link" size="small" onClick={onClear}>
                 清除筛选
             </Button>
         </div>

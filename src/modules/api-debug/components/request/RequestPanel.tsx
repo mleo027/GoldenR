@@ -116,7 +116,6 @@ export default function RequestPanel({
     );
 
     const { ref: headerRef, layout } = useRequestHeaderLayout<HTMLDivElement>();
-    const compact = layout !== 'full';
     return (
         <div className="flex flex-col h-full min-h-0">
             <SectionHeader
@@ -124,7 +123,7 @@ export default function RequestPanel({
                 icon={<SendOutlined className="text-[var(--color-text-secondary)] text-sm" />}
                 title=""
                 layout={layout}
-                endActions={<PathRunButton compact={compact} />}
+                endActions={<PathRunButton />}
             >
                 <Path hideRunButton layout={layout} onQuickFill={() => setQuickFillOpen(true)} />
             </SectionHeader>
