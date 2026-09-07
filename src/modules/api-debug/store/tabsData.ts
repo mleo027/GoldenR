@@ -168,13 +168,13 @@ function hydrateProjectsFromFile(data: ProjectFileData): ProjectData[] {
     }));
 }
 
-async function readJson(fileName: ConfigStorageFileName, fromUserData = false): Promise<unknown> {
-    return configStorage.read(fileName, fromUserData);
+async function readJson(fileName: ConfigStorageFileName): Promise<unknown> {
+    return configStorage.read(fileName);
 }
 
 export async function loadWorkspace(): Promise<PersistedWorkspace | null> {
-    const projectResult = await readJson(PROJECT_FILE, false);
-    const settingsResult = await readJson(SETTINGS_FILE, false);
+    const projectResult = await readJson(PROJECT_FILE);
+    const settingsResult = await readJson(SETTINGS_FILE);
 
     if (!isProjectFileData(projectResult)) {
         return null;

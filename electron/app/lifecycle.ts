@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import { allowWindowClose } from './closeGuard';
 import { FlushCoordinator } from './flushCoordinator';
 import { closeDatabase, getDatabase } from '../database/connection';
+import { withIpcEvent } from '../ipc/errors';
 
 const flushCoordinator = new FlushCoordinator({
     timeoutMs: 3000,
@@ -33,14 +34,14 @@ export function registerAppLifecycle(): void {
         }
     });
 
-    ipcMain.on('app:flush-storage-complete', (event, requestId: string, errorMessage?: string) => {
+    ipcMain.on('app:flush-storage-complete', withIpcEvent((event, requestId: string, errorMessage?: string) => {
         const win = BrowserWindow.fromWebContents(event.sender);
         if (!win) return;
         if (errorMessage) {
             console.error(`App flush failed for request ${requestId}: ${errorMessage}`);
         }
         flushCoordinator.complete(win.id, requestId);
-    });
+    }));
 
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') {

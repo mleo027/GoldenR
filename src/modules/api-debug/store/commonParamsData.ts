@@ -42,7 +42,7 @@ export function isCommonParamSetFile(value: unknown): value is CommonParamSetFil
 }
 
 export async function loadCommonParams(): Promise<CommonParamSet[]> {
-    const raw: unknown = await configStorage.read(COMMON_PARAMS_FILE, false);
+            const raw: unknown = await configStorage.read(COMMON_PARAMS_FILE);
     return isCommonParamSetFile(raw) ? raw.sets : [];
 }
 

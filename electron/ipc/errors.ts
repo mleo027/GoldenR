@@ -15,3 +15,16 @@ export function withIpcError<TArgs extends unknown[], TResult>(
         }
     };
 }
+
+export function withIpcEvent<TArgs extends unknown[]>(
+    handler: (...args: TArgs) => void,
+): (...args: TArgs) => void {
+    return (...args) => {
+        try {
+            assertTrustedRenderer(args[0] as Parameters<typeof assertTrustedRenderer>[0]);
+            handler(...args);
+        } catch (error) {
+            console.error(serializeIpcError(createIpcErrorPayload(error)));
+        }
+    };
+}

@@ -162,10 +162,16 @@ CREATE INDEX IF NOT EXISTS idx_cases_folder_position ON cases (project_id, folde
 
 CREATE INDEX IF NOT EXISTS idx_case_folders_parent_position ON case_folders (project_id, parent_id, position);
 
-CREATE INDEX IF NOT EXISTS idx_cases_folder_position ON cases (project_id, folder_id, position);
-
 CREATE INDEX IF NOT EXISTS idx_common_params_set_position ON common_params (set_id, position);
 
 CREATE INDEX IF NOT EXISTS idx_environment_vars_environment_id ON api_debug_environment_vars (environment_id);
 
 CREATE INDEX IF NOT EXISTS idx_request_history_timestamp ON request_history (timestamp DESC);
+
+CREATE INDEX IF NOT EXISTS idx_request_history_project_timestamp ON request_history (project_id, timestamp DESC);
+
+CREATE INDEX IF NOT EXISTS idx_request_history_case_timestamp ON request_history (case_id, timestamp DESC);
+
+CREATE INDEX IF NOT EXISTS idx_request_history_mode_timestamp ON request_history (mode, timestamp DESC);
+
+CREATE INDEX IF NOT EXISTS idx_request_history_environment_timestamp ON request_history (environment_id, timestamp DESC);

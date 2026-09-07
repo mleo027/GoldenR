@@ -48,7 +48,7 @@ function isParamSuggestRulesFile(value: unknown): value is ParamSuggestRulesFile
 }
 
 async function readJson(fileName: ConfigStorageFileName): Promise<unknown> {
-    return configStorage.read(fileName, false);
+    return configStorage.read(fileName);
 }
 
 export function mergeDbConfig(partial?: Partial<DbConnectionConfig>): DbConnectionConfig {

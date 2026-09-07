@@ -2,16 +2,16 @@ import { getElectronAPI } from '@/lib/electron';
 import type { ConfigStorageFileName } from '@/shared/config/files';
 
 export interface ConfigStoragePort {
-    read(name: ConfigStorageFileName, fromUserData?: boolean): Promise<unknown | null>;
+    read(name: ConfigStorageFileName): Promise<unknown | null>;
     write(name: ConfigStorageFileName, data: unknown): Promise<void>;
 }
 
 export function createElectronConfigStoragePort(): ConfigStoragePort {
     return {
-        async read(name, fromUserData) {
+        async read(name) {
             const api = getElectronAPI();
             if (!api) return null;
-            return api.config.read(name, fromUserData);
+            return api.config.read(name);
         },
         async write(name, data) {
             const api = getElectronAPI();

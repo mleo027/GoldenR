@@ -107,7 +107,7 @@ function migrateHistoryEntry(entry: RequestHistoryEntry): RequestHistoryEntry {
 }
 
 export async function loadRequestHistory(): Promise<RequestHistoryEntry[]> {
-    const raw = await configStorage.read(REQUEST_HISTORY_FILE, false);
+    const raw = await configStorage.read(REQUEST_HISTORY_FILE);
     if (!isRequestHistoryFile(raw)) return [];
     return raw.entries.slice(0, MAX_REQUEST_HISTORY).map(migrateHistoryEntry);
 }

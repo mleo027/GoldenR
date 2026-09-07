@@ -5,8 +5,10 @@ import { readFileSync, statSync } from 'node:fs';
 const MAX_STAGED_FILE_BYTES = 5 * 1024 * 1024;
 const BLOCKED_PATH = /^(?:dist|dist-electron|coverage|release)\//;
 const CONTENT_FILE = /\.(?:[cm]?[jt]sx?|json|ya?ml|env|ini|cfg|config)$/i;
-// Do not treat comparisons such as `config.password === ...` as secret assignments.
-const SENSITIVE = /\b(?:password|passwd|pwd|token|secret|connectionstring)\s*(?::(?!:)|=(?!=))\s*[^\s,;'"`}]+/i;
+// Flag literal credentials, but allow ordinary config-field plumbing such as
+// `password: partial?.password` or `config.password = value`.
+const SENSITIVE =
+    /\b(?:password|passwd|pwd|token|secret|connectionstring)\s*(?::(?!:)|=(?!=))\s*(?:['"`][^'"`\r\n]+['"`]|\d+)/i;
 const DOC_SESSION = />_ OpenAI Codex|Model provider:|Token usage:|Context window:|Session:\s+[0-9a-f-]{16,}/i;
 
 function stagedFiles() {

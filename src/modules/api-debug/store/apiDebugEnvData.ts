@@ -66,7 +66,7 @@ export function mergeApiDebugEnv(partial?: Partial<ApiDebugEnv>): ApiDebugEnv {
 }
 
 async function readJson(fileName: ConfigStorageFileName): Promise<unknown> {
-    return configStorage.read(fileName, false);
+    return configStorage.read(fileName);
 }
 
 async function writeJson(fileName: ConfigStorageFileName, data: unknown): Promise<void> {

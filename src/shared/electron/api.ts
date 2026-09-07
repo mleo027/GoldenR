@@ -31,15 +31,10 @@ export type SaveFileResult =
     | { saved: true; filePath: string }
     | { saved: false; filePath?: string; error?: string };
 
-export interface ConfigWriteEntry {
-    name: ConfigStorageFileName;
-    data: unknown;
-}
-
 export interface ConfigStorageApi {
-    read(name: ConfigStorageFileName, fromUserData?: boolean): Promise<unknown | null>;
+    read(name: ConfigStorageFileName): Promise<unknown | null>;
     write(name: ConfigStorageFileName, data: unknown): Promise<void>;
-    flush(entries: ConfigWriteEntry[]): Promise<void>;
+    flush(): Promise<void>;
 }
 
 export interface KcbpApi {

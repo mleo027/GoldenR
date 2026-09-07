@@ -54,7 +54,7 @@ function toPersistedAppEnv(env: AppEnv): AppEnv {
 }
 
 async function readJson(fileName: ConfigStorageFileName): Promise<unknown> {
-    return configStorage.read(fileName, false);
+    return configStorage.read(fileName);
 }
 
 async function writeJson(fileName: ConfigStorageFileName, data: unknown): Promise<void> {

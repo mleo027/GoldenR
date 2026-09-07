@@ -14,6 +14,7 @@ const record = (value: unknown): Record<string, unknown> =>
     value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
 const text = (value: unknown, fallback = ''): string => (value == null ? fallback : String(value));
 const now = (): number => Date.now();
+const MAX_REQUEST_HISTORY = 500;
 
 export class ConfigRepository {
     private readonly db: SqliteDatabase;
@@ -408,7 +409,11 @@ export class ConfigRepository {
         const i = this.db.prepare(
             'INSERT INTO request_history(id,timestamp,project_id,project_name,case_id,case_name,mode,environment_id,environment_name,address,msgtype,queue,timeout,params_json,run_input_json,response_json,outcome_json) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
         );
-        (Array.isArray(items) ? items : []).forEach((x, n) => {
+        const entries = (Array.isArray(items) ? items : [])
+            .slice()
+            .sort((a, b) => Number(record(b).timestamp ?? 0) - Number(record(a).timestamp ?? 0))
+            .slice(0, MAX_REQUEST_HISTORY);
+        entries.forEach((x, n) => {
             const h = record(x),
                 q = record(h.request);
             i.run(
