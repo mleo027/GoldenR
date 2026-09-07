@@ -71,6 +71,8 @@ export interface InvokeKcbpCallOptions {
     kcxpEnvironment?: KcxpEnvironment;
     /** 内部注入：TCD flow.runCase 复用同一套 ports 和配置 */
     runNestedCase?: RunNestedKcbpCase;
+    /** 执行时合并进发送字段的公共参数（UI/TCD 模式生效） */
+    commonParams?: ParamItem[];
 }
 
 export interface KcbpCallOutcome {
@@ -86,4 +88,6 @@ export interface KcbpCallOutcome {
     msgtype: string;
     /** TCD：本次 Run 内每次 call 的步骤记录 */
     callSteps?: TcdCallStep[];
+    /** 实际用于构建发送字段的参数列表（供历史记录，已合并公共参数） */
+    effectiveParams?: ParamItem[];
 }

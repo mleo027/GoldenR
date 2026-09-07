@@ -71,8 +71,7 @@ function isPersistedProjectRecord(value: unknown): value is PersistedProjectReco
     return (
         (project.id === undefined || typeof project.id === 'string') &&
         typeof project.name === 'string' &&
-        (project.commonParamSetId === undefined ||
-            typeof project.commonParamSetId === 'string') &&
+        (project.commonParamSetId === undefined || typeof project.commonParamSetId === 'string') &&
         Array.isArray(project.cases) &&
         project.cases.every(isPersistedCaseRecord)
     );
@@ -99,9 +98,7 @@ function toProjectFileData(projects: ProjectData[]): ProjectFileData {
         projects: projects.map((project) => ({
             id: project.id,
             name: project.name,
-            ...(project.commonParamSetId
-                ? { commonParamSetId: project.commonParamSetId }
-                : {}),
+            ...(project.commonParamSetId ? { commonParamSetId: project.commonParamSetId } : {}),
             cases: project.cases.map((item) => ({
                 name: item.name,
                 address: item.address,
@@ -133,9 +130,7 @@ function hydrateProjectsFromFile(data: ProjectFileData): ProjectData[] {
     return data.projects.map((project, projectIndex) => ({
         id: project.id || `${now}-project-${projectIndex}`,
         name: project.name.trim() || `\u9879\u76ee ${projectIndex + 1}`,
-        ...(project.commonParamSetId
-            ? { commonParamSetId: project.commonParamSetId }
-            : {}),
+        ...(project.commonParamSetId ? { commonParamSetId: project.commonParamSetId } : {}),
         createdAt: now,
         updatedAt: now,
         cases: project.cases.map((item, caseIndex) => {

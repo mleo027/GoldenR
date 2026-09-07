@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { CommonParamSet } from '../types/commonParams';
 import { loadCommonParams, saveCommonParams } from './commonParamsData';
-import {
-    CommonParamsActionsContext,
-    CommonParamsStateContext,
-} from './CommonParamsContext';
+import { CommonParamsActionsContext, CommonParamsStateContext } from './CommonParamsContext';
 
 const generateId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 

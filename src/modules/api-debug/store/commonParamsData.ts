@@ -7,8 +7,7 @@ import { UI_DEBOUNCE_MS } from '../../../constants/ui';
 const SAVE_DEBOUNCE_MS = UI_DEBOUNCE_MS.save;
 
 const setsWriter = new DebounceWriter<CommonParamSet[]>({
-    write: (sets) =>
-        configStorage.write(COMMON_PARAMS_FILE, { sets } satisfies CommonParamSetFile),
+    write: (sets) => configStorage.write(COMMON_PARAMS_FILE, { sets } satisfies CommonParamSetFile),
     delayMs: SAVE_DEBOUNCE_MS,
     onError: console.error,
 });

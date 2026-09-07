@@ -9,12 +9,12 @@ KCBP 接口的入参大量重复（`funcid`、`orgid`、`brhid`、`bankflag` 等
 
 已确认的关键决策：
 
-| 决策点 | 结论 |
-| --- | --- |
-| 同名冲突 | **case 覆盖公共**（就近优先；case 参数表加同名行即 override） |
-| 挂载数量 | **单套**：一个项目同一时刻只挂载一套（`commonParamSetId` 单值） |
-| 折叠区交互 | **只读展示**：改值去设置页，case 覆盖靠同名行 |
-| 菜单命名 | 子菜单叫 **「公共参数」**（不叫"挂载"） |
+| 决策点     | 结论                                                            |
+| ---------- | --------------------------------------------------------------- |
+| 同名冲突   | **case 覆盖公共**（就近优先；case 参数表加同名行即 override）   |
+| 挂载数量   | **单套**：一个项目同一时刻只挂载一套（`commonParamSetId` 单值） |
+| 折叠区交互 | **只读展示**：改值去设置页，case 覆盖靠同名行                   |
+| 菜单命名   | 子菜单叫 **「公共参数」**（不叫"挂载"）                         |
 
 ## 数据模型
 
@@ -48,11 +48,11 @@ function mergeCommonParams(common: ParamItem[], caseParams: ParamItem[]): ParamI
 
 在三个执行路径的 `buildKcbpFields(tab.params)` 调用点前插入合并（按 `commonParamSetId` 查出当前集，未挂载则原样透传）：
 
-| # | 调用点 | 说明 |
-| --- | --- | --- |
-| 1 | `services/kcbp/executeCase.ts` | UI 执行 |
-| 2 | `services/kcbp/scriptRunner.ts` | 脚本执行 |
-| 3 | `utils/script/apiScript.ts` | 脚本内调用 |
+| #   | 调用点                          | 说明       |
+| --- | ------------------------------- | ---------- |
+| 1   | `services/kcbp/executeCase.ts`  | UI 执行    |
+| 2   | `services/kcbp/scriptRunner.ts` | 脚本执行   |
+| 3   | `utils/script/apiScript.ts`     | 脚本内调用 |
 
 合并只发生在执行时，**不回写任何存储**；`runInput`（TCD 运行参数）不参与合并。
 
@@ -88,20 +88,20 @@ function mergeCommonParams(common: ParamItem[], caseParams: ParamItem[]): ParamI
 
 ## 改造清单
 
-| # | 位置 | 改法 |
-| --- | --- | --- |
-| 1 | `@/shared/config/files` | 注册 `COMMON_PARAMS_FILE` 文件名 |
-| 2 | `types/workspace.ts` | `ProjectData`/`PersistedProjectRecord` 加 `commonParamSetId?` |
-| 3 | `store/commonParamsData.ts` | 新建：读文件、DebounceWriter 保存、CRUD actions |
-| 4 | `utils/workspace/commonParams.ts` | 新建：`mergeCommonParams` / `stripMountedCommonParams` 纯函数 |
-| 5 | `tabsReducer` | `SET_PROJECT_COMMON_PARAM_SET` action + projectReducers |
-| 6 | `executeCase.ts` / `scriptRunner.ts` / `apiScript.ts` | 执行前合并 |
-| 7 | `components/settings/CommonParamsSettings.tsx` | 新建设置面板 |
-| 8 | `index.tsx` | 注册 settingsSection |
-| 9 | `CaseActionBar` / `SettingsModalContext` | 入口按钮 + `openSettings(sectionKey?)` |
-| 10 | `useCaseSidebarController.getProjectMenu` | 「公共参数」子菜单 |
-| 11 | `ParamEdit` | 只读折叠区 |
-| 12 | 历史记录链路 | 记录合并后参数；载入时 strip |
+| #   | 位置                                                  | 改法                                                          |
+| --- | ----------------------------------------------------- | ------------------------------------------------------------- |
+| 1   | `@/shared/config/files`                               | 注册 `COMMON_PARAMS_FILE` 文件名                              |
+| 2   | `types/workspace.ts`                                  | `ProjectData`/`PersistedProjectRecord` 加 `commonParamSetId?` |
+| 3   | `store/commonParamsData.ts`                           | 新建：读文件、DebounceWriter 保存、CRUD actions               |
+| 4   | `utils/workspace/commonParams.ts`                     | 新建：`mergeCommonParams` / `stripMountedCommonParams` 纯函数 |
+| 5   | `tabsReducer`                                         | `SET_PROJECT_COMMON_PARAM_SET` action + projectReducers       |
+| 6   | `executeCase.ts` / `scriptRunner.ts` / `apiScript.ts` | 执行前合并                                                    |
+| 7   | `components/settings/CommonParamsSettings.tsx`        | 新建设置面板                                                  |
+| 8   | `index.tsx`                                           | 注册 settingsSection                                          |
+| 9   | `CaseActionBar` / `SettingsModalContext`              | 入口按钮 + `openSettings(sectionKey?)`                        |
+| 10  | `useCaseSidebarController.getProjectMenu`             | 「公共参数」子菜单                                            |
+| 11  | `ParamEdit`                                           | 只读折叠区                                                    |
+| 12  | 历史记录链路                                          | 记录合并后参数；载入时 strip                                  |
 
 ## 测试
 
