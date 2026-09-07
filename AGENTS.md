@@ -4,6 +4,12 @@ This repository is the standalone Golden API debugging application. It contains 
 `api-debug` module and the Electron/shared runtime required for KCBP and KGBP API calls.
 Do not restore unrelated modules from the original GoldenAPI repository.
 
+Detailed repository rules are split under `agents/rules/`:
+
+- `agents/rules/development.md` — development and testing conventions.
+- `agents/rules/architecture.md` — module, SQLite, migration, and lifecycle boundaries.
+- `agents/rules/commit.md` — staging, verification, commit message, and hook requirements.
+
 ## Scope and safety
 
 - Keep all changes inside `D:\KSPB\own_tool\new_golden`.
