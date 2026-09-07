@@ -37,6 +37,7 @@ workspace.json
 tabs.json
 db.json
 api-debug.env.json
+common-params.json
 request-history.json
 exchange-workspace.json
 knowledge-nav.json

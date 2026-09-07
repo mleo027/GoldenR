@@ -146,6 +146,7 @@ export default defineConfig({
                 '**/db.json',
                 '**/param-suggest-rules.json',
                 '**/api-debug.env.json',
+                '**/common-params.json',
             ],
         },
     },
