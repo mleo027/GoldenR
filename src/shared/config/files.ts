@@ -5,6 +5,7 @@ export const API_DEBUG_ENV_FILE = 'api-debug.env.json';
 
 export const DB_CONFIG_FILE = 'db.json';
 export const PARAM_SUGGEST_RULES_FILE = 'param-suggest-rules.json';
+export const COMMON_PARAMS_FILE = 'common-params.json';
 
 export const KCBP_ENV_FILE = 'kcbp.env.json';
 export const REQUEST_HISTORY_FILE = 'request-history.json';
@@ -19,6 +20,7 @@ export const PERSISTED_CONFIG_FILES = [
     'settings.json',
     'db.json',
     'param-suggest-rules.json',
+    'common-params.json',
     'kcbp.env.json',
 ] as const;
 
