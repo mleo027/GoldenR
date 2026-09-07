@@ -30,6 +30,9 @@ dist-smoke
 .env.local
 
 # Local persistence (app root)
+golden.db
+golden.db-*
+legacy-config-backup/
 app.json
 project.json
 settings.json
