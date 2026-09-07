@@ -4,7 +4,11 @@ import path from 'path';
 import { spawn, type ChildProcessWithoutNullStreams } from 'child_process';
 import { fileURLToPath } from 'url';
 import { app } from 'electron';
-import type { KcbpResultSet } from '../../../src/shared/kcbp/types';
+import { parseKcbpResult } from './response';
+import type { KcbpResponseData } from './response';
+
+export { normalizeResultSets } from './response';
+export type { KcbpResponseData } from './response';
 
 export interface KcbpConnectionOptions {
     ip?: string;
@@ -30,58 +34,8 @@ export interface KcbpRequestOptions {
     param: KcbpParamOptions;
 }
 
-export interface KcbpResponseData {
-    code: string;
-    msg: string;
-    data: unknown[];
-    level?: string;
-    stats: {
-        timecost: number;
-        rows: number;
-    };
-}
-
-interface RawKcbpResponseData {
-    code: string | number;
-    msg: string;
-    data: unknown[];
-    level?: string;
-}
-
-function isResultSetLike(item: unknown): boolean {
-    return Boolean(
-        item &&
-        typeof item === 'object' &&
-        !Array.isArray(item) &&
-        Array.isArray((item as { rows?: unknown }).rows),
-    );
-}
-
-function toResultSet(item: unknown): KcbpResultSet {
-    const source = (item ?? {}) as Record<string, unknown>;
-    return {
-        name: typeof source.name === 'string' ? source.name : '',
-        rows: source.rows as Record<string, unknown>[],
-    };
-}
-
 /** 边界归一化：结构化条目补齐缺省字段；平铺行/混合结构包装为单集。
  *  列名与列序一律以行对象的 key 为准（key=value），协议表头元数据已废弃。 */
-export function normalizeResultSets(data: unknown[]): KcbpResultSet[] {
-    if (data.length === 0) {
-        return [];
-    }
-    if (data.every(isResultSetLike)) {
-        return data.map(toResultSet);
-    }
-    return [
-        {
-            name: '',
-            rows: data as Record<string, unknown>[],
-        },
-    ];
-}
-
 interface NativeKcbpAdapter {
     callKCBP: (payload: KcbpRequestOptions) => unknown;
 }
@@ -485,84 +439,6 @@ export async function resolveBinaryFields(
     };
 }
 
-function isValidResult(value: unknown): value is RawKcbpResponseData {
-    if (!value || typeof value !== 'object') return false;
-    const data = value as Record<string, unknown>;
-    return (
-        'code' in data &&
-        (typeof data.code === 'string' || typeof data.code === 'number') &&
-        'msg' in data &&
-        typeof data.msg === 'string' &&
-        'data' in data &&
-        Array.isArray(data.data)
-    );
-}
-
-function parseValidResult(raw: unknown): RawKcbpResponseData | null {
-    if (isValidResult(raw)) return raw;
-    if (typeof raw === 'string') {
-        try {
-            const parsed = JSON.parse(raw) as unknown;
-            return isValidResult(parsed) ? parsed : null;
-        } catch {
-            // ignore malformed string payload
-        }
-    }
-    return null;
-}
-
-function countResponseRows(data: unknown[]): number {
-    return data.reduce<number>((count, item) => {
-        if (item && typeof item === 'object' && !Array.isArray(item)) {
-            const rows = (item as { rows?: unknown }).rows;
-            if (Array.isArray(rows)) return count + rows.length;
-        }
-        return count + 1;
-    }, 0);
-}
-
-function toNormalizedResult(raw: RawKcbpResponseData, timecost: number): KcbpResponseData {
-    return {
-        ...raw,
-        code: String(raw.code),
-        data: normalizeResultSets(raw.data),
-        stats: {
-            timecost,
-            rows: countResponseRows(raw.data),
-        },
-    };
-}
-
-function toEnvelopeResult(raw: unknown, timecost: number): KcbpResponseData {
-    const envelope =
-        raw && typeof raw === 'object' && !Array.isArray(raw)
-            ? (raw as Record<string, unknown>)
-            : null;
-    const code =
-        envelope && (typeof envelope.code === 'string' || typeof envelope.code === 'number')
-            ? String(envelope.code)
-            : '0';
-    const msg = envelope && typeof envelope.msg === 'string' ? envelope.msg : 'Success';
-    const level = envelope && typeof envelope.level === 'string' ? envelope.level : undefined;
-
-    return {
-        code,
-        msg,
-        ...(level ? { level } : {}),
-        data: [],
-        stats: {
-            timecost,
-            rows: 0,
-        },
-    };
-}
-
-function parseResult(raw: unknown, startedAt: number): KcbpResponseData {
-    const timecost = Date.now() - startedAt;
-    const valid = parseValidResult(raw);
-    return valid ? toNormalizedResult(valid, timecost) : toEnvelopeResult(raw, timecost);
-}
-
 export class KcbpClient {
     private adapter: NativeKcbpAdapter | null = null;
 
@@ -630,7 +506,7 @@ export class KcbpClient {
         if (this.adapter) {
             try {
                 const raw = this.adapter.callKCBP(normalized);
-                return parseResult(raw, startedAt);
+                return parseKcbpResult(raw, startedAt);
             } catch (error) {
                 const message = error instanceof Error ? error.message : String(error);
                 return {
@@ -647,7 +523,7 @@ export class KcbpClient {
 
         try {
             const result = await invokeKcbpBridge(normalized, adapterCandidates);
-            return parseResult(result, startedAt);
+            return parseKcbpResult(result, startedAt);
         } catch (error) {
             if (isKcbpCancelled(error)) {
                 throw error;
