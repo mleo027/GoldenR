@@ -30,13 +30,9 @@ async function invoke<T>(channel: string, ...args: unknown[]): Promise<T> {
 contextBridge.exposeInMainWorld('electronAPI', {
     config: {
         read: (name: ConfigStorageFileName, fromUserData?: boolean) =>
-            invoke<unknown>('readJsonFile', name, fromUserData),
-        write: (name: string, data: unknown) => invoke<void>('writeJsonFile', name, data),
-        flush: (entries: ConfigWriteEntry[]) =>
-            invoke(
-                'storage:flush',
-                entries.map(({ name, data }) => ({ filePath: name, data })),
-            ),
+            invoke<unknown>('database:read', name, fromUserData),
+        write: (name: string, data: unknown) => invoke<void>('database:write', name, data),
+        flush: (entries: ConfigWriteEntry[]) => { void entries; return invoke<void>('database:flush'); },
     },
     kcbp: {
         call: async (payload: KcbpRequestOptions): Promise<KcbpResponseData> => {

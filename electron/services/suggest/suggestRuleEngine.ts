@@ -1,6 +1,6 @@
 /** 入参智能提示 Electron 主进程：规则加载、SQL 执行、多规则 fallback 与缓存 */
-import fs from 'fs/promises';
-import path from 'path';
+import fsSync from 'node:fs';
+import path from 'node:path';
 import type {
     DbConnectionConfig,
     DbScriptQueryRequest,
@@ -32,21 +32,19 @@ import {
     finalizeEmptySuggestResponse,
     shouldFallbackToNextSuggestRule,
 } from '../../../src/shared/suggest/suggestRuleFallback';
-
-const DB_FILE = 'db.json';
-const RULES_FILE = 'param-suggest-rules.json';
+import type { ConfigRepository } from '../../database/repositories/configRepository';
 
 let dbConfig: DbConnectionConfig | null = null;
 let rules: ParamFieldRule[] = [];
-let appRootDir = process.cwd();
+let repository: ConfigRepository | null = null;
 
-export function setSuggestAppRootDir(dir: string): void {
-    appRootDir = dir;
+export function setSuggestRepository(next: ConfigRepository): void {
+    repository = next;
 }
 
-function resolveConfigPath(fileName: string): string {
-    return path.join(appRootDir, fileName);
-}
+/** @deprecated Runtime configuration is database-backed; kept for older test/integration callers. */
+export function setSuggestAppRootDir(dir: string): void { legacyRoot = dir; repository = null; }
+let legacyRoot: string | null = null;
 
 function isDbConnectionConfig(value: unknown): value is DbConnectionConfig {
     if (!value || typeof value !== 'object') return false;
@@ -60,21 +58,14 @@ function isDbConnectionConfig(value: unknown): value is DbConnectionConfig {
 }
 
 export async function reloadSuggestConfig(): Promise<void> {
-    try {
-        const dbContent = await fs.readFile(resolveConfigPath(DB_FILE), 'utf-8');
-        const parsed = JSON.parse(dbContent) as unknown;
-        dbConfig = isDbConnectionConfig(parsed) ? parsed : null;
-    } catch {
-        dbConfig = null;
-    }
-
-    try {
-        const rulesContent = await fs.readFile(resolveConfigPath(RULES_FILE), 'utf-8');
-        const parsed = JSON.parse(rulesContent) as ParamSuggestRulesFile;
-        rules = Array.isArray(parsed.rules) ? parsed.rules : [];
-    } catch {
-        rules = [];
-    }
+    const readLegacy = (name: string): unknown | null => {
+        if (!legacyRoot) return null;
+        try { return JSON.parse(fsSync.readFileSync(path.join(legacyRoot, name), 'utf8')); } catch { return null; }
+    };
+    const dbContent = repository?.read('db.json') ?? readLegacy('db.json');
+    dbConfig = isDbConnectionConfig(dbContent) ? dbContent : null;
+    const parsed = (repository?.read('param-suggest-rules.json') ?? readLegacy('param-suggest-rules.json')) as ParamSuggestRulesFile | null;
+    rules = Array.isArray(parsed?.rules) ? parsed.rules : [];
 
     suggestCache.invalidate();
 }

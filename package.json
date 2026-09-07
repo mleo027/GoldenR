@@ -27,7 +27,8 @@
     "build:native": "node scripts/build-native.mjs",
     "test:watch": "vitest",
     "test:related": "vitest related --run",
-    "test:api": "npm run test:kcbp && npm run test:import && npm run test:script && npm run test:suggest && npm run test:persist && npm run test:core",
+    "test:api": "npm run test:database && npm run test:kcbp && npm run test:import && npm run test:script && npm run test:suggest && npm run test:persist && npm run test:core",
+    "test:database": "node scripts/run-unit-tests.mjs database",
     "test:kcbp": "node scripts/run-unit-tests.mjs kcbp",
     "test:import": "node scripts/run-unit-tests.mjs import",
     "test:script": "node scripts/run-unit-tests.mjs script",
@@ -43,8 +44,8 @@
     "check:complexity": "node scripts/check-complexity.mjs",
     "check": "npm run lint && npm run ipc:check && npm run format:check && npm run scan:encoding && npm run check:complexity && npm run typecheck && npm run test:component && npm run test",
     "preview": "vite preview",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\" \"electron/**/*.{ts,json}\" \"docs/**/*.md\" \"AGENTS.md\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\" \"electron/**/*.{ts,json}\" \"docs/**/*.md\" \"AGENTS.md\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\" \"electron/**/*.{ts,json,sql}\" \"docs/**/*.md\" \"AGENTS.md\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\" \"electron/**/*.{ts,json,sql}\" \"docs/**/*.md\" \"AGENTS.md\"",
     "generate:icon": "node scripts/generate-icon.mjs",
     "prepare:node": "node scripts/copy-node-runtime.mjs"
   },
@@ -69,7 +70,8 @@
     "electronVersion": "36.3.1",
     "asar": true,
     "asarUnpack": [
-      "dist-electron/kcbpBridge.cjs"
+      "dist-electron/kcbpBridge.cjs",
+      "**/*.node"
     ],
     "directories": {
       "output": "dist"
@@ -85,14 +87,6 @@
         "to": "node"
       }
     ],
-    "extraFiles": [
-      "app.json",
-      "settings.json",
-      "project.json",
-      "db.json",
-      "api-debug.env.json",
-      "param-suggest-rules.json"
-    ],
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
@@ -102,7 +96,7 @@
       "!dist/builder-debug.yml",
       "!node_modules/**/*"
     ],
-    "npmRebuild": false,
+    "npmRebuild": true,
     "buildDependenciesFromSource": false
   },
   "dependencies": {
@@ -112,8 +106,10 @@
     "@codemirror/state": "^6.6.0",
     "@codemirror/view": "^6.43.1",
     "@tailwindcss/vite": "^4.1.7",
+    "@types/better-sqlite3": "^9.6.0",
     "@uiw/react-codemirror": "^4.25.10",
     "antd": "^5.25.2",
+    "better-sqlite3": "^13.0.3",
     "iconv-lite": "^0.7.2",
     "mssql": "^12.5.5",
     "rc-virtual-list": "^3.19.2",
@@ -146,6 +142,7 @@
     "png-to-ico": "^3.0.1",
     "postcss": "^8.5.3",
     "prettier": "^3.5.3",
+    "prettier-plugin-sql": "^0.20.0",
     "rollup-plugin-visualizer": "^7.0.1",
     "tailwindcss": "^4.1.7",
     "typescript": "~5.8.3",

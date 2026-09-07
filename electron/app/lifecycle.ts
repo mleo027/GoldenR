@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { allowWindowClose } from './closeGuard';
 import { FlushCoordinator } from './flushCoordinator';
+import { closeDatabase, getDatabase } from '../database/connection';
 
 const flushCoordinator = new FlushCoordinator({
     timeoutMs: 3000,
@@ -9,6 +10,8 @@ const flushCoordinator = new FlushCoordinator({
             console.error(`App flush timed out for request ${requestId}`);
         }
         allowWindowClose();
+        try { getDatabase().pragma('wal_checkpoint(TRUNCATE)'); } catch (error) { console.error('Database flush failed', error); }
+        closeDatabase();
         app.exit(0);
     },
 });
@@ -41,6 +44,7 @@ export function registerAppLifecycle(): void {
 
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') {
+            closeDatabase();
             app.quit();
         }
     });

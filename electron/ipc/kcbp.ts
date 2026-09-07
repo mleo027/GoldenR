@@ -4,7 +4,7 @@ import { isKcbpCancelled } from '../services/kcbp/kcbp';
 import {
     loadKcbpRuntimeConfig,
     saveKcbpRuntimeConfig,
-    setKcbpRuntimeConfigUserDataDir,
+    setKcbpRuntimeConfigRepository,
 } from '../services/kcbp/kcbpRuntimeConfigStore';
 import { KCBP_IPC_CANCELLED_RESULT } from '../../src/shared/kcbp/cancel';
 import type { KcbpRuntimeConfig } from '../../src/shared/kcbp/types';
@@ -13,7 +13,7 @@ import { withIpcError } from './errors';
 import type { ElectronAppContext } from './types';
 
 export function registerKcbpIpc(ctx: ElectronAppContext): void {
-    setKcbpRuntimeConfigUserDataDir(ctx.getApiServerUserDataDir());
+    setKcbpRuntimeConfigRepository(ctx.configRepository);
 
     ipcMain.handle(
         'rpc:call',

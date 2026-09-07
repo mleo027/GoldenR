@@ -5,7 +5,8 @@ import { readFileSync, statSync } from 'node:fs';
 const MAX_STAGED_FILE_BYTES = 5 * 1024 * 1024;
 const BLOCKED_PATH = /^(?:dist|dist-electron|coverage|release)\//;
 const CONTENT_FILE = /\.(?:[cm]?[jt]sx?|json|ya?ml|env|ini|cfg|config)$/i;
-const SENSITIVE = /\b(?:password|passwd|pwd|token|secret|connectionstring)\s*[:=]\s*[^\s,;'"}`]+/i;
+// Do not treat comparisons such as `config.password === ...` as secret assignments.
+const SENSITIVE = /\b(?:password|passwd|pwd|token|secret|connectionstring)\s*(?::(?!:)|=(?!=))\s*[^\s,;'"`}]+/i;
 const DOC_SESSION = />_ OpenAI Codex|Model provider:|Token usage:|Context window:|Session:\s+[0-9a-f-]{16,}/i;
 
 function stagedFiles() {
@@ -17,9 +18,9 @@ const files = stagedFiles();
 const errors = [];
 
 for (const file of files) {
-    if (BLOCKED_PATH.test(file)) errors.push(`禁止提交构建或发布产物：${file}`);
+    if (BLOCKED_PATH.test(file)) errors.push(`绂佹鎻愪氦鏋勫缓鎴栧彂甯冧骇鐗╋細${file}`);
     try {
-        if (statSync(file).size > MAX_STAGED_FILE_BYTES) errors.push(`暂存文件超过 5MB：${file}`);
+        if (statSync(file).size > MAX_STAGED_FILE_BYTES) errors.push(`鏆傚瓨鏂囦欢瓒呰繃 5MB锛?{file}`);
     } catch {
         // Deleted files have no working-tree stat and are safe to ignore here.
     }
@@ -31,15 +32,15 @@ for (const file of files) {
         continue;
     }
     if (SENSITIVE.test(content) && !file.endsWith('src/components/theme/AppThemeProvider.tsx')) {
-        errors.push(`疑似敏感字面量：${file}`);
+        errors.push(`鐤戜技鏁忔劅瀛楅潰閲忥細${file}`);
     }
     if (file.startsWith('docs/') && DOC_SESSION.test(content)) {
-        errors.push(`文档包含会话过程元信息：${file}`);
+        errors.push(`鏂囨。鍖呭惈浼氳瘽杩囩▼鍏冧俊鎭細${file}`);
     }
 }
 
 if (errors.length > 0) {
-    console.error(errors.map((error) => `✖ ${error}`).join('\n'));
+    console.error(errors.map((error) => `鉁?${error}`).join('\n'));
     process.exitCode = 1;
 } else {
     console.log(`[staged-guards] ${files.length} staged file(s) passed`);

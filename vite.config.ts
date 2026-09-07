@@ -77,6 +77,7 @@ export default defineConfig({
                     },
                     build: {
                         rollupOptions: {
+                            external: ['better-sqlite3'],
                             output: {
                                 format: 'es',
                                 inlineDynamicImports: true,
@@ -139,15 +140,7 @@ export default defineConfig({
     },
     server: {
         watch: {
-            ignored: [
-                '**/app.json',
-                '**/settings.json',
-                '**/project.json',
-                '**/db.json',
-                '**/param-suggest-rules.json',
-                '**/api-debug.env.json',
-                '**/common-params.json',
-            ],
+            ignored: ['**/golden.db', '**/golden.db-*'],
         },
     },
 });
