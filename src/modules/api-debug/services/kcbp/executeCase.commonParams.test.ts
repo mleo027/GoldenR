@@ -58,4 +58,38 @@ describe('invokeKcbpCall 公共参数合并（UI 模式）', () => {
         expect(outcome.nextParams).toEqual([p('orgid', '0202')]);
         expect(outcome.effectiveParams).toEqual([p('orgid', '0202')]);
     });
+
+    it('公共参数可以提供缺失的功能号', async () => {
+        const callKcbp = makeCallKcbp();
+        await invokeKcbpCall(
+            { ...makeTab([]), address: '127.0.0.1:21000?queue=req1&timeout=300' },
+            'ui',
+            {
+                electronDeps: { callKcbp, queryScriptSql: vi.fn() } as never,
+                commonParams: [p('funcid', '851503')],
+            },
+        );
+
+        const payload = callKcbp.mock.calls[0][0] as {
+            param: { msgtype: string; fields: Record<string, string> };
+        };
+        expect(payload.param.msgtype).toBe('851503');
+        expect(payload.param.fields.funcid).toBe('851503');
+    });
+
+    it('脚本失败回退发送时也合并公共参数', async () => {
+        const callKcbp = makeCallKcbp();
+        const outcome = await invokeKcbpCall(
+            { ...makeTab([p('orgid', '0202')]), script: 'throw new Error("script failed")' },
+            'script',
+            {
+                electronDeps: { callKcbp, queryScriptSql: vi.fn() } as never,
+                commonParams: [p('orgid', '0101'), p('brhid', '1')],
+            },
+        );
+
+        const payload = callKcbp.mock.calls[0][0];
+        expect(payload.param.fields).toMatchObject({ orgid: '0202', brhid: '1' });
+        expect(outcome.effectiveParams).toEqual([p('brhid', '1'), p('orgid', '0202')]);
+    });
 });

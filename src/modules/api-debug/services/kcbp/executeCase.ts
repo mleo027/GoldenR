@@ -39,6 +39,9 @@ export async function invokeKcbpCall(
     const optionsWithRunner: InvokeKcbpCallOptions = options.runNestedCase
         ? options
         : { ...options, runNestedCase };
+    const effectiveCaseParams = optionsWithRunner.commonParams
+        ? mergeCommonParams(optionsWithRunner.commonParams, tab.params)
+        : tab.params;
     const electronDeps = optionsWithRunner.electronDeps;
     let effectiveAddress =
         optionsWithRunner.effectiveAddress ??
@@ -46,7 +49,7 @@ export async function invokeKcbpCall(
             ? applyKcxpEnvironmentToAddress(tab.address, optionsWithRunner.kcxpEnvironment)
             : tab.address);
     const addressParts = parseKcbpAddress(effectiveAddress);
-    const msgtype = addressParts.msgtype.trim() || resolveMsgtypeFromParams(tab.params);
+    const msgtype = addressParts.msgtype.trim() || resolveMsgtypeFromParams(effectiveCaseParams);
     if (!msgtype) {
         throw new Error(KCBP_MSGTYPE_REQUIRED_MESSAGE);
     }
@@ -60,9 +63,7 @@ export async function invokeKcbpCall(
     }
 
     if (editorMode === 'ui') {
-        const effectiveParams = optionsWithRunner.commonParams
-            ? mergeCommonParams(optionsWithRunner.commonParams, tab.params)
-            : tab.params;
+        const effectiveParams = effectiveCaseParams;
         const { fields, binaryFields } = buildKcbpFields(effectiveParams);
         const outcome = await invokeKcbpWithFields({
             tab,

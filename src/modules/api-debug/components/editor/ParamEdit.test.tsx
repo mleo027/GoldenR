@@ -101,4 +101,31 @@ describe('ParamEdit', () => {
             expect(updated?.[0]?.value).toBe(`8=FIXT.1.1${String.fromCharCode(1)}9=83`);
         });
     });
+
+    it('renders common parameters as a collapsed read-only panel', async () => {
+        const user = userEvent.setup();
+        const view = renderParamEdit(
+            <ParamEdit
+                params={[]}
+                onChange={vi.fn()}
+                commonParams={[
+                    { name: 'orgid', value: '0101', type: 'string' },
+                    { name: 'brhid', value: '1', type: 'string' },
+                ]}
+            />,
+        );
+
+        const toggle = screen.getByRole('button', { name: /公共参数/ });
+        expect(toggle.textContent).toContain('2');
+        expect(view.container.textContent).not.toContain('0101');
+
+        await user.click(toggle);
+        expect(view.container.textContent).toContain('0101');
+        expect(view.container.querySelector('.common-params-value textarea')).toBeNull();
+    });
+
+    it('does not render the common parameter panel when no parameters are supplied', () => {
+        renderParamEdit(<ParamEdit params={[]} onChange={vi.fn()} />);
+        expect(screen.queryByRole('button', { name: /公共参数/ })).toBeNull();
+    });
 });
