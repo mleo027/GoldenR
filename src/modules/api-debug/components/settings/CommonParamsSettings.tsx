@@ -52,7 +52,7 @@ export default function CommonParamsSettings({
     return (
         <div className="settings-panel">
             <Typography.Title level={5} className="settings-panel-title">公共参数</Typography.Title>
-            <Typography.Paragraph type="secondary">维护可被项目挂载的公共请求参数集。</Typography.Paragraph>
+            <Typography.Paragraph type="secondary">维护可供项目设置使用的公共请求参数集。</Typography.Paragraph>
             <div className="flex gap-4 h-full min-h-0">
                 <div className="w-56 shrink-0 flex flex-col gap-2">
                     <Button type="dashed" icon={<PlusOutlined />} onClick={() => onAdd(`公共参数 ${sets.length + 1}`)}>

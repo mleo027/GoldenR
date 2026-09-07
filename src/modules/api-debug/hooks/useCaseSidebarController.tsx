@@ -273,7 +273,7 @@ export function useCaseSidebarController() {
                 children: [
                     {
                         key: 'common-params-none',
-                        label: '不挂载',
+                        label: '不设置',
                         icon:
                             project?.commonParamSetId === undefined ? <CheckOutlined /> : undefined,
                         onClick: () => setProjectCommonParamSet(projectIndex, null),

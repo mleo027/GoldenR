@@ -20,7 +20,7 @@ export interface ProjectData {
     id: string;
     name: string;
     cases: TabData[];
-    /** 挂载的公共参数集 id（undefined = 未挂载） */
+    /** 设置使用的公共参数集 id（undefined = 未设置） */
     commonParamSetId?: string;
     createdAt: number;
     updatedAt: number;
@@ -42,7 +42,7 @@ export interface PersistedProjectRecord {
     id?: string;
     name: string;
     cases: PersistedCaseRecord[];
-    /** 挂载的公共参数集 id（undefined = 未挂载） */
+    /** 设置使用的公共参数集 id（undefined = 未设置） */
     commonParamSetId?: string;
 }
 

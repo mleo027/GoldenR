@@ -1,6 +1,6 @@
 import type { ParamItem } from './workspace';
 
-/** 一套命名的公共参数集（全局配置，供项目挂载）。 */
+/** 一套命名的公共参数集（全局配置，供项目设置使用）。 */
 export interface CommonParamSet {
     id: string;
     name: string;

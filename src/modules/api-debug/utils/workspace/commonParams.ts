@@ -24,7 +24,7 @@ export function stripMountedCommonParams(
     return params.filter((param) => !commonKeys.has(`${param.name}\u0000${param.value}`));
 }
 
-/** 按挂载 id 解析公共参数；id 为空或集合不存在时返回空数组（未挂载零开销）。 */
+/** 按设置 id 解析公共参数；id 为空或集合不存在时返回空数组（未设置零开销）。 */
 export function resolveCommonParamsById(
     sets: readonly CommonParamSet[],
     setId: string | undefined,
