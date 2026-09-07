@@ -3,7 +3,8 @@ import type { InputRef } from 'antd';
 
 export type RenameTarget =
     | { type: 'project'; projectIndex: number }
-    | { type: 'case'; projectIndex: number; caseIndex: number };
+    | { type: 'case'; projectIndex: number; caseIndex: number }
+    | { type: 'folder'; projectIndex: number; folderId: string };
 
 function isSameRenameTarget(a: RenameTarget | null, b: RenameTarget): boolean {
     if (!a) return false;
@@ -13,6 +14,9 @@ function isSameRenameTarget(a: RenameTarget | null, b: RenameTarget): boolean {
     }
     if (a.type === 'case' && b.type === 'case') {
         return a.projectIndex === b.projectIndex && a.caseIndex === b.caseIndex;
+    }
+    if (a.type === 'folder' && b.type === 'folder') {
+        return a.projectIndex === b.projectIndex && a.folderId === b.folderId;
     }
     return false;
 }

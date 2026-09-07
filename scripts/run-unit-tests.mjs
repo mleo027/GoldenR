@@ -51,6 +51,8 @@ const suites = {
         'src/modules/api-debug/store/paramSuggestData.test.ts',
     ],
     core: [
+        'src/modules/api-debug/utils/workspace/caseFolders.test.ts',
+        'src/modules/api-debug/store/tabsReducer.test.ts',
         'src/modules/api-debug/utils/workspace/caseLabel.test.ts',
         'src/modules/api-debug/utils/workspace/paramText.test.ts',
         'src/utils/table.test.ts',

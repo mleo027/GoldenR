@@ -53,6 +53,9 @@ function reduceAddCase(state: TabsState, action: AddCaseAction): TabsState {
     if (action.initialProtocol) {
         newCase.protocol = action.initialProtocol;
     }
+    if (action.folderId && targetProject.folders?.some((folder) => folder.id === action.folderId)) {
+        newCase.folderId = action.folderId;
+    }
     const nextCases = sortCasesByMsgtype([...targetProject.cases, newCase]);
 
     const nextProjects = state.projects.map((project, index) =>

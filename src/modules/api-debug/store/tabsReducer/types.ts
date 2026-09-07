@@ -17,9 +17,14 @@ export type TabsAction =
     | { type: 'RENAME_PROJECT'; projectIndex: number; name: string }
     | { type: 'TOGGLE_PROJECT_EXPAND'; projectId: string }
     | { type: 'SET_PROJECT_COMMON_PARAM_SET'; projectIndex: number; setId: string | null }
+    | { type: 'ADD_FOLDER'; projectIndex: number; parentId?: string; name?: string }
+    | { type: 'RENAME_FOLDER'; projectIndex: number; folderId: string; name: string }
+    | { type: 'DELETE_FOLDER'; projectIndex: number; folderId: string }
+    | { type: 'MOVE_CASE_TO_FOLDER'; projectIndex: number; caseId: string; folderId?: string }
     | {
           type: 'ADD_CASE';
           projectIndex?: number;
+          folderId?: string;
           initialAddress?: string;
           initialProtocol?: KcxpProtocol;
       }

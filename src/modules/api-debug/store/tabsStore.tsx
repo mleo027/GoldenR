@@ -209,11 +209,32 @@ export function TabsProvider({ children }: { children: ReactNode }) {
             dispatch({ type: 'SET_PROJECT_COMMON_PARAM_SET', projectIndex, setId }),
         [],
     );
+    const addFolder = useCallback(
+        (projectIndex: number, parentId?: string) =>
+            dispatch({ type: 'ADD_FOLDER', projectIndex, parentId }),
+        [],
+    );
+    const renameFolder = useCallback(
+        (projectIndex: number, folderId: string, name: string) =>
+            dispatch({ type: 'RENAME_FOLDER', projectIndex, folderId, name }),
+        [],
+    );
+    const deleteFolder = useCallback(
+        (projectIndex: number, folderId: string) =>
+            dispatch({ type: 'DELETE_FOLDER', projectIndex, folderId }),
+        [],
+    );
+    const moveCaseToFolder = useCallback(
+        (projectIndex: number, caseId: string, folderId?: string) =>
+            dispatch({ type: 'MOVE_CASE_TO_FOLDER', projectIndex, caseId, folderId }),
+        [],
+    );
     const addCase = useCallback(
-        (projectIndex?: number) =>
+        (projectIndex?: number, folderId?: string) =>
             dispatch({
                 type: 'ADD_CASE',
                 projectIndex,
+                folderId,
                 initialAddress: getInitialAddress(),
                 initialProtocol: getInitialProtocol(),
             }),
@@ -289,6 +310,10 @@ export function TabsProvider({ children }: { children: ReactNode }) {
             renameProject,
             toggleProjectExpand,
             setProjectCommonParamSet,
+            addFolder,
+            renameFolder,
+            deleteFolder,
+            moveCaseToFolder,
             addCase,
             duplicateCase,
             deleteCase,
@@ -308,6 +333,10 @@ export function TabsProvider({ children }: { children: ReactNode }) {
             renameProject,
             toggleProjectExpand,
             setProjectCommonParamSet,
+            addFolder,
+            renameFolder,
+            deleteFolder,
+            moveCaseToFolder,
             addCase,
             duplicateCase,
             deleteCase,

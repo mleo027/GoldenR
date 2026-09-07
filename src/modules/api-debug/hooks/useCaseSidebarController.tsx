@@ -43,6 +43,9 @@ export function useCaseSidebarController() {
         toggleCaseFavorite,
         moveCase,
         setProjectCommonParamSet,
+        addFolder,
+        renameFolder,
+        deleteFolder,
     } = useTabsActions();
 
     const state = useTabsNavigation();
@@ -73,6 +76,13 @@ export function useCaseSidebarController() {
             if (target.type === 'project') {
                 return state.projects[target.projectIndex].name;
             }
+            if (target.type === 'folder') {
+                return (
+                    state.projects[target.projectIndex].folders?.find(
+                        (folder) => folder.id === target.folderId,
+                    )?.name ?? ''
+                );
+            }
             return state.projects[target.projectIndex].cases[target.caseIndex].name;
         },
         [state.projects],
@@ -82,15 +92,59 @@ export function useCaseSidebarController() {
         (target: RenameTarget, name: string) => {
             if (target.type === 'project') {
                 renameProject(target.projectIndex, name);
+            } else if (target.type === 'folder') {
+                renameFolder(target.projectIndex, target.folderId, name);
             } else {
                 renameCase(target.projectIndex, target.caseIndex, name);
             }
         },
-        [renameCase, renameProject],
+        [renameCase, renameFolder, renameProject],
     );
 
     const { inputRef, editingName, setEditingName, startRename, finishRename, isEditing } =
         useInlineRename(getRenameName, commitRename);
+
+    const getFolderMenu = useCallback(
+        (projectIndex: number, folderId: string): MenuProps['items'] => [
+            {
+                key: 'add-child',
+                label: '新建子目录',
+                icon: <PlusOutlined />,
+                onClick: () => addFolder(projectIndex, folderId),
+            },
+            {
+                key: 'add-case',
+                label: '在此目录新建接口',
+                icon: <PlusOutlined />,
+                onClick: () => addCase(projectIndex, folderId),
+            },
+            {
+                key: 'rename',
+                label: '重命名',
+                icon: <EditOutlined />,
+                onClick: () => startRename({ type: 'folder', projectIndex, folderId }),
+            },
+            { type: 'divider' },
+            {
+                key: 'delete',
+                label: '删除目录',
+                icon: <CloseOutlined />,
+                danger: true,
+                onClick: () => {
+                    modal.confirm({
+                        title: '删除用例目录',
+                        content:
+                            '目录及其子目录会被删除，其中的用例会移动到项目根目录，确定继续吗？',
+                        okText: '删除',
+                        okType: 'danger',
+                        cancelText: '取消',
+                        onOk: () => deleteFolder(projectIndex, folderId),
+                    });
+                },
+            },
+        ],
+        [addCase, addFolder, deleteFolder, modal, startRename],
+    );
 
     const visibleProjects = useVisibleProjects(
         state.projects,
@@ -241,64 +295,75 @@ export function useCaseSidebarController() {
         (projectIndex: number): MenuProps['items'] => {
             const project = state.projects[projectIndex];
             return [
-            {
-                key: 'import',
-                label: '导入接口 JSON|INI',
-                icon: <ImportOutlined />,
-                onClick: () => handleImportProject(projectIndex),
-            },
-            {
-                key: 'export',
-                label: '导出项目 INI',
-                icon: <ExportOutlined />,
-                onClick: () => void handleExportProject(projectIndex),
-            },
-            {
-                key: 'add-case',
-                label: '添加接口',
-                icon: <PlusOutlined />,
-                onClick: () => addCase(projectIndex),
-            },
-            {
-                key: 'rename',
-                label: '重命名项目',
-                icon: <EditOutlined />,
-                onClick: () => startRename({ type: 'project', projectIndex }),
-            },
-            { type: 'divider' },
-            {
-                key: 'common-params',
-                label: '公共参数',
-                icon: <SolutionOutlined />,
-                children: [
-                    {
-                        key: 'common-params-none',
-                        label: '不设置',
-                        icon:
-                            project?.commonParamSetId === undefined ? <CheckOutlined /> : undefined,
-                        onClick: () => setProjectCommonParamSet(projectIndex, null),
-                    },
-                    ...commonSets.map((set) => ({
-                        key: `common-params-${set.id}`,
-                        label: set.name,
-                        icon:
-                            project?.commonParamSetId === set.id ? <CheckOutlined /> : undefined,
-                        onClick: () => setProjectCommonParamSet(projectIndex, set.id),
-                    })),
-                ],
-            },
-            { type: 'divider' },
-            {
-                key: 'delete',
-                label: '删除项目',
-                icon: <CloseOutlined />,
-                danger: true,
-                onClick: () => handleDeleteProject(projectIndex),
-            },
+                {
+                    key: 'import',
+                    label: '导入接口 JSON|INI',
+                    icon: <ImportOutlined />,
+                    onClick: () => handleImportProject(projectIndex),
+                },
+                {
+                    key: 'export',
+                    label: '导出项目 INI',
+                    icon: <ExportOutlined />,
+                    onClick: () => void handleExportProject(projectIndex),
+                },
+                {
+                    key: 'add-case',
+                    label: '添加接口',
+                    icon: <PlusOutlined />,
+                    onClick: () => addCase(projectIndex),
+                },
+                {
+                    key: 'add-folder',
+                    label: '新建用例目录',
+                    icon: <PlusOutlined />,
+                    onClick: () => addFolder(projectIndex),
+                },
+                {
+                    key: 'rename',
+                    label: '重命名项目',
+                    icon: <EditOutlined />,
+                    onClick: () => startRename({ type: 'project', projectIndex }),
+                },
+                { type: 'divider' },
+                {
+                    key: 'common-params',
+                    label: '公共参数',
+                    icon: <SolutionOutlined />,
+                    children: [
+                        {
+                            key: 'common-params-none',
+                            label: '不设置',
+                            icon:
+                                project?.commonParamSetId === undefined ? (
+                                    <CheckOutlined />
+                                ) : undefined,
+                            onClick: () => setProjectCommonParamSet(projectIndex, null),
+                        },
+                        ...commonSets.map((set) => ({
+                            key: `common-params-${set.id}`,
+                            label: set.name,
+                            icon:
+                                project?.commonParamSetId === set.id ? (
+                                    <CheckOutlined />
+                                ) : undefined,
+                            onClick: () => setProjectCommonParamSet(projectIndex, set.id),
+                        })),
+                    ],
+                },
+                { type: 'divider' },
+                {
+                    key: 'delete',
+                    label: '删除项目',
+                    icon: <CloseOutlined />,
+                    danger: true,
+                    onClick: () => handleDeleteProject(projectIndex),
+                },
             ];
         },
         [
             addCase,
+            addFolder,
             commonSets,
             handleDeleteProject,
             handleExportProject,
@@ -479,8 +544,10 @@ export function useCaseSidebarController() {
         setEditingName,
         isEditing,
         finishRename,
+        startRename,
         getCaseMenu,
         getProjectMenu,
+        getFolderMenu,
         getCaseActionHandler,
         getProjectActionHandler,
         handleCaseDragStart,

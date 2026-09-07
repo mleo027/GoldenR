@@ -25,6 +25,7 @@ export const createEmptyProject = (index: number): ProjectData => {
         id: generateId(),
         name: `项目 ${index}`,
         cases: [createEmptyCase(1)],
+        folders: [],
         createdAt: now,
         updatedAt: now,
     };

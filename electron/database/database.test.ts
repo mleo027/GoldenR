@@ -8,12 +8,29 @@ import { closeDatabase, openDatabase } from './connection';
 import { migrateSchema, SCHEMA_VERSION } from './schema/migrations';
 
 describe('runtime database schema', () => {
+    it('executes the standalone SQL schema script cleanly', () => {
+        const db = new Database(':memory:');
+        const sql = fs.readFileSync(
+            path.join(process.cwd(), 'electron', 'database', 'schema', 'schema.sql'),
+            'utf8',
+        );
+        expect(() => db.exec(sql)).not.toThrow();
+        expect(
+            (db.prepare('PRAGMA table_info(cases)').all() as Array<{ name: string }>).filter(
+                (column) => column.name === 'folder_id',
+            ),
+        ).toHaveLength(1);
+        db.close();
+    });
+
     it('creates the final schema without generic script or payload columns', () => {
         const db = new Database(':memory:');
         migrateSchema(db);
 
         const tables = db
-            .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
+            .prepare(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'",
+            )
             .all() as Array<{ name: string }>;
         expect(tables.map((table) => table.name)).toContain('request_history');
         expect(db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get()).toEqual({
@@ -29,7 +46,9 @@ describe('runtime database schema', () => {
         );
         expect(columns('request_history')).not.toContain('script');
         expect(columns('projects')).toEqual(expect.arrayContaining(['common_param_set_id']));
-        expect(columns('request_history')).toEqual(expect.arrayContaining(['project_id', 'case_id']));
+        expect(columns('request_history')).toEqual(
+            expect.arrayContaining(['project_id', 'case_id']),
+        );
         db.close();
     });
 
@@ -49,10 +68,14 @@ describe('runtime database schema', () => {
             expect(db.prepare('SELECT name FROM projects WHERE id=?').get('p1')).toEqual({
                 name: 'Imported',
             });
-            expect(db.prepare("SELECT 1 FROM data_migrations WHERE name='legacy-json-v1'").get()).toEqual({
+            expect(
+                db.prepare("SELECT 1 FROM data_migrations WHERE name='legacy-json-v1'").get(),
+            ).toEqual({
                 1: 1,
             });
-            expect(fs.existsSync(path.join(directory, 'legacy-config-backup', 'project.json'))).toBe(true);
+            expect(
+                fs.existsSync(path.join(directory, 'legacy-config-backup', 'project.json')),
+            ).toBe(true);
             closeDatabase();
         } finally {
             closeDatabase();

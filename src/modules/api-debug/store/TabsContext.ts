@@ -15,7 +15,11 @@ export interface TabsActionsContextValue {
     renameProject: (projectIndex: number, name: string) => void;
     toggleProjectExpand: (projectId: string) => void;
     setProjectCommonParamSet: (projectIndex: number, setId: string | null) => void;
-    addCase: (projectIndex?: number) => void;
+    addFolder: (projectIndex: number, parentId?: string) => void;
+    renameFolder: (projectIndex: number, folderId: string, name: string) => void;
+    deleteFolder: (projectIndex: number, folderId: string) => void;
+    moveCaseToFolder: (projectIndex: number, caseId: string, folderId?: string) => void;
+    addCase: (projectIndex?: number, folderId?: string) => void;
     duplicateCase: (projectIndex: number, caseIndex: number) => void;
     deleteCase: (projectIndex: number, caseIndex: number) => void;
     selectCase: (projectIndex: number, caseIndex: number) => void;

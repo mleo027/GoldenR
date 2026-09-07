@@ -14,7 +14,11 @@ type ProjectTabsAction = Extract<
             | 'DELETE_PROJECT'
             | 'RENAME_PROJECT'
             | 'TOGGLE_PROJECT_EXPAND'
-            | 'SET_PROJECT_COMMON_PARAM_SET';
+            | 'SET_PROJECT_COMMON_PARAM_SET'
+            | 'ADD_FOLDER'
+            | 'RENAME_FOLDER'
+            | 'DELETE_FOLDER'
+            | 'MOVE_CASE_TO_FOLDER';
     }
 >;
 
@@ -46,6 +50,10 @@ const PROJECT_ACTION_TYPES = new Set<ProjectTabsAction['type']>([
     'RENAME_PROJECT',
     'TOGGLE_PROJECT_EXPAND',
     'SET_PROJECT_COMMON_PARAM_SET',
+    'ADD_FOLDER',
+    'RENAME_FOLDER',
+    'DELETE_FOLDER',
+    'MOVE_CASE_TO_FOLDER',
 ]);
 
 const CASE_ACTION_TYPES = new Set<CaseTabsAction['type']>([

@@ -7,6 +7,61 @@ function withLoadedState() {
 }
 
 describe('tabsReducer', () => {
+    it('supports nested folders and moves cases back to the root when a folder is deleted', () => {
+        const project = createEmptyProject(1);
+        const state = {
+            ...withLoadedState(),
+            projects: [project],
+            activeProjectIndex: 0,
+            activeCaseIndex: 0,
+            expandedProjectIds: [project.id],
+            openCaseIds: [project.cases[0].id],
+        };
+
+        const withParent = tabsReducer(state, {
+            type: 'ADD_FOLDER',
+            projectIndex: 0,
+            name: '接口目录',
+        });
+        const parent = withParent.projects[0].folders?.[0];
+        expect(parent?.name).toBe('接口目录');
+
+        const withChild = tabsReducer(withParent, {
+            type: 'ADD_FOLDER',
+            projectIndex: 0,
+            parentId: parent?.id,
+            name: '行情接口',
+        });
+        const child = withChild.projects[0].folders?.[1];
+        expect(child?.parentId).toBe(parent?.id);
+
+        const withCase = tabsReducer(withChild, {
+            type: 'ADD_CASE',
+            projectIndex: 0,
+            folderId: child?.id,
+        });
+        const createdCase = withCase.projects[0].cases.find(
+            (caseItem) => caseItem.folderId === child?.id,
+        );
+        expect(createdCase).toBeDefined();
+
+        const moved = tabsReducer(withCase, {
+            type: 'MOVE_CASE_TO_FOLDER',
+            projectIndex: 0,
+            caseId: project.cases[0].id,
+            folderId: child?.id,
+        });
+        expect(moved.projects[0].cases[0].folderId).toBe(child?.id);
+
+        const deleted = tabsReducer(moved, {
+            type: 'DELETE_FOLDER',
+            projectIndex: 0,
+            folderId: parent?.id ?? '',
+        });
+        expect(deleted.projects[0].folders).toEqual([]);
+        expect(deleted.projects[0].cases[0].folderId).toBeUndefined();
+    });
+
     it('ADD_PROJECT selects the new project and expands it', () => {
         const state = withLoadedState();
         const next = tabsReducer(state, { type: 'ADD_PROJECT' });

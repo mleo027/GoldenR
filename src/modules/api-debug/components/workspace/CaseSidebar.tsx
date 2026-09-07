@@ -6,6 +6,7 @@ import CaseChildrenList from './CaseChildrenList';
 import CaseSidebarHeader from './CaseSidebarHeader';
 import ProjectTreeItem from './ProjectTreeItem';
 import { Input } from '../../../../components/ui/primitives';
+import CaseFolderTree from './CaseFolderTree';
 
 export interface CaseSidebarHandle {
     focusSearch: () => void;
@@ -49,6 +50,8 @@ function CaseSidebarTree({ controller }: { controller: CaseSidebarController }) 
         finishRename,
         getCaseMenu,
         getProjectMenu,
+        getFolderMenu,
+        startRename,
         getCaseActionHandler,
         getProjectActionHandler,
         handleCaseDragStart,
@@ -72,7 +75,7 @@ function CaseSidebarTree({ controller }: { controller: CaseSidebarController }) 
                     无匹配结果
                 </div>
             ) : (
-                visibleProjects.map(({ project, projectIndex, cases, expanded }) => (
+                visibleProjects.map(({ project, projectIndex, cases, folders, expanded }) => (
                     <div
                         key={project.id}
                         className={`case-project-block${dropTargetProjectIndex === projectIndex ? ' case-project-block-drop-target' : ''}`}
@@ -105,23 +108,57 @@ function CaseSidebarTree({ controller }: { controller: CaseSidebarController }) 
                         />
 
                         {expanded && (
-                            <CaseChildrenList
-                                cases={cases}
-                                projectIndex={projectIndex}
-                                searchHighlightTerm={searchHighlightTerm}
-                                activeProjectIndex={state.activeProjectIndex}
-                                activeCaseIndex={state.activeCaseIndex}
-                                isEditing={isEditing}
-                                editingName={editingName}
-                                inputRef={inputRef}
-                                getCaseMenu={getCaseMenu}
-                                getCaseActionHandler={getCaseActionHandler}
-                                onEditingNameChange={setEditingName}
-                                onFinishRename={finishRename}
-                                draggingCaseId={draggingCaseId}
-                                onCaseDragStart={handleCaseDragStart}
-                                onCaseDragEnd={handleCaseDragEnd}
-                            />
+                            <div className="case-project-children">
+                                <CaseChildrenList
+                                    cases={cases}
+                                    projectIndex={projectIndex}
+                                    searchHighlightTerm={searchHighlightTerm}
+                                    activeProjectIndex={state.activeProjectIndex}
+                                    activeCaseIndex={state.activeCaseIndex}
+                                    isEditing={isEditing}
+                                    editingName={editingName}
+                                    inputRef={inputRef}
+                                    getCaseMenu={getCaseMenu}
+                                    getCaseActionHandler={getCaseActionHandler}
+                                    onEditingNameChange={setEditingName}
+                                    onFinishRename={finishRename}
+                                    draggingCaseId={draggingCaseId}
+                                    onCaseDragStart={handleCaseDragStart}
+                                    onCaseDragEnd={handleCaseDragEnd}
+                                />
+                                <CaseFolderTree
+                                    folders={folders}
+                                    projectIndex={projectIndex}
+                                    isEditing={isEditing}
+                                    editingName={editingName}
+                                    inputRef={inputRef}
+                                    onStartRename={(folderId) =>
+                                        startRename({ type: 'folder', projectIndex, folderId })
+                                    }
+                                    onEditingNameChange={setEditingName}
+                                    onFinishRename={finishRename}
+                                    getMenu={(folderId) => getFolderMenu(projectIndex, folderId)}
+                                    renderCases={(node) => (
+                                        <CaseChildrenList
+                                            cases={node.cases}
+                                            projectIndex={projectIndex}
+                                            searchHighlightTerm={searchHighlightTerm}
+                                            activeProjectIndex={state.activeProjectIndex}
+                                            activeCaseIndex={state.activeCaseIndex}
+                                            isEditing={isEditing}
+                                            editingName={editingName}
+                                            inputRef={inputRef}
+                                            getCaseMenu={getCaseMenu}
+                                            getCaseActionHandler={getCaseActionHandler}
+                                            onEditingNameChange={setEditingName}
+                                            onFinishRename={finishRename}
+                                            draggingCaseId={draggingCaseId}
+                                            onCaseDragStart={handleCaseDragStart}
+                                            onCaseDragEnd={handleCaseDragEnd}
+                                        />
+                                    )}
+                                />
+                            </div>
                         )}
                     </div>
                 ))

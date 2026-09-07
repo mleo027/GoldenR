@@ -1,5 +1,6 @@
 export interface TabData {
     id: string;
+    folderId?: string;
     name: string;
     protocol: string;
     address: string;
@@ -20,14 +21,26 @@ export interface ProjectData {
     id: string;
     name: string;
     cases: TabData[];
+    folders?: CaseFolder[];
     /** 设置使用的公共参数集 id（undefined = 未设置） */
     commonParamSetId?: string;
     createdAt: number;
     updatedAt: number;
 }
 
+export interface CaseFolder {
+    id: string;
+    name: string;
+    parentId?: string;
+    position: number;
+    createdAt: number;
+    updatedAt: number;
+}
+
 /** project.json：持久化接口名称、地址与入参 */
 export interface PersistedCaseRecord {
+    id?: string;
+    folderId?: string;
     name?: string;
     address: string;
     params: ParamItem[];
@@ -42,6 +55,7 @@ export interface PersistedProjectRecord {
     id?: string;
     name: string;
     cases: PersistedCaseRecord[];
+    folders?: CaseFolder[];
     /** 设置使用的公共参数集 id（undefined = 未设置） */
     commonParamSetId?: string;
 }

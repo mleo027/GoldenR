@@ -98,8 +98,11 @@ function toProjectFileData(projects: ProjectData[]): ProjectFileData {
         projects: projects.map((project) => ({
             id: project.id,
             name: project.name,
+            ...(project.folders?.length ? { folders: project.folders } : {}),
             ...(project.commonParamSetId ? { commonParamSetId: project.commonParamSetId } : {}),
             cases: project.cases.map((item) => ({
+                id: item.id,
+                ...(item.folderId ? { folderId: item.folderId } : {}),
                 name: item.name,
                 address: item.address,
                 params: normalizeParamList(item.params.map((param) => ({ ...param }))),
@@ -133,10 +136,12 @@ function hydrateProjectsFromFile(data: ProjectFileData): ProjectData[] {
         ...(project.commonParamSetId ? { commonParamSetId: project.commonParamSetId } : {}),
         createdAt: now,
         updatedAt: now,
+        folders: project.folders ?? [],
         cases: project.cases.map((item, caseIndex) => {
             const msgtype = item.address.split('/')[1]?.split('?')[0]?.trim() ?? '';
             return {
                 id: `${now}-case-${projectIndex}-${caseIndex}`,
+                ...(item.folderId ? { folderId: item.folderId } : {}),
                 name: item.name?.trim() || `\u63a5\u53e3 ${caseIndex + 1}`,
                 protocol: 'KCBP',
                 address: item.address,

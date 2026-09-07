@@ -41,6 +41,19 @@ CREATE TABLE IF NOT EXISTS projects (
     FOREIGN KEY (common_param_set_id) REFERENCES common_param_sets (id) ON DELETE SET NULL
 );
 
+CREATE TABLE IF NOT EXISTS case_folders (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    parent_id TEXT,
+    name TEXT NOT NULL,
+    position INTEGER NOT NULL,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_id) REFERENCES case_folders (id) ON DELETE CASCADE,
+    UNIQUE (project_id, parent_id, position)
+);
+
 CREATE TABLE IF NOT EXISTS cases (
     id TEXT PRIMARY KEY,
     project_id TEXT NOT NULL,
@@ -48,11 +61,13 @@ CREATE TABLE IF NOT EXISTS cases (
     name TEXT NOT NULL,
     protocol TEXT NOT NULL,
     address TEXT NOT NULL,
+    folder_id TEXT,
     favorite INTEGER NOT NULL DEFAULT 0,
     run_input_json TEXT NOT NULL DEFAULT '{}',
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL,
     FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE,
+    FOREIGN KEY (folder_id) REFERENCES case_folders (id) ON DELETE SET NULL,
     UNIQUE (project_id, position)
 );
 
@@ -142,6 +157,12 @@ CREATE TABLE IF NOT EXISTS request_history (
 );
 
 CREATE INDEX IF NOT EXISTS idx_cases_project_position ON cases (project_id, position);
+
+CREATE INDEX IF NOT EXISTS idx_cases_folder_position ON cases (project_id, folder_id, position);
+
+CREATE INDEX IF NOT EXISTS idx_case_folders_parent_position ON case_folders (project_id, parent_id, position);
+
+CREATE INDEX IF NOT EXISTS idx_cases_folder_position ON cases (project_id, folder_id, position);
 
 CREATE INDEX IF NOT EXISTS idx_common_params_set_position ON common_params (set_id, position);
 
