@@ -16,6 +16,7 @@ export type TabsAction =
     | { type: 'DELETE_PROJECT'; projectIndex: number }
     | { type: 'RENAME_PROJECT'; projectIndex: number; name: string }
     | { type: 'TOGGLE_PROJECT_EXPAND'; projectId: string }
+    | { type: 'SET_PROJECT_COMMON_PARAM_SET'; projectIndex: number; setId: string | null }
     | {
           type: 'ADD_CASE';
           projectIndex?: number;

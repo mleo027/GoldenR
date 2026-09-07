@@ -204,6 +204,11 @@ export function TabsProvider({ children }: { children: ReactNode }) {
         (projectId: string) => dispatch({ type: 'TOGGLE_PROJECT_EXPAND', projectId }),
         [],
     );
+    const setProjectCommonParamSet = useCallback(
+        (projectIndex: number, setId: string | null) =>
+            dispatch({ type: 'SET_PROJECT_COMMON_PARAM_SET', projectIndex, setId }),
+        [],
+    );
     const addCase = useCallback(
         (projectIndex?: number) =>
             dispatch({
@@ -283,6 +288,7 @@ export function TabsProvider({ children }: { children: ReactNode }) {
             deleteProject,
             renameProject,
             toggleProjectExpand,
+            setProjectCommonParamSet,
             addCase,
             duplicateCase,
             deleteCase,
@@ -301,6 +307,7 @@ export function TabsProvider({ children }: { children: ReactNode }) {
             deleteProject,
             renameProject,
             toggleProjectExpand,
+            setProjectCommonParamSet,
             addCase,
             duplicateCase,
             deleteCase,

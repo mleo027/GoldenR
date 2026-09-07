@@ -270,4 +270,35 @@ describe('tabsReducer', () => {
         const newProject = next.projects[next.projects.length - 1];
         expect(newProject.cases[0].protocol).toBe('KGBP');
     });
+
+    it('SET_PROJECT_COMMON_PARAM_SET sets and clears the mounted set id', () => {
+        const state = withLoadedState();
+
+        const mounted = tabsReducer(state, {
+            type: 'SET_PROJECT_COMMON_PARAM_SET',
+            projectIndex: 0,
+            setId: 'set-1',
+        });
+        expect(mounted.projects[0].commonParamSetId).toBe('set-1');
+        expect(mounted.projects[1]?.commonParamSetId).toBeUndefined();
+
+        const cleared = tabsReducer(mounted, {
+            type: 'SET_PROJECT_COMMON_PARAM_SET',
+            projectIndex: 0,
+            setId: null,
+        });
+        expect(cleared.projects[0].commonParamSetId).toBeUndefined();
+    });
+
+    it('SET_PROJECT_COMMON_PARAM_SET ignores out-of-range projectIndex', () => {
+        const state = withLoadedState();
+
+        const next = tabsReducer(state, {
+            type: 'SET_PROJECT_COMMON_PARAM_SET',
+            projectIndex: 99,
+            setId: 'set-1',
+        });
+
+        expect(next).toBe(state);
+    });
 });

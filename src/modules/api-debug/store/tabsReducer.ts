@@ -8,7 +8,14 @@ export type { TabsAction, TabsState } from './tabsReducer/types';
 
 type ProjectTabsAction = Extract<
     TabsAction,
-    { type: 'ADD_PROJECT' | 'DELETE_PROJECT' | 'RENAME_PROJECT' | 'TOGGLE_PROJECT_EXPAND' }
+    {
+        type:
+            | 'ADD_PROJECT'
+            | 'DELETE_PROJECT'
+            | 'RENAME_PROJECT'
+            | 'TOGGLE_PROJECT_EXPAND'
+            | 'SET_PROJECT_COMMON_PARAM_SET';
+    }
 >;
 
 type CaseTabsAction = Extract<
@@ -38,6 +45,7 @@ const PROJECT_ACTION_TYPES = new Set<ProjectTabsAction['type']>([
     'DELETE_PROJECT',
     'RENAME_PROJECT',
     'TOGGLE_PROJECT_EXPAND',
+    'SET_PROJECT_COMMON_PARAM_SET',
 ]);
 
 const CASE_ACTION_TYPES = new Set<CaseTabsAction['type']>([

@@ -6,7 +6,12 @@ import type { TabsAction, TabsState } from './types';
 type ProjectAction = Extract<
     TabsAction,
     {
-        type: 'ADD_PROJECT' | 'DELETE_PROJECT' | 'RENAME_PROJECT' | 'TOGGLE_PROJECT_EXPAND';
+        type:
+            | 'ADD_PROJECT'
+            | 'DELETE_PROJECT'
+            | 'RENAME_PROJECT'
+            | 'TOGGLE_PROJECT_EXPAND'
+            | 'SET_PROJECT_COMMON_PARAM_SET';
     }
 >;
 
@@ -85,6 +90,23 @@ export function reduceProjectAction(state: TabsState, action: ProjectAction): Ta
                 ? state.expandedProjectIds.filter((id) => id !== action.projectId)
                 : [...state.expandedProjectIds, action.projectId];
             return { ...state, expandedProjectIds: expanded };
+        }
+
+        case 'SET_PROJECT_COMMON_PARAM_SET': {
+            const project = state.projects[action.projectIndex];
+            if (!project) return state;
+            const nextProjects = state.projects.map((item, index) =>
+                index === action.projectIndex
+                    ? {
+                          ...item,
+                          ...(action.setId === null
+                              ? { commonParamSetId: undefined }
+                              : { commonParamSetId: action.setId }),
+                          updatedAt: Date.now(),
+                      }
+                    : item,
+            );
+            return { ...state, projects: nextProjects };
         }
     }
 }
