@@ -1,15 +1,21 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Table, Button } from 'antd';
-import { PlusOutlined, FormOutlined } from '@ant-design/icons';
+import {
+    PlusOutlined,
+    FormOutlined,
+    CaretDownOutlined,
+    CaretRightOutlined,
+} from '@ant-design/icons';
 import type { ParamItem } from '../../types/workspace';
 import { createParamItem } from '../../utils/workspace/paramItem';
 import ResizableHeaderCell from '../../../../components/ui/ResizableHeaderCell';
 import PanelEmptyState from '../../../../components/ui/PanelEmptyState';
 import { createParamTableColumns } from './paramTableColumns';
 
-interface ParamEditProps {
+export interface ParamEditProps {
     params: ParamItem[];
     onChange: (params: ParamItem[]) => void;
+    commonParams?: ParamItem[];
 }
 const CHECK_COL_WIDTH = 40;
 const ACTION_COL_WIDTH = 40;
@@ -18,7 +24,7 @@ const MIN_KEY_WIDTH = 60;
 const KEY_WIDTH_RATIO = 0.2;
 const DEFAULT_KEY_WIDTH_MAX = 280;
 
-function ParamTable({ params, onChange }: ParamEditProps) {
+export function ParamTable({ params, onChange }: ParamEditProps) {
     const wrapRef = useRef<HTMLDivElement>(null);
     const paramsRef = useRef(params);
     paramsRef.current = params;
@@ -137,7 +143,34 @@ function ParamEmptyState({ onAdd }: { onAdd: () => void }) {
     );
 }
 
-function ParamEdit({ params, onChange }: ParamEditProps) {
+function CommonParamsPanel({ commonParams }: { commonParams: ParamItem[] }) {
+    const [collapsed, setCollapsed] = useState(true);
+    return (
+        <div className="common-params-panel">
+            <button
+                type="button"
+                className="common-params-toggle"
+                onClick={() => setCollapsed((value) => !value)}
+                aria-expanded={!collapsed}
+            >
+                {collapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}
+                公共参数 ({commonParams.length})
+            </button>
+            {!collapsed && (
+                <div className="common-params-list">
+                    {commonParams.map((param) => (
+                        <div key={param.name} className="common-params-row">
+                            <span className="common-params-name">{param.name}</span>
+                            <span className="common-params-value">{param.value}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+function ParamEdit({ params, onChange, commonParams }: ParamEditProps) {
     const paramsRef = useRef(params);
     paramsRef.current = params;
     
@@ -149,6 +182,9 @@ function ParamEdit({ params, onChange }: ParamEditProps) {
     
     return (
         <div className="param-edit flex flex-col py-2">
+            {commonParams && commonParams.length > 0 ? (
+                <CommonParamsPanel commonParams={commonParams} />
+            ) : null}
             {params.length > 0 ? (
                 <>
                     <ParamTable params={params} onChange={onChange} />

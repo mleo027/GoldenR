@@ -29,11 +29,14 @@ import {
 } from './kcbpFeedbackContext';
 import { useResponseActions } from './useResponse';
 import { useScriptConsoleActions } from './useScriptConsole';
+import { useCommonParamsState } from './useCommonParams';
+import { resolveCommonParamsById } from '../utils/workspace/commonParams';
 
 export function KcbpCallProvider({ children }: { children: ReactNode }) {
     const { updateTab } = useTabsActions();
     const { env } = useApiDebugEnv();
     const { activeProject, activeTab, activeCaseIndex } = useActiveTab();
+    const { sets: commonSets } = useCommonParamsState();
     const { setResponse } = useResponseActions();
     const { setScriptConsole } = useScriptConsoleActions();
     const { pushLog } = useRunLogActions();
@@ -44,6 +47,7 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
     const activeTabRef = useRef(activeTab);
     const activeProjectRef = useRef(activeProject);
     const activeCaseIndexRef = useRef(activeCaseIndex);
+    const commonSetsRef = useRef(commonSets);
     const envRef = useRef(env);
     const editorModeRef = useRef(env.editorMode);
     const feedbackRef = useRef<KcbpFeedbackHandler | null>(null);
@@ -51,6 +55,7 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
     activeTabRef.current = activeTab;
     activeProjectRef.current = activeProject;
     activeCaseIndexRef.current = activeCaseIndex;
+    commonSetsRef.current = commonSets;
     envRef.current = env;
     editorModeRef.current = env.editorMode;
 
@@ -97,6 +102,11 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
             ...(typeof drafts.address === 'string' ? { address: drafts.address } : {}),
             ...(typeof drafts.script === 'string' ? { script: drafts.script } : {}),
         };
+        const project = activeProjectRef.current;
+        const commonParams = resolveCommonParamsById(
+            commonSetsRef.current,
+            project?.commonParamSetId,
+        );
         const resolvedMsgtype =
             parseMsgtypeFromAddress(tab.address).trim() || resolveMsgtypeFromParams(tab.params);
         if (!resolvedMsgtype) {
@@ -118,7 +128,9 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
         setRunningCaseId(caseId);
 
         try {
-            const outcome = await invokeKcbpCall(tab, editorMode);
+            const outcome = await invokeKcbpCall(tab, editorMode, {
+                commonParams: commonParams.length > 0 ? commonParams : undefined,
+            });
             if (callId !== callGenerationRef.current) return;
 
             updateTab({
@@ -167,7 +179,7 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
                     msgtype: outcome.msgtype || msgtype,
                     queue: addressParts.queue.trim() || undefined,
                     timeout: addressParts.timeout.trim() || undefined,
-                    params: tab.params,
+                    params: outcome.effectiveParams ?? tab.params,
                     script: tab.script,
                     runInput: tab.runInput,
                 },

@@ -10,6 +10,7 @@ import {
     resolveCaseScript,
 } from '../../utils/script/apiScript';
 import { buildKcbpFields } from '../../utils/kcbp/kcbpFields';
+import { mergeCommonParams } from '../../utils/workspace/commonParams';
 import { createScriptConsole } from '../../utils/script/scriptConsole';
 import {
     createScriptTest,
@@ -53,7 +54,11 @@ export async function runScriptOrTcdCase(
 ): Promise<KcbpCallOutcome> {
     const electronDeps: TcdElectronDeps | undefined = options.electronDeps;
     const script = options.resolveScript?.(tab, msgtype) ?? resolveCaseScript(tab, msgtype);
-    const fallbackPayload = buildKcbpFields(tab.params);
+    const effectiveParams =
+        options.commonParams && options.commonParams.length > 0
+            ? mergeCommonParams(options.commonParams, tab.params)
+            : tab.params;
+    const fallbackPayload = buildKcbpFields(effectiveParams);
     const runInput =
         editorMode === 'tcd'
             ? normalizeRunInput(options.runInput ?? tab.runInput)
@@ -264,6 +269,7 @@ export async function runScriptOrTcdCase(
         if (isScriptTestResult(scriptResult)) {
             return attachCallSteps({
                 ...outcome,
+                effectiveParams: activeParams,
                 scriptResult,
                 scriptTest: scriptResult,
                 scriptConsole: consoleCapture.snapshot(),
@@ -279,6 +285,7 @@ export async function runScriptOrTcdCase(
 
         return attachCallSteps({
             ...outcome,
+            effectiveParams: activeParams,
             scriptResult,
             scriptConsole: consoleCapture.snapshot(),
             nextScript: outcome.missingParam
@@ -291,6 +298,7 @@ export async function runScriptOrTcdCase(
                 const outcome: KcbpCallOutcome = lastOutcome;
                 return attachCallSteps({
                     ...outcome,
+                    effectiveParams: activeParams,
                     scriptError: error.result.message,
                     scriptTest: error.result,
                     scriptConsole: consoleCapture.snapshot(),
@@ -309,6 +317,7 @@ export async function runScriptOrTcdCase(
             return attachCallSteps({
                 response: errorResponse,
                 nextParams: tab.params,
+                effectiveParams: activeParams,
                 scriptError: error.result.message,
                 scriptTest: error.result,
                 scriptConsole: consoleCapture.snapshot(),
@@ -343,6 +352,7 @@ export async function runScriptOrTcdCase(
         });
         return attachCallSteps({
             ...outcome,
+            effectiveParams,
             scriptError,
             scriptConsole: consoleCapture.snapshot(),
             nextScript: outcome.missingParam

@@ -9,9 +9,12 @@ import {
     ExportOutlined,
     ImportOutlined,
     PlusOutlined,
+    CheckOutlined,
+    SolutionOutlined,
     StarOutlined,
 } from '@ant-design/icons';
 import { useTabsActions, useTabsNavigation } from '../store/useTabs';
+import { useCommonParamsState } from '../store/useCommonParams';
 import { applyTabDraftsToWorkspace } from '../store/tabsData';
 import { useInlineRename, type RenameTarget } from '../../../hooks/useInlineRename';
 import { useDragAutoScroll } from '../../../hooks/useDragAutoScroll';
@@ -39,9 +42,11 @@ export function useCaseSidebarController() {
         renameCase,
         toggleCaseFavorite,
         moveCase,
+        setProjectCommonParamSet,
     } = useTabsActions();
 
     const state = useTabsNavigation();
+    const { sets: commonSets } = useCommonParamsState();
 
     const { openImportFormatPicker } = useProjectImport({
         projects: state.projects,
@@ -233,7 +238,9 @@ export function useCaseSidebarController() {
     );
 
     const getProjectMenu = useCallback(
-        (projectIndex: number): MenuProps['items'] => [
+        (projectIndex: number): MenuProps['items'] => {
+            const project = state.projects[projectIndex];
+            return [
             {
                 key: 'import',
                 label: '导入接口 JSON|INI',
@@ -260,14 +267,46 @@ export function useCaseSidebarController() {
             },
             { type: 'divider' },
             {
+                key: 'common-params',
+                label: '公共参数',
+                icon: <SolutionOutlined />,
+                children: [
+                    {
+                        key: 'common-params-none',
+                        label: '不挂载',
+                        icon:
+                            project?.commonParamSetId === undefined ? <CheckOutlined /> : undefined,
+                        onClick: () => setProjectCommonParamSet(projectIndex, null),
+                    },
+                    ...commonSets.map((set) => ({
+                        key: `common-params-${set.id}`,
+                        label: set.name,
+                        icon:
+                            project?.commonParamSetId === set.id ? <CheckOutlined /> : undefined,
+                        onClick: () => setProjectCommonParamSet(projectIndex, set.id),
+                    })),
+                ],
+            },
+            { type: 'divider' },
+            {
                 key: 'delete',
                 label: '删除项目',
                 icon: <CloseOutlined />,
                 danger: true,
                 onClick: () => handleDeleteProject(projectIndex),
             },
+            ];
+        },
+        [
+            addCase,
+            commonSets,
+            handleDeleteProject,
+            handleExportProject,
+            handleImportProject,
+            setProjectCommonParamSet,
+            startRename,
+            state.projects,
         ],
-        [addCase, handleDeleteProject, handleExportProject, handleImportProject, startRename],
     );
 
     const getCaseActionHandler = useStableHandlerMap((key: string) => {

@@ -68,7 +68,7 @@ export default function ActivityBar({ modules, onOpenCommandPalette }: ActivityB
                         className={`activity-bar-item activity-bar-item-settings${open ? ' activity-bar-item-active' : ''}`}
                         aria-label="设置"
                         aria-pressed={open}
-                        onClick={openSettings}
+                        onClick={() => openSettings()}
                     >
                         <span className="activity-bar-icon">
                             <SettingOutlined />

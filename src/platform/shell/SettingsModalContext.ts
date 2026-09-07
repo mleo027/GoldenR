@@ -2,7 +2,8 @@ import { createContext } from 'react';
 
 export interface SettingsModalContextValue {
     open: boolean;
-    openSettings: () => void;
+    initialSectionKey?: string;
+    openSettings: (sectionKey?: string) => void;
     closeSettings: () => void;
 }
 

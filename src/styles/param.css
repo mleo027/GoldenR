@@ -1282,3 +1282,39 @@
     font-size: 14px;
     color: var(--color-text-muted);
 }
+.common-params-panel {
+    margin: 0 10px 8px;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+}
+
+.common-params-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    padding: 4px 2px;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.common-params-list {
+    padding: 2px 0 2px 18px;
+}
+
+.common-params-row {
+    display: flex;
+    gap: 12px;
+    padding: 2px 0;
+}
+
+.common-params-name {
+    min-width: 100px;
+}
+
+.common-params-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

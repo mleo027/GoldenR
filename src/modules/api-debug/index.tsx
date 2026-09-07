@@ -11,6 +11,7 @@ import {
     SendOutlined,
     DatabaseOutlined,
     UnorderedListOutlined,
+    SolutionOutlined,
 } from '@ant-design/icons';
 import type { AppModuleDefinition } from '../../platform/registry/types';
 import { API_DEBUG_MODULE_ID } from './constants/apiDebugEnv';
@@ -21,6 +22,7 @@ import ApiDebugTitleBarTabs from './layout/ApiDebugTitleBarTabs';
 import RequestSettings from './components/layout/RequestSettings';
 import DbConnectionSettings from './components/settings/DbConnectionSettings';
 import ParamSuggestRulesSettings from './components/settings/ParamSuggestRulesSettings';
+import { CommonParamsSettingsWrapper } from './components/settings/CommonParamsSettings';
 import { flushApiDebugPersistedState } from './persist';
 
 export const apiDebugModule: AppModuleDefinition = {
@@ -58,6 +60,14 @@ export const apiDebugModule: AppModuleDefinition = {
             category: 'general',
             layout: 'wide',
             searchKeywords: ['入参', '智能提示', 'SQL', 'param'],
+        },
+        {
+            key: 'api-common-params',
+            label: '公共参数',
+            icon: <SolutionOutlined />,
+            Panel: CommonParamsSettingsWrapper,
+            category: 'general',
+            searchKeywords: ['公共参数', '入参', 'orgid', 'funcid'],
         },
     ],
 };

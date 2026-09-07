@@ -1,18 +1,23 @@
 import { useApiDebugEnv } from '../../store/useApiDebugEnv';
-import { useTabsActions } from '../../store/useTabs';
+import { useTabsActions, useActiveTab } from '../../store/useTabs';
+import { useCommonParamsState } from '../../store/useCommonParams';
+import { resolveCommonParamsById, stripMountedCommonParams } from '../../utils/workspace/commonParams';
 import { useKcbpCall } from '../../hooks/useKcbpCall';
 import type { RequestHistoryEntry } from '../../types/requestHistory';
 
 export function useHistoryActions(onClose: () => void) {
     const { updateTabUndoable } = useTabsActions();
+    const { activeProject } = useActiveTab();
+    const { sets } = useCommonParamsState();
     const { updateEnv } = useApiDebugEnv();
     const { run } = useKcbpCall();
 
     const loadEntry = (entry: RequestHistoryEntry) => {
+        const commonParams = resolveCommonParamsById(sets, activeProject?.commonParamSetId);
         updateTabUndoable(
             {
                 address: entry.request.address,
-                params: entry.request.params,
+                params: stripMountedCommonParams(entry.request.params ?? [], commonParams),
                 ...(entry.request.script !== undefined ? { script: entry.request.script } : {}),
                 ...(entry.request.runInput !== undefined
                     ? { runInput: entry.request.runInput }

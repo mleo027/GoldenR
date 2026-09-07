@@ -21,6 +21,7 @@ import { Input } from '../ui/primitives';
 interface SettingsModalProps {
     open: boolean;
     onClose: () => void;
+    initialSectionKey?: string;
 }
 
 type SettingsSectionKey = string;
@@ -137,10 +138,10 @@ function SettingsModalContent({
     );
 }
 
-export default function SettingsModal({ open, onClose }: SettingsModalProps) {
+export default function SettingsModal({ open, onClose, initialSectionKey }: SettingsModalProps) {
     const { env } = useAppEnv();
     const [activeSection, setActiveSection] = useState<SettingsSectionKey>(
-        DEFAULT_SETTINGS_SECTION_KEY,
+        initialSectionKey ?? DEFAULT_SETTINGS_SECTION_KEY,
     );
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -195,14 +196,17 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
             setSearchQuery('');
             return;
         }
+        if (initialSectionKey && navItemKeys.includes(initialSectionKey)) {
+            setActiveSection(initialSectionKey);
+        }
         if (!navItemKeys.includes(activeSection)) {
-            setActiveSection(DEFAULT_SETTINGS_SECTION_KEY);
+            setActiveSection(initialSectionKey ?? DEFAULT_SETTINGS_SECTION_KEY);
             return;
         }
         if (hasSearchQuery && hasVisibleNav && !visibleNavKeys.includes(activeSection)) {
             setActiveSection(visibleNavKeys[0]);
         }
-    }, [activeSection, hasSearchQuery, hasVisibleNav, navItemKeys, open, visibleNavKeys]);
+    }, [activeSection, hasSearchQuery, hasVisibleNav, initialSectionKey, navItemKeys, open, visibleNavKeys]);
 
     const activePlatformSection = findPlatformSettingsSection(activeSection);
     const activeModuleSection = moduleSections.find((section) => section.key === activeSection);

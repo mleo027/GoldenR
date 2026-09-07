@@ -21,7 +21,7 @@ interface PlatformShellProps {
 
 function PlatformSettingsShortcut() {
     const { openSettings } = useSettingsModal();
-    return <ModuleShortcut {...PLATFORM_SHORTCUT.OPEN_SETTINGS} handler={openSettings} />;
+    return <ModuleShortcut {...PLATFORM_SHORTCUT.OPEN_SETTINGS} handler={() => openSettings()} />;
 }
 
 function PlatformCommandPaletteShortcut({ onOpen }: { onOpen: () => void }) {

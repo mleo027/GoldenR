@@ -10,7 +10,7 @@ const SettingsModal = lazy(() => import('../../components/layout/SettingsModal')
  * 平台级「外观 / 关于」面板不依赖模块 Provider。
  */
 export default function SettingsModalGate() {
-    const { open, closeSettings } = useSettingsModal();
+    const { open, initialSectionKey, closeSettings } = useSettingsModal();
 
     if (!open) {
         return null;
@@ -18,7 +18,7 @@ export default function SettingsModalGate() {
 
     return (
         <Suspense fallback={<SettingsModalSkeleton />}>
-            <SettingsModal open={open} onClose={closeSettings} />
+            <SettingsModal open={open} onClose={closeSettings} initialSectionKey={initialSectionKey} />
         </Suspense>
     );
 }

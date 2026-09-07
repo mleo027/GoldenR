@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     SendOutlined,
     CaretDownOutlined,
@@ -21,6 +21,8 @@ import { UI_DEBOUNCE_MS } from '@/constants/ui';
 import type { ParamItem } from '../../types/workspace';
 import { parseKcbpAddress, serializeKcbpAddress } from '../../utils/kcbp/kcbpAddress';
 import type { QuickFillPayload } from '../../utils/workspace/paramText';
+import { useCommonParamsState } from '../../store/useCommonParams';
+import { resolveCommonParamsById } from '../../utils/workspace/commonParams';
 
 interface RequestPanelProps {
     paramsCollapsed?: boolean;
@@ -33,12 +35,14 @@ function ParamsSection({
     onToggle,
     params,
     onChange,
+    commonParams,
 }: {
     collapsed: boolean;
     count: number;
     onToggle?: () => void;
     params: ParamItem[];
     onChange: (params: ParamItem[]) => void;
+    commonParams: ParamItem[];
 }) {
     return (
         <>
@@ -58,7 +62,7 @@ function ParamsSection({
                 className={`param-section-body${collapsed ? ' param-section-body-collapsed' : ''}`}
             >
                 <div className="param-section-scroll ui-scroll flex flex-col h-full min-h-0 overflow-y-auto overflow-x-hidden">
-                    <ParamEdit params={params} onChange={onChange} />
+                    <ParamEdit params={params} onChange={onChange} commonParams={commonParams} />
                 </div>
             </div>
         </>
@@ -69,7 +73,12 @@ export default function RequestPanel({
     paramsCollapsed = false,
     onToggleParamsCollapse,
 }: RequestPanelProps) {
-    const { activeTab } = useActiveTab();
+    const { activeTab, activeProject } = useActiveTab();
+    const { sets } = useCommonParamsState();
+    const commonParams = useMemo(
+        () => resolveCommonParamsById(sets, activeProject?.commonParamSetId),
+        [activeProject?.commonParamSetId, sets],
+    );
     const { updateTabUndoable } = useTabsActions();
     const commitParams = useCallback(
         (params: ParamItem[]) => updateTabUndoable({ params }, '修改请求参数'),
@@ -138,6 +147,7 @@ export default function RequestPanel({
                 onToggle={onToggleParamsCollapse}
                 params={paramsDraft}
                 onChange={setDraftDebounced}
+                commonParams={commonParams}
             />
         </div>
     );

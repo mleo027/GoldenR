@@ -3,6 +3,7 @@ import { parseKcbpAddress, serializeKcbpAddress } from '../../utils/kcbp/kcbpAdd
 import { paramsToCaseScript } from '../../utils/script/apiScript';
 import { buildKcbpFields } from '../../utils/kcbp/kcbpFields';
 import { resolveMsgtypeFromParams } from '../../utils/workspace/caseLabel';
+import { mergeCommonParams } from '../../utils/workspace/commonParams';
 import {
     KGBP_REQUIRED_FIELDS_MESSAGE,
     applyKcxpEnvironmentToAddress,
@@ -59,7 +60,10 @@ export async function invokeKcbpCall(
     }
 
     if (editorMode === 'ui') {
-        const { fields, binaryFields } = buildKcbpFields(tab.params);
+        const effectiveParams = optionsWithRunner.commonParams
+            ? mergeCommonParams(optionsWithRunner.commonParams, tab.params)
+            : tab.params;
+        const { fields, binaryFields } = buildKcbpFields(effectiveParams);
         const outcome = await invokeKcbpWithFields({
             tab,
             msgtype,
@@ -71,6 +75,7 @@ export async function invokeKcbpCall(
         });
         return {
             ...outcome,
+            effectiveParams,
             nextScript: outcome.missingParam
                 ? paramsToCaseScript(outcome.nextParams, outcome.msgtype)
                 : undefined,
