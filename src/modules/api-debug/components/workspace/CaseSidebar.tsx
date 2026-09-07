@@ -1,7 +1,7 @@
 import { forwardRef, useImperativeHandle } from 'react';
-import {} from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useCaseSidebarController } from '../../hooks/useCaseSidebarController';
+import CaseActionBar from './CaseActionBar';
 import CaseChildrenList from './CaseChildrenList';
 import CaseSidebarHeader from './CaseSidebarHeader';
 import ProjectTreeItem from './ProjectTreeItem';
@@ -148,8 +148,9 @@ const CaseSidebar = forwardRef<CaseSidebarHandle, CaseSidebarProps>(function Cas
 
     return (
         <div ref={controller.sidebarRef} className="case-sidebar flex flex-col h-full">
-            <CaseSidebarHeader onOpenHistory={onOpenHistory} />
+            <CaseSidebarHeader />
             <CaseSidebarSearch controller={controller} />
+            <CaseActionBar onAddProject={controller.addProject} onOpenHistory={onOpenHistory} />
             <CaseSidebarTree controller={controller} />
         </div>
     );
