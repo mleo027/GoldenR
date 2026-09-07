@@ -1,5 +1,5 @@
 import { Button, Tooltip } from 'antd';
-import { FolderAddOutlined, HistoryOutlined, SettingOutlined } from '@ant-design/icons';
+import { FolderAddOutlined, HistoryOutlined, SlidersOutlined } from '@ant-design/icons';
 import { useSettingsModal } from '../../../../platform/shell/useSettingsModal';
 
 interface CaseActionBarProps {
@@ -35,7 +35,7 @@ export default function CaseActionBar({ onAddProject, onOpenHistory }: CaseActio
                 <Button
                     type="text"
                     size="small"
-                    icon={<SettingOutlined />}
+                    icon={<SlidersOutlined />}
                     onClick={() => openSettings('api-common-params')}
                     className="case-actionbar-btn"
                     aria-label="公共参数"
