@@ -1,6 +1,20 @@
+import { useMemo } from 'react';
 import { Button } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import { useRequestHistoryNavigation } from '../../store/useRequestHistoryNavigation';
+import { formatSql, highlightSql } from '../../utils/sql/sqlFormat';
+
+function FormattedSql({ sql }: { sql: string }) {
+    const formatted = useMemo(() => formatSql(sql), [sql]);
+    const highlighted = useMemo(() => highlightSql(formatted), [formatted]);
+
+    return (
+        <pre className="px-3 py-2 border-t border-slate-200 dark:border-slate-700 whitespace-pre-wrap break-words overflow-x-auto text-sm bg-slate-50 dark:bg-slate-900 font-mono">
+            { }
+            <code dangerouslySetInnerHTML={{ __html: highlighted }} />
+        </pre>
+    );
+}
 
 export default function TraceView() {
     const { traceData, traceCaseName, closeTrace } = useRequestHistoryNavigation();
@@ -50,9 +64,7 @@ export default function TraceView() {
                                 <span className="ml-3 opacity-60">{event.objectName}</span>
                             )}
                         </summary>
-                        <pre className="px-3 py-2 border-t border-slate-200 dark:border-slate-700 whitespace-pre-wrap break-words overflow-x-auto text-sm bg-slate-50 dark:bg-slate-900">
-                            {event.sqlText || '—'}
-                        </pre>
+                        <FormattedSql sql={event.sqlText} />
                     </details>
                 ))}
             </div>
