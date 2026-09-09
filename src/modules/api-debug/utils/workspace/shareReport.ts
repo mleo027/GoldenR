@@ -1,4 +1,5 @@
 import type { ResponseData } from '../../types/workspace';
+import type { SqlTraceResult } from '@/shared/kcbp/types';
 import { parseKcbpAddress } from '../kcbp/kcbpAddress';
 import { mergeCommonParams } from './commonParams';
 import { buildParamsRawText, resolveRawMsgtype, type ParamsRawTextOptions } from './rawText';
@@ -99,6 +100,19 @@ tbody tr:nth-child(even) { background: #fafbfc; }
 .pager button.page-size { background: var(--accent); border-color: var(--accent); color: #fff; }
 .pager button.page-size.off { background: #fff; border-color: var(--line); color: #555; }
 .empty { color: #999; }
+.sql-trace { margin-top: 24px; }
+.sql-trace-event { margin-bottom: 12px; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.sql-trace-header { padding: 8px 12px; background: var(--head-bg); cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 13px; }
+.sql-trace-header:hover { background: #eef3fb; }
+.sql-trace-time { color: #666; }
+.sql-trace-type { font-weight: 600; }
+.sql-trace-duration { color: var(--accent); }
+.sql-trace-object { color: #888; }
+.sql-trace-sql { padding: 12px; background: #fafafa; font: 12px/1.5 Consolas, monospace; white-space: pre-wrap; word-break: break-all; margin: 0; border-top: 1px solid var(--line); }
+.sql-keyword { color: var(--accent); font-weight: 600; }
+.sql-comment { color: #999; font-style: italic; }
+.sql-string { color: #0f8a4d; }
+.sql-number { color: #d4a017; }
 `;
 
 const REPORT_SCRIPT = `
@@ -229,6 +243,42 @@ const REPORT_SCRIPT = `
 })();
 `;
 
+function formatSqlForReport(sql: string): string {
+    return escapeHtml(sql)
+        .replace(/\b(select|from|where|group|order|having|union|except|intersect|values|set|return|join|inner|left|right|full|cross|as|and|or|on|in|is|null|not|like|top|distinct|insert|update|delete|merge|into|begin|end|declare|exec|execute)\b/gi,
+            '<span class="sql-keyword">$1</span>')
+        .replace(/(--[^\n]*)/g, '<span class="sql-comment">$1</span>')
+        .replace(/('(?:''|[^'])*')/g, '<span class="sql-string">$1</span>')
+        .replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="sql-number">$1</span>');
+}
+
+function renderTraceSection(trace: SqlTraceResult | undefined): string {
+    if (!trace || !trace.events.length) return '';
+    const events = trace.events
+        .map((event) => {
+            const time = new Date(event.timestampUtc).toLocaleTimeString();
+            const sqlHtml = event.sqlText ? formatSqlForReport(event.sqlText) : '—';
+            return [
+                `<details class="sql-trace-event" open>`,
+                `<summary class="sql-trace-header">`,
+                `<span class="sql-trace-time">${escapeHtml(time)}</span>`,
+                `<span class="sql-trace-type">${escapeHtml(event.eventType)}</span>`,
+                `<span class="sql-trace-duration">${event.durationMs.toFixed(2)} ms</span>`,
+                event.objectName ? `<span class="sql-trace-object">${escapeHtml(event.objectName)}</span>` : '',
+                `</summary>`,
+                `<pre class="sql-trace-sql">${sqlHtml}</pre>`,
+                `</details>`,
+            ].join('');
+        })
+        .join('\n');
+    return [
+        `<div class="sql-trace">`,
+        `<p style="color: #888; font-size: 12px; margin-bottom: 8px;">${trace.events.length} events</p>`,
+        events,
+        `</div>`,
+    ].join('');
+}
+
 function renderResultSets(response: ResponseData): string {
     if (!response.resultSets.length) {
         return '<p class="empty">无结果集</p>';
@@ -257,6 +307,7 @@ export function buildShareReportHtml(options: ShareReportOptions): string {
     const rawText = buildParamsRawText(options);
     const response = options.response;
 
+    const traceSection = response ? renderTraceSection(response.trace) : '';
     const summary = response
         ? [
               '<p class="resp-summary">',
@@ -283,6 +334,7 @@ export function buildShareReportHtml(options: ShareReportOptions): string {
         '<section><h2>应答</h2>',
         summary,
         '</section>',
+        traceSection ? `<section><h2>SQL Trace</h2>${traceSection}</section>` : '',
         `<script>${REPORT_SCRIPT}${SCRIPT_TAG_CLOSE}`,
         '</body>',
         '</html>',
