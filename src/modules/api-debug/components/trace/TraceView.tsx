@@ -29,14 +29,13 @@ export default function TraceView() {
                         {traceData.startError || traceData.readError || traceData.stopError}
                     </div>
                 ) : null}
-                {traceData.events.length === 0 &&
-                !traceData.startError &&
-                !traceData.readError ? (
+                {traceData.events.length === 0 && !traceData.startError && !traceData.readError ? (
                     <div className="text-sm opacity-60">Trace 已开启但未捕获 SQL</div>
                 ) : null}
                 {traceData.events.map((event, index) => (
                     <details
                         key={`${event.timestampUtc}-${index}`}
+                        open
                         className="mb-2 border border-slate-200 dark:border-slate-700 rounded"
                     >
                         <summary className="cursor-pointer px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800">
