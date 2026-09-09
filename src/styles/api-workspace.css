@@ -385,9 +385,9 @@
 }
 
 .section-header--layout-compact .path-command-bar .path-field-msgtype-input {
-    width: 118px;
-    min-width: 118px;
-    flex-basis: 118px;
+    width: 104px;
+    min-width: 104px;
+    flex-basis: 104px;
 }
 
 @media (max-width: 760px) {
@@ -464,13 +464,13 @@
 }
 
 .path-field-msgtype-input {
-    width: 118px;
-    min-width: 118px;
-    flex: 0 0 118px;
+    width: 104px;
+    min-width: 104px;
+    flex: 0 0 104px;
     min-width: 0;
     height: 24px;
     padding: 0 5px;
-    border: 1px solid transparent;
+    border: none;
     border-radius: var(--radius-control);
     background: transparent;
     color: var(--color-text);
@@ -481,11 +481,17 @@
     box-shadow: none;
 }
 
+/* 输入框常驻无边框透明，避免在胶囊内出现「框中框」；
+   聚焦反馈由胶囊本身（focus-within）承担。 */
 .path-field-msgtype-input:hover,
 .path-field-msgtype-input:focus {
-    border-color: var(--color-primary-muted);
-    background: var(--color-bg-card);
+    background: transparent;
     box-shadow: none;
+}
+
+.path-command-bar .path-field-pill--push:focus-within {
+    background: color-mix(in srgb, var(--color-bg-subtle) 88%, transparent);
+    box-shadow: 0 0 0 1px var(--color-primary-muted);
 }
 
 .path-field-display:hover {
