@@ -1266,10 +1266,10 @@
 .path-run-btn,
 :root:not([data-theme='dark']) .path-run-btn {
     box-sizing: border-box;
-    flex: 0 0 108px !important;
-    width: 108px;
-    min-width: 108px;
-    max-width: 108px;
+    flex: 0 0 auto !important;
+    width: auto;
+    min-width: 80px;
+    max-width: 120px;
     height: 36px !important;
     min-height: 36px !important;
     margin-right: 0;
@@ -1309,9 +1309,9 @@
 }
 
 .workspace-panel-request .section-header-trailing {
-    flex: 0 0 108px;
-    width: 108px;
-    min-width: 108px;
+    flex: 0 1 auto;
+    width: auto;
+    min-width: 0;
 }
 
 .path-bar--layout-compact .path-fields-group .path-field-service {
