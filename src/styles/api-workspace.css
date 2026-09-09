@@ -54,13 +54,13 @@
     padding-inline: 5px;
     border-radius: 0;
     background: var(--color-bg-card);
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    box-shadow: var(--shadow-subtle);
     transition: box-shadow var(--transition-fast);
 }
 
 .path-command-bar:focus-within {
     box-shadow:
-        0 1px 2px rgba(15, 23, 42, 0.04),
+        var(--shadow-subtle),
         0 0 0 2px var(--color-primary-glow);
 }
 
@@ -84,10 +84,11 @@
     align-items: center;
     gap: 0;
     height: 28px;
-    padding: 0 5px;
-    border-radius: var(--radius-control);
+    padding: 0 10px;
+    margin-right: 8px;
+    border-radius: 999px;
     transition: background var(--transition-fast);
-    background: transparent;
+    background: color-mix(in srgb, var(--color-bg-subtle) 72%, transparent);
     min-width: 0;
 }
 
@@ -98,7 +99,7 @@
 }
 
 .path-env-selector:hover {
-    background: transparent;
+    background: color-mix(in srgb, var(--color-bg-subtle) 60%, transparent);
 }
 
 .path-env-select {
@@ -108,7 +109,7 @@
 }
 
 .path-env-select .ant-select-selector {
-    padding: 0 14px 0 0 !important;
+    padding: 0 !important;
     border: none !important;
     background: transparent !important;
     box-shadow: none !important;
@@ -117,8 +118,7 @@
     letter-spacing: 0.02em;
     line-height: 1 !important;
     color: var(--color-primary) !important;
-    border-radius: var(--radius-control) !important;
-    background: transparent !important;
+    border-radius: 999px !important;
 }
 
 .path-env-select .ant-select-selection-item {
@@ -131,33 +131,13 @@
     line-height: 1 !important;
 }
 
+/* 隐藏下拉箭头 */
 .path-env-select .ant-select-arrow {
-    inset-inline-end: 0 !important;
-    top: 50% !important;
-    width: 12px !important;
-    height: 12px !important;
-    margin-top: 0 !important;
-    transform: translateY(-50%) !important;
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-text-muted);
-    pointer-events: none;
-    transition: transform var(--transition-fast);
-}
-
-.path-env-select.ant-select-open .ant-select-arrow {
-    transform: translateY(-50%) rotate(180deg) !important;
+    display: none !important;
 }
 
 .path-env-select-chevron {
-    font-size: 9px !important;
-    line-height: 1;
-    pointer-events: none;
-}
-
-.path-env-select-chevron svg {
-    display: block;
+    display: none !important;
 }
 
 .path-env-dropdown {
@@ -238,15 +218,25 @@
 
 /* Msgtype 作为重点字段靠右展示。 */
 .path-command-bar .path-field-pill--push {
-    margin-left: auto;
+    margin-left: 8px;
+}
+
+/* 胶囊之间增加横向间距 */
+.path-command-bar .path-field-tooltip-wrap + .path-field-tooltip-wrap {
+    margin-left: 8px;
+}
+
+/* 隐藏胶囊与 actions/overflow 之间的分割线 */
+.path-command-bar .path-field-tooltip-wrap ~ .path-command-divider {
+    display: none;
 }
 
 .path-field-display {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     height: 28px;
-    padding: 0 7px;
+    padding: 0 12px;
     font-size: var(--font-caption);
     font-weight: 500;
     color: var(--color-text);
@@ -390,6 +380,80 @@
     flex-basis: 104px;
 }
 
+/* KGBP 紧凑布局：字段是同一条工具栏的分段，不让每个字段都像独立卡片。 */
+.section-header--layout-compact .path-command-bar--kgbp {
+    gap: 2px;
+}
+
+.section-header--layout-compact .path-command-bar--kgbp .path-field-tooltip-wrap {
+    border: 1px solid transparent;
+    border-radius: 7px;
+    background: var(--color-bg-subtle);
+}
+
+.section-header--layout-compact .path-command-bar--kgbp .path-field-display {
+    gap: 6px;
+    height: 28px;
+    padding-inline: 9px;
+}
+
+.section-header--layout-compact .path-command-bar--kgbp .path-field-service {
+    width: 158px;
+}
+
+.section-header--layout-compact .path-command-bar--kgbp .path-field-node-id {
+    width: 106px;
+}
+
+.section-header--layout-compact .path-command-bar--kgbp .path-field-client-session-id {
+    width: 166px;
+}
+
+.section-header--layout-compact .path-command-bar--kgbp .path-field-service .path-field-label,
+.section-header--layout-compact .path-command-bar--kgbp .path-field-node-id .path-field-label,
+.section-header--layout-compact
+    .path-command-bar--kgbp
+    .path-field-client-session-id
+    .path-field-label {
+    min-width: auto;
+    margin-right: 2px;
+}
+
+.section-header--layout-compact .path-command-bar--kgbp .path-field-value {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.section-header--layout-compact .path-command-bar--kgbp .path-field-pill--service {
+    background: var(--color-primary-subtle);
+}
+
+.section-header--layout-compact .path-command-bar--kgbp .path-field-pill--push {
+    flex: 1 1 190px;
+    min-width: 170px;
+    margin-left: 2px;
+    background: var(--color-bg-subtle);
+}
+
+.section-header--layout-compact .path-command-bar--kgbp .path-field-msgtype {
+    width: 100%;
+    min-width: 0;
+}
+
+.section-header--layout-compact .path-command-bar--kgbp .path-field-msgtype-input {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+}
+
+.section-header--layout-compact
+    .path-command-bar--kgbp
+    .path-field-tooltip-wrap
+    + .path-field-tooltip-wrap {
+    margin-left: 2px;
+}
+
 @media (max-width: 760px) {
     .section-header--layout-compact .path-command-bar .path-env-host-display {
         max-width: 45vw;
@@ -468,35 +532,51 @@
     min-width: 104px;
     flex: 0 0 104px;
     min-width: 0;
-    height: 24px;
-    padding: 0 5px;
-    border: none;
+    height: 22px;
+    padding: 0 4px;
+    border: none !important;
     border-radius: var(--radius-control);
-    background: transparent;
+    background: transparent !important;
     color: var(--color-text);
-    font-size: 13px;
-    font-weight: 650;
+    font-size: 12px;
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
-    line-height: 22px;
-    box-shadow: none;
+    line-height: 20px;
+    box-shadow: none !important;
+    transition: color var(--transition-fast);
+}
+
+/* 覆盖 Ant Design Input 内部元素的默认背景 */
+.path-field-msgtype-input .ant-input,
+.path-field-msgtype-input .ant-input:focus {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* 浅色主题：输入框文字颜色与 Queue 的 value 对齐 */
+:root:not([data-theme='dark']) .path-field-msgtype-input {
+    color: var(--color-text-body);
 }
 
 /* 输入框常驻无边框透明，避免在胶囊内出现「框中框」；
    聚焦反馈由胶囊本身（focus-within）承担。 */
 .path-field-msgtype-input:hover,
 .path-field-msgtype-input:focus {
-    background: transparent;
-    box-shadow: none;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: inherit;
 }
 
+/* 去掉 focus ring，胶囊本身无边框，由背景色区分即可 */
 .path-command-bar .path-field-pill--push:focus-within {
     background: color-mix(in srgb, var(--color-bg-subtle) 88%, transparent);
-    box-shadow: 0 0 0 1px var(--color-primary-muted);
+    box-shadow: none;
 }
 
 .path-field-display:hover {
     /* 只读字段保持轻微反馈，但不伪装成输入框。 */
     background: color-mix(in srgb, var(--color-bg-subtle) 65%, transparent);
+    filter: brightness(1.03);
 }
 
 .path-run-label {
@@ -514,6 +594,11 @@
     color: var(--color-text-muted);
     flex-shrink: 0;
     line-height: 1;
+}
+
+/* 统一胶囊视觉：KCBP/Queue/Msgtype 均为纯文字胶囊（隐藏装饰性图标，保持对齐） */
+.path-command-bar .path-field-display > .path-field-icon {
+    display: none;
 }
 
 .path-field-msgtype .path-field-display {
@@ -543,7 +628,7 @@
 
 .path-overflow {
     padding-inline: 2px 4px;
-    margin-left: auto;
+    margin-left: 8px;
 }
 
 .path-overflow-panel {
@@ -552,7 +637,7 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-control);
     background: var(--color-bg-card);
-    box-shadow: var(--shadow-popover, 0 6px 16px rgba(15, 23, 42, 0.12));
+    box-shadow: var(--shadow-elevated);
 }
 
 .path-overflow-panel .ant-menu {
@@ -643,15 +728,13 @@
 
 /* 浅色模式：减少“每个字段一张卡片”的感觉，突出地址与执行操作。 */
 :root:not([data-theme='dark']) .path-command-bar {
-    border-color: #d7dee8;
-    background: #ffffff;
-    box-shadow:
-        0 1px 2px rgba(15, 23, 42, 0.04),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    border-color: var(--color-border);
+    background: var(--color-bg-card);
+    box-shadow: var(--shadow-subtle);
 }
 
 :root:not([data-theme='dark']) .path-env-selector {
-    background: transparent;
+    background: var(--color-bg-subtle);
 }
 
 :root:not([data-theme='dark']) .path-env-select .ant-select-selector {
@@ -659,8 +742,8 @@
 }
 
 :root:not([data-theme='dark']) .path-env-host-display {
-    color: #334155;
-    border-left-color: #e2e8f0;
+    color: var(--color-text-title);
+    border-left-color: var(--color-border);
 }
 
 :root:not([data-theme='dark']) .path-command-bar .path-field-tooltip-wrap {
@@ -668,68 +751,84 @@
 }
 
 :root:not([data-theme='dark']) .path-field-label {
-    color: #7a8699;
+    color: var(--color-text-muted);
+    font-weight: 400;
 }
 
 :root:not([data-theme='dark']) .path-field-value {
-    color: #1e293b;
+    color: var(--color-text-body);
+    font-weight: 700;
 }
 
 :root:not([data-theme='dark']) .path-command-bar .path-field-tooltip-wrap {
-    background: #eef1f6;
+    background: var(--color-bg-subtle);
+}
+
+/* 浅色主题：Msgtype 胶囊底色加深，与普通胶囊形成层次 */
+:root:not([data-theme='dark']) .path-command-bar .path-field-pill--push {
+    background: var(--color-bg-subtle);
+}
+
+:root:not([data-theme='dark']) .path-command-bar .path-field-pill--push:focus-within {
+    background: var(--color-bg-hover);
+}
+
+/* 浅色主题：胶囊 hover 亮度提升 */
+:root:not([data-theme='dark']) .path-field-display:hover {
+    filter: brightness(1.06);
 }
 
 :root:not([data-theme='dark']) .path-command-bar .path-field-pill--service {
-    background: #e8f0fe;
+    background: var(--color-primary-subtle);
 }
 
 :root:not([data-theme='dark']) .path-command-bar .path-field-pill--service .path-field-value {
-    color: #1d4ed8;
+    color: var(--color-primary);
 }
 
 :root:not([data-theme='dark']) .path-command-bar .path-actions {
     background: transparent;
-    border-left-color: #e2e8f0;
+    border-left-color: var(--color-border);
 }
 
 :root:not([data-theme='dark']) .path-command-bar .path-helper-btn {
-    color: #64748b !important;
+    color: var(--color-text-secondary) !important;
 }
 
 /* 浅色专业工作台：用结构化边界和稳定对比度取代大面积浅灰块。 */
 :root:not([data-theme='dark']) .workspace-panel-request {
-    background: #fbfcfe;
+    background: var(--color-bg-card);
 }
 
 :root:not([data-theme='dark']) .workspace-panel .section-header {
     min-height: 50px;
-    background: #fbfcfe;
-    border-bottom-color: #e3e8ef;
+    background: var(--color-bg-card);
+    border-bottom-color: var(--color-border-subtle);
 }
 
 :root:not([data-theme='dark']) .workspace-panel-response .response-section-header,
 :root:not([data-theme='dark']) .param-section-toggle {
-    background: #ffffff;
-    border-bottom-color: #e5eaf0;
+    background: var(--color-bg-card);
+    border-bottom-color: var(--color-divider);
 }
 
 :root:not([data-theme='dark']) .param-table .ant-table-thead > tr > th,
 :root:not([data-theme='dark']) .response-table .ant-table-thead > tr > th {
-    color: #667085 !important;
-    background: #f5f7fa !important;
-    border-bottom-color: #dfe5ec !important;
+    color: var(--color-text-secondary) !important;
+    background: var(--color-table-header) !important;
+    border-bottom-color: var(--color-border) !important;
 }
 
 :root:not([data-theme='dark']) .param-table .ant-table-tbody > tr > td,
 :root:not([data-theme='dark']) .response-table .ant-table-tbody > tr > td {
-    color: #344054;
-    background: #ffffff;
-    border-bottom-color: #edf1f5;
+    color: var(--color-text-body);
+    background: var(--color-bg-card);
+    border-bottom-color: var(--color-border-light);
 }
 
 :root:not([data-theme='dark']) .param-table .ant-table-tbody > tr:hover > td,
 :root:not([data-theme='dark']) .response-table .ant-table-tbody > tr:hover > td {
-    background: #f7f9fd !important;
+    background: var(--color-bg-row-hover) !important;
 }
 
 :root:not([data-theme='dark']) .path-run-btn {
@@ -737,7 +836,7 @@
     height: 36px !important;
     min-height: 36px !important;
     border-radius: 6px !important;
-    box-shadow: 0 1px 2px rgba(20, 35, 80, 0.14) !important;
+    box-shadow: var(--shadow-subtle) !important;
 }
 
 :root:not([data-theme='dark']) .path-run-btn:not(:disabled):hover {
@@ -746,26 +845,26 @@
 }
 
 :root:not([data-theme='dark']) .path-run-kbd {
-    border-color: rgba(255, 255, 255, 0.32);
-    background: rgba(255, 255, 255, 0.12);
+    border-color: color-mix(in srgb, var(--color-bg-card) 32%, transparent);
+    background: color-mix(in srgb, var(--color-bg-card) 12%, transparent);
 }
 
 :root:not([data-theme='dark']) .case-sidebar {
-    background: #f7f9fc;
-    border-right: 1px solid #e3e8ef;
+    background: var(--color-bg-sidebar);
+    border-right: 1px solid var(--color-border-subtle);
 }
 
 :root:not([data-theme='dark']) .case-sidebar-header,
 :root:not([data-theme='dark']) .case-sidebar-search {
-    background: #f7f9fc;
+    background: var(--color-bg-sidebar);
 }
 
 :root:not([data-theme='dark']) .case-project-active {
-    background: #eef2f7;
+    background: var(--color-bg-group);
 }
 
 :root:not([data-theme='dark']) .case-item-active {
-    background: color-mix(in srgb, var(--color-primary) 9%, #ffffff);
+    background: color-mix(in srgb, var(--color-primary) 9%, var(--color-bg-card));
 }
 
 /* 用例树采用直角列表，依靠留白、分隔线和选中指示建立层级。 */
@@ -777,24 +876,24 @@
 }
 
 :root:not([data-theme='dark']) .case-tab-bar-title .case-tab-item-title:not(.case-tab-item-active) {
-    color: #7a8699;
+    color: var(--color-text-secondary);
     background: transparent;
 }
 
 :root:not([data-theme='dark']) .case-tab-bar-title .case-tab-item-title.case-tab-item-active {
     color: var(--color-primary);
-    background: #ffffff;
+    background: var(--color-bg-card);
 }
 
 /* 自定义品牌色下，次级选中态自动降饱和，主色只保留给关键操作。 */
 :root:not([data-theme='dark']) .case-item-active,
 :root:not([data-theme='dark']) .case-project-block-drop-target > .case-project {
-    background: color-mix(in srgb, var(--color-primary) 7%, #ffffff);
+    background: color-mix(in srgb, var(--color-primary) 7%, var(--color-bg-card));
 }
 
 :root:not([data-theme='dark']) .param-section-toggle:hover,
 :root:not([data-theme='dark']) .response-section-header:hover {
-    background: color-mix(in srgb, var(--color-primary) 3%, #ffffff);
+    background: color-mix(in srgb, var(--color-primary) 3%, var(--color-bg-card));
 }
 
 /* 响应空态指标 */
@@ -935,4 +1034,623 @@
     line-height: 1.4;
     pointer-events: none;
     user-select: none;
+}
+
+/* 工作台密度与层级统一：请求栏 */
+.workspace-panel-request .section-header-leading {
+    display: none;
+}
+
+.workspace-panel-request .section-header {
+    min-height: 52px;
+    padding: 0 0 0 12px !important;
+    gap: 8px;
+}
+
+.workspace-panel-request .section-header-trailing {
+    margin-right: 12px;
+}
+
+.path-command-bar,
+:root:not([data-theme='dark']) .path-command-bar {
+    height: 40px;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.path-command-bar:focus-within {
+    box-shadow: none;
+}
+
+.path-env-selector,
+:root:not([data-theme='dark']) .path-env-selector {
+    width: clamp(140px, 13vw, 180px);
+    height: 32px;
+    margin-right: 8px;
+    padding: 0 10px;
+    gap: 8px;
+    border-radius: var(--radius-pill);
+    background: var(--color-bg-subtle);
+}
+
+.path-env-protocol {
+    width: 7px;
+    height: 7px;
+    flex: 0 0 7px;
+    border-radius: var(--radius-pill);
+    background: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-glow);
+}
+
+.path-env-protocol--kcbp {
+    background: var(--color-success);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-success) 14%, transparent);
+}
+
+.path-env-select {
+    flex: 1 1 auto;
+    width: 100% !important;
+    min-width: 0;
+    max-width: none;
+}
+
+.path-env-select .ant-select-selector,
+.path-env-select .ant-select-selection-item {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
+
+.path-env-select .ant-select-arrow,
+.path-env-select-chevron {
+    display: inline-flex !important;
+}
+
+.path-env-select .ant-select-arrow {
+    inset-inline-end: 0 !important;
+    color: var(--color-text-muted);
+}
+
+.path-fields-group {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--color-border-light);
+    border-radius: 7px;
+    background: var(--color-bg-subtle);
+}
+
+.path-command-bar .path-fields-group .path-field-tooltip-wrap,
+:root:not([data-theme='dark']) .path-command-bar .path-fields-group .path-field-tooltip-wrap {
+    flex: 0 0 auto;
+    margin: 0;
+    border-radius: 0;
+    background: transparent;
+    overflow: hidden;
+}
+
+.path-command-bar .path-fields-group .path-field-tooltip-wrap + .path-field-tooltip-wrap {
+    margin-left: 0;
+    border-left: 1px solid var(--color-divider);
+}
+
+.path-fields-group .path-field-display {
+    width: 100%;
+    height: 30px;
+    padding: 0 10px;
+    gap: 6px;
+    border-radius: 0;
+}
+
+.path-fields-group .path-field-display:hover {
+    background: color-mix(in srgb, var(--color-bg-hover) 72%, transparent);
+    filter: none;
+}
+
+.path-fields-group .path-field-label {
+    min-width: 0;
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 11px;
+    font-weight: 400;
+}
+
+.path-fields-group .path-field-value,
+:root:not([data-theme='dark']) .path-fields-group .path-field-value {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--color-text-body);
+    font-size: 13px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+}
+
+.path-fields-group .path-field-service {
+    width: 140px;
+}
+
+.path-fields-group .path-field-service .path-field-value,
+:root:not([data-theme='dark']) .path-fields-group .path-field-service .path-field-value {
+    color: var(--color-primary);
+}
+
+.path-fields-group .path-field-node-id {
+    width: 82px;
+}
+
+.path-fields-group .path-field-client-session-id {
+    width: 150px;
+}
+
+.path-fields-group .path-field-msgtype {
+    width: 150px;
+}
+
+.path-fields-group .path-field-queue {
+    width: 112px;
+}
+
+.path-fields-group .path-field-msgtype-input {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    height: 24px;
+    padding: 0 2px;
+    color: var(--color-text-body);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.path-fields-group .path-field-msgtype .path-field-label {
+    flex: 0 0 auto;
+    margin-right: 4px;
+}
+
+.path-fields-group .path-field-msgtype-input .ant-input {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 0 !important;
+}
+
+:root:not([data-theme='dark']) .path-field-msgtype-input {
+    color: var(--color-text-body);
+}
+
+.path-fields-group .path-field-pill--push:focus-within {
+    background: var(--color-bg-card);
+    box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+.path-command-bar .path-fields-group .path-field-pill--push {
+    margin-left: 0;
+}
+
+.path-overflow {
+    margin-left: 8px;
+    padding: 0;
+}
+
+.path-details-btn {
+    margin-left: 8px;
+}
+
+.path-details-panel {
+    min-width: 220px;
+    margin: 0;
+}
+
+.path-details-panel > div {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 8px;
+    padding: 6px 0;
+}
+
+.path-details-panel dt {
+    color: var(--color-text-muted);
+    font-size: 11px;
+}
+
+.path-details-panel dd {
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    color: var(--color-text-body);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+    text-overflow: ellipsis;
+}
+
+.path-run-btn,
+:root:not([data-theme='dark']) .path-run-btn {
+    box-sizing: border-box;
+    flex: 0 0 108px !important;
+    width: 108px;
+    min-width: 108px;
+    max-width: 108px;
+    height: 36px !important;
+    min-height: 36px !important;
+    margin-right: 0;
+    padding-inline: 10px !important;
+    border-radius: 7px !important;
+    overflow: hidden;
+}
+
+.path-run-btn-cancel {
+    height: 36px !important;
+    min-height: 36px !important;
+}
+
+.path-run-content {
+    min-width: 0;
+    max-width: 100%;
+    gap: 6px;
+    overflow: hidden;
+}
+
+.path-run-kbd,
+:root:not([data-theme='dark']) .path-run-kbd {
+    min-width: 0;
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    opacity: 0.68;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 9px;
+}
+
+.section-header--layout-compact .path-run-kbd,
+.section-header--layout-narrow .path-run-kbd {
+    display: none;
+}
+
+.workspace-panel-request .section-header-trailing {
+    flex: 0 0 108px;
+    width: 108px;
+    min-width: 108px;
+}
+
+.path-bar--layout-compact .path-fields-group .path-field-service {
+    width: 124px;
+}
+
+.path-bar--layout-compact .path-fields-group .path-field-node-id {
+    width: 76px;
+}
+
+.path-bar--layout-compact .path-fields-group .path-field-client-session-id {
+    display: none;
+}
+
+.path-bar--layout-compact .path-fields-group .path-field-msgtype {
+    width: 132px;
+}
+
+.section-header--layout-narrow {
+    gap: 6px;
+}
+
+.section-header--layout-narrow .section-header-trailing {
+    margin-right: 8px;
+}
+
+.path-bar--layout-narrow .path-env-selector {
+    width: clamp(140px, 22vw, 168px);
+}
+
+.path-bar--layout-narrow .path-fields-group .path-field-node-id,
+.path-bar--layout-narrow .path-fields-group .path-field-client-session-id {
+    display: none;
+}
+
+.path-bar--layout-narrow .path-fields-group .path-field-service {
+    width: clamp(112px, 17vw, 132px);
+}
+
+.path-bar--layout-narrow .path-fields-group .path-field-msgtype {
+    width: clamp(112px, 17vw, 132px);
+}
+
+.path-bar--layout-narrow .path-fields-group--kcbp .path-field-queue {
+    width: clamp(88px, 13vw, 108px);
+}
+
+/* 工作台密度与层级统一：请求参数 */
+.param-section-toggle {
+    min-height: 40px;
+    height: 40px;
+    padding: 0 12px;
+}
+
+.param-section-toggle-main {
+    gap: 8px;
+}
+
+.param-section-toggle-title {
+    color: var(--color-text-title);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.param-section-toggle-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: var(--radius-pill);
+    background: var(--color-bg-group);
+    color: var(--color-text-muted);
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1;
+}
+
+.param-raw-toggle-active {
+    color: var(--color-primary);
+    background: var(--color-primary-subtle);
+}
+
+.param-table-wrap {
+    border-top: 0;
+    border-bottom-color: var(--color-border-light);
+}
+
+.param-table .ant-table-thead > tr > th,
+:root:not([data-theme='dark']) .param-table .ant-table-thead > tr > th {
+    height: 36px;
+    padding: 7px 8px !important;
+    border-bottom-color: var(--color-border) !important;
+    background: var(--color-table-header) !important;
+    color: var(--color-text-secondary) !important;
+    text-align: left;
+}
+
+.param-table .ant-table-tbody > tr > td {
+    height: 42px;
+    padding: 4px 6px !important;
+}
+
+.param-table .param-key-input {
+    color: var(--color-text-body);
+    font-weight: 600;
+    text-align: left;
+}
+
+.param-table .ant-table-thead > tr > th:nth-child(2) {
+    text-align: left;
+}
+
+.param-table .param-input,
+.param-table .param-input:hover,
+.param-table .param-input:focus,
+.param-table .param-input.ant-input-focused {
+    min-height: 32px;
+    padding: 4px 6px !important;
+    border: 1px solid transparent !important;
+    background: transparent !important;
+}
+
+.param-table .param-input:hover {
+    box-shadow: none !important;
+}
+
+.param-table .param-input:focus,
+.param-table .param-input.ant-input-focused {
+    border-color: var(--color-primary) !important;
+    background: var(--color-bg-card) !important;
+    box-shadow: none !important;
+}
+
+.param-table textarea.param-input {
+    line-height: 22px;
+}
+
+.param-table .ant-table-tbody > tr.param-row-disabled .param-input,
+.param-table .ant-table-tbody > tr.param-row-disabled .param-value-input,
+.param-table .ant-table-tbody > tr.param-row-disabled .param-file-hint {
+    opacity: 0.55;
+}
+
+.param-input::placeholder,
+.param-input .ant-input::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.72;
+}
+
+.param-row:focus-within .param-delete-btn,
+.param-row:has(.param-file-hint-error) .param-delete-btn,
+.param-delete-btn:focus-visible {
+    opacity: 1;
+}
+
+/* 工作台密度与层级统一：响应空态 */
+.response-section-toggle {
+    gap: 8px;
+}
+
+.response-section-actions:has(button:disabled) {
+    opacity: 0.52;
+}
+
+.response-idle {
+    justify-content: flex-start;
+    gap: 12px;
+    padding: clamp(40px, 12vh, 128px) 20px 20px;
+}
+
+.response-idle-metrics,
+.response-idle-msg {
+    width: min(100%, 500px);
+}
+
+.response-idle-metrics {
+    background: var(--color-bg-card);
+}
+
+.response-idle-success .response-idle-metrics {
+    border-left: 3px solid var(--color-success);
+}
+
+.response-idle-warning .response-idle-metrics {
+    border-left: 3px solid var(--color-warning);
+}
+
+.response-idle-error .response-idle-metrics {
+    border-left: 3px solid var(--color-error);
+}
+
+.response-idle-metric {
+    padding: 10px 16px;
+}
+
+.response-idle-metric-value {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 14px;
+}
+
+.response-idle-msg {
+    background: var(--color-bg-card);
+}
+
+.response-idle-msg-success .response-idle-msg-indicator {
+    background: var(--color-success);
+}
+
+.response-idle-loading .response-idle-metric-value {
+    color: transparent;
+}
+
+.response-idle-loading .response-idle-metric-value::after {
+    content: '';
+    display: block;
+    width: 42px;
+    height: 12px;
+    margin: 3px auto 2px;
+    border-radius: var(--radius-pill);
+    background: linear-gradient(
+        90deg,
+        var(--color-bg-group),
+        var(--color-bg-hover),
+        var(--color-bg-group)
+    );
+    background-size: 200% 100%;
+    animation: response-metric-loading 1.2s linear infinite;
+}
+
+@keyframes response-metric-loading {
+    to {
+        background-position: -200% 0;
+    }
+}
+
+/* 工作台密度与层级统一：用例树 */
+.case-project-active,
+:root:not([data-theme='dark']) .case-project-active {
+    background: transparent;
+    box-shadow: none;
+}
+
+.case-project-active .case-project-icon,
+.case-project-active .case-project-label {
+    color: var(--color-primary);
+}
+
+.case-project-label {
+    color: var(--color-text-body);
+    font-size: 12px;
+}
+
+.case-folder-name {
+    min-width: 0;
+    color: var(--color-text-body);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.case-project-children,
+.case-folder-block {
+    border-left-color: color-mix(in srgb, var(--color-border) 58%, transparent);
+}
+
+/* 项目本身是唯一根节点：直接用例和首层目录共享同一个内容基准线。 */
+.case-project-root-content {
+    position: relative;
+}
+
+.case-project-root-cases,
+.case-project-root-content > .case-folder-block {
+    position: relative;
+}
+
+.case-project-root-cases .case-item {
+    margin-left: 4px;
+}
+
+/* 根层只使用项目内容区的竖线，避免首层目录再绘制一条错位的平行线。 */
+.case-project-root-content > .case-folder-depth-0 {
+    border-left-color: transparent;
+}
+
+.case-folder-block > .case-folder-row::before {
+    border-top-color: color-mix(in srgb, var(--color-border) 58%, transparent);
+}
+
+.case-folder-cases {
+    position: relative;
+    margin-left: 16px;
+}
+
+/* 目录下的用例也属于该层级：补齐与 VS Code 文件树一致的竖向导线。 */
+.case-folder-cases::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 1px;
+    background: color-mix(in srgb, var(--color-border) 58%, transparent);
+    pointer-events: none;
+}
+
+.case-folder-cases .case-item {
+    position: relative;
+}
+
+.case-folder-cases .case-item::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -16px;
+    width: 8px;
+    border-top: 1px solid color-mix(in srgb, var(--color-border) 58%, transparent);
+}
+
+.case-item-active,
+:root:not([data-theme='dark']) .case-item-active {
+    border-left-width: 3px;
+    border-left-color: var(--color-primary);
+    background: var(--color-primary-subtle);
+}
+
+.case-item:focus-visible {
+    outline: 1px solid var(--color-primary);
+    outline-offset: -1px;
+}
+
+.case-item:focus-within .case-item-actions,
+.case-project:focus-within .case-item-actions,
+.case-item:focus-within .case-item-star-btn {
+    opacity: 1;
+}
+
+.case-search-kbd {
+    border-color: var(--color-border-light);
+    background: transparent;
+    opacity: 0.68;
 }

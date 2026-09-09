@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useRef, useState, type RefObject } from 'react';
 import {
     PanelGroup,
     Panel,
@@ -9,27 +9,15 @@ import RequestPanel from '../components/request/RequestPanel';
 import ResponsePanel from '../components/response/ResponsePanel';
 import CaseScriptPanel from '../components/editor/CaseScriptPanel';
 import { useApiDebugEnv } from '../store/useApiDebugEnv';
-import { useKcbpCall } from '../hooks/useKcbpCall';
 
 export default function Tab() {
     const { env } = useApiDebugEnv();
-    const { loading } = useKcbpCall();
     const requestPanelRef = useRef<ImperativePanelHandle>(null);
     const responsePanelRef = useRef<ImperativePanelHandle>(null);
-    const prevLoadingRef = useRef(loading);
     const [paramsCollapsed, setParamsCollapsed] = useState(false);
     const [responseCollapsed, setResponseCollapsed] = useState(false);
 
     const isScriptMode = env.editorMode === 'script';
-
-    useEffect(() => {
-        if (prevLoadingRef.current && !loading) {
-            requestPanelRef.current?.resize(45);
-            responsePanelRef.current?.resize(55);
-            setResponseCollapsed(false);
-        }
-        prevLoadingRef.current = loading;
-    }, [loading]);
 
     const handleToggleParamsCollapse = () => {
         const panel = requestPanelRef.current;
@@ -72,7 +60,7 @@ export default function Tab() {
             <PanelGroup direction="vertical" className="flex-1 gap-0">
                 <Panel
                     ref={requestPanelRef as RefObject<ImperativePanelHandle>}
-                    defaultSize={45}
+                    defaultSize={52}
                     minSize={12}
                     collapsible
                     collapsedSize={10}
@@ -95,7 +83,7 @@ export default function Tab() {
 
                 <Panel
                     ref={responsePanelRef as RefObject<ImperativePanelHandle>}
-                    defaultSize={55}
+                    defaultSize={48}
                     minSize={12}
                     collapsible
                     collapsedSize={10}

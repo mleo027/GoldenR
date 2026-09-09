@@ -17,11 +17,11 @@ export interface ParamEditProps {
     onChange: (params: ParamItem[]) => void;
     commonParams?: ParamItem[];
 }
-const CHECK_COL_WIDTH = 40;
+const CHECK_COL_WIDTH = 36;
 const ACTION_COL_WIDTH = 40;
 const FIXED_COL_WIDTH = CHECK_COL_WIDTH + ACTION_COL_WIDTH;
-const MIN_KEY_WIDTH = 60;
-const KEY_WIDTH_RATIO = 0.2;
+const MIN_KEY_WIDTH = 180;
+const KEY_WIDTH_RATIO = 0.22;
 const DEFAULT_KEY_WIDTH_MAX = 280;
 
 export function ParamTable({ params, onChange }: ParamEditProps) {
@@ -44,10 +44,15 @@ export function ParamTable({ params, onChange }: ParamEditProps) {
             if (width > FIXED_COL_WIDTH) {
                 const next = Math.min(
                     DEFAULT_KEY_WIDTH_MAX,
-                    Math.floor((width - FIXED_COL_WIDTH) * KEY_WIDTH_RATIO),
+                    Math.max(
+                        MIN_KEY_WIDTH,
+                        Math.floor((width - FIXED_COL_WIDTH) * KEY_WIDTH_RATIO),
+                    ),
                 );
                 setKeyWidth((previous) =>
-                    previous == null ? next : Math.min(previous, width - FIXED_COL_WIDTH - 1),
+                    previous == null
+                        ? Math.min(next, width - FIXED_COL_WIDTH - 1)
+                        : Math.min(previous, width - FIXED_COL_WIDTH - 1),
                 );
             }
         };
@@ -58,10 +63,11 @@ export function ParamTable({ params, onChange }: ParamEditProps) {
     }, []);
 
     const availableWidth = Math.max(0, tableWidth - FIXED_COL_WIDTH);
-    const resolvedKeyWidth = Math.min(
-        keyWidth ?? Math.floor(availableWidth * KEY_WIDTH_RATIO),
-        availableWidth,
+    const defaultKeyWidth = Math.min(
+        DEFAULT_KEY_WIDTH_MAX,
+        Math.max(MIN_KEY_WIDTH, Math.floor(availableWidth * KEY_WIDTH_RATIO)),
     );
+    const resolvedKeyWidth = Math.max(0, Math.min(keyWidth ?? defaultKeyWidth, availableWidth));
     const valueWidth = Math.max(0, availableWidth - resolvedKeyWidth);
     const handleChange = useCallback(
         (index: number, field: keyof ParamItem, value: string) => {
@@ -173,13 +179,11 @@ function CommonParamsPanel({ commonParams }: { commonParams: ParamItem[] }) {
 function ParamEdit({ params, onChange, commonParams }: ParamEditProps) {
     const paramsRef = useRef(params);
     paramsRef.current = params;
-    
     const handleAdd = useCallback(
         () => onChange([...paramsRef.current, createParamItem('')]),
         [onChange],
     );
 
-    
     return (
         <div className="param-edit flex flex-col py-2">
             {commonParams && commonParams.length > 0 ? (

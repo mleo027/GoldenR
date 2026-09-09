@@ -33,10 +33,13 @@ function ResponseIdleMetrics({ response, loading = false }: ResponseIdleMetricsP
     const statusKind = response ? parseKcbpResponseStatus(response).kind : 'idle';
 
     return (
-        <div className={`response-idle${loading ? ' response-idle-loading' : ''}`}>
+        <div
+            className={`response-idle response-idle-${statusKind}${loading ? ' response-idle-loading' : ''}`}
+            aria-busy={loading}
+        >
             <div className="response-idle-metrics">
                 <div className="response-idle-metric">
-                    <span className="response-idle-metric-label">Status</span>
+                    <span className="response-idle-metric-label">状态</span>
                     <span
                         className={`response-idle-metric-value${hasResponse ? ' response-idle-metric-value-filled' : ''}`}
                     >
@@ -44,7 +47,7 @@ function ResponseIdleMetrics({ response, loading = false }: ResponseIdleMetricsP
                     </span>
                 </div>
                 <div className="response-idle-metric">
-                    <span className="response-idle-metric-label">Time</span>
+                    <span className="response-idle-metric-label">耗时</span>
                     <span
                         className={`response-idle-metric-value${hasResponse ? ' response-idle-metric-value-filled' : ''}`}
                     >
@@ -52,7 +55,7 @@ function ResponseIdleMetrics({ response, loading = false }: ResponseIdleMetricsP
                     </span>
                 </div>
                 <div className="response-idle-metric">
-                    <span className="response-idle-metric-label">Size</span>
+                    <span className="response-idle-metric-label">大小</span>
                     <span
                         className={`response-idle-metric-value${hasResponse ? ' response-idle-metric-value-filled' : ''}`}
                     >
@@ -63,12 +66,17 @@ function ResponseIdleMetrics({ response, loading = false }: ResponseIdleMetricsP
             {response?.message ? (
                 <div className={`response-idle-msg response-idle-msg-${statusKind}`} role="status">
                     <span className="response-idle-msg-indicator" aria-hidden="true" />
-                    <span className="response-idle-msg-label">Message</span>
+                    <span className="response-idle-msg-label">服务端消息</span>
                     <span className="response-idle-msg-value">{response.message}</span>
                 </div>
             ) : null}
             {!hasResponse && !loading ? (
-                <p className="response-idle-hint">配置地址与入参后点击 Run，响应数据将显示在下方</p>
+                <p className="response-idle-hint">配置请求参数后点击 Run</p>
+            ) : null}
+            {!hasResponse && loading ? (
+                <p className="response-idle-hint" role="status">
+                    请求进行中…
+                </p>
             ) : null}
         </div>
     );

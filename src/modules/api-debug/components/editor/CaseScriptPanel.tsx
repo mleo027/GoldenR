@@ -26,10 +26,16 @@ function scriptsEqual(left?: string, right?: string): boolean {
     return (left ?? '').trim() === (right ?? '').trim();
 }
 
-function ScriptHeader({ layout, compact }: { layout: 'full' | 'compact'; compact: boolean }) {
+function ScriptHeader({
+    layout,
+    compact,
+}: {
+    layout: 'full' | 'compact' | 'narrow';
+    compact: boolean;
+}) {
     return (
         <div
-            className={`case-script-header section-header section-header--compact flex items-center gap-2 pl-2.5 pr-0 border-b border-[var(--color-border-light)] shrink-0${layout === 'compact' ? ' section-header--layout-compact' : ''}`}
+            className={`case-script-header section-header section-header--compact section-header--layout-${layout} flex items-center gap-2 pl-2.5 pr-0 border-b border-[var(--color-border-light)] shrink-0`}
         >
             <div className="section-header-path-wrap ui-scroll flex-1 min-w-0">
                 <Path showScriptBadge hideRunButton layout={layout} />

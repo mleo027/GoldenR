@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState, lazy, Suspense, memo } from 'react';
-import { Spin } from 'antd';
 import { AppstoreOutlined, CaretDownOutlined, CaretRightOutlined } from '@ant-design/icons';
 import Grid from '../../../../components/ui/Grid';
 import ResponseIdleMetrics from './ResponseIdleMetrics';
@@ -70,19 +69,24 @@ const ResponseBody = memo(function ResponseBody({
                     className="param-section-toggle response-section-toggle"
                     onClick={onToggleResponseCollapse}
                     aria-expanded={!responseCollapsed}
+                    aria-label={responseCollapsed ? '展开响应' : '折叠响应'}
                 >
                     {responseCollapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}
                     <AppstoreOutlined className="param-section-toggle-icon" />
                     <span>响应</span>
-                    <span className="param-section-toggle-count">{responseData.length}</span>
+                    {response ? (
+                        <span className="param-section-toggle-count">{responseData.length}</span>
+                    ) : null}
                 </button>
                 {resultSets.length > 1 && (
                     <div className="response-result-tabs" role="tablist" aria-label="响应结果集">
                         {resultSets.map((resultSet, index) => {
                             const baseLabel = resultSet.name || `结果集 ${index + 1}`;
-                            const duplicateName = resultSets.filter(
-                                (candidate) => (candidate.name || `结果集 ${index + 1}`) === baseLabel,
-                            ).length > 1;
+                            const duplicateName =
+                                resultSets.filter(
+                                    (candidate) =>
+                                        (candidate.name || `结果集 ${index + 1}`) === baseLabel,
+                                ).length > 1;
                             const label = duplicateName ? `${baseLabel} ${index + 1}` : baseLabel;
                             const rowCount = resultSet.rows?.length ?? 0;
                             const selected = selectedResultSetIndex === index;
@@ -120,12 +124,6 @@ const ResponseBody = memo(function ResponseBody({
                     responseCollapsed ? ' param-section-body-collapsed' : ''
                 }`}
             >
-                {loading && !responseCollapsed ? (
-                    <div className="response-loading-bar">
-                        <Spin size="small" />
-                        <span>请求进行中…</span>
-                    </div>
-                ) : null}
                 <div className="flex-1 overflow-hidden min-w-0 min-h-0">
                     {showIdleMetrics ? (
                         <ResponseIdleMetrics response={response} loading={loading} />
@@ -140,13 +138,6 @@ const ResponseBody = memo(function ResponseBody({
                     )}
                 </div>
             </div>
-            {!responseCollapsed && showIdleMetrics && response?.message ? (
-                <div className="response-footer">
-                    <div className="response-footer-meta">
-                        <ResponseMeta response={response} variant="footer" />
-                    </div>
-                </div>
-            ) : null}
             {responseCollapsed && response ? (
                 <div className="response-footer">
                     <div className="response-footer-meta">

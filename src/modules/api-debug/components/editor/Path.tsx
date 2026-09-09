@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Dropdown, Menu, Tooltip } from 'antd';
+import { Button, Dropdown, Menu, Popover, Tooltip } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
 import { Input, Select } from '../../../../components/ui/primitives';
 import {
@@ -9,6 +9,7 @@ import {
     LoadingOutlined,
     MoreOutlined,
     PlayCircleOutlined,
+    SettingOutlined,
     SnippetsOutlined,
     TagOutlined,
     ThunderboltOutlined,
@@ -90,8 +91,6 @@ function PathAddressFields({
         field: 'queue' | 'timeout' | 'msgtype' | 'service' | 'nodeId' | 'clientSessionId',
         value: string,
     ) => void;
-    run: () => void;
-    flushPending: () => void;
     isKGBP: boolean;
 }) {
     const msgtypeInput = (
@@ -106,28 +105,37 @@ function PathAddressFields({
 
     if (isKGBP) {
         return (
-            <>
-                <Tooltip title="ServiceName">
+            <div className="path-fields-group path-fields-group--kgbp">
+                <Tooltip title={`Service: ${addressParts.service || '未设置'}`}>
                     <span className="path-field-tooltip-wrap path-field-pill--service">
                         <span className="path-field-display path-field-service">
                             <span className="path-field-label">Service</span>
-                            <span className="path-field-value">{addressParts.service || '—'}</span>
+                            <span className="path-field-value" title={addressParts.service}>
+                                {addressParts.service || '—'}
+                            </span>
                         </span>
                     </span>
                 </Tooltip>
-                <Tooltip title="NodeId">
+                <Tooltip title={`Nodeid: ${addressParts.nodeId || '未设置'}`}>
                     <span className="path-field-tooltip-wrap">
                         <span className="path-field-display path-field-node-id">
                             <span className="path-field-label">Nodeid</span>
-                            <span className="path-field-value">{addressParts.nodeId || '—'}</span>
+                            <span className="path-field-value" title={addressParts.nodeId}>
+                                {addressParts.nodeId || '—'}
+                            </span>
                         </span>
                     </span>
                 </Tooltip>
-                <Tooltip title="ClientSessionId，可引用入参，例如 @custid">
+                <Tooltip
+                    title={`Sessionid: ${addressParts.clientSessionId || '@custid'}（可引用入参）`}
+                >
                     <span className="path-field-tooltip-wrap">
                         <span className="path-field-display path-field-client-session-id">
                             <span className="path-field-label">Sessionid</span>
-                            <span className="path-field-value">
+                            <span
+                                className="path-field-value"
+                                title={addressParts.clientSessionId || '@custid'}
+                            >
                                 {addressParts.clientSessionId || '@custid'}
                             </span>
                         </span>
@@ -142,13 +150,13 @@ function PathAddressFields({
                         </span>
                     </span>
                 </Tooltip>
-            </>
+            </div>
         );
     }
 
     return (
-        <>
-            <Tooltip title="Queue">
+        <div className="path-fields-group path-fields-group--kcbp">
+            <Tooltip title={`Queue: ${addressParts.queue || 'req1'}`}>
                 <span className="path-field-tooltip-wrap">
                     <span className="path-field-display path-field-queue">
                         <UnorderedListOutlined className="path-field-icon" />
@@ -166,7 +174,42 @@ function PathAddressFields({
                     </span>
                 </span>
             </Tooltip>
-        </>
+        </div>
+    );
+}
+
+function PathNarrowDetails({
+    addressParts,
+}: {
+    addressParts: ReturnType<typeof usePathBarController>['addressParts'];
+}) {
+    return (
+        <Popover
+            placement="bottomRight"
+            trigger="click"
+            title="连接详情"
+            content={
+                <dl className="path-details-panel">
+                    <div>
+                        <dt>Nodeid</dt>
+                        <dd>{addressParts.nodeId || '未设置'}</dd>
+                    </div>
+                    <div>
+                        <dt>Sessionid</dt>
+                        <dd>{addressParts.clientSessionId || '@custid'}</dd>
+                    </div>
+                </dl>
+            }
+        >
+            <Button
+                type="text"
+                size="small"
+                icon={<SettingOutlined />}
+                className="path-helper-btn path-details-btn"
+                aria-label="查看 Nodeid 和 Sessionid"
+                title="查看连接详情"
+            />
+        </Popover>
     );
 }
 
@@ -199,6 +242,7 @@ function PathInlineActions({
                         icon={<ThunderboltOutlined />}
                         className="path-helper-btn"
                         onClick={onQuickFill}
+                        aria-label="快速填充入参"
                     />
                 </Tooltip>
             ) : null}
@@ -210,6 +254,7 @@ function PathInlineActions({
                         icon={<FormatPainterOutlined />}
                         className="path-helper-btn"
                         onClick={formatActiveScript}
+                        aria-label="格式化脚本"
                     />
                 </Tooltip>
             ) : (
@@ -221,6 +266,7 @@ function PathInlineActions({
                         className="path-helper-btn"
                         onClick={handleGenerateTestScript}
                         disabled={!canGenerateTestScript}
+                        aria-label="生成测试脚本"
                     />
                 </Tooltip>
             )}
@@ -232,6 +278,7 @@ function PathInlineActions({
                     className="path-helper-btn"
                     onClick={() => void handleCopyParams()}
                     disabled={!hasCopyableContent}
+                    aria-label="复制地址与请求参数"
                 />
             </Tooltip>
             <Tooltip title="清空全部参数">
@@ -242,6 +289,7 @@ function PathInlineActions({
                     className="path-helper-btn"
                     onClick={handleClearParams}
                     disabled={!hasParams}
+                    aria-label="清空全部参数"
                 />
             </Tooltip>
         </div>
@@ -273,6 +321,7 @@ function PathOverflowMenu({
                         size="small"
                         icon={<MoreOutlined />}
                         className="path-helper-btn path-overflow-btn"
+                        aria-label="更多操作"
                     />
                 </Tooltip>
             </Dropdown>
@@ -283,13 +332,12 @@ function PathOverflowMenu({
 export default function Path({
     showScriptBadge = false,
     hideRunButton = false,
+    layout = 'full',
     onQuickFill,
 }: PathProps) {
     const {
         activeTab,
         env,
-        run,
-        flushPending,
         addressParts,
         handleAddressPartChange,
         handleCopyParams,
@@ -307,7 +355,9 @@ export default function Path({
         activeEnvironment,
     } = usePathBarController({ onQuickFill });
     return (
-        <div className={hideRunButton ? 'path-bar path-bar--command-only' : 'path-bar'}>
+        <div
+            className={`${hideRunButton ? 'path-bar path-bar--command-only' : 'path-bar'} path-bar--layout-${layout}`}
+        >
             <div
                 className={`path-command-bar${activeEnvironment.protocol === 'KGBP' ? ' path-command-bar--kgbp path-command-bar--advanced-open' : ''}`}
             >
@@ -318,6 +368,12 @@ export default function Path({
                     </>
                 ) : null}
                 <div className="path-env-selector" title={activeEnvironment.name}>
+                    <span
+                        className={`path-env-protocol path-env-protocol--${(
+                            activeEnvironment.protocol || 'KCBP'
+                        ).toLowerCase()}`}
+                        aria-label={`${activeEnvironment.protocol || 'KCBP'} 环境`}
+                    />
                     <Select
                         value={env.activeKcxpEnvironmentId}
                         options={environmentOptions}
@@ -362,10 +418,12 @@ export default function Path({
                 <PathAddressFields
                     addressParts={addressParts}
                     handleAddressPartChange={handleAddressPartChange}
-                    run={run}
-                    flushPending={flushPending}
                     isKGBP={activeEnvironment.protocol === 'KGBP'}
                 />
+
+                {layout === 'narrow' && activeEnvironment.protocol === 'KGBP' ? (
+                    <PathNarrowDetails addressParts={addressParts} />
+                ) : null}
 
                 {showInlineActions ? (
                     <PathInlineActions

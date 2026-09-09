@@ -31,7 +31,11 @@ Object.defineProperty(globalThis, 'ResizeObserver', {
 });
 
 const responseState = vi.hoisted(() => ({
-    value: { code: '0', message: 'ok', resultSets: [] } as ResponseData,
+    value: { code: '0', message: 'ok', resultSets: [] } as ResponseData | undefined,
+}));
+
+const callState = vi.hoisted(() => ({
+    loading: false,
 }));
 
 vi.mock('../../store/useTabs', () => ({
@@ -45,7 +49,7 @@ vi.mock('../../../../store/useAppEnv', () => ({
 }));
 
 vi.mock('../../hooks/useKcbpCall', () => ({
-    useKcbpCall: () => ({ loading: false }),
+    useKcbpCall: () => ({ loading: callState.loading }),
 }));
 
 vi.mock('../../store/useResponse', () => ({
@@ -57,14 +61,46 @@ describe('ResponsePanel', () => {
 
     afterEach(() => {
         responseState.value = { code: '0', message: 'ok', resultSets: [] };
+        callState.loading = false;
     });
 
-    it('shows the code and msg footer when there are no response data rows', () => {
+    it('shows stable metrics and the server message when there are no response rows', () => {
         const { container } = render(<ResponsePanel />);
 
-        expect(container.querySelector('.response-footer')).not.toBeNull();
-        expect(container.querySelector('.response-meta-badge')?.textContent).toBe('0');
-        expect(container.querySelector('.response-meta-msg')?.textContent).toBe('ok');
+        expect(container.querySelector('.response-footer')).toBeNull();
+        expect(screen.getByText('状态')).toBeTruthy();
+        expect(screen.getByText('耗时')).toBeTruthy();
+        expect(screen.getByText('大小')).toBeTruthy();
+        expect(screen.getByText('ok')).toBeTruthy();
+        expect(container.querySelector('.response-idle-success')).not.toBeNull();
+    });
+
+    it('hides the zero row badge before the first request', () => {
+        responseState.value = undefined;
+        const { container } = render(<ResponsePanel />);
+
+        expect(screen.getByText('配置请求参数后点击 Run')).toBeTruthy();
+        expect(
+            container.querySelector('.response-section-toggle .param-section-toggle-count'),
+        ).toBeNull();
+    });
+
+    it('keeps metric positions stable while loading', () => {
+        responseState.value = undefined;
+        callState.loading = true;
+        const { container } = render(<ResponsePanel />);
+
+        expect(container.querySelectorAll('.response-idle-metric')).toHaveLength(3);
+        expect(container.querySelector('.response-idle-loading')).not.toBeNull();
+        expect(screen.getByText('请求进行中…')).toBeTruthy();
+    });
+
+    it('uses the error treatment for failed empty responses', () => {
+        responseState.value = { code: '1001', message: '服务调用失败', resultSets: [] };
+        const { container } = render(<ResponsePanel />);
+
+        expect(container.querySelector('.response-idle-error')).not.toBeNull();
+        expect(screen.getByText('服务调用失败')).toBeTruthy();
     });
 
     it('shows and switches between multiple result sets', () => {

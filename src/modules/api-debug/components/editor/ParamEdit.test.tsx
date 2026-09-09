@@ -76,6 +76,40 @@ describe('ParamEdit', () => {
         expect(textarea.value).toBe(longValue);
     });
 
+    it('shows a readable placeholder and dims disabled values without removing them', () => {
+        const view = renderParamEdit(
+            <ParamEdit
+                params={[
+                    { name: 'empty', value: '', type: 'string' },
+                    { name: 'disabledKey', value: 'still-readable', type: 'disabled' },
+                ]}
+                onChange={vi.fn()}
+            />,
+        );
+
+        const textareas = view.container.querySelectorAll('.param-value-input textarea');
+        expect(textareas[0].getAttribute('placeholder')).toBe('未设置');
+        expect((textareas[1] as HTMLTextAreaElement).value).toBe('still-readable');
+        expect(textareas[1].closest('tr')?.className).toContain('param-row-disabled');
+    });
+
+    it('removes a parameter immediately from the row action', async () => {
+        const user = userEvent.setup();
+        const onChange = vi.fn();
+        renderParamEdit(
+            <ParamEdit
+                params={[
+                    { name: 'first', value: '1', type: 'string' },
+                    { name: 'second', value: '2', type: 'string' },
+                ]}
+                onChange={onChange}
+            />,
+        );
+
+        await user.click(screen.getAllByRole('button', { name: '删除参数' })[0]);
+        expect(onChange).toHaveBeenLastCalledWith([{ name: 'second', value: '2', type: 'string' }]);
+    });
+
     it('shows SOH markers in the value input and stores raw SOH', async () => {
         const rawValue = `8=FIXT.1.1${String.fromCharCode(1)}9=82`;
         const onChange = vi.fn();

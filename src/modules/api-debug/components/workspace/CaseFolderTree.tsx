@@ -1,4 +1,4 @@
-import { Dropdown } from 'antd';
+import { Dropdown, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import { FolderOpenOutlined, RightOutlined } from '@ant-design/icons';
 import { useState, type RefObject, type ReactNode } from 'react';
@@ -17,6 +17,7 @@ interface CaseFolderTreeProps {
     onEditingNameChange: (name: string) => void;
     onFinishRename: () => void;
     getMenu: (folderId: string) => MenuProps['items'];
+    forceExpanded?: boolean;
     depth?: number;
 }
 
@@ -31,6 +32,7 @@ export default function CaseFolderTree({
     onEditingNameChange,
     onFinishRename,
     getMenu,
+    forceExpanded = false,
     depth = 0,
 }: CaseFolderTreeProps) {
     const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
@@ -40,7 +42,7 @@ export default function CaseFolderTree({
             {folders.map((node) => (
                 <div
                     key={node.folder.id}
-                    className="case-folder-block"
+                    className={`case-folder-block case-folder-depth-${depth}`}
                     style={{ marginLeft: `${depth * 16}px` }}
                 >
                     <Dropdown trigger={['contextMenu']} menu={{ items: getMenu(node.folder.id) }}>
@@ -62,7 +64,7 @@ export default function CaseFolderTree({
                             }}
                         >
                             <RightOutlined
-                                className={`text-[10px] text-[var(--color-text-muted)] transition-transform ${collapsed.has(node.folder.id) ? '' : 'rotate-90'}`}
+                                className={`text-[10px] text-[var(--color-text-muted)] transition-transform ${!forceExpanded && collapsed.has(node.folder.id) ? '' : 'rotate-90'}`}
                             />
                             <FolderOpenOutlined className="text-[var(--color-text-muted)]" />
                             {isEditing({
@@ -81,16 +83,19 @@ export default function CaseFolderTree({
                                     className="case-item-input"
                                 />
                             ) : (
-                                <span className="truncate">{node.folder.name}</span>
+                                <Tooltip title={node.folder.name}>
+                                    <span className="case-folder-name truncate">
+                                        {node.folder.name}
+                                    </span>
+                                </Tooltip>
                             )}
                             <span className="ml-auto text-[10px] text-[var(--color-text-muted)]">
                                 {node.cases.length}
                             </span>
                         </div>
                     </Dropdown>
-                    {!collapsed.has(node.folder.id) && (
+                    {(forceExpanded || !collapsed.has(node.folder.id)) && (
                         <>
-                            {renderCases(node)}
                             <CaseFolderTree
                                 folders={node.folders}
                                 renderCases={renderCases}
@@ -102,8 +107,10 @@ export default function CaseFolderTree({
                                 onEditingNameChange={onEditingNameChange}
                                 onFinishRename={onFinishRename}
                                 getMenu={getMenu}
+                                forceExpanded={forceExpanded}
                                 depth={depth + 1}
                             />
+                            <div className="case-folder-cases">{renderCases(node)}</div>
                         </>
                     )}
                 </div>

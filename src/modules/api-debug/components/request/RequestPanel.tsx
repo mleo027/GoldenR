@@ -1,11 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-    SendOutlined,
-    CaretDownOutlined,
-    CaretRightOutlined,
-    FormOutlined,
-    CodeOutlined,
-} from '@ant-design/icons';
+import { CaretDownOutlined, CaretRightOutlined, CodeOutlined } from '@ant-design/icons';
 import { Tooltip } from 'antd';
 import Path, { PathRunButton } from '../editor/Path';
 import ParamEdit from '../editor/ParamEdit';
@@ -33,7 +27,7 @@ interface RequestPanelProps {
     onToggleParamsCollapse?: () => void;
 }
 
-function ParamsSection({
+export function ParamsSection({
     collapsed,
     count,
     onToggle,
@@ -62,18 +56,20 @@ function ParamsSection({
                     className="param-section-toggle-main"
                     onClick={onToggle}
                     aria-expanded={!collapsed}
+                    aria-label={collapsed ? '展开请求参数' : '折叠请求参数'}
                 >
                     {collapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}
-                    <FormOutlined className="param-section-toggle-icon" />
+                    <span className="param-section-toggle-title">请求参数</span>
                     <span className="param-section-toggle-count">{count}</span>
                 </button>
                 {!collapsed && (
-                    <Tooltip title="raw">
+                    <Tooltip title="切换 Raw 参数视图">
                         <button
                             type="button"
                             className={`param-raw-toggle${rawMode ? ' param-raw-toggle-active' : ''}`}
                             onClick={onToggleRawMode}
                             aria-pressed={rawMode}
+                            aria-label="切换 Raw 参数视图"
                         >
                             <CodeOutlined />
                         </button>
@@ -183,7 +179,7 @@ export default function RequestPanel({
         <div className="flex flex-col h-full min-h-0">
             <SectionHeader
                 ref={headerRef}
-                icon={<SendOutlined className="text-[var(--color-text-secondary)] text-sm" />}
+                icon={null}
                 title=""
                 layout={layout}
                 endActions={<PathRunButton />}

@@ -109,38 +109,45 @@ function CaseSidebarTree({ controller }: { controller: CaseSidebarController }) 
 
                         {expanded && (
                             <div className="case-project-children">
-                                <CaseChildrenList
-                                    cases={cases}
-                                    projectIndex={projectIndex}
-                                    searchHighlightTerm={searchHighlightTerm}
-                                    activeProjectIndex={state.activeProjectIndex}
-                                    activeCaseIndex={state.activeCaseIndex}
-                                    isEditing={isEditing}
-                                    editingName={editingName}
-                                    inputRef={inputRef}
-                                    getCaseMenu={getCaseMenu}
-                                    getCaseActionHandler={getCaseActionHandler}
-                                    onEditingNameChange={setEditingName}
-                                    onFinishRename={finishRename}
-                                    draggingCaseId={draggingCaseId}
-                                    onCaseDragStart={handleCaseDragStart}
-                                    onCaseDragEnd={handleCaseDragEnd}
-                                />
-                                <CaseFolderTree
-                                    folders={folders}
-                                    projectIndex={projectIndex}
-                                    isEditing={isEditing}
-                                    editingName={editingName}
-                                    inputRef={inputRef}
-                                    onStartRename={(folderId) =>
-                                        startRename({ type: 'folder', projectIndex, folderId })
-                                    }
-                                    onEditingNameChange={setEditingName}
-                                    onFinishRename={finishRename}
-                                    getMenu={(folderId) => getFolderMenu(projectIndex, folderId)}
-                                    renderCases={(node) => (
+                                <div className="case-project-root-content">
+                                    <CaseFolderTree
+                                        folders={folders}
+                                        projectIndex={projectIndex}
+                                        isEditing={isEditing}
+                                        editingName={editingName}
+                                        inputRef={inputRef}
+                                        onStartRename={(folderId) =>
+                                            startRename({ type: 'folder', projectIndex, folderId })
+                                        }
+                                        onEditingNameChange={setEditingName}
+                                        onFinishRename={finishRename}
+                                        getMenu={(folderId) =>
+                                            getFolderMenu(projectIndex, folderId)
+                                        }
+                                        forceExpanded={Boolean(controller.searchKeyword.trim())}
+                                        renderCases={(node) => (
+                                            <CaseChildrenList
+                                                cases={node.cases}
+                                                projectIndex={projectIndex}
+                                                searchHighlightTerm={searchHighlightTerm}
+                                                activeProjectIndex={state.activeProjectIndex}
+                                                activeCaseIndex={state.activeCaseIndex}
+                                                isEditing={isEditing}
+                                                editingName={editingName}
+                                                inputRef={inputRef}
+                                                getCaseMenu={getCaseMenu}
+                                                getCaseActionHandler={getCaseActionHandler}
+                                                onEditingNameChange={setEditingName}
+                                                onFinishRename={finishRename}
+                                                draggingCaseId={draggingCaseId}
+                                                onCaseDragStart={handleCaseDragStart}
+                                                onCaseDragEnd={handleCaseDragEnd}
+                                            />
+                                        )}
+                                    />
+                                    <div className="case-project-root-cases">
                                         <CaseChildrenList
-                                            cases={node.cases}
+                                            cases={cases}
                                             projectIndex={projectIndex}
                                             searchHighlightTerm={searchHighlightTerm}
                                             activeProjectIndex={state.activeProjectIndex}
@@ -156,8 +163,8 @@ function CaseSidebarTree({ controller }: { controller: CaseSidebarController }) 
                                             onCaseDragStart={handleCaseDragStart}
                                             onCaseDragEnd={handleCaseDragEnd}
                                         />
-                                    )}
-                                />
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>

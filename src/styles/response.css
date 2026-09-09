@@ -44,7 +44,10 @@
     cursor: pointer;
     font-size: 12px;
     line-height: 1;
-    transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
+    transition:
+        color var(--transition-fast),
+        background-color var(--transition-fast),
+        border-color var(--transition-fast);
 }
 
 .response-result-tab:hover {
@@ -430,21 +433,21 @@ body.col-resizing {
 }
 
 [data-theme='dark'] .response-idle-metrics {
-    background: #191d24;
-    border-color: #353b46;
+    background: var(--color-bg-card);
+    border-color: var(--color-border);
 }
 
 [data-theme='dark'] .response-idle-metric {
-    border-right-color: #353b46;
+    border-right-color: var(--color-border);
 }
 
 [data-theme='dark'] .response-idle-metric-value-filled {
-    color: #f2f4f8;
+    color: var(--color-text-title);
 }
 
 [data-theme='dark'] .response-idle-msg {
-    background: #1b2028;
-    border-color: #353b46;
+    background: var(--color-bg-card);
+    border-color: var(--color-border);
 }
 
 .response-meta-badge-muted {

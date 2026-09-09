@@ -1,4 +1,4 @@
-import {Button, Checkbox} from 'antd';
+import { Button, Checkbox, Tooltip } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import type { ParamItem } from '../../types/workspace';
@@ -31,7 +31,7 @@ export function createParamTableColumns({
     return [
         {
             title: '',
-            width: 40,
+            width: 36,
             render: (_value: unknown, record: ParamTableRow) => {
                 const index = Number(record.key);
                 return (
@@ -57,6 +57,7 @@ export function createParamTableColumns({
                     variant="borderless"
                     size="sm"
                     className="param-input param-key-input"
+                    placeholder="参数名"
                     onChange={(event) => onChange(index, 'name', event.target.value)}
                 />
             ),
@@ -73,7 +74,7 @@ export function createParamTableColumns({
                             value={text}
                             params={params}
                             disabled={record.type === 'disabled'}
-                            placeholder=""
+                            placeholder="未设置"
                             onChange={(value) => onChange(index, 'value', value)}
                         />
                     </div>
@@ -88,14 +89,17 @@ export function createParamTableColumns({
             key: 'action',
             width: 40,
             render: (_value: unknown, record: ParamTableRow) => (
-                <Button
-                    type="text"
-                    danger
-                    size="small"
-                    icon={<DeleteOutlined />}
-                    onClick={() => onRemove(Number(record.key))}
-                    className="param-delete-btn"
-                />
+                <Tooltip title="删除参数">
+                    <Button
+                        type="text"
+                        danger
+                        size="small"
+                        icon={<DeleteOutlined />}
+                        onClick={() => onRemove(Number(record.key))}
+                        className="param-delete-btn"
+                        aria-label="删除参数"
+                    />
+                </Tooltip>
             ),
         },
     ];

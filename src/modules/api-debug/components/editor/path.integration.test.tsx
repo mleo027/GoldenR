@@ -8,6 +8,7 @@ import { UndoRedoProvider } from '../../../../platform/undo';
 import { ApiDebugProviders } from '../../providers/ApiDebugProviders';
 import { useActiveTab, useTabsActions, useTabsState } from '../../store/useTabs';
 import { useApiDebugEnv } from '../../store/useApiDebugEnv';
+import type { PathBarLayout } from '../../utils/pathBarLayout';
 import Path from './Path';
 
 function AddressProbe() {
@@ -81,16 +82,52 @@ function ParamsSetupProbe() {
     );
 }
 
-function renderPath() {
+function KgbpSetupProbe() {
+    const { patchEnv } = useApiDebugEnv();
+    const { updateTab } = useTabsActions();
+    return (
+        <button
+            type="button"
+            onClick={() => {
+                patchEnv({
+                    kcxpEnvironments: [
+                        {
+                            id: 'gateway-dev',
+                            name: 'Gateway DEV',
+                            host: '10.0.0.10:22000',
+                            queue: '',
+                            timeout: '15',
+                            protocol: 'KGBP',
+                            service: 'TradeService',
+                            nodeId: 'node-01',
+                            clientSessionId: '@custid',
+                        },
+                    ],
+                    activeKcxpEnvironmentId: 'gateway-dev',
+                });
+                updateTab({
+                    protocol: 'KGBP',
+                    address:
+                        '10.0.0.10:22000/150501?timeout=15&service=TradeService&nodeid=node-01&clientsessionid=%40custid',
+                });
+            }}
+        >
+            setup-kgbp
+        </button>
+    );
+}
+
+function renderPath(layout: PathBarLayout = 'full') {
     return render(
         <AppEnvProvider>
             <UndoRedoProvider>
                 <ApiDebugProviders>
-                    <Path layout="full" hideRunButton />
+                    <Path layout={layout} hideRunButton />
                     <AddressProbe />
                     <EnvSetupProbe />
                     <AddressListProbe />
                     <ParamsSetupProbe />
+                    <KgbpSetupProbe />
                 </ApiDebugProviders>
             </UndoRedoProvider>
         </AppEnvProvider>,
@@ -164,10 +201,47 @@ describe('Path integration', () => {
     });
 
     it('keeps host details out of the address bar while preserving the serialized address', async () => {
-        renderPath();
+        const { container } = renderPath('full');
 
         expect(screen.queryByPlaceholderText('127.0.0.1:21000')).toBeNull();
         expect(screen.getByTestId('address').textContent).toContain('127.0.0.1:21000');
+        expect(
+            container.querySelector('.path-bar--layout-full .path-fields-group--kcbp'),
+        ).not.toBeNull();
+    });
+
+    it('marks the compact request bar without dropping KCBP fields from the document', () => {
+        const { container } = renderPath('compact');
+
+        expect(container.querySelector('.path-bar--layout-compact')).not.toBeNull();
+        expect(screen.getByText('Queue')).toBeTruthy();
+        expect(screen.getByRole('textbox', { name: 'Msgtype' })).toBeTruthy();
+    });
+
+    it('renders KGBP fields and exposes narrow-only connection details', async () => {
+        const user = userEvent.setup();
+        const { container } = renderPath('narrow');
+
+        await user.click(screen.getByRole('button', { name: 'setup-kgbp' }));
+        await waitFor(() => {
+            expect(container.querySelector('.path-fields-group--kgbp')).not.toBeNull();
+        });
+        expect(screen.getByText('Service')).toBeTruthy();
+        expect(screen.getByRole('button', { name: '查看 Nodeid 和 Sessionid' })).toBeTruthy();
+    });
+
+    it('shows the complete KGBP field set in the full layout', async () => {
+        const user = userEvent.setup();
+        const { container } = renderPath('full');
+
+        await user.click(screen.getByRole('button', { name: 'setup-kgbp' }));
+        await waitFor(() => {
+            expect(container.querySelector('.path-fields-group--kgbp')).not.toBeNull();
+        });
+        expect(screen.getByText('TradeService')).toBeTruthy();
+        expect(screen.getByText('node-01')).toBeTruthy();
+        expect(screen.getByText('@custid')).toBeTruthy();
+        expect(screen.queryByRole('button', { name: '查看 Nodeid 和 Sessionid' })).toBeNull();
     });
 
     it('disables the share action until a response exists', async () => {
