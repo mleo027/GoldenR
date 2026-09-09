@@ -45,7 +45,7 @@ function buildCaseTabItems({
     handleClose,
 }: {
     tabs: CaseTabBarTab[];
-    view: 'editor' | 'history' | 'history-detail';
+    view: 'editor' | 'history' | 'history-detail' | 'trace';
     activeCaseId: string | null;
     handleSelect: (projectIndex: number, caseIndex: number, caseId: string) => void;
     handleClose: (caseId: string) => void;
@@ -71,7 +71,7 @@ function buildHistoryTabItems({
     closeHistoryDetail,
 }: {
     historyOpen: boolean;
-    view: 'editor' | 'history' | 'history-detail';
+    view: 'editor' | 'history' | 'history-detail' | 'trace';
     openHistory: () => void;
     closeHistory: () => void;
     detailId?: string;
@@ -107,6 +107,28 @@ function buildHistoryTabItems({
     return items;
 }
 
+function buildTraceTabItem({
+    view,
+    traceCaseName,
+    closeTrace,
+}: {
+    view: 'editor' | 'history' | 'history-detail' | 'trace';
+    traceCaseName: string;
+    closeTrace: () => void;
+}): TitleBarTabItem[] {
+    if (view !== 'trace' || !traceCaseName) return [];
+
+    return [
+        {
+            key: 'sql-trace',
+            label: `SQL Trace — ${traceCaseName}`,
+            active: true,
+            onSelect: () => {},
+            onClose: closeTrace,
+        },
+    ];
+}
+
 function CaseTabBar({ variant = 'default' }: CaseTabBarProps) {
     const { runningCaseId, cancel } = useKcbpCall();
     const { projects, activeProjectIndex, activeCaseIndex, openCaseIds } = useTabsNavigation();
@@ -116,11 +138,13 @@ function CaseTabBar({ variant = 'default' }: CaseTabBarProps) {
         view,
         historyOpen,
         detailId,
+        traceCaseName,
         openHistory,
         closeHistory,
         openHistoryDetail,
         closeHistoryDetail,
         showEditor,
+        closeTrace,
     } = useRequestHistoryNavigation();
 
     const activeCaseId = projects[activeProjectIndex]?.cases[activeCaseIndex]?.id ?? null;
@@ -179,11 +203,17 @@ function CaseTabBar({ variant = 'default' }: CaseTabBarProps) {
                 openHistoryDetail,
                 closeHistoryDetail,
             }),
+            ...buildTraceTabItem({
+                view,
+                traceCaseName,
+                closeTrace,
+            }),
         ];
     }, [
         activeCaseId,
         closeHistory,
         closeHistoryDetail,
+        closeTrace,
         detailId,
         entries,
         handleClose,
@@ -192,6 +222,7 @@ function CaseTabBar({ variant = 'default' }: CaseTabBarProps) {
         openHistory,
         openHistoryDetail,
         tabs,
+        traceCaseName,
         view,
     ]);
 
