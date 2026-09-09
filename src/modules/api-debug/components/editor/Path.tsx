@@ -70,7 +70,9 @@ export function PathRunButton() {
                 </span>
             ) : (
                 <span className="path-run-content">
-                    <span className="path-run-label"><PlayCircleOutlined /> Run</span>
+                    <span className="path-run-label">
+                        <PlayCircleOutlined /> Run
+                    </span>
                     <span className="path-run-kbd">Ctrl+Enter</span>
                 </span>
             )}
@@ -106,7 +108,7 @@ function PathAddressFields({
         return (
             <>
                 <Tooltip title="ServiceName">
-                    <span className="path-field-tooltip-wrap">
+                    <span className="path-field-tooltip-wrap path-field-pill--service">
                         <span className="path-field-display path-field-service">
                             <span className="path-field-label">Service</span>
                             <span className="path-field-value">{addressParts.service || '—'}</span>
@@ -125,12 +127,14 @@ function PathAddressFields({
                     <span className="path-field-tooltip-wrap">
                         <span className="path-field-display path-field-client-session-id">
                             <span className="path-field-label">Sessionid</span>
-                            <span className="path-field-value">{addressParts.clientSessionId || '@custid'}</span>
+                            <span className="path-field-value">
+                                {addressParts.clientSessionId || '@custid'}
+                            </span>
                         </span>
                     </span>
                 </Tooltip>
                 <Tooltip title="Msgtype">
-                    <span className="path-field-tooltip-wrap">
+                    <span className="path-field-tooltip-wrap path-field-pill--push">
                         <span className="path-field-display path-field-msgtype">
                             <TagOutlined className="path-field-icon" />
                             <span className="path-field-label">Msgtype</span>
@@ -154,7 +158,7 @@ function PathAddressFields({
                 </span>
             </Tooltip>
             <Tooltip title="Msgtype">
-                <span className="path-field-tooltip-wrap">
+                <span className="path-field-tooltip-wrap path-field-pill--push">
                     <span className="path-field-display path-field-msgtype">
                         <TagOutlined className="path-field-icon" />
                         <span className="path-field-label">Msgtype</span>
@@ -304,14 +308,16 @@ export default function Path({
     } = usePathBarController({ onQuickFill });
     return (
         <div className={hideRunButton ? 'path-bar path-bar--command-only' : 'path-bar'}>
-            <div className={`path-command-bar${activeEnvironment.protocol === 'KGBP' ? ' path-command-bar--kgbp path-command-bar--advanced-open' : ''}`}>
+            <div
+                className={`path-command-bar${activeEnvironment.protocol === 'KGBP' ? ' path-command-bar--kgbp path-command-bar--advanced-open' : ''}`}
+            >
                 {showScriptBadge ? (
                     <>
                         <span className="path-mode-chip">脚本</span>
                         <div className="path-command-divider" aria-hidden />
                     </>
                 ) : null}
-                <div className="path-env-selector">
+                <div className="path-env-selector" title={activeEnvironment.name}>
                     <Select
                         value={env.activeKcxpEnvironmentId}
                         options={environmentOptions}
@@ -326,10 +332,16 @@ export default function Path({
                             const environment = option.data?.environment;
                             const name = option.data?.environmentName || option.label;
                             const protocol = environment?.protocol || 'KCBP';
-                            const detailParts = [protocol, environment?.host, `timeout=${environment?.timeout || DEFAULT_KCBP_TIMEOUT}s`];
+                            const detailParts = [
+                                protocol,
+                                environment?.host,
+                                `timeout=${environment?.timeout || DEFAULT_KCBP_TIMEOUT}s`,
+                            ];
                             if (protocol === 'KGBP') {
-                                if (environment?.service) detailParts.push(`service=${environment.service}`);
-                                if (environment?.nodeId) detailParts.push(`node=${environment.nodeId}`);
+                                if (environment?.service)
+                                    detailParts.push(`service=${environment.service}`);
+                                if (environment?.nodeId)
+                                    detailParts.push(`node=${environment.nodeId}`);
                                 if (environment?.clientSessionId)
                                     detailParts.push(`session=${environment.clientSessionId}`);
                             } else if (environment?.queue) {

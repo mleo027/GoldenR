@@ -77,6 +77,11 @@
     opacity: 0.6;
 }
 
+/* 胶囊化后靠留白分隔，环境选择器后的竖线分隔线移除（视觉隐藏，DOM 不动）。 */
+.path-env-selector + .path-command-divider {
+    display: none;
+}
+
 .path-env-selector {
     flex-shrink: 0;
     display: inline-flex;
@@ -87,6 +92,13 @@
     border-radius: var(--radius-control);
     transition: background var(--transition-fast);
     background: transparent;
+    min-width: 0;
+}
+
+/* 环境名（如 KGBP44444…）超出时由 selection-item 省略，
+   完整文本靠原生 title 提示，避免 Tooltip 压住下拉面板。 */
+.path-env-selector .ant-select-selection-item {
+    min-width: 0;
 }
 
 .path-env-selector:hover {
@@ -218,8 +230,19 @@
     min-width: 0;
     margin-inline: 0;
     padding-inline: 0;
-    border-radius: var(--radius-control);
-    background: color-mix(in srgb, var(--color-bg-subtle) 52%, transparent);
+    border-radius: 999px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--color-bg-subtle) 72%, transparent);
+}
+
+/* Service 属 KGBP 网关定位字段，用淡蓝胶囊与灰胶囊区分面板类型（仅颜色，不改逻辑）。 */
+.path-command-bar .path-field-pill--service {
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+
+/* Msgtype 作为重点字段靠右展示。 */
+.path-command-bar .path-field-pill--push {
+    margin-left: auto;
 }
 
 .path-field-display {
@@ -259,11 +282,16 @@
     min-width: 0;
     margin-left: 4px;
     padding-inline: 9px;
-    border-left: 1px solid var(--color-border-light);
 }
 
-.section-header--layout-compact .path-command-bar--kgbp .path-field-service + .path-field-tooltip-wrap,
-.section-header--layout-compact .path-command-bar--kgbp .path-field-node-id + .path-field-tooltip-wrap {
+.section-header--layout-compact
+    .path-command-bar--kgbp
+    .path-field-service
+    + .path-field-tooltip-wrap,
+.section-header--layout-compact
+    .path-command-bar--kgbp
+    .path-field-node-id
+    + .path-field-tooltip-wrap {
     margin-left: 2px;
 }
 
@@ -288,23 +316,35 @@
     display: none;
 }
 
-.section-header--layout-compact .path-command-bar--kgbp:not(.path-command-bar--advanced-open) .path-field-timeout,
-.section-header--layout-compact .path-command-bar--kgbp:not(.path-command-bar--advanced-open) .path-field-service,
-.section-header--layout-compact .path-command-bar--kgbp:not(.path-command-bar--advanced-open) .path-field-node-id,
-.section-header--layout-compact .path-command-bar--kgbp:not(.path-command-bar--advanced-open) .path-field-client-session-id {
+.section-header--layout-compact
+    .path-command-bar--kgbp:not(.path-command-bar--advanced-open)
+    .path-field-timeout,
+.section-header--layout-compact
+    .path-command-bar--kgbp:not(.path-command-bar--advanced-open)
+    .path-field-service,
+.section-header--layout-compact
+    .path-command-bar--kgbp:not(.path-command-bar--advanced-open)
+    .path-field-node-id,
+.section-header--layout-compact
+    .path-command-bar--kgbp:not(.path-command-bar--advanced-open)
+    .path-field-client-session-id {
     display: none;
 }
 
-.section-header--layout-compact .path-command-bar--kgbp.path-command-bar--advanced-open .path-field-client-session-id {
+.section-header--layout-compact
+    .path-command-bar--kgbp.path-command-bar--advanced-open
+    .path-field-client-session-id {
     display: inline-flex;
     flex: 0 1 auto;
     min-width: 0;
     margin-left: 4px;
     padding-inline: 9px;
-    border-left: 1px solid var(--color-border-light);
 }
 
-.section-header--layout-compact .path-command-bar--kgbp.path-command-bar--advanced-open .path-field-client-session-id .path-field-value {
+.section-header--layout-compact
+    .path-command-bar--kgbp.path-command-bar--advanced-open
+    .path-field-client-session-id
+    .path-field-value {
     max-width: 100px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -318,7 +358,6 @@
     height: 30px !important;
     margin-inline: 3px;
     padding-inline: 9px !important;
-    border-left: 1px solid var(--color-border-light) !important;
     border-radius: var(--radius-control) !important;
     color: var(--color-text-muted) !important;
     font-size: 11px !important;
@@ -393,18 +432,30 @@
     align-items: center;
     color: var(--color-text-muted);
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: 0.01em;
     line-height: 1;
 }
 
 /* 各字段标签宽度固定，保证同一请求栏内的值起点整齐。 */
-.path-field-timeout .path-field-label { min-width: 42px; }
-.path-field-service .path-field-label { min-width: 40px; }
-.path-field-node-id .path-field-label { min-width: 34px; }
-.path-field-client-session-id .path-field-label { min-width: 50px; }
-.path-field-queue .path-field-label { min-width: 36px; }
-.path-field-msgtype .path-field-label { min-width: 46px; }
+.path-field-timeout .path-field-label {
+    min-width: 42px;
+}
+.path-field-service .path-field-label {
+    min-width: 40px;
+}
+.path-field-node-id .path-field-label {
+    min-width: 34px;
+}
+.path-field-client-session-id .path-field-label {
+    min-width: 50px;
+}
+.path-field-queue .path-field-label {
+    min-width: 36px;
+}
+.path-field-msgtype .path-field-label {
+    min-width: 46px;
+}
 
 .path-field-value {
     display: inline-flex;
@@ -427,7 +478,7 @@
     border-radius: var(--radius-control);
     background: transparent;
     color: var(--color-text);
-    font-size: var(--font-caption);
+    font-size: 13px;
     font-weight: 650;
     font-variant-numeric: tabular-nums;
     line-height: 22px;
@@ -477,7 +528,6 @@
     flex-shrink: 0;
     margin-left: 4px;
     padding-inline: 6px 2px;
-    border-left: 1px solid var(--color-border-light);
     border-radius: var(--radius-control);
     background: color-mix(in srgb, var(--color-bg-subtle) 58%, transparent);
 }
@@ -621,6 +671,18 @@
 
 :root:not([data-theme='dark']) .path-field-value {
     color: #1e293b;
+}
+
+:root:not([data-theme='dark']) .path-command-bar .path-field-tooltip-wrap {
+    background: #eef1f6;
+}
+
+:root:not([data-theme='dark']) .path-command-bar .path-field-pill--service {
+    background: #e8f0fe;
+}
+
+:root:not([data-theme='dark']) .path-command-bar .path-field-pill--service .path-field-value {
+    color: #1d4ed8;
 }
 
 :root:not([data-theme='dark']) .path-command-bar .path-actions {
