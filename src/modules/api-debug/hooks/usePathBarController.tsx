@@ -5,6 +5,7 @@ import {
     CopyOutlined,
     DeleteOutlined,
     FormatPainterOutlined,
+    ShareAltOutlined,
     SnippetsOutlined,
     ThunderboltOutlined,
 } from '@ant-design/icons';
@@ -20,8 +21,14 @@ import {
     registerTabDraftFlusher,
     registerTabDraftReader,
 } from '../utils/workspace/tabDraftRegistry';
-import { buildParamsRawText } from '../utils/workspace/rawText';
+import { buildParamsRawText, type ParamsRawTextOptions } from '../utils/workspace/rawText';
+import {
+    buildShareReportFilename,
+    buildShareReportHtml,
+    resolveShareReportMeta,
+} from '../utils/workspace/shareReport';
 import { resolveCommonParamsById } from '../utils/workspace/commonParams';
+import { getElectronAPI } from '../../../lib/electron';
 import { formatActiveScript } from '../utils/script/scriptFormatRegistry';
 import { generateTestScriptFromParams } from '../utils/script/apiScript';
 import { parseKcbpResponseStatus } from '../utils/kcbp/kcbpResponse';
@@ -107,22 +114,17 @@ export function usePathBarController({ onQuickFill }: UsePathBarControllerOption
         );
     };
 
-    const handleCopyParams = useCallback(async () => {
+    /** 当前 raw 入参输入（含未提交草稿），供复制与分享共用 */
+    const readRawTextInput = useCallback((): ParamsRawTextOptions => {
         flushPending();
         const drafts = readPendingTabDrafts();
-        const text = buildParamsRawText({
+        return {
             protocol: activeTab.protocol,
             address: drafts.address ?? activeTab.address,
             tabName: activeTab.name,
             params: drafts.params ?? activeTab.params,
             commonParams,
-        });
-        try {
-            await navigator.clipboard.writeText(text);
-            message.success('已复制地址与请求参数');
-        } catch {
-            message.error('复制失败');
-        }
+        };
     }, [
         activeTab.address,
         activeTab.name,
@@ -131,6 +133,36 @@ export function usePathBarController({ onQuickFill }: UsePathBarControllerOption
         commonParams,
         flushPending,
     ]);
+
+    const handleCopyParams = useCallback(async () => {
+        const text = buildParamsRawText(readRawTextInput());
+        try {
+            await navigator.clipboard.writeText(text);
+            message.success('已复制地址与请求参数');
+        } catch {
+            message.error('复制失败');
+        }
+    }, [readRawTextInput]);
+
+    const handleShareReport = useCallback(async () => {
+        if (!response) return;
+        const input = readRawTextInput();
+        const html = buildShareReportHtml({ ...input, response });
+        const { msgtype } = resolveShareReportMeta(input);
+        const filename = buildShareReportFilename(input.tabName, msgtype);
+        try {
+            const result = await getElectronAPI()?.importExport.saveHtml(html, filename);
+            if (!result) {
+                message.error('分享失败：Electron API 不可用');
+            } else if (result.saved) {
+                message.success(`已保存：${result.filePath}`);
+            } else if (result.error) {
+                message.error(`分享失败：${result.error}`);
+            }
+        } catch {
+            message.error('分享失败');
+        }
+    }, [readRawTextInput, response]);
 
     const hasCopyableContent = addressDraft.trim().length > 0 || activeTab.params.length > 0;
     const isScriptMode = env.editorMode === 'script';
@@ -250,6 +282,13 @@ export function usePathBarController({ onQuickFill }: UsePathBarControllerOption
                 disabled: !hasCopyableContent,
                 onClick: () => void handleCopyParams(),
             },
+            {
+                key: 'share',
+                label: '分享',
+                icon: <ShareAltOutlined />,
+                disabled: !response,
+                onClick: () => void handleShareReport(),
+            },
         );
         items.push({
             key: 'clear',
@@ -266,9 +305,11 @@ export function usePathBarController({ onQuickFill }: UsePathBarControllerOption
         handleClearParams,
         handleCopyParams,
         handleGenerateTestScript,
+        handleShareReport,
         hasCopyableContent,
         isCodeEditorMode,
         onQuickFill,
+        response,
     ]);
 
     return {
@@ -281,6 +322,7 @@ export function usePathBarController({ onQuickFill }: UsePathBarControllerOption
         addressParts,
         handleAddressPartChange,
         handleCopyParams,
+        handleShareReport,
         hasCopyableContent,
         isCodeEditorMode,
         canGenerateTestScript,

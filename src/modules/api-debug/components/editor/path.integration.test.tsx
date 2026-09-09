@@ -170,6 +170,18 @@ describe('Path integration', () => {
         expect(screen.getByTestId('address').textContent).toContain('127.0.0.1:21000');
     });
 
+    it('disables the share action until a response exists', async () => {
+        const user = userEvent.setup();
+        renderPath();
+
+        await user.click(screen.getByRole('button', { name: 'setup-env' }));
+        await user.click(screen.getByRole('button', { name: 'setup-params' }));
+
+        await user.click(document.querySelector('.path-overflow-btn') as HTMLButtonElement);
+        const shareItem = await screen.findByText('分享');
+        expect(shareItem.closest('li')?.className).toContain('menu-item-disabled');
+    });
+
     it('copies raw request text instead of the legacy JSON payload', async () => {
         const user = userEvent.setup();
         const writeText = vi.fn(async () => undefined);
