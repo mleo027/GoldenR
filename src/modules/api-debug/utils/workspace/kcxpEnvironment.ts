@@ -23,8 +23,7 @@ export function createKcxpEnvironment(
         timeout: partial?.timeout ?? template.timeout,
         service: partial?.service,
         nodeId: partial?.nodeId,
-        clientSessionId:
-            partial?.clientSessionId ?? (protocol === 'KGBP' ? '@custid' : undefined),
+        clientSessionId: partial?.clientSessionId ?? (protocol === 'KGBP' ? '@custid' : undefined),
     };
 }
 
@@ -46,11 +45,13 @@ export function isKcxpEnvironment(value: unknown): value is KcxpEnvironment {
 
 export function normalizeKcxpEnvironments(value: unknown): KcxpEnvironment[] {
     if (!Array.isArray(value)) return [...DEFAULT_KCXP_ENVIRONMENTS];
-    const valid = value.filter(isKcxpEnvironment).map((environment) =>
-        environment.protocol === 'KGBP' && !environment.clientSessionId?.trim()
-            ? { ...environment, clientSessionId: '@custid' }
-            : environment,
-    );
+    const valid = value
+        .filter(isKcxpEnvironment)
+        .map((environment) =>
+            environment.protocol === 'KGBP' && !environment.clientSessionId?.trim()
+                ? { ...environment, clientSessionId: '@custid' }
+                : environment,
+        );
     return valid.length > 0 ? valid : [...DEFAULT_KCXP_ENVIRONMENTS];
 }
 
@@ -76,7 +77,7 @@ export function getActiveKcxpEnvironment(
 }
 
 export const KGBP_REQUIRED_FIELDS_MESSAGE =
-    'KGBP 环境 ServiceName/NodeId 未配置，请在 设置→请求→KCXP环境 中完善';
+    'KGBP 环境 ServiceName/NodeId 未配置，请在 设置→请求→环境配置 中完善';
 
 const INTEGER_PATTERN = /^-?\d+$/;
 

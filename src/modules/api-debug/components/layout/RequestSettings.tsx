@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import {Button, Radio, Switch, Typography} from 'antd';
+import { Button, Radio, Switch, Typography } from 'antd';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { Select } from '../../../../components/ui/primitives';
 import { useAppEnv } from '../../../../store/useAppEnv';
@@ -207,7 +207,7 @@ export default function RequestSettings() {
                 请求
             </Typography.Title>
             <Typography.Paragraph className="settings-panel-desc">
-                配置 KCXP 连接环境与请求保存行为
+                配置连接环境与请求保存行为
             </Typography.Paragraph>
 
             <div className="settings-panel-group settings-toggle-group">
@@ -228,7 +228,7 @@ export default function RequestSettings() {
             </div>
 
             <Typography.Title level={5} className="settings-section-title">
-                KCXP 环境
+                环境配置
             </Typography.Title>
             <Typography.Paragraph type="secondary" className="settings-section-desc">
                 每组环境包含协议及其连接参数；选中后自动应用到全部接口，保留 Msgtype 与入参
