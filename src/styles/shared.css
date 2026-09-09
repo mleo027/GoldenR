@@ -463,3 +463,22 @@
         opacity var(--transition-fast),
         transform var(--transition-fast) !important;
 }
+
+/* SQL 语法高亮 */
+.sql-keyword {
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.sql-comment {
+    color: var(--color-text-muted);
+    font-style: italic;
+}
+
+.sql-string {
+    color: var(--color-success);
+}
+
+.sql-number {
+    color: var(--color-warning);
+}
