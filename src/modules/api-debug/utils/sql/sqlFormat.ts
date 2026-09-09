@@ -86,9 +86,7 @@ function tokenize(sql: string): Token[] {
             i = end;
             continue;
         }
-        const word = source
-            .slice(i)
-            .match(/^(?:@[\w$#]+|[A-Za-z_][\w$#]*|\d+(?:\.\d+)?)/);
+        const word = source.slice(i).match(/^(?:@[\w$#]+|[A-Za-z_][\w$#]*|\d+(?:\.\d+)?)/);
         if (word) {
             tokens.push({ kind: 'word', text: word[0] });
             i += word[0].length;
@@ -156,12 +154,9 @@ export function formatSql(sql: string): string {
             continue;
         }
 
-        if (
-            token.kind === 'word' &&
-            (CLAUSE_KEYWORDS.has(upper) || JOIN_KEYWORDS.has(upper))
-        ) {
+        if (token.kind === 'word' && (CLAUSE_KEYWORDS.has(upper) || JOIN_KEYWORDS.has(upper))) {
             if (line) push();
-            line = upper;
+            line = token.text.toLowerCase();
             afterComma = false;
             continue;
         }
@@ -184,12 +179,10 @@ export function highlightSql(sql: string): string {
         .map((token) => {
             const text = escapeHtml(token.text);
             if (token.kind === 'whitespace') return text;
-            if (token.kind === 'comment')
-                return `<span class="sql-comment">${text}</span>`;
-            if (token.kind === 'string')
-                return `<span class="sql-string">${text}</span>`;
+            if (token.kind === 'comment') return `<span class="sql-comment">${text}</span>`;
+            if (token.kind === 'string') return `<span class="sql-string">${text}</span>`;
             if (token.kind === 'word' && KEYWORDS.has(token.text.toUpperCase())) {
-                return `<span class="sql-keyword">${text.toUpperCase()}</span>`;
+                return `<span class="sql-keyword">${text.toLowerCase()}</span>`;
             }
             if (token.kind === 'word' && /^\d/.test(token.text)) {
                 return `<span class="sql-number">${text}</span>`;
