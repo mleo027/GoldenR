@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Button, Dropdown, Menu, Popover, Tooltip } from 'antd';
-import { DownOutlined } from '@ant-design/icons';
+import { Button, Dropdown, Menu, Popover, Tooltip, Switch } from 'antd';
+import { DownOutlined, EyeOutlined } from '@ant-design/icons';
 import { Input, Select } from '../../../../components/ui/primitives';
 import {
     CopyOutlined,
@@ -20,6 +20,10 @@ import { usePathBarController } from '../../hooks/usePathBarController';
 import { getElectronAPI } from '../../../../lib/electron';
 import type { PathBarLayout } from '../../utils/pathBarLayout';
 import { formatActiveScript } from '../../utils/script/scriptFormatRegistry';
+import { useResponse } from '../../store/useResponse';
+import { useActiveTab } from '../../store/useTabs';
+import { useRequestHistoryNavigation } from '../../store/useRequestHistoryNavigation';
+import { getCaseLabel } from '../../utils/workspace/caseLabel';
 
 interface PathProps {
     showScriptBadge?: boolean;
@@ -31,9 +35,21 @@ interface PathProps {
 }
 
 export function PathRunButton() {
-    const { loading, run, cancel } = useKcbpCall();
+    const { loading, run, cancel, traceEnabled, setTraceEnabled } = useKcbpCall();
+    const { activeTab, activeCaseIndex } = useActiveTab();
+    const response = useResponse(activeTab.id);
+    const { openTrace } = useRequestHistoryNavigation();
     const canRun = Boolean(getElectronAPI()?.kcbp.call);
     const [elapsedSec, setElapsedSec] = useState(0);
+
+    const hasTraceData = Boolean(response?.trace?.events.length);
+    const caseName = getCaseLabel(activeTab, activeCaseIndex);
+
+    const handleViewTrace = () => {
+        if (response?.trace) {
+            openTrace(response.trace, caseName);
+        }
+    };
 
     useEffect(() => {
         if (!loading) {
@@ -57,27 +73,51 @@ export function PathRunButton() {
     };
 
     return (
-        <Button
-            type={loading ? 'default' : 'primary'}
-            size="small"
-            onClick={handleClick}
-            disabled={!loading && !canRun}
-            className={`path-run-btn${loading ? ' path-run-btn-cancel' : ''}`}
-        >
-            {loading ? (
-                <span className="path-run-label path-run-label-cancel">
-                    <LoadingOutlined spin className="path-run-cancel-spinner" />
-                    Cancel{elapsedSec > 0 ? ` · ${elapsedSec}s` : ''}
-                </span>
-            ) : (
-                <span className="path-run-content">
-                    <span className="path-run-label">
-                        <PlayCircleOutlined /> Run
-                    </span>
-                    <span className="path-run-kbd">Ctrl+Enter</span>
-                </span>
+        <div className="flex items-center gap-2">
+            <label className="text-xs" title="按次启用 SQL Server Extended Events">
+                SQL Trace{' '}
+                <Switch
+                    size="small"
+                    checked={traceEnabled}
+                    onChange={setTraceEnabled}
+                    disabled={loading}
+                />
+            </label>
+            {hasTraceData && !loading && (
+                <Tooltip title="查看 SQL Trace 详情">
+                    <Button
+                        type="text"
+                        size="small"
+                        icon={<EyeOutlined />}
+                        onClick={handleViewTrace}
+                        className="path-trace-btn"
+                    >
+                        Trace
+                    </Button>
+                </Tooltip>
             )}
-        </Button>
+            <Button
+                type={loading ? 'default' : 'primary'}
+                size="small"
+                onClick={handleClick}
+                disabled={!loading && !canRun}
+                className={`path-run-btn${loading ? ' path-run-btn-cancel' : ''}`}
+            >
+                {loading ? (
+                    <span className="path-run-label path-run-label-cancel">
+                        <LoadingOutlined spin className="path-run-cancel-spinner" />
+                        Cancel{elapsedSec > 0 ? ` · ${elapsedSec}s` : ''}
+                    </span>
+                ) : (
+                    <span className="path-run-content">
+                        <span className="path-run-label">
+                            <PlayCircleOutlined /> Run
+                        </span>
+                        <span className="path-run-kbd">Ctrl+Enter</span>
+                    </span>
+                )}
+            </Button>
+        </div>
     );
 }
 
