@@ -11,13 +11,17 @@ import {
 import { useTabsActions, useActiveTab } from '../store/useTabs';
 import { useApiDebugEnv } from '../store/useApiDebugEnv';
 import { useResponse } from '../store/useResponse';
+import { useCommonParamsState } from '../store/useCommonParams';
 import { useKcbpCall } from './useKcbpCall';
 import { useDebouncedCommit } from '../../../hooks/useDebouncedCommit';
 import {
     flushAllTabDrafts,
+    readPendingTabDrafts,
     registerTabDraftFlusher,
     registerTabDraftReader,
 } from '../utils/workspace/tabDraftRegistry';
+import { buildParamsRawText } from '../utils/workspace/rawText';
+import { resolveCommonParamsById } from '../utils/workspace/commonParams';
 import { formatActiveScript } from '../utils/script/scriptFormatRegistry';
 import { generateTestScriptFromParams } from '../utils/script/apiScript';
 import { parseKcbpResponseStatus } from '../utils/kcbp/kcbpResponse';
@@ -38,7 +42,12 @@ interface UsePathBarControllerOptions {
 
 export function usePathBarController({ onQuickFill }: UsePathBarControllerOptions) {
     const { modal } = App.useApp();
-    const { activeTab } = useActiveTab();
+    const { activeTab, activeProject } = useActiveTab();
+    const { sets: commonParamSets } = useCommonParamsState();
+    const commonParams = useMemo(
+        () => resolveCommonParamsById(commonParamSets, activeProject?.commonParamSetId),
+        [activeProject?.commonParamSetId, commonParamSets],
+    );
     const { updateTab, updateTabUndoable, applyKcxpEnvironment } = useTabsActions();
     const { env, updateEnv } = useApiDebugEnv();
     const { loading, run } = useKcbpCall();
@@ -100,22 +109,28 @@ export function usePathBarController({ onQuickFill }: UsePathBarControllerOption
 
     const handleCopyParams = useCallback(async () => {
         flushPending();
-        const payload = {
-            address: activeTab.address,
-            host: addressParts.host,
-            msgtype: addressParts.msgtype,
-            queue: addressParts.queue,
-            timeout: addressParts.timeout,
-            params: activeTab.params,
-        };
-        const text = JSON.stringify(payload, null, 2);
+        const drafts = readPendingTabDrafts();
+        const text = buildParamsRawText({
+            protocol: activeTab.protocol,
+            address: drafts.address ?? activeTab.address,
+            tabName: activeTab.name,
+            params: drafts.params ?? activeTab.params,
+            commonParams,
+        });
         try {
             await navigator.clipboard.writeText(text);
             message.success('已复制地址与请求参数');
         } catch {
             message.error('复制失败');
         }
-    }, [activeTab.address, activeTab.params, addressParts, flushPending]);
+    }, [
+        activeTab.address,
+        activeTab.name,
+        activeTab.params,
+        activeTab.protocol,
+        commonParams,
+        flushPending,
+    ]);
 
     const hasCopyableContent = addressDraft.trim().length > 0 || activeTab.params.length > 0;
     const isScriptMode = env.editorMode === 'script';
@@ -226,16 +241,16 @@ export function usePathBarController({ onQuickFill }: UsePathBarControllerOption
             });
         }
 
-            items.push(
-                { type: 'divider' },
-                {
-                    key: 'copy',
-                    label: '复制地址与参数',
-                    icon: <CopyOutlined />,
-                    disabled: !hasCopyableContent,
-                    onClick: () => void handleCopyParams(),
-                },
-            );
+        items.push(
+            { type: 'divider' },
+            {
+                key: 'copy',
+                label: '复制地址与参数',
+                icon: <CopyOutlined />,
+                disabled: !hasCopyableContent,
+                onClick: () => void handleCopyParams(),
+            },
+        );
         items.push({
             key: 'clear',
             label: '清空全部参数',

@@ -59,6 +59,28 @@ function AddressListProbe() {
     );
 }
 
+function ParamsSetupProbe() {
+    const { updateTab } = useTabsActions();
+    return (
+        <button
+            type="button"
+            onClick={() =>
+                updateTab({
+                    name: '深圳普通买债券',
+                    protocol: 'KCBP',
+                    address: '127.0.0.1:21000/410411?queue=req1&timeout=15',
+                    params: [
+                        { name: 'funcid', value: '410411', type: 'string' },
+                        { name: 'custid', value: '600100000570', type: 'string' },
+                    ],
+                })
+            }
+        >
+            setup-params
+        </button>
+    );
+}
+
 function renderPath() {
     return render(
         <AppEnvProvider>
@@ -68,6 +90,7 @@ function renderPath() {
                     <AddressProbe />
                     <EnvSetupProbe />
                     <AddressListProbe />
+                    <ParamsSetupProbe />
                 </ApiDebugProviders>
             </UndoRedoProvider>
         </AppEnvProvider>,
@@ -145,6 +168,29 @@ describe('Path integration', () => {
 
         expect(screen.queryByPlaceholderText('127.0.0.1:21000')).toBeNull();
         expect(screen.getByTestId('address').textContent).toContain('127.0.0.1:21000');
+    });
+
+    it('copies raw request text instead of the legacy JSON payload', async () => {
+        const user = userEvent.setup();
+        const writeText = vi.fn(async () => undefined);
+        Object.defineProperty(navigator, 'clipboard', {
+            configurable: true,
+            value: { writeText },
+        });
+        renderPath();
+
+        await user.click(screen.getByRole('button', { name: 'setup-env' }));
+        await user.click(screen.getByRole('button', { name: 'setup-params' }));
+
+        // 复制入口在溢出菜单（更多操作）中
+        await user.click(document.querySelector('.path-overflow-btn') as HTMLButtonElement);
+        await user.click(await screen.findByText('复制地址与参数'));
+
+        await waitFor(() => {
+            expect(writeText).toHaveBeenCalledWith(
+                '深圳普通买债券=410411;funcid:410411,custid:600100000570',
+            );
+        });
     });
 
     it('debounces msgtype edits and commits the serialized address', async () => {
