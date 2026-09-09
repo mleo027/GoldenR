@@ -87,7 +87,7 @@ h3 { font-size: 14px; margin: 16px 0 6px; }
 .rs-info { color: #888; font-size: 12px; margin-bottom: 4px; }
 .table-wrap { border: 1px solid var(--line); border-radius: 6px; overflow: auto; max-height: 70vh; }
 table { border-collapse: collapse; width: 100%; font-size: 13px; }
-thead th { position: sticky; top: 0; background: var(--head-bg); text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; cursor: pointer; user-select: none; }
+thead th { position: sticky; top: 0; background: var(--head-bg); text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; cursor: pointer; user-select: none; font-size: 14px; font-weight: 600; }
 thead th:hover { background: #eef3fb; }
 tbody td { padding: 5px 10px; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
 tbody tr:nth-child(even) { background: #fafbfc; }
