@@ -3,6 +3,24 @@ import { ConfigRepository } from '../repositories/configRepository';
 
 export const SCHEMA_VERSION = 5;
 
+// Schema version 6 belonged to the reverted script-automation feature.
+// Databases migrated by that build keep its tables behind, so migration
+// recognizes the version and rolls the database back to SCHEMA_VERSION.
+const REVERTED_AUTOMATION_VERSION = 6;
+const REVERTED_AUTOMATION_TABLES = [
+    'automation_run_steps',
+    'automation_run_reports',
+    'automation_run_cases',
+    'automation_runs',
+    'automation_cases',
+    'automation_case_folders',
+    'automation_project_configs',
+    'automation_projects',
+];
+const DROP_REVERTED_AUTOMATION_STATEMENTS: Record<string, string> = Object.fromEntries(
+    REVERTED_AUTOMATION_TABLES.map((table) => [`DROP TABLE IF EXISTS ${table}`, table]),
+);
+
 export function migrateSchema(db: SqliteDatabase): void {
     db.transaction(() => {
         db.exec(
@@ -12,10 +30,14 @@ export function migrateSchema(db: SqliteDatabase): void {
             | { version?: number }
             | undefined;
         const currentVersion = row?.version ?? 0;
-        if (currentVersion > SCHEMA_VERSION) {
+        if (currentVersion > SCHEMA_VERSION && currentVersion !== REVERTED_AUTOMATION_VERSION) {
             throw new Error(
                 `Unsupported database schema version ${currentVersion}; application supports up to ${SCHEMA_VERSION}`,
             );
+        }
+        if (currentVersion === REVERTED_AUTOMATION_VERSION) {
+            downgradeRevertedAutomationSchema(db);
+            return;
         }
         if (row?.version && row.version < 3) {
             migrateV1(db);
@@ -23,9 +45,8 @@ export function migrateSchema(db: SqliteDatabase): void {
         }
         if (row?.version === 3) {
             migrateV3(db);
-            return;
         }
-        if (row?.version === 4) {
+        if (row?.version === 3 || row?.version === 4) {
             migrateV4(db);
             return;
         }
@@ -34,6 +55,23 @@ export function migrateSchema(db: SqliteDatabase): void {
             db.prepare('INSERT INTO schema_migrations VALUES(?,?)').run(SCHEMA_VERSION, Date.now());
         }
     })();
+}
+
+function downgradeRevertedAutomationSchema(db: SqliteDatabase): void {
+    const existing = new Set(
+        (
+            db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all() as Array<{
+                name: string;
+            }>
+        ).map((r) => r.name),
+    );
+    for (const [statement, table] of Object.entries(DROP_REVERTED_AUTOMATION_STATEMENTS)) {
+        if (existing.has(table)) db.exec(statement);
+    }
+    db.prepare('DELETE FROM schema_migrations WHERE version=?').run(REVERTED_AUTOMATION_VERSION);
+    if (!db.prepare('SELECT 1 FROM schema_migrations WHERE version=?').get(SCHEMA_VERSION)) {
+        db.prepare('INSERT INTO schema_migrations VALUES(?,?)').run(SCHEMA_VERSION, Date.now());
+    }
 }
 
 function createSchema(db: SqliteDatabase): void {
@@ -59,7 +97,7 @@ function migrateV3(db: SqliteDatabase): void {
         'CREATE TABLE case_folders(id TEXT PRIMARY KEY,project_id TEXT NOT NULL,parent_id TEXT,name TEXT NOT NULL,position INTEGER NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE,FOREIGN KEY(parent_id) REFERENCES case_folders(id) ON DELETE CASCADE,UNIQUE(project_id,parent_id,position)); ALTER TABLE cases ADD COLUMN folder_id TEXT REFERENCES case_folders(id) ON DELETE SET NULL; CREATE INDEX idx_case_folders_parent_position ON case_folders(project_id,parent_id,position); CREATE INDEX idx_cases_folder_position ON cases(project_id,folder_id,position);',
     );
     db.prepare('UPDATE schema_migrations SET version=?, applied_at=? WHERE version=3').run(
-        SCHEMA_VERSION,
+        4,
         Date.now(),
     );
 }
