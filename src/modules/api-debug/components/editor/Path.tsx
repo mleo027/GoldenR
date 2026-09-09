@@ -74,15 +74,15 @@ export function PathRunButton() {
 
     return (
         <div className="flex items-center gap-2">
-            <label className="text-xs" title="按次启用 SQL Server Extended Events">
-                SQL Trace{' '}
+            <div className="flex items-center gap-1 text-xs whitespace-nowrap" title="按次启用 SQL Server Extended Events">
+                <span>SQL Trace</span>
                 <Switch
                     size="small"
                     checked={traceEnabled}
                     onChange={setTraceEnabled}
                     disabled={loading}
                 />
-            </label>
+            </div>
             {hasTraceData && !loading && (
                 <Tooltip title="查看 SQL Trace 详情">
                     <Button
