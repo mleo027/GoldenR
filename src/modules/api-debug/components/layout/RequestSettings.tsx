@@ -10,6 +10,7 @@ import { DEFAULT_KCBP_TIMEOUT } from '../../utils/kcbp/kcbpAddress';
 import { createKcxpEnvironment } from '../../utils/workspace/kcxpEnvironment';
 import { flushAllTabDrafts } from '../../utils/workspace/tabDraftRegistry';
 import { Input } from '../../../../components/ui/primitives';
+import { DEFAULT_DB_CONFIG } from '../../constants/paramSuggest';
 
 const PROTOCOL_SELECT_OPTIONS = [
     { value: 'KCBP', label: 'KCBP' },
@@ -36,6 +37,7 @@ function EnvironmentRow({
     };
 
     const isKGBP = (environment.protocol ?? 'KCBP') === 'KGBP';
+    const database = environment.database ?? DEFAULT_DB_CONFIG;
 
     return (
         <div className={`kcxp-env-row${active ? ' kcxp-env-row-active' : ''}`}>
@@ -143,6 +145,54 @@ function EnvironmentRow({
                         </div>
                     </>
                 )}
+                <div className="kcxp-env-database-fields">
+                    <Typography.Text className="kcxp-env-database-title">
+                        数据库配置
+                    </Typography.Text>
+                    <Input
+                        value={database.server}
+                        onChange={(e) =>
+                            updateField('database', { ...database, server: e.target.value })
+                        }
+                        placeholder="服务器"
+                        size="sm"
+                    />
+                    <Input
+                        value={String(database.port ?? '')}
+                        onChange={(e) =>
+                            updateField('database', {
+                                ...database,
+                                port: e.target.value ? Number(e.target.value) : undefined,
+                            })
+                        }
+                        placeholder="端口"
+                        size="sm"
+                    />
+                    <Input
+                        value={database.database}
+                        onChange={(e) =>
+                            updateField('database', { ...database, database: e.target.value })
+                        }
+                        placeholder="数据库名"
+                        size="sm"
+                    />
+                    <Input
+                        value={database.user}
+                        onChange={(e) =>
+                            updateField('database', { ...database, user: e.target.value })
+                        }
+                        placeholder="用户名"
+                        size="sm"
+                    />
+                    <Input
+                        value={database.password}
+                        onChange={(e) =>
+                            updateField('database', { ...database, password: e.target.value })
+                        }
+                        placeholder="密码"
+                        size="sm"
+                    />
+                </div>
             </div>
         </div>
     );

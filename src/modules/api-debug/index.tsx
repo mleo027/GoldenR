@@ -9,7 +9,6 @@
 import {
     ApiOutlined,
     SendOutlined,
-    DatabaseOutlined,
     UnorderedListOutlined,
     SolutionOutlined,
 } from '@ant-design/icons';
@@ -20,7 +19,6 @@ import ApiDebugLayout from './layout/ApiDebugLayout';
 import ApiDebugBreadcrumbSync from './layout/ApiDebugBreadcrumbSync';
 import ApiDebugTitleBarTabs from './layout/ApiDebugTitleBarTabs';
 import RequestSettings from './components/layout/RequestSettings';
-import DbConnectionSettings from './components/settings/DbConnectionSettings';
 import ParamSuggestRulesSettings from './components/settings/ParamSuggestRulesSettings';
 import { CommonParamsSettingsWrapper } from './components/settings/CommonParamsSettings';
 import { flushApiDebugPersistedState } from './persist';
@@ -43,14 +41,6 @@ export const apiDebugModule: AppModuleDefinition = {
             Panel: RequestSettings,
             category: 'core',
             searchKeywords: ['KCXP', '环境', '自动保存', 'Host', 'Queue'],
-        },
-        {
-            key: 'api-database',
-            label: '数据库',
-            icon: <DatabaseOutlined />,
-            Panel: DbConnectionSettings,
-            category: 'core',
-            searchKeywords: ['SQL Server', '连接', 'db'],
         },
         {
             key: 'api-rules',

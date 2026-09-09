@@ -1,6 +1,7 @@
 import type { KcxpEnvironment, KcxpProtocol } from '../../types/kcxp';
 import { DEFAULT_KCXP_ENVIRONMENT_ID, DEFAULT_KCXP_ENVIRONMENTS } from '../../constants/kcxpEnv';
 import { parseKcbpAddress, serializeKcbpAddress, type KcbpAddressParts } from '../kcbp/kcbpAddress';
+import { DEFAULT_DB_CONFIG } from '../../constants/paramSuggest';
 
 const generateId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
@@ -24,6 +25,7 @@ export function createKcxpEnvironment(
         service: partial?.service,
         nodeId: partial?.nodeId,
         clientSessionId: partial?.clientSessionId ?? (protocol === 'KGBP' ? '@custid' : undefined),
+        database: { ...DEFAULT_DB_CONFIG, ...partial?.database },
     };
 }
 
@@ -39,7 +41,8 @@ export function isKcxpEnvironment(value: unknown): value is KcxpEnvironment {
         typeof env.name === 'string' &&
         typeof env.host === 'string' &&
         typeof env.queue === 'string' &&
-        typeof env.timeout === 'string'
+        typeof env.timeout === 'string' &&
+        Boolean(env.database)
     );
 }
 

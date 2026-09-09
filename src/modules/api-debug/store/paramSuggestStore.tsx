@@ -2,53 +2,41 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import type { DbConnectionConfig, ParamFieldRule } from '../types/paramSuggest';
 import { DEFAULT_DB_CONFIG } from '../constants/paramSuggest';
 import { ParamSuggestContext } from './ParamSuggestContext';
+import { useApiDebugEnv } from './useApiDebugEnv';
 import {
-    loadDbConfig,
     loadParamSuggestRules,
-    persistDbConfigNow,
     persistParamSuggestRulesNow,
     reloadMainProcessSuggestConfig,
 } from './paramSuggestData';
-
-function isSameDbConfig(a: DbConnectionConfig, b: DbConnectionConfig): boolean {
-    return JSON.stringify(a) === JSON.stringify(b);
-}
 
 function isSameRules(a: ParamFieldRule[], b: ParamFieldRule[]): boolean {
     return JSON.stringify(a) === JSON.stringify(b);
 }
 
 export function ParamSuggestProvider({ children }: { children: ReactNode }) {
-    const [dbConfig, setDbConfig] = useState<DbConnectionConfig>({ ...DEFAULT_DB_CONFIG });
+    const { env: apiEnv, updateEnv } = useApiDebugEnv();
+    const activeEnvironment =
+        apiEnv.kcxpEnvironments.find((item) => item.id === apiEnv.activeKcxpEnvironmentId) ??
+        apiEnv.kcxpEnvironments[0];
+    const dbConfig = activeEnvironment?.database ?? DEFAULT_DB_CONFIG;
     const [rules, setRulesState] = useState<ParamFieldRule[]>([]);
     const [loaded, setLoaded] = useState(false);
-    const persistedDbRef = useRef<DbConnectionConfig | null>(null);
     const persistedRulesRef = useRef<ParamFieldRule[] | null>(null);
 
     useEffect(() => {
-        void Promise.all([loadDbConfig(), loadParamSuggestRules()])
-            .then(([db, rulesFile]) => {
-                persistedDbRef.current = db;
+        void loadParamSuggestRules()
+            .then((rulesFile) => {
                 persistedRulesRef.current = rulesFile.rules;
-                setDbConfig(db);
                 setRulesState(rulesFile.rules);
                 setLoaded(true);
                 void reloadMainProcessSuggestConfig();
             })
             .catch((error) => {
                 console.error('Failed to load param suggest config:', error);
-                persistedDbRef.current = { ...DEFAULT_DB_CONFIG };
                 persistedRulesRef.current = [];
                 setLoaded(true);
             });
     }, []);
-
-    useEffect(() => {
-        if (!loaded || !persistedDbRef.current) return;
-        if (isSameDbConfig(dbConfig, persistedDbRef.current)) return;
-        persistedDbRef.current = dbConfig;
-        void persistDbConfigNow(dbConfig);
-    }, [dbConfig, loaded]);
 
     useEffect(() => {
         if (!loaded || !persistedRulesRef.current) return;
@@ -57,9 +45,18 @@ export function ParamSuggestProvider({ children }: { children: ReactNode }) {
         void persistParamSuggestRulesNow(rules);
     }, [rules, loaded]);
 
-    const updateDbConfig = useCallback((config: DbConnectionConfig) => {
-        setDbConfig(config);
-    }, []);
+    const updateDbConfig = useCallback(
+        (config: DbConnectionConfig) => {
+            if (!activeEnvironment) return;
+            updateEnv(
+                'kcxpEnvironments',
+                apiEnv.kcxpEnvironments.map((item) =>
+                    item.id === activeEnvironment.id ? { ...item, database: config } : item,
+                ),
+            );
+        },
+        [activeEnvironment, apiEnv.kcxpEnvironments, updateEnv],
+    );
 
     const setRules = useCallback((nextRules: ParamFieldRule[]) => {
         setRulesState(nextRules);
