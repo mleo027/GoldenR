@@ -31,7 +31,8 @@ function isApiDebugEnv(value: unknown): value is Partial<ApiDebugEnv> {
         (env.editorMode === undefined || env.editorMode === 'ui' || env.editorMode === 'script') &&
         (env.kcxpEnvironments === undefined || Array.isArray(env.kcxpEnvironments)) &&
         (env.activeKcxpEnvironmentId === undefined ||
-            typeof env.activeKcxpEnvironmentId === 'string')
+            typeof env.activeKcxpEnvironmentId === 'string') &&
+        (env.paramsRawMode === undefined || typeof env.paramsRawMode === 'boolean')
     );
 }
 
@@ -62,6 +63,7 @@ export function mergeApiDebugEnv(partial?: Partial<ApiDebugEnv>): ApiDebugEnv {
             kcxpEnvironments,
             partial?.activeKcxpEnvironmentId ?? DEFAULT_API_DEBUG_ENV.activeKcxpEnvironmentId,
         ),
+        paramsRawMode: partial?.paramsRawMode === true,
     };
 }
 

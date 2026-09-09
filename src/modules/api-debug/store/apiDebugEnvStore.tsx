@@ -8,6 +8,7 @@ function isSameEnv(a: ApiDebugEnv, b: ApiDebugEnv): boolean {
     return (
         a.editorMode === b.editorMode &&
         a.activeKcxpEnvironmentId === b.activeKcxpEnvironmentId &&
+        a.paramsRawMode === b.paramsRawMode &&
         a.kcxpEnvironments.length === b.kcxpEnvironments.length &&
         a.kcxpEnvironments.every((item, index) => {
             const other = b.kcxpEnvironments[index];

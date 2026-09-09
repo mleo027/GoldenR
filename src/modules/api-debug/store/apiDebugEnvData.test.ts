@@ -36,6 +36,21 @@ describe('mergeApiDebugEnv', () => {
         expect(mergeApiDebugEnv({ editorMode: 'invalid' as 'ui' }).editorMode).toBe('ui');
     });
 
+    it('defaults paramsRawMode to false', () => {
+        expect(mergeApiDebugEnv().paramsRawMode).toBe(false);
+        expect(mergeApiDebugEnv({ paramsRawMode: undefined }).paramsRawMode).toBe(false);
+    });
+
+    it('preserves raw params display mode when enabled', () => {
+        expect(mergeApiDebugEnv({ paramsRawMode: true }).paramsRawMode).toBe(true);
+    });
+
+    it('normalizes non-boolean paramsRawMode to false', () => {
+        expect(mergeApiDebugEnv({ paramsRawMode: 'yes' as unknown as boolean }).paramsRawMode).toBe(
+            false,
+        );
+    });
+
     it('resolves active KCXP environment id', () => {
         const env = mergeApiDebugEnv({
             kcxpEnvironments: [

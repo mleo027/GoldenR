@@ -83,7 +83,9 @@ function splitParamTokens(line: string): string[] {
     return [trimmed];
 }
 
-/** 按逗号拆分 key:value 片段，保留 value 内空格（如 netaddr:127.0.0.1  abcdefg） */
+/** 按逗号拆分 key:value 片段，保留 value 内空格（如 netaddr:127.0.0.1  abcdefg）；
+ *  前瞻兼容 #key: 禁用片段与 Unicode 标识符（如中文参数名），
+ *  使内联格式的禁用参数和非 ASCII 参数均可被识别 */
 function splitCommaSeparatedPairs(text: string): string[] {
     const normalized = text.replace(/(?:,\s*)+$/, '');
     const parts: string[] = [];
@@ -93,7 +95,7 @@ function splitCommaSeparatedPairs(text: string): string[] {
         const char = normalized[i];
         if (char === ',') {
             const nextSegment = normalized.slice(i + 1);
-            const nextKeyMatch = nextSegment.match(/^\s*([a-zA-Z_]\w*)[:=]/);
+            const nextKeyMatch = nextSegment.match(/^\s*#?\s*([\p{L}_][\p{L}\p{N}_]*)[:=]/u);
             if (nextKeyMatch) {
                 if (current.trim()) parts.push(current.trim());
                 current = '';

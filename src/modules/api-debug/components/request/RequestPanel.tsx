@@ -4,7 +4,9 @@ import {
     CaretDownOutlined,
     CaretRightOutlined,
     FormOutlined,
+    CodeOutlined,
 } from '@ant-design/icons';
+import { Tooltip } from 'antd';
 import Path, { PathRunButton } from '../editor/Path';
 import ParamEdit from '../editor/ParamEdit';
 import ParamQuickFillModal from './ParamQuickFillModal';
@@ -22,7 +24,9 @@ import type { ParamItem } from '../../types/workspace';
 import { parseKcbpAddress, serializeKcbpAddress } from '../../utils/kcbp/kcbpAddress';
 import type { QuickFillPayload } from '../../utils/workspace/paramText';
 import { useCommonParamsState } from '../../store/useCommonParams';
+import { useApiDebugEnv } from '../../store/useApiDebugEnv';
 import { resolveCommonParamsById } from '../../utils/workspace/commonParams';
+import { buildParamsRawText } from '../../utils/workspace/rawText';
 
 interface RequestPanelProps {
     paramsCollapsed?: boolean;
@@ -36,6 +40,9 @@ function ParamsSection({
     params,
     onChange,
     commonParams,
+    rawMode,
+    onToggleRawMode,
+    rawText,
 }: {
     collapsed: boolean;
     count: number;
@@ -43,6 +50,9 @@ function ParamsSection({
     params: ParamItem[];
     onChange: (params: ParamItem[]) => void;
     commonParams: ParamItem[];
+    rawMode: boolean;
+    onToggleRawMode: () => void;
+    rawText: string;
 }) {
     return (
         <>
@@ -57,13 +67,38 @@ function ParamsSection({
                     <FormOutlined className="param-section-toggle-icon" />
                     <span className="param-section-toggle-count">{count}</span>
                 </button>
+                {!collapsed && (
+                    <Tooltip title="raw">
+                        <button
+                            type="button"
+                            className={`param-raw-toggle${rawMode ? ' param-raw-toggle-active' : ''}`}
+                            onClick={onToggleRawMode}
+                            aria-pressed={rawMode}
+                        >
+                            <CodeOutlined />
+                        </button>
+                    </Tooltip>
+                )}
             </div>
             <div
                 className={`param-section-body${collapsed ? ' param-section-body-collapsed' : ''}`}
             >
-                <div className="param-section-scroll ui-scroll flex flex-col h-full min-h-0 overflow-y-auto overflow-x-hidden">
-                    <ParamEdit params={params} onChange={onChange} commonParams={commonParams} />
-                </div>
+                {rawMode ? (
+                    <textarea
+                        readOnly
+                        className="param-raw-view ui-scroll"
+                        value={rawText}
+                        spellCheck={false}
+                    />
+                ) : (
+                    <div className="param-section-scroll ui-scroll flex flex-col h-full min-h-0 overflow-y-auto overflow-x-hidden">
+                        <ParamEdit
+                            params={params}
+                            onChange={onChange}
+                            commonParams={commonParams}
+                        />
+                    </div>
+                )}
             </div>
         </>
     );
@@ -125,6 +160,25 @@ export default function RequestPanel({
     );
 
     const { ref: headerRef, layout } = useRequestHeaderLayout<HTMLDivElement>();
+
+    const { env, updateEnv } = useApiDebugEnv();
+    const rawMode = env.paramsRawMode;
+    const toggleRawMode = useCallback(
+        () => updateEnv('paramsRawMode', !rawMode),
+        [rawMode, updateEnv],
+    );
+    const rawText = useMemo(
+        () =>
+            buildParamsRawText({
+                protocol: activeTab.protocol,
+                address: activeTab.address,
+                tabName: activeTab.name,
+                params: paramsDraft,
+                commonParams,
+            }),
+        [activeTab.address, activeTab.name, activeTab.protocol, paramsDraft, commonParams],
+    );
+
     return (
         <div className="flex flex-col h-full min-h-0">
             <SectionHeader
@@ -148,6 +202,9 @@ export default function RequestPanel({
                 params={paramsDraft}
                 onChange={setDraftDebounced}
                 commonParams={commonParams}
+                rawMode={rawMode}
+                onToggleRawMode={toggleRawMode}
+                rawText={rawText}
             />
         </div>
     );
