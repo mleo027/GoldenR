@@ -6,14 +6,15 @@ import { PLATFORM_SHORTCUT } from '../../../platform/shell/platformShortcuts';
 import CaseSidebar, { type CaseSidebarHandle } from '../components/workspace/CaseSidebar';
 import RequestHistoryPage from '../components/history/RequestHistoryPage';
 import HistoryDetailTab from '../components/history/HistoryDetailTab';
+import TraceView from '../components/trace/TraceView';
 import { useRequestHistoryNavigation } from '../store/useRequestHistoryNavigation';
 import Tab from './Tab';
 import { useRunShortcut } from '../hooks/useRunShortcut';
 
 export default function ApiDebugLayout() {
     const sidebarRef = useRef<CaseSidebarHandle>(null);
-    const { view, detailId, openHistory, closeHistory } = useRequestHistoryNavigation();
-    const historyOpen = view !== 'editor';
+    const { view, detailId, traceData, openHistory, closeHistory } = useRequestHistoryNavigation();
+    const historyOpen = view !== 'editor' && view !== 'trace';
     const focusSidebarSearch = useCallback(() => {
         sidebarRef.current?.focusSearch();
     }, []);
@@ -23,10 +24,12 @@ export default function ApiDebugLayout() {
     return (
         <PlatformModuleLayout
             autoSaveId="golden-case-layout-1x4"
-            fullMain={historyOpen}
+            fullMain={historyOpen || view === 'trace'}
             sidebar={<CaseSidebar ref={sidebarRef} onOpenHistory={openHistory} />}
             main={
-                view === 'history-detail' && detailId ? (
+                view === 'trace' && traceData ? (
+                    <TraceView />
+                ) : view === 'history-detail' && detailId ? (
                     <HistoryDetailTab entryId={detailId} />
                 ) : historyOpen ? (
                     <RequestHistoryPage onClose={closeHistory} />
