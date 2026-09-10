@@ -25,6 +25,7 @@ export function createKcxpEnvironment(
         service: partial?.service,
         nodeId: partial?.nodeId,
         clientSessionId: partial?.clientSessionId ?? (protocol === 'KGBP' ? '@custid' : undefined),
+        kuabConfigId: partial?.kuabConfigId ?? (protocol === 'KUAB' ? 'default' : undefined),
         database: { ...DEFAULT_DB_CONFIG, ...partial?.database },
     };
 }
@@ -53,7 +54,9 @@ export function normalizeKcxpEnvironments(value: unknown): KcxpEnvironment[] {
         .map((environment) =>
             environment.protocol === 'KGBP' && !environment.clientSessionId?.trim()
                 ? { ...environment, clientSessionId: '@custid' }
-                : environment,
+                : environment.protocol === 'KUAB' && !environment.kuabConfigId?.trim()
+                  ? { ...environment, kuabConfigId: 'default' }
+                  : environment,
         );
     return valid.length > 0 ? valid : [...DEFAULT_KCXP_ENVIRONMENTS];
 }
@@ -141,6 +144,8 @@ export function applyKcxpEnvironmentToAddress(
         service: undefined,
         nodeId: undefined,
         clientSessionId: undefined,
+        kuabConfigId:
+            resolveKcxpProtocol(environment) === 'KUAB' ? environment.kuabConfigId : undefined,
     });
 }
 

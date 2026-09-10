@@ -2,6 +2,7 @@
 #include <napi.h>
 #include "tools.hpp"
 #include "KCBPClient.hpp"
+#include "KUABClient.hpp"
 #include "self/KGBPClient.hpp"
 #include "self/adapterErrors.hpp"
 #include <string>
@@ -40,6 +41,10 @@ bool callBackend(const NJSON &inputJson, NJSON &outputJson, const std::string &t
         else if (type == "KGBP")
         {
             callKGBPBackend(inputJson, outputJson);
+        }
+        else if (type == "KUAB")
+        {
+            callKUABBackend(inputJson, outputJson);
         }
         else
         {
@@ -133,10 +138,28 @@ Napi::Object callKGBP(const Napi::CallbackInfo &info)
     }
 }
 
+Napi::Object callKUAB(const Napi::CallbackInfo &info)
+{
+    Napi::Env env = info.Env();
+    std::string errmsg;
+    try
+    {
+        NJSON inputJson;
+        getValFromInfo(env, info[0], inputJson);
+        if (!isValidKUABInput(inputJson, errmsg)) return errResp(adapter_errors::INVALID_ARGUMENT, "KUAB", errmsg, env);
+        NJSON outputJson;
+        if (!callBackend(inputJson, outputJson, "KUAB", errmsg)) return errResp(adapter_errors::BACKEND_CALL, "KUAB", errmsg, env);
+        return ConvertJsonToNapiValue(env, outputJson).As<Napi::Object>();
+    }
+    catch (const std::exception &e) { return errResp(adapter_errors::INTERNAL, "KUAB", e.what(), env); }
+    catch (...) { return errResp(adapter_errors::INTERNAL, "KUAB", "Native 抛出未知异常", env); }
+}
+
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {
     REGISTER_FUNCTION("callKCBP", callKCBP);
     REGISTER_FUNCTION("callKGBP", callKGBP);
+    REGISTER_FUNCTION("callKUAB", callKUAB);
     return exports;
 }
 

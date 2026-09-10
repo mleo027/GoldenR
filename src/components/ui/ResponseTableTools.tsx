@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type RefObject } from 'react';
 import { Button, Modal, Radio, Space, Tooltip, message } from 'antd';
 import {
     ExportOutlined,
+    EyeOutlined,
     FullscreenExitOutlined,
     FullscreenOutlined,
     SearchOutlined,
@@ -20,6 +21,8 @@ interface ResponseTableToolsProps {
     fullscreenActive?: boolean;
     exportData?: Record<string, unknown>[];
     exportFilename?: string;
+    traceAvailable?: boolean;
+    onViewTrace?: () => void;
 }
 
 type ExportFormat = 'csv' | 'text';
@@ -95,6 +98,8 @@ export default function ResponseTableTools({
     fullscreenActive = false,
     exportData = [],
     exportFilename = 'response.csv',
+    traceAvailable = false,
+    onViewTrace,
 }: ResponseTableToolsProps) {
     const inputRef = useRef<InputRef>(null);
     const [searchExpanded, setSearchExpanded] = useState(false);
@@ -178,6 +183,18 @@ export default function ResponseTableTools({
                     onClick={handleToggleSearch}
                 />
             </Tooltip>
+            {traceAvailable && onViewTrace ? (
+                <Tooltip title="查看 SQL Trace 详情">
+                    <Button
+                        type="text"
+                        size="small"
+                        icon={<EyeOutlined />}
+                        aria-label="查看 SQL Trace 详情"
+                        className="response-table-tools-btn"
+                        onClick={onViewTrace}
+                    />
+                </Tooltip>
+            ) : null}
             <Tooltip title="导出">
                 <Button
                     type="text"

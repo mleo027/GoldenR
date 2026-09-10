@@ -4,6 +4,7 @@ import type {
     KcbpRequestOptions,
     KcbpResponseData,
     KcbpRuntimeConfig,
+    KuabProfile,
 } from '@/shared/kcbp/types';
 import type {
     DbConnectionConfig,
@@ -50,6 +51,8 @@ export interface KcbpApi {
         saveConfig(config: KcbpRuntimeConfig): Promise<KcbpRuntimeConfig>;
         pickDirectory(defaultPath?: string): Promise<KcbpPickPathResult>;
         pickFile(defaultPath?: string): Promise<KcbpPickPathResult>;
+        getProfiles(): Promise<KuabProfile[]>;
+        saveProfiles(profiles: KuabProfile[]): Promise<KuabProfile[]>;
     };
 }
 

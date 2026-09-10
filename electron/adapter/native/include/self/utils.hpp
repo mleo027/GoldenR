@@ -291,3 +291,18 @@ bool isValidKGBPInput(const NJSON &input, std::string &errmsg)
     }
     return true;
 }
+
+inline bool isValidKUABInput(const NJSON &input, std::string &errmsg)
+{
+    if (!input.is_object()) { errmsg = "请求参数必须是对象"; return false; }
+    if (!input.contains("connection") || !input["connection"].is_object()) { errmsg = "connection 必须是对象"; return false; }
+    const auto &connection = input["connection"];
+    for (const char *key : {"ip", "port", "reqqueue", "ansqueue"}) {
+        if (!connection.contains(key) || !connection[key].is_string()) { errmsg = std::string("connection.") + key + " 必须是字符串"; return false; }
+    }
+    if (!input.contains("param") || !input["param"].is_object()) { errmsg = "param 必须是对象"; return false; }
+    const auto &param = input["param"];
+    if (!param.contains("msgtype") || !param["msgtype"].is_string() || param["msgtype"].get<std::string>().empty()) { errmsg = "param.msgtype 必须是非空字符串"; return false; }
+    if (!param.contains("fields") || !param["fields"].is_object()) { errmsg = "param.fields 必须是对象"; return false; }
+    return true;
+}

@@ -9,6 +9,7 @@ import type { KcbpResponseData } from './response';
 import type { DbConnectionConfig } from '../../../src/shared/suggest/types';
 import type { TraceExecutionOptions } from '../../../src/shared/kcbp/types';
 import { executeWithSqlTrace } from './sqlTrace';
+import { resolveKuabProfile } from './kuabRuntimeConfigStore';
 
 export { normalizeResultSets } from './response';
 export type { KcbpResponseData } from './response';
@@ -22,6 +23,14 @@ export interface KcbpConnectionOptions {
     apiid?: string;
     requesttimeout?: string;
     connecttimeout?: string;
+    kuabConfigId?: string;
+    serverName?: string;
+    username?: string;
+    password?: string;
+    configDir?: string;
+    configName?: string;
+    logDir?: string;
+    wantTran?: string;
 }
 
 export interface KcbpParamOptions {
@@ -32,7 +41,7 @@ export interface KcbpParamOptions {
 
 export interface KcbpRequestOptions {
     /** 协议类型：缺省 KCBP，向后兼容 */
-    type?: 'KCBP' | 'KGBP';
+    type?: 'KCBP' | 'KGBP' | 'KUAB';
     connection: KcbpConnectionOptions;
     param: KcbpParamOptions;
 }
@@ -40,6 +49,7 @@ export interface KcbpRequestOptions {
 /** 边界归一化：结构化条目补齐缺省字段；平铺行/混合结构包装为单集。 */
 interface NativeKcbpAdapter {
     callKCBP: (payload: KcbpRequestOptions) => unknown;
+    callKUAB?: (payload: KcbpRequestOptions) => unknown;
 }
 
 const DEFAULT_TIMEOUT = {
@@ -487,7 +497,18 @@ export class KcbpClient {
             };
         }
 
-        const normalized = resolved.payload;
+        let normalized = resolved.payload;
+        if (normalized.type === 'KUAB') {
+            const profile = await resolveKuabProfile(normalized.connection.kuabConfigId ?? 'default');
+            normalized = {
+                ...normalized,
+                connection: {
+                    ...profile,
+                    ...normalized.connection,
+                    kuabConfigId: profile.id,
+                },
+            };
+        }
         const adapterCandidates = getResolvedAdapterCandidates();
 
         if (!this.adapter && adapterCandidates.length === 0) {
@@ -507,7 +528,11 @@ export class KcbpClient {
 
         if (this.adapter) {
             try {
-                const raw = this.adapter.callKCBP(normalized);
+                const callable =
+                    normalized.type === 'KUAB' ? this.adapter.callKUAB : this.adapter.callKCBP;
+                if (!callable)
+                    throw new Error(`Native ${normalized.type ?? 'KCBP'} adapter not loaded`);
+                const raw = callable(normalized);
                 return parseKcbpResult(raw, startedAt);
             } catch (error) {
                 const message = error instanceof Error ? error.message : String(error);

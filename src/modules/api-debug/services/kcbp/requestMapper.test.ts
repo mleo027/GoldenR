@@ -57,6 +57,21 @@ describe('buildKcbpRequest (KCBP)', () => {
     });
 });
 
+describe('buildKcbpRequest (KUAB)', () => {
+    it('uses the KUAB native route and carries the selected profile', () => {
+        const payload = buildKcbpRequest(
+            { ...baseParts, kuabConfigId: 'prod' },
+            'KCAS.login',
+            { USER_ID: '8888' },
+            {},
+            'KUAB',
+        );
+        expect(payload.type).toBe('KUAB');
+        expect(payload.connection.kuabConfigId).toBe('prod');
+        expect(payload.param.fields).toEqual({ USER_ID: '8888' });
+    });
+});
+
 describe('buildKcbpCallOutcome', () => {
     const tab = { params: [] as TabData['params'] } as Pick<TabData, 'params'>;
 

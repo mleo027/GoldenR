@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button, Dropdown, Menu, Popover, Tooltip, Switch } from 'antd';
-import { DownOutlined, EyeOutlined } from '@ant-design/icons';
+import { DownOutlined } from '@ant-design/icons';
 import { Input, Select } from '../../../../components/ui/primitives';
 import {
     CopyOutlined,
@@ -20,10 +20,6 @@ import { usePathBarController } from '../../hooks/usePathBarController';
 import { getElectronAPI } from '../../../../lib/electron';
 import type { PathBarLayout } from '../../utils/pathBarLayout';
 import { formatActiveScript } from '../../utils/script/scriptFormatRegistry';
-import { useResponse } from '../../store/useResponse';
-import { useActiveTab } from '../../store/useTabs';
-import { useRequestHistoryNavigation } from '../../store/useRequestHistoryNavigation';
-import { getCaseLabel } from '../../utils/workspace/caseLabel';
 
 interface PathProps {
     showScriptBadge?: boolean;
@@ -36,20 +32,8 @@ interface PathProps {
 
 export function PathRunButton() {
     const { loading, run, cancel, traceEnabled, setTraceEnabled } = useKcbpCall();
-    const { activeTab, activeCaseIndex } = useActiveTab();
-    const response = useResponse(activeTab.id);
-    const { openTrace } = useRequestHistoryNavigation();
     const canRun = Boolean(getElectronAPI()?.kcbp.call);
     const [elapsedSec, setElapsedSec] = useState(0);
-
-    const hasTraceData = Boolean(response?.trace?.events.length);
-    const caseName = getCaseLabel(activeTab, activeCaseIndex);
-
-    const handleViewTrace = () => {
-        if (response?.trace) {
-            openTrace(response.trace, caseName);
-        }
-    };
 
     useEffect(() => {
         if (!loading) {
@@ -86,19 +70,6 @@ export function PathRunButton() {
                     disabled={loading}
                 />
             </div>
-            {hasTraceData && !loading && (
-                <Tooltip title="查看 SQL Trace 详情">
-                    <Button
-                        type="text"
-                        size="small"
-                        icon={<EyeOutlined />}
-                        onClick={handleViewTrace}
-                        className="path-trace-btn"
-                    >
-                        Trace
-                    </Button>
-                </Tooltip>
-            )}
             <Button
                 type={loading ? 'default' : 'primary'}
                 size="small"

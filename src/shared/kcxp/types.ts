@@ -1,4 +1,4 @@
-export type KcxpProtocol = 'KCBP' | 'KGBP';
+export type KcxpProtocol = 'KCBP' | 'KGBP' | 'KUAB';
 import type { DbConnectionConfig } from '../suggest/types';
 
 export interface KcxpEnvironment {
@@ -15,6 +15,8 @@ export interface KcxpEnvironment {
     nodeId?: string;
     /** KGBP 可选：会话 ID */
     clientSessionId?: string;
+    /** KUAB 运行时配置 profile。 */
+    kuabConfigId?: string;
     /** 当前环境专属 SQL Server 连接配置。 */
     database?: DbConnectionConfig;
 }

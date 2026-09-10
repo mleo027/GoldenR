@@ -8,6 +8,7 @@ export const PARAM_SUGGEST_RULES_FILE = 'param-suggest-rules.json';
 export const COMMON_PARAMS_FILE = 'common-params.json';
 
 export const KCBP_ENV_FILE = 'kcbp.env.json';
+export const KUAB_PROFILES_FILE = 'kuab.profiles.json';
 export const REQUEST_HISTORY_FILE = 'request-history.json';
 /** 仅用于从旧 GoldenAPI 的 tracecode.env.json 迁移历史 KCBP 配置。 */
 export const TRACECODE_ENV_FILE = 'tracecode.env.json';
@@ -22,6 +23,7 @@ export const PERSISTED_CONFIG_FILES = [
     'param-suggest-rules.json',
     'common-params.json',
     'kcbp.env.json',
+    'kuab.profiles.json',
 ] as const;
 
 /** 旧版本迁移时备份的配置文件名，允许 Renderer 通过配置 IPC 写入。 */

@@ -54,6 +54,24 @@ export function buildKcbpRequest(
         };
     }
 
+    if (protocol === 'KUAB') {
+        return {
+            type: 'KUAB',
+            connection: {
+                ip: ip || undefined,
+                port: port || undefined,
+                reqqueue: addressParts.queue.trim() || undefined,
+                requesttimeout: addressParts.timeout.trim() || undefined,
+                kuabConfigId: addressParts.kuabConfigId || 'default',
+            },
+            param: {
+                msgtype,
+                fields,
+                binaryFields: Object.keys(binaryFields).length > 0 ? binaryFields : undefined,
+            },
+        };
+    }
+
     return {
         connection: {
             ip: ip || undefined,

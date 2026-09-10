@@ -18,6 +18,8 @@ function prependAdapterDllToPath(adapterCandidates) {
 
     pushDir(path.join(__dirname, 'adapter', 'dll'));
     pushDir(path.join(__dirname, 'adapter'));
+    pushDir(path.join(__dirname, 'adapter', 'kcbp'));
+    pushDir(path.join(__dirname, 'adapter', 'kuab'));
 
     const candidates = Array.isArray(adapterCandidates) ? adapterCandidates : [];
     for (const candidate of candidates) {
@@ -69,6 +71,9 @@ function getProtocolCallable(adapter, type) {
     if (type === 'KGBP') {
         return typeof adapter.callKGBP === 'function' ? adapter.callKGBP.bind(adapter) : null;
     }
+    if (type === 'KUAB') {
+        return typeof adapter.callKUAB === 'function' ? adapter.callKUAB.bind(adapter) : null;
+    }
     return typeof adapter.callKCBP === 'function' ? adapter.callKCBP.bind(adapter) : null;
 }
 
@@ -90,8 +95,11 @@ function handleMessage(message) {
 
     const callable = getProtocolCallable(adapter, payload?.type);
     if (!callable) {
-        const wanted = payload?.type === 'KGBP' ? 'KGBP' : 'KCBP';
-        writeMessage({ callId, ok: false, error: `Native ${wanted} adapter not loaded` });
+        const wanted = payload?.type === 'KGBP' ? 'KGBP' : payload?.type === 'KUAB' ? 'KUAB' : 'KCBP';
+        const detail = wanted === 'KUAB'
+            ? 'Native adapter.node 未导出 callKUAB，请先重新编译 native adapter，并确认 KUABCli.dll 在 electron/adapter/kuab 目录'
+            : `Native ${wanted} adapter not loaded`;
+        writeMessage({ callId, ok: false, error: detail });
         return;
     }
 

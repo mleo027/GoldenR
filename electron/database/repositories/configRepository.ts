@@ -49,6 +49,8 @@ export class ConfigRepository {
                   }
                 : null;
         }
+        if (name === 'kuab.profiles.json')
+            return this.oneJson("SELECT value FROM workspace_state WHERE key='kuab-profiles'") ?? { profiles: [] };
         if (name === 'api-debug.env.json') return this.readEnvironments();
         if (name === 'project.json')
             return {
@@ -97,6 +99,8 @@ export class ConfigRepository {
             if (name === 'db.json') return this.writeDb(record(value));
             if (name === 'param-suggest-rules.json') return this.writeRules(record(value).rules);
             if (name === 'kcbp.env.json') return this.writeKcbp(record(value));
+            if (name === 'kuab.profiles.json')
+                return this.upsert('workspace_state', 'key', 'kuab-profiles', { value: encode(value, { profiles: [] }) });
             if (name === 'request-history.json') return this.writeHistory(record(value).entries);
         });
         tx();
@@ -277,13 +281,15 @@ export class ConfigRepository {
                 'SELECT id,name,host,queue,timeout,protocol,service,node_id AS nodeId,client_session_id AS clientSessionId,database_json FROM api_debug_environments ORDER BY rowid',
             )
             .all()
-            .map((environment) => ({
-                ...(environment as Record<string, unknown>),
-                database: decode(
-                    (environment as Record<string, unknown>).database_json as string,
-                    {},
-                ),
-            }));
+            .map((environment) => {
+                const stored = decode((environment as Record<string, unknown>).database_json as string, {}) as Record<string, unknown>;
+                const { kuabConfigId, ...database } = stored;
+                return {
+                    ...(environment as Record<string, unknown>),
+                    kuabConfigId,
+                    database,
+                };
+            });
         return { ...(meta ?? {}), kcxpEnvironments: environments };
     }
     private writeEnvironments(items: unknown, value: unknown): void {
@@ -310,7 +316,7 @@ export class ConfigRepository {
                 e.service ?? null,
                 e.nodeId ?? null,
                 e.clientSessionId ?? null,
-                encode(e.database, {}),
+                encode({ ...record(e.database), kuabConfigId: e.kuabConfigId }, {}),
             );
             Object.entries(record(e.vars)).forEach(([k, val]) => v.run(id, k, text(val)));
         });

@@ -112,7 +112,7 @@ describe('kcbpBridge persistent protocol', () => {
         ]);
     });
 
-    it('routes payloads by type field: KGBP goes to callKGBP, default stays on callKCBP', async () => {
+    it('routes payloads by type field across KCBP, KGBP, and KUAB', async () => {
         const dir = await mkdtemp(path.join(os.tmpdir(), 'golden-bridge-'));
         const adapterPath = path.join(dir, 'adapter.cjs');
         await writeFile(
@@ -120,6 +120,7 @@ describe('kcbpBridge persistent protocol', () => {
             `const calls = []; module.exports = {
                 callKCBP(payload) { calls.push(['KCBP', payload.type]); return { code: 0, msg: 'kcbp' }; },
                 callKGBP(payload) { calls.push(['KGBP', payload.type]); return { code: 0, msg: 'kgbp' }; },
+                callKUAB(payload) { calls.push(['KUAB', payload.type]); return { code: 0, msg: 'kuab' }; },
                 __calls: calls,
             };`,
             'utf8',
@@ -147,15 +148,16 @@ describe('kcbpBridge persistent protocol', () => {
                 adapterCandidates: [adapterPath],
                 payload: type ? { type, param: { fields: {} } } : { param: { fields: {} } },
             });
-        child.stdin.write(`${request(1, 'KGBP')}\n${request(2)}\n`);
+        child.stdin.write(`${request(1, 'KGBP')}\n${request(2, 'KUAB')}\n${request(3)}\n`);
         child.stdin.end();
         await new Promise<void>((resolve, reject) => {
             child.once('error', reject);
             child.once('close', () => resolve());
         });
         await rm(dir, { recursive: true, force: true });
-        expect(messages).toHaveLength(2);
+        expect(messages).toHaveLength(3);
         expect(messages[0]).toMatchObject({ callId: 1, ok: true, raw: { msg: 'kgbp' } });
-        expect(messages[1]).toMatchObject({ callId: 2, ok: true, raw: { msg: 'kcbp' } });
+        expect(messages[1]).toMatchObject({ callId: 2, ok: true, raw: { msg: 'kuab' } });
+        expect(messages[2]).toMatchObject({ callId: 3, ok: true, raw: { msg: 'kcbp' } });
     });
 });

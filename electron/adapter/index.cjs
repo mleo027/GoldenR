@@ -29,6 +29,12 @@ function getProtocolCallable(adapter, type) {
             return adapter.default.callKGBP.bind(adapter.default);
         return null;
     }
+    if (type === 'KUAB') {
+        if (typeof adapter.callKUAB === 'function') return adapter.callKUAB.bind(adapter);
+        if (typeof adapter.default?.callKUAB === 'function')
+            return adapter.default.callKUAB.bind(adapter.default);
+        return null;
+    }
     if (typeof adapter.callKCBP === 'function') return adapter.callKCBP.bind(adapter);
     if (typeof adapter.default?.callKCBP === 'function')
         return adapter.default.callKCBP.bind(adapter.default);
@@ -59,7 +65,12 @@ function callKGBP(payload) {
     return dispatch('KGBP', payload);
 }
 
+function callKUAB(payload) {
+    return dispatch('KUAB', payload);
+}
+
 module.exports = {
     callKCBP,
     callKGBP,
+    callKUAB,
 };

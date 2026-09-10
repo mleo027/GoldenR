@@ -45,7 +45,7 @@ if errorlevel 1 exit /b 1
 
 echo [build-native] ???? adapter.node ...
 "%VC%\bin\link.exe" /nologo /DLL /OUT:"%TARGET%" "%OBJ%" ^
-    "%ROOT%\include\kcbpcli\lib\KCBPCli.lib" "%ROOT%\include\kgbpcli\lib64\kgbpcli.lib" "%NODE_GYP_LIB%\node.lib" ^
+    "%ROOT%\include\kcbpcli\lib\KCBPCli.lib" "%ROOT%\include\kgbpcli\lib64\kgbpcli.lib" "%ROOT%\include\kuabcli\lib\KUABCli.lib" "%NODE_GYP_LIB%\node.lib" ^
     /LIBPATH:"%VC%\lib" /LIBPATH:"%SDK%\lib" /LIBPATH:"%SDK%\lib\x64" /LIBPATH:"%SDK%\lib\um\x64"
 if errorlevel 1 exit /b 1
 

@@ -8,6 +8,7 @@
 			"<!@(node -p \"require('node-addon-api').include\")",
 			"include",
 			"include/kcbpcli/lib",
+			"include/kuabcli",
 			"include/json",
 			"include/self"
 		],
@@ -19,7 +20,8 @@
 		"conditions": [
 			["OS=='win'", {
 				"libraries": [
-					"<(module_root_dir)/include/kcbpcli/lib/KCBPCli.lib"
+					"<(module_root_dir)/include/kcbpcli/lib/KCBPCli.lib",
+					"<(module_root_dir)/include/kuabcli/lib/KUABCli.lib"
 				]
 			}]
 		]

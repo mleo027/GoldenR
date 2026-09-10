@@ -1,5 +1,7 @@
 /** SQL 格式化与语法高亮工具 */
 
+import { format as formatWithSqlFormatter } from 'sql-formatter';
+
 const CLAUSE_KEYWORDS = new Set([
     'SELECT',
     'FROM',
@@ -104,70 +106,20 @@ function tokenize(sql: string): Token[] {
     return tokens;
 }
 
-/** 格式化 SQL，保留原始字符串、注释和标识符内容 */
+/** 格式化 SQL，使用 Transact-SQL 规则并统一关键字为小写 */
 export function formatSql(sql: string): string {
-    const tokens = tokenize(sql);
-    const lines: string[] = [];
-    let line = '';
-    let depth = 0;
-    let afterComma = false;
-
-    const push = () => {
-        if (line.trim()) lines.push(`${'    '.repeat(depth)}${line.trim()}`);
-        line = '';
-    };
-
-    for (const token of tokens) {
-        if (token.kind === 'whitespace') continue;
-
-        const upper = token.text.toUpperCase();
-
-        if (token.kind === 'comment') {
-            if (line) push();
-            lines.push(`${'    '.repeat(depth)}${token.text.trim()}`);
-            continue;
-        }
-
-        if (token.text === '(') {
-            line = `${line.trimEnd()} (`.trimStart();
-            depth++;
-            continue;
-        }
-
-        if (token.text === ')') {
-            depth = Math.max(0, depth - 1);
-            line = `${line.trimEnd()})`;
-            continue;
-        }
-
-        if (token.text === ',') {
-            line = `${line.trimEnd()},`;
-            if (depth === 0 || afterComma) push();
-            afterComma = true;
-            continue;
-        }
-
-        if (token.text === ';') {
-            line = `${line.trimEnd()};`;
-            push();
-            afterComma = false;
-            continue;
-        }
-
-        if (token.kind === 'word' && (CLAUSE_KEYWORDS.has(upper) || JOIN_KEYWORDS.has(upper))) {
-            if (line) push();
-            line = token.text.toLowerCase();
-            afterComma = false;
-            continue;
-        }
-
-        const needsSpace = line && !/[.(]$/.test(line) && !/^[.)]/.test(token.text);
-        line += `${needsSpace ? ' ' : ''}${token.text}`;
-        afterComma = false;
+    const source = String(sql || '').trim();
+    if (!source) return '';
+    try {
+        return formatWithSqlFormatter(source, {
+            language: 'transactsql',
+            keywordCase: 'lower',
+            tabWidth: 4,
+            linesBetweenQueries: 1,
+        }).trim();
+    } catch {
+        return source;
     }
-
-    push();
-    return lines.join('\n').trim();
 }
 
 /** 为已格式化 SQL 生成语法高亮的 HTML */

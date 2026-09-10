@@ -6,6 +6,14 @@ export interface KcbpConnectionOptions {
     service?: string;
     apiid?: string;
     requesttimeout?: string;
+    kuabConfigId?: string;
+    serverName?: string;
+    username?: string;
+    password?: string;
+    configDir?: string;
+    configName?: string;
+    logDir?: string;
+    wantTran?: string;
 }
 
 export type KcbpTextFieldValue = string;
@@ -25,7 +33,7 @@ export interface KcbpParamOptions {
 
 export interface KcbpRequestOptions {
     /** 协议类型：缺省 KCBP，向后兼容 */
-    type?: 'KCBP' | 'KGBP';
+    type?: 'KCBP' | 'KGBP' | 'KUAB';
     connection: KcbpConnectionOptions;
     param: KcbpParamOptions;
 }
@@ -77,6 +85,18 @@ export interface KcbpRuntimeConfig {
     executable: string;
     workingDir: string;
     args: string[];
+}
+
+export interface KuabProfile {
+    id: string;
+    name: string;
+    serverName: string;
+    username: string;
+    password: string;
+    configDir?: string;
+    configName?: string;
+    logDir?: string;
+    wantTran?: string;
 }
 
 export interface KcbpPickPathResult {

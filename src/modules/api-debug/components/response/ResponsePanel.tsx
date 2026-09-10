@@ -9,7 +9,8 @@ import { useActiveTab } from '../../store/useTabs';
 import { useAppEnv } from '../../../../store/useAppEnv';
 import { useKcbpCall } from '../../hooks/useKcbpCall';
 import { useResponse } from '../../store/useResponse';
-import { parseMsgtypeFromAddress } from '../../utils/workspace/caseLabel';
+import { getCaseLabel, parseMsgtypeFromAddress } from '../../utils/workspace/caseLabel';
+import { useRequestHistoryNavigation } from '../../store/useRequestHistoryNavigation';
 
 const ResponseFullscreenModal = lazy(() => import('./ResponseFullscreenModal'));
 
@@ -36,6 +37,8 @@ interface ResponseBodyProps {
     resultSets: NonNullable<ResponseData['resultSets']>;
     selectedResultSetIndex: number;
     onResultSetChange: (index: number) => void;
+    traceAvailable: boolean;
+    onViewTrace: () => void;
 }
 
 const ResponseBody = memo(function ResponseBody({
@@ -54,6 +57,8 @@ const ResponseBody = memo(function ResponseBody({
     resultSets,
     selectedResultSetIndex,
     onResultSetChange,
+    traceAvailable,
+    onViewTrace,
 }: ResponseBodyProps) {
     const hasResponseData = responseData.length > 0;
     const hasSelectedResultSet = resultSets[selectedResultSetIndex] != null;
@@ -118,6 +123,8 @@ const ResponseBody = memo(function ResponseBody({
                             onFullscreen={onFullscreen}
                             exportData={responseData}
                             exportFilename={`${parseMsgtypeFromAddress(activeTabAddress) || activeTabName || 'response'}.csv`}
+                            traceAvailable={traceAvailable}
+                            onViewTrace={onViewTrace}
                         />
                     </div>
                 )}
@@ -157,11 +164,12 @@ export default function ResponsePanel({
     responseCollapsed = false,
     onToggleResponseCollapse,
 }: ResponsePanelProps) {
-    const { activeTab } = useActiveTab();
+    const { activeTab, activeCaseIndex } = useActiveTab();
     const { env } = useAppEnv();
     const { loading } = useKcbpCall();
     const { showRowIndex } = env;
     const response = useResponse(activeTab.id);
+    const { openTrace } = useRequestHistoryNavigation();
     const [searchKeyword, setSearchKeyword] = useState('');
     const [fullscreenOpen, setFullscreenOpen] = useState(false);
     const [selectedResultSetIndex, setSelectedResultSetIndex] = useState(0);
@@ -170,6 +178,7 @@ export default function ResponsePanel({
     const selectedResultSet = resultSets[selectedResultSetIndex];
     const responseData = selectedResultSet?.rows ?? EMPTY_RESPONSE_ROWS;
     const responseColumns = selectedResultSet?.columns;
+    const traceAvailable = Boolean(response?.trace?.events.length) && !loading;
 
     useEffect(() => {
         setSearchKeyword('');
@@ -197,6 +206,12 @@ export default function ResponsePanel({
                 onResultSetChange={(index) => {
                     setSelectedResultSetIndex(index);
                     setSearchKeyword('');
+                }}
+                traceAvailable={traceAvailable}
+                onViewTrace={() => {
+                    if (response?.trace) {
+                        openTrace(response.trace, getCaseLabel(activeTab, activeCaseIndex));
+                    }
                 }}
             />
             {fullscreenOpen && (
