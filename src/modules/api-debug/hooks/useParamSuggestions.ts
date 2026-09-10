@@ -4,6 +4,8 @@ import type { ParamItem } from '../types/workspace';
 import { fetchParamSuggestions } from '../services/paramSuggestService';
 import { useParamSuggest } from '../store/useParamSuggest';
 import { hasSuggestRule, fieldHasSuggestRules } from '../utils/suggest/paramSuggestResolve';
+import { useApiDebugEnv } from '../store/useApiDebugEnv';
+import { getActiveKcxpEnvironment } from '../utils/workspace/kcxpEnvironment';
 
 function buildContextParams(params: ParamItem[]): Record<string, string> {
     const context: Record<string, string> = {};
@@ -38,6 +40,7 @@ export function useParamSuggestions({
     enabled = true,
 }: UseParamSuggestionsOptions): UseParamSuggestionsResult {
     const { rules, loaded } = useParamSuggest();
+    const { env } = useApiDebugEnv();
     const [options, setOptions] = useState<DbSuggestOption[]>([]);
     const [loading, setLoading] = useState(false);
     const [pendingDeps, setPendingDeps] = useState<string[]>([]);
@@ -79,10 +82,15 @@ export function useParamSuggestions({
         setError(undefined);
 
         try {
+            const environment = getActiveKcxpEnvironment(
+                env.kcxpEnvironments,
+                env.activeKcxpEnvironmentId,
+            );
             const response = await fetchParamSuggestions({
                 field: fieldName,
                 contextParams,
                 keyword: debouncedKeyword,
+                databaseConfig: environment.database,
             });
 
             if (requestId !== requestIdRef.current) return;
@@ -100,7 +108,7 @@ export function useParamSuggestions({
                 setLoading(false);
             }
         }
-    }, [enabled, loaded, hasRule, fieldName, contextParams, debouncedKeyword]);
+    }, [enabled, loaded, hasRule, fieldName, contextParams, debouncedKeyword, env]);
 
     useEffect(() => {
         void loadSuggestions();

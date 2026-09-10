@@ -8,6 +8,7 @@ import type { FlowRuntime } from '@/shared/tcd/flow';
 import type { TcdCaseIndex } from '@/shared/tcd/resolveCase';
 import type { TestRunContext } from '@/shared/test/types';
 import type { KcxpEnvironment } from '../../types/kcxp';
+import type { DbConnectionConfig } from '@/shared/suggest/types';
 import type { ParsedKcbpResponseStatus } from '../../utils/kcbp/kcbpResponse';
 
 export type KcbpInvokeMode = EditorMode | 'tcd';
@@ -73,6 +74,7 @@ export interface InvokeKcbpCallOptions {
     runNestedCase?: RunNestedKcbpCase;
     /** 执行时合并进发送字段的公共参数（UI/TCD 模式生效） */
     commonParams?: ParamItem[];
+    trace?: { enabled: boolean; databaseConfig?: DbConnectionConfig };
 }
 
 export interface KcbpCallOutcome {

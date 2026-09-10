@@ -10,7 +10,7 @@ function FormattedSql({ sql }: { sql: string }) {
 
     return (
         <pre className="px-3 py-2 border-t border-slate-200 dark:border-slate-700 whitespace-pre-wrap break-words overflow-x-auto text-sm bg-slate-50 dark:bg-slate-900 font-mono">
-            { }
+            {}
             <code dangerouslySetInnerHTML={{ __html: highlighted }} />
         </pre>
     );

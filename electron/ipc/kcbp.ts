@@ -8,6 +8,8 @@ import {
 } from '../services/kcbp/kcbpRuntimeConfigStore';
 import { KCBP_IPC_CANCELLED_RESULT } from '../../src/shared/kcbp/cancel';
 import type { KcbpRuntimeConfig } from '../../src/shared/kcbp/types';
+import type { TraceExecutionOptions } from '../../src/shared/kcbp/types';
+import type { DbConnectionConfig } from '../../src/shared/suggest/types';
 import { invalidIpcArgument } from '../../src/shared/ipc/errors';
 import { withIpcError } from './errors';
 import type { ElectronAppContext } from './types';
@@ -37,6 +39,35 @@ export function registerKcbpIpc(ctx: ElectronAppContext): void {
         withIpcError(() => {
             return ctx.kcbpClient.cancel();
         }),
+    );
+
+    ipcMain.handle(
+        'rpc:callWithTrace',
+        withIpcError(
+            async (
+                _event,
+                payload: KcbpRequestOptions,
+                databaseConfig: DbConnectionConfig,
+                options: TraceExecutionOptions,
+            ) => {
+                if (
+                    !payload ||
+                    typeof payload !== 'object' ||
+                    !databaseConfig ||
+                    typeof databaseConfig !== 'object' ||
+                    !options ||
+                    typeof options !== 'object'
+                ) {
+                    throw invalidIpcArgument('Invalid traced KCBP request');
+                }
+                try {
+                    return await ctx.kcbpClient.callWithTrace(payload, databaseConfig, options);
+                } catch (error) {
+                    if (isKcbpCancelled(error)) return KCBP_IPC_CANCELLED_RESULT;
+                    throw error;
+                }
+            },
+        ),
     );
 
     ipcMain.handle(

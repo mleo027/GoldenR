@@ -1,4 +1,5 @@
 import type { KcbpResultSet } from '@/shared/kcbp/types';
+import type { SqlTraceResult } from '@/shared/kcbp/types';
 
 export interface ResponseData {
     code: string | number;
@@ -10,4 +11,5 @@ export interface ResponseData {
         timecost: number;
         rows: number;
     };
+    trace?: SqlTraceResult;
 }

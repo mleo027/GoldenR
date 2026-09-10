@@ -153,7 +153,11 @@ export async function runScriptOrTcdCase(
     const query = async (sql: string, params?: Record<string, string | number>) => {
         const queryScriptSql =
             electronDeps?.queryScriptSql ?? requireElectronAPI().database.queryScript;
-        const result: DbScriptQueryResponse = await queryScriptSql({ sql, params });
+        const result: DbScriptQueryResponse = await queryScriptSql({
+            sql,
+            params,
+            databaseConfig: options.trace?.databaseConfig,
+        });
         if (result.error) {
             throw new Error(result.error);
         }

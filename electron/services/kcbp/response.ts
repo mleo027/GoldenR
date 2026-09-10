@@ -1,4 +1,4 @@
-import type { KcbpResultSet } from '../../../src/shared/kcbp/types';
+import type { KcbpResultSet, SqlTraceResult } from '../../../src/shared/kcbp/types';
 
 export interface KcbpResponseData {
     code: string;
@@ -6,6 +6,7 @@ export interface KcbpResponseData {
     data: unknown[];
     level?: string;
     stats: { timecost: number; rows: number };
+    trace?: SqlTraceResult;
 }
 
 interface RawKcbpResponseData {
@@ -26,8 +27,12 @@ function isResultSetLike(item: unknown): boolean {
 
 function toResultSet(item: unknown): KcbpResultSet {
     const source = (item ?? {}) as Record<string, unknown>;
+    const columns = Array.isArray(source.columns)
+        ? source.columns.filter((column): column is string => typeof column === 'string')
+        : undefined;
     return {
         name: typeof source.name === 'string' ? source.name : '',
+        ...(columns?.length ? { columns } : {}),
         rows: source.rows as Record<string, unknown>[],
     };
 }

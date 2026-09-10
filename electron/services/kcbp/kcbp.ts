@@ -6,6 +6,9 @@ import { fileURLToPath } from 'url';
 import { app } from 'electron';
 import { parseKcbpResult } from './response';
 import type { KcbpResponseData } from './response';
+import type { DbConnectionConfig } from '../../../src/shared/suggest/types';
+import type { TraceExecutionOptions } from '../../../src/shared/kcbp/types';
+import { executeWithSqlTrace } from './sqlTrace';
 
 export { normalizeResultSets } from './response';
 export type { KcbpResponseData } from './response';
@@ -34,8 +37,7 @@ export interface KcbpRequestOptions {
     param: KcbpParamOptions;
 }
 
-/** 边界归一化：结构化条目补齐缺省字段；平铺行/混合结构包装为单集。
- *  列名与列序一律以行对象的 key 为准（key=value），协议表头元数据已废弃。 */
+/** 边界归一化：结构化条目补齐缺省字段；平铺行/混合结构包装为单集。 */
 interface NativeKcbpAdapter {
     callKCBP: (payload: KcbpRequestOptions) => unknown;
 }
@@ -540,5 +542,16 @@ export class KcbpClient {
                 },
             };
         }
+    }
+
+    async callWithTrace(
+        payload: KcbpRequestOptions,
+        databaseConfig: DbConnectionConfig,
+        options: TraceExecutionOptions,
+    ): Promise<KcbpResponseData> {
+        if (!options.enabled) return this.call(payload);
+        const traced = await executeWithSqlTrace(databaseConfig, () => this.call(payload));
+        if (!traced.value) throw new Error(traced.trace.startError ?? 'SQL Trace 执行失败');
+        return { ...traced.value, trace: traced.trace };
     }
 }

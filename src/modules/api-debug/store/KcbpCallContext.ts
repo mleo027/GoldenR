@@ -7,12 +7,16 @@ export interface KcbpCallContextValue {
     loading: boolean;
     run: () => Promise<void>;
     cancel: () => void;
+    traceEnabled: boolean;
+    setTraceEnabled: (enabled: boolean) => void;
 }
 
 export interface KcbpCallStoreValue {
     runningCaseId: string | null;
     run: () => Promise<void>;
     cancel: () => void;
+    traceEnabled: boolean;
+    setTraceEnabled: (enabled: boolean) => void;
 }
 
 export const KcbpCallContext = createContext<KcbpCallStoreValue | null>(null);

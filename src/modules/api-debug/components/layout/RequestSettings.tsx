@@ -192,6 +192,28 @@ function EnvironmentRow({
                         placeholder="密码"
                         size="sm"
                     />
+                    <Input
+                        value={String(database.queryTimeoutMs ?? '')}
+                        onChange={(e) =>
+                            updateField('database', {
+                                ...database,
+                                queryTimeoutMs: e.target.value ? Number(e.target.value) : undefined,
+                            })
+                        }
+                        placeholder="查询超时(ms)"
+                        size="sm"
+                    />
+                    <Input
+                        value={String(database.maxRows ?? '')}
+                        onChange={(e) =>
+                            updateField('database', {
+                                ...database,
+                                maxRows: e.target.value ? Number(e.target.value) : undefined,
+                            })
+                        }
+                        placeholder="最大行数"
+                        size="sm"
+                    />
                 </div>
             </div>
         </div>

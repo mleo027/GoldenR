@@ -245,8 +245,10 @@ const REPORT_SCRIPT = `
 
 function formatSqlForReport(sql: string): string {
     return escapeHtml(sql)
-        .replace(/\b(select|from|where|group|order|having|union|except|intersect|values|set|return|join|inner|left|right|full|cross|as|and|or|on|in|is|null|not|like|top|distinct|insert|update|delete|merge|into|begin|end|declare|exec|execute)\b/gi,
-            '<span class="sql-keyword">$1</span>')
+        .replace(
+            /\b(select|from|where|group|order|having|union|except|intersect|values|set|return|join|inner|left|right|full|cross|as|and|or|on|in|is|null|not|like|top|distinct|insert|update|delete|merge|into|begin|end|declare|exec|execute)\b/gi,
+            '<span class="sql-keyword">$1</span>',
+        )
         .replace(/(--[^\n]*)/g, '<span class="sql-comment">$1</span>')
         .replace(/('(?:''|[^'])*')/g, '<span class="sql-string">$1</span>')
         .replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="sql-number">$1</span>');
@@ -264,7 +266,9 @@ function renderTraceSection(trace: SqlTraceResult | undefined): string {
                 `<span class="sql-trace-time">${escapeHtml(time)}</span>`,
                 `<span class="sql-trace-type">${escapeHtml(event.eventType)}</span>`,
                 `<span class="sql-trace-duration">${event.durationMs.toFixed(2)} ms</span>`,
-                event.objectName ? `<span class="sql-trace-object">${escapeHtml(event.objectName)}</span>` : '',
+                event.objectName
+                    ? `<span class="sql-trace-object">${escapeHtml(event.objectName)}</span>`
+                    : '',
                 `</summary>`,
                 `<pre class="sql-trace-sql">${sqlHtml}</pre>`,
                 `</details>`,

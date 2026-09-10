@@ -9,6 +9,7 @@ export interface SortInfo {
 
 export interface UseDataTableOptions {
     data: Record<string, unknown>[];
+    columnKeys?: string[];
     searchKeyword?: string;
     defaultPageSize?: number;
     resetKey?: unknown;
@@ -38,6 +39,7 @@ function estimateTextWidth(text: string): number {
 
 export function useDataTable({
     data,
+    columnKeys: providedColumnKeys,
     searchKeyword = '',
     defaultPageSize = DEFAULT_PAGE_SIZE,
     resetKey,
@@ -47,7 +49,10 @@ export function useDataTable({
     const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
     const [sortInfo, setSortInfo] = useState<SortInfo>({});
 
-    const columnKeys = useMemo(() => (data.length > 0 ? Object.keys(data[0]) : []), [data]);
+    const columnKeys = useMemo(
+        () => providedColumnKeys ?? (data.length > 0 ? Object.keys(data[0]) : []),
+        [data, providedColumnKeys],
+    );
 
     const isLargeDataset = data.length >= PERFORMANCE_THRESHOLDS.largeResponseRows;
 

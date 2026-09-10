@@ -84,6 +84,7 @@ export function buildKcbpCallOutcome(
         resultSets: raw.data,
         stats: raw.stats,
         calledAt: Date.now(),
+        trace: raw.trace,
     };
 
     const missingParam = extractMissingParamFromKcbpResponse(raw.code, raw.msg, raw.data);

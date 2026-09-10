@@ -31,7 +31,11 @@ export function registerSuggestIpc(): void {
     ipcMain.handle(
         'db:suggest',
         withIpcError(async (_event, request: DbSuggestRequest) => {
-            if (!isRecord(request) || typeof request.field !== 'string') {
+            if (
+                !isRecord(request) ||
+                typeof request.field !== 'string' ||
+                !isRecord(request.databaseConfig)
+            ) {
                 throw invalidIpcArgument('Invalid suggest request');
             }
             return executeSuggest(request);
@@ -41,7 +45,11 @@ export function registerSuggestIpc(): void {
     ipcMain.handle(
         'db:query',
         withIpcError(async (_event, request: DbScriptQueryRequest) => {
-            if (!isRecord(request) || typeof request.sql !== 'string') {
+            if (
+                !isRecord(request) ||
+                typeof request.sql !== 'string' ||
+                !isRecord(request.databaseConfig)
+            ) {
                 throw invalidIpcArgument('Invalid script SQL request');
             }
             return executeScriptQuery(request);

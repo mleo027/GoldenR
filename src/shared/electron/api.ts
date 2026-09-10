@@ -39,6 +39,11 @@ export interface ConfigStorageApi {
 
 export interface KcbpApi {
     call(payload: KcbpRequestOptions): Promise<KcbpResponseData>;
+    callWithTrace(
+        payload: KcbpRequestOptions,
+        databaseConfig: DbConnectionConfig,
+        options: import('@/shared/kcbp/types').TraceExecutionOptions,
+    ): Promise<KcbpResponseData>;
     cancel(): Promise<boolean>;
     runtime: {
         getConfig(): Promise<KcbpRuntimeConfig>;

@@ -1,7 +1,7 @@
 import type { SqliteDatabase } from '../connection';
 import { ConfigRepository } from '../repositories/configRepository';
 
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 7;
 
 // Schema version 6 belonged to the reverted script-automation feature.
 // Databases migrated by that build keep its tables behind, so migration
@@ -17,9 +17,6 @@ const REVERTED_AUTOMATION_TABLES = [
     'automation_project_configs',
     'automation_projects',
 ];
-const DROP_REVERTED_AUTOMATION_STATEMENTS: Record<string, string> = Object.fromEntries(
-    REVERTED_AUTOMATION_TABLES.map((table) => [`DROP TABLE IF EXISTS ${table}`, table]),
-);
 
 export function migrateSchema(db: SqliteDatabase): void {
     db.transaction(() => {
@@ -35,8 +32,19 @@ export function migrateSchema(db: SqliteDatabase): void {
                 `Unsupported database schema version ${currentVersion}; application supports up to ${SCHEMA_VERSION}`,
             );
         }
-        if (currentVersion === REVERTED_AUTOMATION_VERSION) {
+        if (
+            currentVersion === REVERTED_AUTOMATION_VERSION ||
+            Boolean(
+                db
+                    .prepare('SELECT 1 FROM schema_migrations WHERE version=?')
+                    .get(REVERTED_AUTOMATION_VERSION),
+            )
+        ) {
             downgradeRevertedAutomationSchema(db);
+            return;
+        }
+        if (row?.version === 5) {
+            migrateV5(db);
             return;
         }
         if (row?.version && row.version < 3) {
@@ -65,8 +73,8 @@ function downgradeRevertedAutomationSchema(db: SqliteDatabase): void {
             }>
         ).map((r) => r.name),
     );
-    for (const [statement, table] of Object.entries(DROP_REVERTED_AUTOMATION_STATEMENTS)) {
-        if (existing.has(table)) db.exec(statement);
+    for (const table of [...REVERTED_AUTOMATION_TABLES].reverse()) {
+        if (existing.has(table)) db.exec(`DROP TABLE IF EXISTS ${table}`);
     }
     db.prepare('DELETE FROM schema_migrations WHERE version=?').run(REVERTED_AUTOMATION_VERSION);
     if (!db.prepare('SELECT 1 FROM schema_migrations WHERE version=?').get(SCHEMA_VERSION)) {
@@ -83,7 +91,7 @@ function createSchema(db: SqliteDatabase): void {
       CREATE TABLE IF NOT EXISTS case_folders(id TEXT PRIMARY KEY,project_id TEXT NOT NULL,parent_id TEXT,name TEXT NOT NULL,position INTEGER NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE,FOREIGN KEY(parent_id) REFERENCES case_folders(id) ON DELETE CASCADE,UNIQUE(project_id,parent_id,position));
       CREATE TABLE IF NOT EXISTS cases(id TEXT PRIMARY KEY,project_id TEXT NOT NULL,position INTEGER NOT NULL,name TEXT NOT NULL,protocol TEXT NOT NULL,address TEXT NOT NULL,folder_id TEXT,favorite INTEGER NOT NULL DEFAULT 0,run_input_json TEXT NOT NULL DEFAULT '{}',created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE,FOREIGN KEY(folder_id) REFERENCES case_folders(id) ON DELETE SET NULL,UNIQUE(project_id,position));
       CREATE TABLE IF NOT EXISTS case_params(case_id TEXT NOT NULL,position INTEGER NOT NULL,name TEXT NOT NULL,value TEXT NOT NULL,type TEXT NOT NULL,PRIMARY KEY(case_id,position),FOREIGN KEY(case_id) REFERENCES cases(id) ON DELETE CASCADE);
-      CREATE TABLE IF NOT EXISTS api_debug_environments(id TEXT PRIMARY KEY,name TEXT NOT NULL,host TEXT NOT NULL,queue TEXT NOT NULL,timeout TEXT NOT NULL,protocol TEXT NOT NULL,service TEXT,node_id TEXT,client_session_id TEXT);
+      CREATE TABLE IF NOT EXISTS api_debug_environments(id TEXT PRIMARY KEY,name TEXT NOT NULL,host TEXT NOT NULL,queue TEXT NOT NULL,timeout TEXT NOT NULL,protocol TEXT NOT NULL,service TEXT,node_id TEXT,client_session_id TEXT,database_json TEXT NOT NULL DEFAULT '{}');
       CREATE TABLE IF NOT EXISTS api_debug_environment_vars(environment_id TEXT NOT NULL,name TEXT NOT NULL,value TEXT NOT NULL,PRIMARY KEY(environment_id,name),FOREIGN KEY(environment_id) REFERENCES api_debug_environments(id) ON DELETE CASCADE);
       CREATE TABLE IF NOT EXISTS db_connections(id TEXT PRIMARY KEY,server TEXT NOT NULL,port INTEGER,database_name TEXT NOT NULL,username TEXT NOT NULL,password TEXT NOT NULL,query_timeout_ms INTEGER,max_rows INTEGER);
       CREATE TABLE IF NOT EXISTS param_suggest_rules(id TEXT PRIMARY KEY,field TEXT NOT NULL,fields_json TEXT NOT NULL DEFAULT '[]',type TEXT NOT NULL,enabled INTEGER NOT NULL DEFAULT 1,priority INTEGER NOT NULL DEFAULT 0,match_json TEXT NOT NULL DEFAULT '{}',datasource_type TEXT NOT NULL,datasource_db TEXT NOT NULL,datasource_sql TEXT NOT NULL,bindings_json TEXT NOT NULL DEFAULT '{}',cache_enabled INTEGER,cache_ttl_seconds INTEGER,trigger TEXT);
@@ -107,6 +115,25 @@ function migrateV4(db: SqliteDatabase): void {
         'CREATE INDEX IF NOT EXISTS idx_request_history_project_timestamp ON request_history(project_id,timestamp DESC); CREATE INDEX IF NOT EXISTS idx_request_history_case_timestamp ON request_history(case_id,timestamp DESC); CREATE INDEX IF NOT EXISTS idx_request_history_mode_timestamp ON request_history(mode,timestamp DESC); CREATE INDEX IF NOT EXISTS idx_request_history_environment_timestamp ON request_history(environment_id,timestamp DESC);',
     );
     db.prepare('UPDATE schema_migrations SET version=?, applied_at=? WHERE version=4').run(
+        5,
+        Date.now(),
+    );
+    migrateV5(db);
+}
+
+function migrateV5(db: SqliteDatabase): void {
+    db.exec(
+        'CREATE TABLE IF NOT EXISTS api_debug_environments (id TEXT PRIMARY KEY, name TEXT NOT NULL, host TEXT NOT NULL, queue TEXT NOT NULL, timeout TEXT NOT NULL, protocol TEXT NOT NULL, service TEXT, node_id TEXT, client_session_id TEXT)',
+    );
+    const columns = db.prepare('PRAGMA table_info(api_debug_environments)').all() as Array<{
+        name: string;
+    }>;
+    if (!columns.some((column) => column.name === 'database_json')) {
+        db.exec(
+            "ALTER TABLE api_debug_environments ADD COLUMN database_json TEXT NOT NULL DEFAULT '{}'",
+        );
+    }
+    db.prepare('UPDATE schema_migrations SET version=?, applied_at=? WHERE version=5').run(
         SCHEMA_VERSION,
         Date.now(),
     );

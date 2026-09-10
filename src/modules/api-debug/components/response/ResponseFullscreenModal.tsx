@@ -8,6 +8,7 @@ import ResponseMeta from './ResponseMeta';
 interface ResponseFullscreenModalProps {
     open: boolean;
     data: Record<string, unknown>[];
+    columnKeys?: string[];
     response?: ResponseData | null;
     searchKeyword: string;
     showRowIndex?: boolean;
@@ -18,6 +19,7 @@ interface ResponseFullscreenModalProps {
 export default function ResponseFullscreenModal({
     open,
     data,
+    columnKeys,
     response,
     searchKeyword,
     showRowIndex = true,
@@ -63,6 +65,7 @@ export default function ResponseFullscreenModal({
             <div className="response-fullscreen-body">
                 <Grid
                     data={data}
+                    columnKeys={columnKeys}
                     searchKeyword={searchKeyword}
                     showRowIndex={showRowIndex}
                     footerStart={response ? <ResponseMeta response={response} /> : undefined}

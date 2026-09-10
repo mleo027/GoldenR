@@ -364,6 +364,7 @@ private:
 		}
 
 		table["name"] = table_name;
+		table["columns"] = col_names;
 		table["rows"] = rows;
 		return true;
 	}

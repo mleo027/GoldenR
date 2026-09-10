@@ -274,9 +274,16 @@ export class ConfigRepository {
         ) as Record<string, unknown> | null;
         const environments = this.db
             .prepare(
-                'SELECT id,name,host,queue,timeout,protocol,service,node_id AS nodeId,client_session_id AS clientSessionId FROM api_debug_environments ORDER BY rowid',
+                'SELECT id,name,host,queue,timeout,protocol,service,node_id AS nodeId,client_session_id AS clientSessionId,database_json FROM api_debug_environments ORDER BY rowid',
             )
-            .all();
+            .all()
+            .map((environment) => ({
+                ...(environment as Record<string, unknown>),
+                database: decode(
+                    (environment as Record<string, unknown>).database_json as string,
+                    {},
+                ),
+            }));
         return { ...(meta ?? {}), kcxpEnvironments: environments };
     }
     private writeEnvironments(items: unknown, value: unknown): void {
@@ -285,7 +292,7 @@ export class ConfigRepository {
         this.upsert('workspace_state', 'key', 'api-env-meta', { value: encode(meta, {}) });
         this.db.exec('DELETE FROM api_debug_environments');
         const i = this.db.prepare(
-            'INSERT INTO api_debug_environments(id,name,host,queue,timeout,protocol,service,node_id,client_session_id) VALUES(?,?,?,?,?,?,?,?,?)',
+            'INSERT INTO api_debug_environments(id,name,host,queue,timeout,protocol,service,node_id,client_session_id,database_json) VALUES(?,?,?,?,?,?,?,?,?,?)',
         );
         const v = this.db.prepare(
             'INSERT INTO api_debug_environment_vars(environment_id,name,value) VALUES(?,?,?)',
@@ -303,6 +310,7 @@ export class ConfigRepository {
                 e.service ?? null,
                 e.nodeId ?? null,
                 e.clientSessionId ?? null,
+                encode(e.database, {}),
             );
             Object.entries(record(e.vars)).forEach(([k, val]) => v.run(id, k, text(val)));
         });

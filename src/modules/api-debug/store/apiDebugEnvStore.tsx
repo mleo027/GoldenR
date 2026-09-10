@@ -17,7 +17,8 @@ function isSameEnv(a: ApiDebugEnv, b: ApiDebugEnv): boolean {
                 item.name === other.name &&
                 item.host === other.host &&
                 item.queue === other.queue &&
-                item.timeout === other.timeout
+                item.timeout === other.timeout &&
+                JSON.stringify(item.database ?? null) === JSON.stringify(other.database ?? null)
             );
         })
     );

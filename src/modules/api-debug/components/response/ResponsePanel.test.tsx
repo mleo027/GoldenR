@@ -103,6 +103,21 @@ describe('ResponsePanel', () => {
         expect(screen.getByText('服务调用失败')).toBeTruthy();
     });
 
+    it('renders native headers for an empty result set', () => {
+        responseState.value = {
+            code: '0',
+            message: 'no rows',
+            resultSets: [{ name: 'DATA', columns: ['fundid', 'market'], rows: [] }],
+        };
+
+        const { container } = render(<ResponsePanel />);
+
+        expect(container.querySelector('.response-idle-metrics')).toBeNull();
+        expect(screen.getByText('fundid')).toBeTruthy();
+        expect(screen.getByText('market')).toBeTruthy();
+        expect(screen.getByText('暂无数据')).toBeTruthy();
+    });
+
     it('shows and switches between multiple result sets', () => {
         responseState.value = {
             code: '0',

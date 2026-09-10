@@ -40,10 +40,36 @@ export interface KcbpResponseData {
         timecost: number;
         rows: number;
     };
+    trace?: SqlTraceResult;
+}
+
+export interface SqlTraceEvent {
+    eventType: string;
+    timestampUtc: string;
+    sqlText: string;
+    durationMs: number;
+    sessionId: number;
+    objectName?: string;
+    errorMessage?: string;
+}
+
+export interface SqlTraceResult {
+    enabled: boolean;
+    session?: string;
+    events: SqlTraceEvent[];
+    startError?: string;
+    readError?: string;
+    stopError?: string;
+}
+
+export interface TraceExecutionOptions {
+    enabled: boolean;
 }
 
 export interface KcbpResultSet {
     name: string;
+    /** Native response column definitions, retained when a result set has no rows. */
+    columns?: string[];
     rows: Record<string, unknown>[];
 }
 

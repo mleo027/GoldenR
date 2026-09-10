@@ -88,6 +88,15 @@ const searchEmptyState = (
     />
 );
 
+const noDataEmptyState = (
+    <PanelEmptyState
+        className="response-empty"
+        icon={<InboxOutlined />}
+        title="暂无数据"
+        description="本次查询未返回记录"
+    />
+);
+
 function buildGridColumns({
     columnKeys,
     showRowIndex,
@@ -348,6 +357,8 @@ function useGridTableHandlers({
 
 interface GridProps {
     data?: Record<string, unknown>[];
+    /** Column definitions supplied by the API when a result set contains no rows. */
+    columnKeys?: string[];
     searchKeyword?: string;
     showRowIndex?: boolean;
     loading?: boolean;
@@ -356,6 +367,7 @@ interface GridProps {
 
 export default memo(function Grid({
     data = [],
+    columnKeys: providedColumnKeys,
     searchKeyword = '',
     showRowIndex = true,
     loading = false,
@@ -380,6 +392,7 @@ export default memo(function Grid({
         getGlobalRowIndex,
     } = useDataTable({
         data,
+        columnKeys: providedColumnKeys,
         searchKeyword,
         resetKey: data,
     });
@@ -445,7 +458,7 @@ export default memo(function Grid({
         );
     }
 
-    if (data.length === 0) {
+    if (data.length === 0 && columnKeys.length === 0) {
         return (
             <div ref={containerRef} className="response-table-wrapper ui-scroll h-full min-w-0">
                 <div className="response-table-area response-table-empty">{responseEmpty}</div>
@@ -453,7 +466,11 @@ export default memo(function Grid({
         );
     }
 
-    const tableEmptyText = searchKeyword.trim() ? searchEmptyState : responseEmpty;
+    const tableEmptyText = searchKeyword.trim()
+        ? searchEmptyState
+        : columnKeys.length > 0
+          ? noDataEmptyState
+          : responseEmpty;
 
     return (
         <div ref={containerRef} className="response-table-wrapper ui-scroll h-full min-w-0">

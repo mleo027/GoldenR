@@ -57,6 +57,7 @@ export interface DbSuggestRequest {
     ruleOverride?: ParamFieldRule;
     /** 多字段规则测试时指定适用字段 */
     testField?: string;
+    databaseConfig?: DbConnectionConfig;
 }
 
 export interface DbSuggestOption {
@@ -89,6 +90,7 @@ export interface DbTestConnectionResult {
 export interface DbScriptQueryRequest {
     sql: string;
     params?: Record<string, string | number>;
+    databaseConfig?: DbConnectionConfig;
 }
 
 export interface DbScriptQueryResponse {

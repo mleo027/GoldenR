@@ -90,7 +90,8 @@ CREATE TABLE IF NOT EXISTS api_debug_environments (
     protocol TEXT NOT NULL,
     service TEXT,
     node_id TEXT,
-    client_session_id TEXT
+    client_session_id TEXT,
+    database_json TEXT NOT NULL DEFAULT '{}'
 );
 
 CREATE TABLE IF NOT EXISTS api_debug_environment_vars (

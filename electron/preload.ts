@@ -41,6 +41,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
             }
             return result as KcbpResponseData;
         },
+        callWithTrace: async (
+            payload: KcbpRequestOptions,
+            databaseConfig: DbConnectionConfig,
+            options: import('../src/shared/kcbp/types').TraceExecutionOptions,
+        ): Promise<KcbpResponseData> => {
+            const result: unknown = await invoke<unknown>(
+                'rpc:callWithTrace',
+                payload,
+                databaseConfig,
+                options,
+            );
+            if (isKcbpIpcCancelledResult(result)) throw new Error(KCBP_CANCELLED_MESSAGE);
+            return result as KcbpResponseData;
+        },
         cancel: (): Promise<boolean> => invoke<boolean>('rpc:cancel'),
         runtime: {
             getConfig: (): Promise<import('../src/shared/kcbp/types').KcbpRuntimeConfig> =>

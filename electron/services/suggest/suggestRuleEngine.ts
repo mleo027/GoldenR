@@ -34,8 +34,8 @@ import {
 } from '../../../src/shared/suggest/suggestRuleFallback';
 import type { ConfigRepository } from '../../database/repositories/configRepository';
 
-let dbConfig: DbConnectionConfig | null = null;
 let rules: ParamFieldRule[] = [];
+let legacyDbConfig: DbConnectionConfig | null = null;
 let repository: ConfigRepository | null = null;
 
 export function setSuggestRepository(next: ConfigRepository): void {
@@ -43,7 +43,10 @@ export function setSuggestRepository(next: ConfigRepository): void {
 }
 
 /** @deprecated Runtime configuration is database-backed; kept for older test/integration callers. */
-export function setSuggestAppRootDir(dir: string): void { legacyRoot = dir; repository = null; }
+export function setSuggestAppRootDir(dir: string): void {
+    legacyRoot = dir;
+    repository = null;
+}
 let legacyRoot: string | null = null;
 
 function isDbConnectionConfig(value: unknown): value is DbConnectionConfig {
@@ -60,11 +63,17 @@ function isDbConnectionConfig(value: unknown): value is DbConnectionConfig {
 export async function reloadSuggestConfig(): Promise<void> {
     const readLegacy = (name: string): unknown | null => {
         if (!legacyRoot) return null;
-        try { return JSON.parse(fsSync.readFileSync(path.join(legacyRoot, name), 'utf8')); } catch { return null; }
+        try {
+            return JSON.parse(fsSync.readFileSync(path.join(legacyRoot, name), 'utf8'));
+        } catch {
+            return null;
+        }
     };
-    const dbContent = repository?.read('db.json') ?? readLegacy('db.json');
-    dbConfig = isDbConnectionConfig(dbContent) ? dbContent : null;
-    const parsed = (repository?.read('param-suggest-rules.json') ?? readLegacy('param-suggest-rules.json')) as ParamSuggestRulesFile | null;
+    legacyDbConfig = isDbConnectionConfig(readLegacy('db.json'))
+        ? (readLegacy('db.json') as DbConnectionConfig)
+        : null;
+    const parsed = (repository?.read('param-suggest-rules.json') ??
+        readLegacy('param-suggest-rules.json')) as ParamSuggestRulesFile | null;
     rules = Array.isArray(parsed?.rules) ? parsed.rules : [];
 
     suggestCache.invalidate();
@@ -133,6 +142,7 @@ function toCachedSuggestResponse(
 }
 
 async function executeSuggestQuery(
+    dbConfig: DbConnectionConfig,
     meta: SuggestExecutionMeta,
     keyword: string | undefined,
     cacheEnabled: boolean,
@@ -190,6 +200,7 @@ async function runSuggestSql(
     request: DbSuggestRequest,
     rule: ParamFieldRule,
     skipCache: boolean,
+    dbConfig: DbConnectionConfig,
 ): Promise<DbSuggestResponse> {
     const datasource = rule.datasource;
     if (datasource.type !== 'sql' || datasource.db !== 'mssql') {
@@ -216,7 +227,7 @@ async function runSuggestSql(
         }
     }
 
-    return executeSuggestQuery(meta, request.keyword, cacheEnabled, cacheKey, ttlSeconds);
+    return executeSuggestQuery(dbConfig, meta, request.keyword, cacheEnabled, cacheKey, ttlSeconds);
 }
 
 export async function executeSuggest(request: DbSuggestRequest): Promise<DbSuggestResponse> {
@@ -226,8 +237,9 @@ export async function executeSuggest(request: DbSuggestRequest): Promise<DbSugge
         elapsedMs: Date.now() - startedAt,
     });
 
-    if (!dbConfig) {
-        return withTiming({ options: [], error: '未配置数据库连接 (db.json)' });
+    const dbConfig = request.databaseConfig ?? legacyDbConfig;
+    if (!dbConfig || !isDbConnectionConfig(dbConfig)) {
+        return withTiming({ options: [], error: '当前环境数据库配置不完整' });
     }
 
     if (request.ruleOverride) {
@@ -238,7 +250,7 @@ export async function executeSuggest(request: DbSuggestRequest): Promise<DbSugge
                 error: `规则不适用于字段 "${testField}"`,
             });
         }
-        return withTiming(await runSuggestSql(request, request.ruleOverride, true));
+        return withTiming(await runSuggestSql(request, request.ruleOverride, true, dbConfig));
     }
 
     const matchedRules = resolveSuggestRules(rules, {
@@ -256,7 +268,7 @@ export async function executeSuggest(request: DbSuggestRequest): Promise<DbSugge
     // 按 resolveSuggestRules 排序依次尝试；当前规则 0 行且无 pendingDeps 时可 fallback 到下一条
     for (let index = 0; index < matchedRules.length; index += 1) {
         const rule = matchedRules[index];
-        const response = await runSuggestSql(request, rule, false);
+        const response = await runSuggestSql(request, rule, false, dbConfig);
         lastResponse = response;
 
         if (response.options.length > 0) {
@@ -286,8 +298,9 @@ export async function executeSuggest(request: DbSuggestRequest): Promise<DbSugge
 export async function executeScriptQuery(
     request: DbScriptQueryRequest,
 ): Promise<DbScriptQueryResponse> {
-    if (!dbConfig) {
-        return { rows: [], columns: [], error: '未配置数据库连接 (db.json)' };
+    const dbConfig = request.databaseConfig ?? legacyDbConfig;
+    if (!dbConfig || !isDbConnectionConfig(dbConfig)) {
+        return { rows: [], columns: [], error: '当前环境数据库配置不完整' };
     }
 
     const validation = validateSelectSql(request.sql);

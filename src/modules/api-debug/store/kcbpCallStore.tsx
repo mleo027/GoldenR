@@ -42,6 +42,7 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
     const { pushLog } = useRunLogActions();
     const { addEntry } = useRequestHistoryActions();
     const [runningCaseId, setRunningCaseId] = useState<string | null>(null);
+    const [traceEnabled, setTraceEnabled] = useState(false);
     const callGenerationRef = useRef(0);
     const runningCaseIdRef = useRef<string | null>(null);
     const activeTabRef = useRef(activeTab);
@@ -128,8 +129,13 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
         setRunningCaseId(caseId);
 
         try {
+            const selectedEnvironment = getActiveKcxpEnvironment(
+                envRef.current.kcxpEnvironments,
+                envRef.current.activeKcxpEnvironmentId,
+            );
             const outcome = await invokeKcbpCall(tab, editorMode, {
                 commonParams: commonParams.length > 0 ? commonParams : undefined,
+                trace: { enabled: traceEnabled, databaseConfig: selectedEnvironment.database },
             });
             if (callId !== callGenerationRef.current) return;
 
@@ -275,15 +281,26 @@ export function KcbpCallProvider({ children }: { children: ReactNode }) {
                 setRunningCaseId(null);
             }
         }
-    }, [addEntry, cancelInFlight, notify, pushLog, setResponse, setScriptConsole, updateTab]);
+    }, [
+        addEntry,
+        cancelInFlight,
+        notify,
+        pushLog,
+        setResponse,
+        setScriptConsole,
+        traceEnabled,
+        updateTab,
+    ]);
 
     const value = useMemo(
         () => ({
             runningCaseId,
             run,
             cancel,
+            traceEnabled,
+            setTraceEnabled,
         }),
-        [runningCaseId, run, cancel],
+        [runningCaseId, run, cancel, traceEnabled],
     );
 
     const feedbackBridge = useMemo(() => ({ register: registerFeedback }), [registerFeedback]);

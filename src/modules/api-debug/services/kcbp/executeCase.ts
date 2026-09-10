@@ -10,6 +10,7 @@ import {
     isKgbpAddressReady,
 } from '../../utils/workspace/kcxpEnvironment';
 import { invokeKcbpWithFields } from './singleCall';
+import { requireElectronAPI } from '../../../../lib/electron';
 import { runScriptOrTcdCase } from './scriptRunner';
 import {
     KCBP_MSGTYPE_REQUIRED_MESSAGE,
@@ -42,7 +43,19 @@ export async function invokeKcbpCall(
     const effectiveCaseParams = optionsWithRunner.commonParams
         ? mergeCommonParams(optionsWithRunner.commonParams, tab.params)
         : tab.params;
-    const electronDeps = optionsWithRunner.electronDeps;
+    const electronDeps =
+        optionsWithRunner.electronDeps ??
+        (optionsWithRunner.trace?.enabled && optionsWithRunner.trace.databaseConfig
+            ? {
+                  callKcbp: (payload: import('../../../../types/kcbp').KcbpRequestOptions) =>
+                      requireElectronAPI().kcbp.callWithTrace(
+                          payload,
+                          optionsWithRunner.trace!.databaseConfig!,
+                          { enabled: true },
+                      ),
+                  queryScriptSql: requireElectronAPI().database.queryScript,
+              }
+            : undefined);
     let effectiveAddress =
         optionsWithRunner.effectiveAddress ??
         (optionsWithRunner.kcxpEnvironment

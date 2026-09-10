@@ -10,14 +10,14 @@ vi.mock('electron', () => ({
 import { KcbpClient, normalizeResultSets } from './kcbp';
 
 describe('normalizeResultSets', () => {
-    it('normalizes structured items filling default name and dropping columns', () => {
+    it('normalizes structured items while retaining native columns', () => {
         expect(
             normalizeResultSets([
                 { name: '持仓', columns: ['fundid'], rows: [{ fundid: '6001' }] },
                 { rows: [{}] },
             ]),
         ).toEqual([
-            { name: '持仓', rows: [{ fundid: '6001' }] },
+            { name: '持仓', columns: ['fundid'], rows: [{ fundid: '6001' }] },
             { name: '', rows: [{}] },
         ]);
     });
@@ -76,22 +76,22 @@ describe('KcbpClient response normalization', () => {
         const result = await client.call({ connection: {}, param: {} });
 
         expect(result.data).toEqual([
-            { name: 'DATA', rows: [{ id: '1' }, { id: '2' }] },
-            { name: 'DETAIL', rows: [{ value: 'a' }] },
+            { name: 'DATA', columns: ['id'], rows: [{ id: '1' }, { id: '2' }] },
+            { name: 'DETAIL', columns: ['value'], rows: [{ value: 'a' }] },
         ]);
         expect(result.stats.rows).toBe(3);
     });
 
-    it('counts empty result sets without dropping them', async () => {
+    it('retains columns for empty result sets', async () => {
         const client = createClient({
             code: '0',
             msg: 'ok',
-            data: [{ name: 'EMPTY', rows: [] }],
+            data: [{ name: 'EMPTY', columns: ['fundid', 'market'], rows: [] }],
         });
 
         const result = await client.call({ connection: {}, param: {} });
 
-        expect(result.data).toEqual([{ name: 'EMPTY', rows: [] }]);
+        expect(result.data).toEqual([{ name: 'EMPTY', columns: ['fundid', 'market'], rows: [] }]);
         expect(result.stats.rows).toBe(0);
     });
 

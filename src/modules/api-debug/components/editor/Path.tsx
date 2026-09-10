@@ -74,7 +74,10 @@ export function PathRunButton() {
 
     return (
         <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 text-xs whitespace-nowrap" title="按次启用 SQL Server Extended Events">
+            <div
+                className="flex items-center gap-1 text-xs whitespace-nowrap"
+                title="按次启用 SQL Server Extended Events"
+            >
                 <span>SQL Trace</span>
                 <Switch
                     size="small"

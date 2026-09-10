@@ -23,6 +23,7 @@ interface ResponsePanelProps {
 interface ResponseBodyProps {
     response: ResponseData | undefined;
     responseData: Record<string, unknown>[];
+    responseColumns?: string[];
     searchKeyword: string;
     showRowIndex: boolean;
     loading: boolean;
@@ -40,6 +41,7 @@ interface ResponseBodyProps {
 const ResponseBody = memo(function ResponseBody({
     response,
     responseData,
+    responseColumns,
     searchKeyword,
     showRowIndex,
     loading,
@@ -54,7 +56,8 @@ const ResponseBody = memo(function ResponseBody({
     onResultSetChange,
 }: ResponseBodyProps) {
     const hasResponseData = responseData.length > 0;
-    const showIdleMetrics = !hasResponseData;
+    const hasSelectedResultSet = resultSets[selectedResultSetIndex] != null;
+    const showIdleMetrics = !hasSelectedResultSet;
 
     const footerStart = useMemo(
         () => (response ? <ResponseMeta response={response} variant="footer" /> : undefined),
@@ -130,6 +133,7 @@ const ResponseBody = memo(function ResponseBody({
                     ) : (
                         <Grid
                             data={responseData}
+                            columnKeys={responseColumns}
                             searchKeyword={searchKeyword}
                             showRowIndex={showRowIndex}
                             loading={loading}
@@ -165,6 +169,7 @@ export default function ResponsePanel({
     const resultSets = response?.resultSets ?? [];
     const selectedResultSet = resultSets[selectedResultSetIndex];
     const responseData = selectedResultSet?.rows ?? EMPTY_RESPONSE_ROWS;
+    const responseColumns = selectedResultSet?.columns;
 
     useEffect(() => {
         setSearchKeyword('');
@@ -177,6 +182,7 @@ export default function ResponsePanel({
             <ResponseBody
                 response={response}
                 responseData={responseData}
+                responseColumns={responseColumns}
                 searchKeyword={searchKeyword}
                 showRowIndex={showRowIndex}
                 loading={loading}
@@ -198,6 +204,7 @@ export default function ResponsePanel({
                     <ResponseFullscreenModal
                         open={fullscreenOpen}
                         data={responseData}
+                        columnKeys={responseColumns}
                         response={response}
                         searchKeyword={searchKeyword}
                         showRowIndex={showRowIndex}

@@ -10,6 +10,7 @@ export function createMainWindow(): BrowserWindow {
         minWidth: 1200,
         minHeight: 560,
         frame: false,
+        title: 'Golden API',
         icon: getBuildIconPath(),
         webPreferences: {
             preload: getPreloadScriptPath(),
@@ -40,6 +41,7 @@ export function createMainWindow(): BrowserWindow {
 
     if (process.env.VITE_DEV_SERVER_URL) {
         void win.loadURL(process.env.VITE_DEV_SERVER_URL).catch(console.error);
+        win.webContents.openDevTools({ mode: 'detach' });
     } else {
         void win.loadFile('dist/index.html').catch(console.error);
     }

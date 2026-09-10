@@ -248,6 +248,7 @@ private:
 		}
 
 		table["name"] = name;
+		table["columns"] = names;
 		table["rows"] = rows;
 		return table;
 	}
