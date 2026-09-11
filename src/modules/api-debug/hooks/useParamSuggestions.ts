@@ -6,6 +6,7 @@ import { useParamSuggest } from '../store/useParamSuggest';
 import { hasSuggestRule, fieldHasSuggestRules } from '../utils/suggest/paramSuggestResolve';
 import { useApiDebugEnv } from '../store/useApiDebugEnv';
 import { getActiveKcxpEnvironment } from '../utils/workspace/kcxpEnvironment';
+import { DEFAULT_DB_CONFIG } from '../constants/paramSuggest';
 
 function buildContextParams(params: ParamItem[]): Record<string, string> {
     const context: Record<string, string> = {};
@@ -90,7 +91,8 @@ export function useParamSuggestions({
                 field: fieldName,
                 contextParams,
                 keyword: debouncedKeyword,
-                databaseConfig: environment.database,
+                // 环境缺少 database 时回落默认配置，与 paramSuggestStore/RequestSettings 保持一致
+                databaseConfig: environment.database ?? DEFAULT_DB_CONFIG,
             });
 
             if (requestId !== requestIdRef.current) return;

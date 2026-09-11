@@ -38,7 +38,6 @@ function EnvironmentRow({
     };
 
     const isKGBP = (environment.protocol ?? 'KCBP') === 'KGBP';
-    const isKUAB = (environment.protocol ?? 'KCBP') === 'KUAB';
     const database = environment.database ?? DEFAULT_DB_CONFIG;
 
     return (
@@ -145,17 +144,6 @@ function EnvironmentRow({
                                 size="sm"
                             />
                         </div>
-                        {isKUAB ? (
-                            <div className="kcxp-env-field">
-                                <span className="kcxp-env-field-label">KUAB Profile</span>
-                                <Input
-                                    value={environment.kuabConfigId ?? 'default'}
-                                    onChange={(e) => updateField('kuabConfigId', e.target.value)}
-                                    placeholder="default"
-                                    size="sm"
-                                />
-                            </div>
-                        ) : null}
                     </>
                 )}
                 <div className="kcxp-env-database-fields">

@@ -45,6 +45,11 @@ request-history.json
 exchange-workspace.json
 knowledge-nav.json
 
+# KUAB 客户端凭据（部署资产：随 extraResources 打包到 resources/adapter/kuab，不进版本库）
+electron/adapter/kuab/KCBPCli.json
+electron/adapter/kuab/KCBPCli_map.json
+electron/adapter/kuab/*.key
+
 # Scratch / temp
 tmp/
 .tmp-*

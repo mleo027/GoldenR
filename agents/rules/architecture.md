@@ -15,6 +15,24 @@
 - 参数建议位于 `electron/services/suggest`，数据库访问不得散落在 IPC handler 或 UI 中。
 - 原生适配器源码只在 `electron/adapter/native` 维护，`electron/adapter` 保存构建所需产物。
 
+### 原生适配器（`electron/adapter`）
+
+- `adapter.node` 是编译产物，由 `npm run build:native` 从 `native/src/adapter.cpp` 生成；改动 `native/src/**` 或 `native/include/**` 后必须重新编译，否则运行时报 `Native <TYPE> adapter not loaded`。
+- 该二进制必须导出 `callKCBP`、`callKGBP`、`callKUAB`，可用 `node -e "console.log(Object.keys(require('./electron/adapter/adapter.node')))"` 校验。编译前需关闭运行中的 app，否则覆盖产物会因文件占用报 `EBUSY`。
+- 依赖 DLL（`KCBPCli.dll`、`KUABCli.dll` 等）与 `adapter.node` 同级或在 `adapter/kuab` 下；单独从 `native/build/Release/` 直接 `require` 会因找不到 DLL 报 `ERR_DLOPEN_FAILED`，校验时需把这两个目录加入 `PATH`。
+- 厂商 SDK 头文件（`native/include/kuabcli.h`、`native/include/kcbpcli/**`、`native/include/kgbpcli/**`）视为只读，不要改动其类型名或结构布局。
+- `kuabcli.h` 与 `kcbpcli/lib/KCBPCli.h` 都在全局命名空间定义 `tagCallCtrl` 且布局不同，不能出现在同一编译单元（MSVC C2371）。当前做法是在 `native/include/self/KUABClient.hpp` 中把 KUAB 侧类型宏改名后再包含 `kuabcli.h`；新增同时依赖两个 SDK 的代码需沿用该隔离方式或拆到独立编译单元。
+
+### KUAB 运行时配置（部署资产，不走 GUI）
+
+`KUABCli.dll` 通过 `GetModuleFileNameA` 从**自身所在目录**读取配置，与任何 IPC/数据库配置无关：
+
+- 必需文件：`electron/adapter/kuab/KCBPCli.json`（含 `AppID`/`AppSecret`）与跟 AppID 同名的 `<AppID>.key`（RSA 私钥）。两者必须与 `KUABCli.dll` 同级。
+- `KCBPCli.json` 必须是非空 JSON 对象；缺失时报 `-900204 config is empty`，缺 `.key` 时在同名 RSA 密钥环节报 `-901901 InitPrivateKeyString fail` 一类错误。
+- 这些文件是**部署资产**：由 `.gitignore` 排除，不进版本库；打包依赖 `package.json` 的 `extraResources`（整目录拷贝 `electron/adapter` → `resources/adapter`），因此构建机上需存在这些文件。
+- **禁止调用 `KUAB_OPTION_CONFIG_DIR`(108)**：实测在 `KUABCLI_Init` 之后调用它会把已加载的配置清空，导致连接失败。KUAB 的凭据不由环境/用例配置提供，环境只配 host、端口和队列。
+- 排障入口：同级目录下由 DLL 生成的 `KCBPCli.log` 会打印 `parse config file [路径] fail:原因` 与 `Call CKUABCli::ConnectServer(...)` 的完整参数（GBK 编码）。
+
 ## SQLite 持久化
 
 - `golden.db` 是唯一运行时配置来源，位置遵循开发、便携版和安装版的既有目录策略。

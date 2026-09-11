@@ -82,10 +82,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
                     'kcbpRuntime:pickFile',
                     defaultPath,
                 ),
-            getProfiles: (): Promise<import('../src/shared/kcbp/types').KuabProfile[]> =>
-                invoke('kuabRuntime:getProfiles'),
-            saveProfiles: (profiles: import('../src/shared/kcbp/types').KuabProfile[]) =>
-                invoke<import('../src/shared/kcbp/types').KuabProfile[]>('kuabRuntime:saveProfiles', profiles),
         },
     },
     database: {

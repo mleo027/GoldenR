@@ -62,7 +62,6 @@ export function buildKcbpRequest(
                 port: port || undefined,
                 reqqueue: addressParts.queue.trim() || undefined,
                 requesttimeout: addressParts.timeout.trim() || undefined,
-                kuabConfigId: addressParts.kuabConfigId || 'default',
             },
             param: {
                 msgtype,

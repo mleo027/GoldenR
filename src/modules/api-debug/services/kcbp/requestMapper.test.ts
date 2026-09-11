@@ -58,16 +58,12 @@ describe('buildKcbpRequest (KCBP)', () => {
 });
 
 describe('buildKcbpRequest (KUAB)', () => {
-    it('uses the KUAB native route and carries the selected profile', () => {
-        const payload = buildKcbpRequest(
-            { ...baseParts, kuabConfigId: 'prod' },
-            'KCAS.login',
-            { USER_ID: '8888' },
-            {},
-            'KUAB',
-        );
+    it('uses the KUAB native route and carries host/queue only', () => {
+        const payload = buildKcbpRequest(baseParts, 'KCAS.login', { USER_ID: '8888' }, {}, 'KUAB');
         expect(payload.type).toBe('KUAB');
-        expect(payload.connection.kuabConfigId).toBe('prod');
+        expect(payload.connection.ip).toBe('10.0.0.2');
+        expect(payload.connection.port).toBe('9100');
+        expect(payload.connection.reqqueue).toBe('req1');
         expect(payload.param.fields).toEqual({ USER_ID: '8888' });
     });
 });

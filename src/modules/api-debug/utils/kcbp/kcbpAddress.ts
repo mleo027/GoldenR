@@ -9,7 +9,6 @@ export interface KcbpAddressParts {
     nodeId?: string;
     /** KGBP：会话 ID */
     clientSessionId?: string;
-    kuabConfigId?: string;
 }
 
 export const DEFAULT_KCBP_QUEUE = 'req1';
@@ -60,7 +59,6 @@ export function parseKcbpAddress(address: string): KcbpAddressParts {
     const service = params.get('service');
     const nodeId = params.get('nodeid');
     const clientSessionId = params.get('clientsessionid');
-    const kuabConfigId = params.get('kuabconfig');
 
     return {
         host: hostPart.trim(),
@@ -70,7 +68,6 @@ export function parseKcbpAddress(address: string): KcbpAddressParts {
         service: service?.trim() || undefined,
         nodeId: nodeId?.trim() || undefined,
         clientSessionId: clientSessionId?.trim() || undefined,
-        kuabConfigId: kuabConfigId?.trim() || undefined,
     };
 }
 
@@ -86,18 +83,8 @@ export function serializeKcbpAddress(parts: KcbpAddressParts): string {
     const service = parts.service?.trim() ?? '';
     const nodeId = parts.nodeId?.trim() ?? '';
     const clientSessionId = parts.clientSessionId?.trim() ?? '';
-    const kuabConfigId = parts.kuabConfigId?.trim() ?? '';
 
-    if (
-        !host &&
-        !msgtype &&
-        !queue &&
-        !timeout &&
-        !service &&
-        !nodeId &&
-        !clientSessionId &&
-        !kuabConfigId
-    ) {
+    if (!host && !msgtype && !queue && !timeout && !service && !nodeId && !clientSessionId) {
         return '';
     }
 
@@ -121,9 +108,6 @@ export function serializeKcbpAddress(parts: KcbpAddressParts): string {
     }
     if (clientSessionId) {
         params.set('clientsessionid', clientSessionId);
-    }
-    if (kuabConfigId) {
-        params.set('kuabconfig', kuabConfigId);
     }
 
     const query = params.toString();

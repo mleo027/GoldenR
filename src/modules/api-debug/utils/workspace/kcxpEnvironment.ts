@@ -25,7 +25,6 @@ export function createKcxpEnvironment(
         service: partial?.service,
         nodeId: partial?.nodeId,
         clientSessionId: partial?.clientSessionId ?? (protocol === 'KGBP' ? '@custid' : undefined),
-        kuabConfigId: partial?.kuabConfigId ?? (protocol === 'KUAB' ? 'default' : undefined),
         database: { ...DEFAULT_DB_CONFIG, ...partial?.database },
     };
 }
@@ -43,7 +42,9 @@ export function isKcxpEnvironment(value: unknown): value is KcxpEnvironment {
         typeof env.host === 'string' &&
         typeof env.queue === 'string' &&
         typeof env.timeout === 'string' &&
-        Boolean(env.database)
+        // database 在类型上是可选项（database?: DbConnectionConfig），仅在其存在时校验形状，
+        // 否则缺少 database 的历史环境会被整体丢弃。
+        (env.database == null || (typeof env.database === 'object' && !Array.isArray(env.database)))
     );
 }
 
@@ -54,9 +55,7 @@ export function normalizeKcxpEnvironments(value: unknown): KcxpEnvironment[] {
         .map((environment) =>
             environment.protocol === 'KGBP' && !environment.clientSessionId?.trim()
                 ? { ...environment, clientSessionId: '@custid' }
-                : environment.protocol === 'KUAB' && !environment.kuabConfigId?.trim()
-                  ? { ...environment, kuabConfigId: 'default' }
-                  : environment,
+                : environment,
         );
     return valid.length > 0 ? valid : [...DEFAULT_KCXP_ENVIRONMENTS];
 }
@@ -144,8 +143,6 @@ export function applyKcxpEnvironmentToAddress(
         service: undefined,
         nodeId: undefined,
         clientSessionId: undefined,
-        kuabConfigId:
-            resolveKcxpProtocol(environment) === 'KUAB' ? environment.kuabConfigId : undefined,
     });
 }
 

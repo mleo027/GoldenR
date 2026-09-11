@@ -9,7 +9,6 @@ import type { KcbpResponseData } from './response';
 import type { DbConnectionConfig } from '../../../src/shared/suggest/types';
 import type { TraceExecutionOptions } from '../../../src/shared/kcbp/types';
 import { executeWithSqlTrace } from './sqlTrace';
-import { resolveKuabProfile } from './kuabRuntimeConfigStore';
 
 export { normalizeResultSets } from './response';
 export type { KcbpResponseData } from './response';
@@ -23,14 +22,6 @@ export interface KcbpConnectionOptions {
     apiid?: string;
     requesttimeout?: string;
     connecttimeout?: string;
-    kuabConfigId?: string;
-    serverName?: string;
-    username?: string;
-    password?: string;
-    configDir?: string;
-    configName?: string;
-    logDir?: string;
-    wantTran?: string;
 }
 
 export interface KcbpParamOptions {
@@ -497,18 +488,7 @@ export class KcbpClient {
             };
         }
 
-        let normalized = resolved.payload;
-        if (normalized.type === 'KUAB') {
-            const profile = await resolveKuabProfile(normalized.connection.kuabConfigId ?? 'default');
-            normalized = {
-                ...normalized,
-                connection: {
-                    ...profile,
-                    ...normalized.connection,
-                    kuabConfigId: profile.id,
-                },
-            };
-        }
+        const normalized = resolved.payload;
         const adapterCandidates = getResolvedAdapterCandidates();
 
         if (!this.adapter && adapterCandidates.length === 0) {

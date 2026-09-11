@@ -8,8 +8,6 @@ import {
 } from '../services/kcbp/kcbpRuntimeConfigStore';
 import { KCBP_IPC_CANCELLED_RESULT } from '../../src/shared/kcbp/cancel';
 import type { KcbpRuntimeConfig } from '../../src/shared/kcbp/types';
-import type { KuabProfile } from '../../src/shared/kcbp/types';
-import { loadKuabProfiles, saveKuabProfiles, setKuabProfileRepository } from '../services/kcbp/kuabRuntimeConfigStore';
 import type { TraceExecutionOptions } from '../../src/shared/kcbp/types';
 import type { DbConnectionConfig } from '../../src/shared/suggest/types';
 import { invalidIpcArgument } from '../../src/shared/ipc/errors';
@@ -18,7 +16,6 @@ import type { ElectronAppContext } from './types';
 
 export function registerKcbpIpc(ctx: ElectronAppContext): void {
     setKcbpRuntimeConfigRepository(ctx.configRepository);
-    setKuabProfileRepository(ctx.configRepository);
 
     ipcMain.handle(
         'rpc:call',
@@ -87,12 +84,6 @@ export function registerKcbpIpc(ctx: ElectronAppContext): void {
             return saveKcbpRuntimeConfig(config);
         }),
     );
-
-    ipcMain.handle('kuabRuntime:getProfiles', withIpcError(async () => loadKuabProfiles()));
-    ipcMain.handle('kuabRuntime:saveProfiles', withIpcError(async (_event, profiles: KuabProfile[]) => {
-        if (!Array.isArray(profiles)) throw invalidIpcArgument('Invalid KUAB profiles');
-        return saveKuabProfiles(profiles);
-    }));
 
     ipcMain.handle(
         'kcbpRuntime:pickDirectory',

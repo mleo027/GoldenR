@@ -6,14 +6,6 @@ export interface KcbpConnectionOptions {
     service?: string;
     apiid?: string;
     requesttimeout?: string;
-    kuabConfigId?: string;
-    serverName?: string;
-    username?: string;
-    password?: string;
-    configDir?: string;
-    configName?: string;
-    logDir?: string;
-    wantTran?: string;
 }
 
 export type KcbpTextFieldValue = string;
@@ -85,18 +77,6 @@ export interface KcbpRuntimeConfig {
     executable: string;
     workingDir: string;
     args: string[];
-}
-
-export interface KuabProfile {
-    id: string;
-    name: string;
-    serverName: string;
-    username: string;
-    password: string;
-    configDir?: string;
-    configName?: string;
-    logDir?: string;
-    wantTran?: string;
 }
 
 export interface KcbpPickPathResult {

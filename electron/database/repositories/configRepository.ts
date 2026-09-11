@@ -49,8 +49,6 @@ export class ConfigRepository {
                   }
                 : null;
         }
-        if (name === 'kuab.profiles.json')
-            return this.oneJson("SELECT value FROM workspace_state WHERE key='kuab-profiles'") ?? { profiles: [] };
         if (name === 'api-debug.env.json') return this.readEnvironments();
         if (name === 'project.json')
             return {
@@ -99,8 +97,6 @@ export class ConfigRepository {
             if (name === 'db.json') return this.writeDb(record(value));
             if (name === 'param-suggest-rules.json') return this.writeRules(record(value).rules);
             if (name === 'kcbp.env.json') return this.writeKcbp(record(value));
-            if (name === 'kuab.profiles.json')
-                return this.upsert('workspace_state', 'key', 'kuab-profiles', { value: encode(value, { profiles: [] }) });
             if (name === 'request-history.json') return this.writeHistory(record(value).entries);
         });
         tx();
@@ -282,11 +278,15 @@ export class ConfigRepository {
             )
             .all()
             .map((environment) => {
-                const stored = decode((environment as Record<string, unknown>).database_json as string, {}) as Record<string, unknown>;
-                const { kuabConfigId, ...database } = stored;
+                const stored = decode(
+                    (environment as Record<string, unknown>).database_json as string,
+                    {},
+                ) as Record<string, unknown>;
+                // 历史数据曾把 kuabConfigId 混存在 database_json 里，读取时丢弃，不再回传给渲染层。
+                const database = { ...stored };
+                delete database.kuabConfigId;
                 return {
                     ...(environment as Record<string, unknown>),
-                    kuabConfigId,
                     database,
                 };
             });
@@ -316,7 +316,7 @@ export class ConfigRepository {
                 e.service ?? null,
                 e.nodeId ?? null,
                 e.clientSessionId ?? null,
-                encode({ ...record(e.database), kuabConfigId: e.kuabConfigId }, {}),
+                encode(record(e.database), {}),
             );
             Object.entries(record(e.vars)).forEach(([k, val]) => v.run(id, k, text(val)));
         });
