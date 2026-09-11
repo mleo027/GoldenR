@@ -12,7 +12,7 @@
   "scripts": {
     "prepare": "node scripts/install-git-hooks.mjs",
     "dev": "vite",
-    "build": "npm run generate:icon && npm run prepare:node && tsc && vite build && electron-builder",
+    "build": "npm run generate:icon && npm run prepare:node && tsc && vite build && node scripts/verify-kuab-credentials.mjs && electron-builder",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --fix --report-unused-disable-directives --max-warnings 0",
     "typecheck": "tsc -b",
@@ -36,6 +36,7 @@
     "test:persist": "node scripts/run-unit-tests.mjs persist",
     "test:core": "node scripts/run-unit-tests.mjs core",
     "ipc:check": "node scripts/verify-ipc-integrity.mjs",
+    "check:kuab": "node scripts/verify-kuab-credentials.mjs --strict",
     "staged:check": "node scripts/verify-staged-guards.mjs && node scripts/check-color-budget.mjs",
     "color:check": "node scripts/check-color-budget.mjs",
     "commit:check": "npm run staged:check && npm run ipc:check && npm run typecheck && npm run lint",
@@ -116,7 +117,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-resizable-panels": "^3.0.2",
-    "sql-formatter": "^15.8.2"
+    "sql-formatter": "^15.8.2",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
