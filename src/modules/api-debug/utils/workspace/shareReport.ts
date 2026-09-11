@@ -73,46 +73,63 @@ function serializeResultSetJson(columns: string[], rows: Record<string, unknown>
 }
 
 const REPORT_STYLE = `
-:root { color-scheme: light; --line: #d9d9d9; --head-bg: #f5f5f5; --accent: #1677ff; }
+:root {
+  color-scheme: light;
+  --line: #d9d9d9;
+  --fill: #f5f5f5;
+  --zebra: #fafafa;
+  --hover: #eef3fb;
+  --surface: #fff;
+  --text: #333;
+  --muted: #666;
+  --muted-soft: #999;
+  --accent: #1677ff;
+  --ok-bg: #e6f7ef;
+  --ok-fg: #0f8a4d;
+  --error-bg: #fdecec;
+  --error-fg: #cf1322;
+  --number: #d4a017;
+}
 * { box-sizing: border-box; }
-body { margin: 0; padding: 24px; font: 14px/1.6 "Segoe UI", "Microsoft YaHei", sans-serif; color: #333; background: #fff; }
+body { margin: 0; padding: 24px; font: 14px/1.6 "Segoe UI", "Microsoft YaHei", sans-serif; color: var(--text); background: var(--surface); }
 h1 { font-size: 20px; margin: 0 0 20px; }
 h2 { font-size: 15px; margin: 24px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
 h3 { font-size: 14px; margin: 16px 0 6px; }
-.raw-params { margin: 0; padding: 12px; background: #fafafa; border: 1px solid var(--line); border-radius: 6px; white-space: pre-wrap; word-break: break-all; font: 12px/1.6 Consolas, monospace; }
+.raw-params { margin: 0; padding: 12px; background: var(--fill); border: 1px solid var(--line); border-radius: 6px; white-space: pre-wrap; word-break: break-all; font: 12px/1.6 Consolas, monospace; }
 .resp-summary { display: flex; align-items: center; gap: 8px; margin: 8px 0 4px; }
 .badge { display: inline-block; padding: 1px 10px; border-radius: 10px; font-size: 12px; }
-.badge--ok { background: #e6f7ef; color: #0f8a4d; }
-.badge--error { background: #fdecec; color: #cf1322; }
+.badge--ok { background: var(--ok-bg); color: var(--ok-fg); }
+.badge--error { background: var(--error-bg); color: var(--error-fg); }
 .rs { margin-bottom: 24px; }
-.rs-info { color: #888; font-size: 12px; margin-bottom: 4px; }
+.rs-info { color: var(--muted); font-size: 12px; margin-bottom: 4px; }
 .table-wrap { border: 1px solid var(--line); border-radius: 6px; overflow: auto; max-height: 70vh; }
 table { border-collapse: collapse; width: 100%; font-size: 13px; }
-thead th { position: sticky; top: 0; background: var(--head-bg); text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; cursor: pointer; user-select: none; font-size: 14px; font-weight: 600; }
-thead th:hover { background: #eef3fb; }
-tbody td { padding: 5px 10px; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
-tbody tr:nth-child(even) { background: #fafbfc; }
-.idx { color: #aaa; }
-.rs-empty { padding: 24px; text-align: center; color: #999; }
+thead th { position: sticky; top: 0; background: var(--fill); text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; cursor: pointer; user-select: none; font-size: 14px; font-weight: 600; }
+thead th:hover { background: var(--hover); }
+tbody td { padding: 5px 10px; white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+.idx { color: var(--muted-soft); }
+.rs-empty { padding: 24px; text-align: center; color: var(--muted-soft); }
 .pager { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; flex-wrap: wrap; }
-.pager button { padding: 2px 10px; border: 1px solid var(--line); background: #fff; border-radius: 4px; cursor: pointer; font-size: 12px; }
-.pager button:disabled { color: #bbb; cursor: default; }
-.pager button.page-size { background: var(--accent); border-color: var(--accent); color: #fff; }
-.pager button.page-size.off { background: #fff; border-color: var(--line); color: #555; }
-.empty { color: #999; }
+.pager button { padding: 2px 10px; border: 1px solid var(--line); background: var(--surface); border-radius: 4px; cursor: pointer; font-size: 12px; }
+.pager button:disabled { color: var(--muted-soft); cursor: default; }
+.pager button.page-size { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.pager button.page-size.off { background: var(--surface); border-color: var(--line); color: var(--muted); }
+.empty { color: var(--muted-soft); }
 .sql-trace { margin-top: 24px; }
+.sql-trace-count { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
 .sql-trace-event { margin-bottom: 12px; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
-.sql-trace-header { padding: 8px 12px; background: var(--head-bg); cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 13px; }
-.sql-trace-header:hover { background: #eef3fb; }
-.sql-trace-time { color: #666; }
+.sql-trace-header { padding: 8px 12px; background: var(--fill); cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 13px; }
+.sql-trace-header:hover { background: var(--hover); }
+.sql-trace-time { color: var(--muted); }
 .sql-trace-type { font-weight: 600; }
 .sql-trace-duration { color: var(--accent); }
-.sql-trace-object { color: #888; }
-.sql-trace-sql { padding: 12px; background: #fafafa; font: 12px/1.5 Consolas, monospace; white-space: pre-wrap; word-break: break-all; margin: 0; border-top: 1px solid var(--line); }
+.sql-trace-object { color: var(--muted); }
+.sql-trace-sql { padding: 12px; background: var(--fill); font: 12px/1.5 Consolas, monospace; white-space: pre-wrap; word-break: break-all; margin: 0; border-top: 1px solid var(--line); }
 .sql-keyword { color: var(--accent); font-weight: 600; }
-.sql-comment { color: #999; font-style: italic; }
-.sql-string { color: #0f8a4d; }
-.sql-number { color: #d4a017; }
+.sql-comment { color: var(--muted-soft); font-style: italic; }
+.sql-string { color: var(--ok-fg); }
+.sql-number { color: var(--number); }
 `;
 
 const REPORT_SCRIPT = `
@@ -277,7 +294,7 @@ function renderTraceSection(trace: SqlTraceResult | undefined): string {
         .join('\n');
     return [
         `<div class="sql-trace">`,
-        `<p style="color: #888; font-size: 12px; margin-bottom: 8px;">${trace.events.length} events</p>`,
+        `<p class="sql-trace-count">${trace.events.length} events</p>`,
         events,
         `</div>`,
     ].join('');
