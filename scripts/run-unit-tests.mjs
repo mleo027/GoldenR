@@ -27,7 +27,12 @@ const suites = {
         'src/modules/api-debug/utils/kcbp/kcbpAddress.test.ts',
         'src/modules/api-debug/utils/kcbp/kcbpParams.test.ts',
         'src/modules/api-debug/utils/kcbp/kcbpResponse.test.ts',
+        'src/modules/api-debug/utils/kcbp/kcbpFields.test.ts',
         'src/modules/api-debug/services/kcbpCallService.test.ts',
+        'src/modules/api-debug/services/kcbp/requestMapper.test.ts',
+        'src/modules/api-debug/services/kcbp/executeCase.commonParams.test.ts',
+        'src/modules/api-debug/services/call/callService.test.ts',
+        'src/modules/api-debug/services/call/callExecutionCoordinator.test.ts',
         'src/modules/api-debug/components/response/ResponsePanel.test.tsx',
     ],
     import: [
@@ -52,10 +57,15 @@ const suites = {
         'src/store/appEnvData.test.ts',
         'src/modules/api-debug/store/apiDebugEnvData.test.ts',
         'src/modules/api-debug/store/paramSuggestData.test.ts',
+        'src/modules/api-debug/store/useWorkspacePersistence.test.tsx',
+        'src/modules/api-debug/store/workspaceFlushRegistry.test.ts',
     ],
     core: [
         'src/modules/api-debug/utils/workspace/caseFolders.test.ts',
         'src/modules/api-debug/store/tabsReducer.test.ts',
+        'src/modules/api-debug/store/tabsZustand.test.ts',
+        'src/modules/api-debug/store/tabsActionRuntime.test.ts',
+        'src/modules/api-debug/store/tabsData.test.ts',
         'src/modules/api-debug/utils/workspace/caseLabel.test.ts',
         'src/modules/api-debug/utils/workspace/paramText.test.ts',
         'src/utils/table.test.ts',
@@ -64,6 +74,8 @@ const suites = {
         'src/modules/api-debug/utils/workspace/tabDraftRegistry.test.ts',
         'src/modules/api-debug/utils/workspace/caseSidebarVirtualList.test.ts',
         'src/modules/api-debug/utils/workspace/kcxpEnvironment.test.ts',
+        'src/runtime/apiCallFacade.test.ts',
+        'src/runtime/runtimeFacades.test.ts',
     ],
 };
 

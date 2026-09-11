@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_API_DEBUG_ENV } from '../constants/apiDebugEnv';

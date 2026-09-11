@@ -5,10 +5,11 @@ import type { KcbpCallOutcome } from '../kcbp/types';
 
 const invokeApiCall = vi.hoisted(() => vi.fn());
 const cancelKcbpCall = vi.hoisted(() => vi.fn());
+const canInvokeKcbp = vi.hoisted(() => vi.fn(() => true));
 
 vi.mock('./callService', () => ({ invokeApiCall }));
 vi.mock('../call', () => ({
-    canInvokeKcbp: () => true,
+    canInvokeKcbp,
     cancelKcbpCall,
     KCBP_MSGTYPE_REQUIRED_MESSAGE: 'missing msgtype',
 }));
@@ -73,6 +74,7 @@ describe('createCallExecutionCoordinator', () => {
     beforeEach(() => {
         invokeApiCall.mockReset();
         cancelKcbpCall.mockReset();
+        canInvokeKcbp.mockReset().mockReturnValue(true);
     });
 
     it('cancels the previous case and ignores its stale result', async () => {
@@ -97,5 +99,62 @@ describe('createCallExecutionCoordinator', () => {
         expect(deps.setResponse).toHaveBeenCalledTimes(1);
         expect(deps.setResponse).toHaveBeenCalledWith('case-2', expect.any(Object));
         expect(coordinator.getRunningCaseId()).toBeNull();
+    });
+
+    it('reports unavailable Electron without flushing or invoking', async () => {
+        const deps = createDeps();
+        canInvokeKcbp.mockReturnValue(false);
+        const coordinator = createCallExecutionCoordinator(deps);
+
+        await coordinator.run(createSnapshot(1));
+
+        expect(deps.notifyUnavailable).toHaveBeenCalledOnce();
+        expect(invokeApiCall).not.toHaveBeenCalled();
+        canInvokeKcbp.mockReturnValue(true);
+    });
+
+    it('rejects a case without msgtype before invoking', async () => {
+        const deps = createDeps();
+        const snapshot = createSnapshot(1);
+        snapshot.tab.address = '127.0.0.1:21000/';
+        snapshot.tab.params = [];
+
+        await createCallExecutionCoordinator(deps).run(snapshot);
+
+        expect(deps.notifyMissingMsgtype).toHaveBeenCalledWith('missing msgtype');
+        expect(invokeApiCall).not.toHaveBeenCalled();
+    });
+
+    it('cancels a second run of the same case and clears running state', async () => {
+        let resolveCall!: (value: KcbpCallOutcome) => void;
+        invokeApiCall.mockReturnValue(
+            new Promise((resolve) => {
+                resolveCall = resolve;
+            }),
+        );
+        const deps = createDeps();
+        const coordinator = createCallExecutionCoordinator(deps);
+        const snapshot = createSnapshot(1);
+
+        const first = coordinator.run(snapshot);
+        await Promise.resolve();
+        await coordinator.run(snapshot);
+        resolveCall(successOutcome());
+        await first;
+
+        expect(cancelKcbpCall).toHaveBeenCalledOnce();
+        expect(deps.setRunningCaseId).toHaveBeenLastCalledWith(null);
+        expect(coordinator.getRunningCaseId()).toBeNull();
+    });
+
+    it('coordinates failures and clears running state in finally', async () => {
+        invokeApiCall.mockRejectedValue(new Error('network failed'));
+        const deps = createDeps();
+
+        await createCallExecutionCoordinator(deps).run(createSnapshot(1));
+
+        expect(deps.setResponse).toHaveBeenCalledOnce();
+        expect(deps.pushLog).toHaveBeenCalled();
+        expect(deps.setRunningCaseId).toHaveBeenLastCalledWith(null);
     });
 });
