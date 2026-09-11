@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { Button, Checkbox, Modal, Popover, Radio, Space, Tooltip, message } from 'antd';
 import {
+    ColumnWidthOutlined,
     ExportOutlined,
     EyeOutlined,
     FullscreenExitOutlined,
@@ -263,11 +264,10 @@ export default function ResponseTableTools({
                         <Button
                             type="text"
                             size="small"
+                            icon={<ColumnWidthOutlined />}
                             className="response-table-tools-btn"
                             aria-label="选择显示列"
-                        >
-                            列
-                        </Button>
+                        />
                     </Tooltip>
                 </Popover>
             ) : null}
