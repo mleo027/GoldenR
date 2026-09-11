@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { KcbpResponseData } from '../../../../types/kcbp';
 import type { TabData } from '../../types/workspace';
-import { buildKcbpCallOutcome, buildKcbpRequest } from './requestMapper';
+import { buildApiRequest } from '../call/requestMappers';
+import { buildKcbpCallOutcome } from './requestMapper';
 
 const baseParts = {
     host: '10.0.0.2:9100',
@@ -10,9 +11,9 @@ const baseParts = {
     timeout: '20',
 };
 
-describe('buildKcbpRequest (KGBP)', () => {
+describe('buildApiRequest (KGBP)', () => {
     it('parses pure integer nodeid/clientsessionid', () => {
-        const payload = buildKcbpRequest(
+        const payload = buildApiRequest(
             { ...baseParts, service: 'srv-demo', nodeId: '3', clientSessionId: '88' },
             '150501',
             {},
@@ -25,7 +26,7 @@ describe('buildKcbpRequest (KGBP)', () => {
     });
 
     it('returns undefined for non-pure-integer values instead of silent coercion', () => {
-        const payload = buildKcbpRequest(
+        const payload = buildApiRequest(
             { ...baseParts, service: 'srv-demo', nodeId: '12.5', clientSessionId: 'abc' },
             '150501',
             {},
@@ -37,7 +38,7 @@ describe('buildKcbpRequest (KGBP)', () => {
     });
 
     it('resolves @field references for ClientSessionId', () => {
-        const payload = buildKcbpRequest(
+        const payload = buildApiRequest(
             { ...baseParts, service: 'srv-demo', nodeId: '3', clientSessionId: '@custid' },
             '150501',
             { custid: '600100000570' },
@@ -48,18 +49,18 @@ describe('buildKcbpRequest (KGBP)', () => {
     });
 });
 
-describe('buildKcbpRequest (KCBP)', () => {
+describe('buildApiRequest (KCBP)', () => {
     it('omits type for the KCBP branch (defaults to KCBP downstream)', () => {
-        const payload = buildKcbpRequest(baseParts, '150501', {}, {}, 'KCBP');
+        const payload = buildApiRequest(baseParts, '150501', {}, {}, 'KCBP');
         expect(payload.type).toBeUndefined();
         expect(payload.connection.reqqueue).toBe('req1');
         expect(payload.param.nodeid).toBeUndefined();
     });
 });
 
-describe('buildKcbpRequest (KUAB)', () => {
+describe('buildApiRequest (KUAB)', () => {
     it('uses the KUAB native route and carries host/queue only', () => {
-        const payload = buildKcbpRequest(baseParts, 'KCAS.login', { USER_ID: '8888' }, {}, 'KUAB');
+        const payload = buildApiRequest(baseParts, 'KCAS.login', { USER_ID: '8888' }, {}, 'KUAB');
         expect(payload.type).toBe('KUAB');
         expect(payload.connection.ip).toBe('10.0.0.2');
         expect(payload.connection.port).toBe('9100');

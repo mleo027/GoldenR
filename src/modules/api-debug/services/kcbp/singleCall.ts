@@ -1,8 +1,9 @@
 import type { ParamItem, TabData } from '../../types/workspace';
 import type { KcbpRequestOptions, KcbpResponseData } from '../../../../types/kcbp';
-import { requireElectronAPI } from '../../../../lib/electron';
+import { apiCallRuntime } from '../../../../runtime/apiCallFacade';
 import { parseKcbpAddress } from '../../utils/kcbp/kcbpAddress';
-import { buildKcbpCallOutcome, buildKcbpRequest } from './requestMapper';
+import { buildApiRequest } from '../call/requestMappers';
+import { buildKcbpCallOutcome } from './requestMapper';
 import type { KcbpCallOutcome, TcdElectronDeps } from './types';
 
 export interface InvokeKcbpWithFieldsOptions {
@@ -22,14 +23,14 @@ export async function invokeKcbpWithFields(
         options;
     const callAddress = addressOverride ?? tab.address;
     const addressParts = parseKcbpAddress(callAddress);
-    const payload: KcbpRequestOptions = buildKcbpRequest(
+    const payload: KcbpRequestOptions = buildApiRequest(
         addressParts,
         msgtype,
         fields,
         binaryFields,
         tab.protocol,
     );
-    const callKcbp = electronDeps?.callKcbp ?? requireElectronAPI().kcbp.call;
+    const callKcbp = electronDeps?.callKcbp ?? apiCallRuntime.call;
     const raw: KcbpResponseData = await callKcbp(payload);
     return buildKcbpCallOutcome({ params: baseParams }, callAddress, tab.name, raw);
 }

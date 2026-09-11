@@ -1,100 +1,100 @@
-import type { TabData } from '../../types/workspace';
+import type { KcbpRequestOptions } from '../../../../types/kcbp';
+import type { ParamItem, TabData } from '../../types/workspace';
 import { parseKcbpAddress, serializeKcbpAddress } from '../../utils/kcbp/kcbpAddress';
 import { paramsToCaseScript } from '../../utils/script/apiScript';
 import { buildKcbpFields } from '../../utils/kcbp/kcbpFields';
 import { resolveMsgtypeFromParams } from '../../utils/workspace/caseLabel';
 import { mergeCommonParams } from '../../utils/workspace/commonParams';
-import {
-    KGBP_REQUIRED_FIELDS_MESSAGE,
-    applyKcxpEnvironmentToAddress,
-    isKgbpAddressReady,
-} from '../../utils/workspace/kcxpEnvironment';
+import { applyKcxpEnvironmentToAddress } from '../../utils/workspace/kcxpEnvironment';
+import { apiCallRuntime } from '../../../../runtime/apiCallFacade';
+import { suggestRuntime } from '../../../../runtime/suggestFacade';
 import { invokeKcbpWithFields } from './singleCall';
-import { requireElectronAPI } from '../../../../lib/electron';
 import { runScriptOrTcdCase } from './scriptRunner';
 import {
     KCBP_MSGTYPE_REQUIRED_MESSAGE,
     type InvokeKcbpCallOptions,
     type KcbpCallOutcome,
     type KcbpInvokeMode,
-    type RunNestedKcbpCase,
+    type TcdElectronDeps,
 } from './types';
 
-export async function invokeKcbpCall(
-    tab: Pick<
-        TabData,
-        | 'address'
-        | 'name'
-        | 'params'
-        | 'protocol'
-        | 'script'
-        | 'requestScript'
-        | 'responseScript'
-        | 'runInput'
-    >,
+type ApiCaseTab = Pick<
+    TabData,
+    | 'address'
+    | 'name'
+    | 'params'
+    | 'protocol'
+    | 'script'
+    | 'requestScript'
+    | 'responseScript'
+    | 'runInput'
+>;
+
+function resolveElectronDeps(options: InvokeKcbpCallOptions): TcdElectronDeps | undefined {
+    if (options.electronDeps) return options.electronDeps;
+    const databaseConfig = options.trace?.databaseConfig;
+    if (!options.trace?.enabled || !databaseConfig) return undefined;
+    return {
+        callKcbp: (payload: KcbpRequestOptions) =>
+            apiCallRuntime.callWithTrace(payload, databaseConfig, { enabled: true }),
+        queryScriptSql: suggestRuntime.queryScript,
+    };
+}
+
+function resolveAddressAndMsgtype(
+    tab: ApiCaseTab,
+    params: ParamItem[],
+    options: InvokeKcbpCallOptions,
+): { address: string; msgtype: string } {
+    let address =
+        options.effectiveAddress ??
+        (options.kcxpEnvironment
+            ? applyKcxpEnvironmentToAddress(tab.address, options.kcxpEnvironment)
+            : tab.address);
+    const parts = parseKcbpAddress(address);
+    const msgtype = parts.msgtype.trim() || resolveMsgtypeFromParams(params);
+    if (!msgtype) throw new Error(KCBP_MSGTYPE_REQUIRED_MESSAGE);
+    if (!parts.msgtype.trim()) address = serializeKcbpAddress({ ...parts, msgtype });
+    return { address, msgtype };
+}
+
+async function executeUiCase(
+    tab: ApiCaseTab,
+    params: ParamItem[],
+    address: string,
+    msgtype: string,
+    electronDeps: TcdElectronDeps | undefined,
+): Promise<KcbpCallOutcome> {
+    const { fields, binaryFields } = buildKcbpFields(params);
+    const outcome = await invokeKcbpWithFields({
+        tab,
+        msgtype,
+        fields,
+        binaryFields,
+        baseParams: tab.params,
+        electronDeps,
+        addressOverride: address,
+    });
+    return {
+        ...outcome,
+        effectiveParams: params,
+        nextScript: outcome.missingParam
+            ? paramsToCaseScript(outcome.nextParams, outcome.msgtype)
+            : undefined,
+    };
+}
+
+export async function executeApiCase(
+    tab: ApiCaseTab,
     editorMode: KcbpInvokeMode = 'script',
     options: InvokeKcbpCallOptions = {},
 ): Promise<KcbpCallOutcome> {
-    const runNestedCase: RunNestedKcbpCase = (nestedTab, nestedOptions) =>
-        invokeKcbpCall(nestedTab, 'tcd', { ...nestedOptions, runNestedCase });
-    const optionsWithRunner: InvokeKcbpCallOptions = options.runNestedCase
-        ? options
-        : { ...options, runNestedCase };
-    const effectiveCaseParams = optionsWithRunner.commonParams
-        ? mergeCommonParams(optionsWithRunner.commonParams, tab.params)
+    const params = options.commonParams
+        ? mergeCommonParams(options.commonParams, tab.params)
         : tab.params;
-    const electronDeps =
-        optionsWithRunner.electronDeps ??
-        (optionsWithRunner.trace?.enabled && optionsWithRunner.trace.databaseConfig
-            ? {
-                  callKcbp: (payload: import('../../../../types/kcbp').KcbpRequestOptions) =>
-                      requireElectronAPI().kcbp.callWithTrace(
-                          payload,
-                          optionsWithRunner.trace!.databaseConfig!,
-                          { enabled: true },
-                      ),
-                  queryScriptSql: requireElectronAPI().database.queryScript,
-              }
-            : undefined);
-    let effectiveAddress =
-        optionsWithRunner.effectiveAddress ??
-        (optionsWithRunner.kcxpEnvironment
-            ? applyKcxpEnvironmentToAddress(tab.address, optionsWithRunner.kcxpEnvironment)
-            : tab.address);
-    const addressParts = parseKcbpAddress(effectiveAddress);
-    const msgtype = addressParts.msgtype.trim() || resolveMsgtypeFromParams(effectiveCaseParams);
-    if (!msgtype) {
-        throw new Error(KCBP_MSGTYPE_REQUIRED_MESSAGE);
-    }
-    if (!addressParts.msgtype.trim()) {
-        effectiveAddress = serializeKcbpAddress({ ...addressParts, msgtype });
-    }
-
-    // KGBP 必填字段拦截：缺失时不发请求，直接报错（单调用与脚本入口共用此门禁）
-    if (tab.protocol === 'KGBP' && !isKgbpAddressReady(addressParts)) {
-        throw new Error(KGBP_REQUIRED_FIELDS_MESSAGE);
-    }
-
+    const { address, msgtype } = resolveAddressAndMsgtype(tab, params, options);
     if (editorMode === 'ui') {
-        const effectiveParams = effectiveCaseParams;
-        const { fields, binaryFields } = buildKcbpFields(effectiveParams);
-        const outcome = await invokeKcbpWithFields({
-            tab,
-            msgtype,
-            fields,
-            binaryFields,
-            baseParams: tab.params,
-            electronDeps,
-            addressOverride: effectiveAddress,
-        });
-        return {
-            ...outcome,
-            effectiveParams,
-            nextScript: outcome.missingParam
-                ? paramsToCaseScript(outcome.nextParams, outcome.msgtype)
-                : undefined,
-        };
+        return executeUiCase(tab, params, address, msgtype, resolveElectronDeps(options));
     }
-
-    return runScriptOrTcdCase(tab, editorMode, msgtype, effectiveAddress, optionsWithRunner);
+    return runScriptOrTcdCase(tab, editorMode, msgtype, address, options);
 }

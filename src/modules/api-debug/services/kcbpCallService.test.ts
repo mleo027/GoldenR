@@ -1,15 +1,12 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { ParamItem } from '../types/workspace';
 import type { KcbpResponseData } from '../../../types/kcbp';
-import {
-    buildKcbpCallOutcome,
-    buildKcbpRequest,
-    getKcbpCallFeedback,
-    invokeKcbpCall,
-    type KcbpCallOutcome,
-} from './kcbpCallService';
+import { buildKcbpCallOutcome, getKcbpCallFeedback, type KcbpCallOutcome } from './kcbpCallService';
+import { invokeApiCall } from './call/callService';
+import { buildApiRequest } from './call/requestMappers';
 import { buildCaseIndex } from '@/shared/tcd/resolveCase';
 import type { TcdCaseTab } from '@/shared/tcd/types';
+import { KGBP_REQUIRED_FIELDS_MESSAGE } from '../utils/workspace/kcxpEnvironment';
 
 const mockCallKcbp = vi.fn();
 const mockQueryScriptSql = vi.fn();
@@ -55,9 +52,9 @@ function baseOutcome(overrides: Partial<KcbpCallOutcome> = {}): KcbpCallOutcome 
     };
 }
 
-describe('buildKcbpRequest', () => {
+describe('buildApiRequest', () => {
     it('maps address parts and fields to payload', () => {
-        const payload = buildKcbpRequest(
+        const payload = buildApiRequest(
             {
                 host: '127.0.0.1:21000',
                 msgtype: '150501',
@@ -228,7 +225,7 @@ describe('getKcbpCallFeedback', () => {
     });
 });
 
-describe('invokeKcbpCall', () => {
+describe('invokeApiCall', () => {
     beforeEach(() => {
         mockCallKcbp.mockReset();
         mockQueryScriptSql.mockReset();
@@ -244,7 +241,7 @@ describe('invokeKcbpCall', () => {
     };
 
     it('runs UI mode with param table fields', async () => {
-        const outcome = await invokeKcbpCall(tab, 'ui');
+        const outcome = await invokeApiCall(tab, 'ui');
 
         expect(mockCallKcbp).toHaveBeenCalledTimes(1);
         expect(mockCallKcbp.mock.calls[0][0].param.fields).toEqual({ market: '1' });
@@ -254,7 +251,7 @@ describe('invokeKcbpCall', () => {
     it('uses injected execution ports without the electron global', async () => {
         const injectedCall = vi.fn().mockResolvedValue(successRaw);
         const injectedQuery = vi.fn().mockResolvedValue({ rows: [], columns: [] });
-        const outcome = await invokeKcbpCall(tab, 'ui', {
+        const outcome = await invokeApiCall(tab, 'ui', {
             electronDeps: {
                 callKcbp: injectedCall,
                 queryScriptSql: injectedQuery,
@@ -278,7 +275,7 @@ describe('invokeKcbpCall', () => {
 }`,
         };
 
-        const outcome = await invokeKcbpCall(scriptTab, 'script', {
+        const outcome = await invokeApiCall(scriptTab, 'script', {
             electronDeps: {
                 callKcbp: injectedCall,
                 queryScriptSql: injectedQuery,
@@ -314,7 +311,7 @@ describe('invokeKcbpCall', () => {
 }`,
         };
 
-        const outcome = await invokeKcbpCall(parentTab, 'tcd', {
+        const outcome = await invokeApiCall(parentTab, 'tcd', {
             caseIndex: buildCaseIndex([
                 {
                     id: 'p1',
@@ -333,6 +330,32 @@ describe('invokeKcbpCall', () => {
         expect(outcome.scriptTest?.passed).toBe(true);
     });
 
+    it('dispatches nested TCD cases through their protocol executor', async () => {
+        const childCase = {
+            id: 'kgbp-child',
+            name: 'KGBP child',
+            protocol: 'KGBP',
+            address: '127.0.0.1:21000/150502',
+            params: [],
+            script: 'async function main() { await call({}); }',
+        };
+        const parentTab = {
+            ...tab,
+            script: "async function main() { await flow.runCase('kgbp-child'); }",
+        };
+        const callKcbp = vi.fn().mockResolvedValue(successRaw);
+
+        const outcome = await invokeApiCall(parentTab, 'tcd', {
+            caseIndex: buildCaseIndex([{ id: 'p1', name: 'P', cases: [childCase] }]),
+            electronDeps: {
+                callKcbp,
+                queryScriptSql: vi.fn().mockResolvedValue({ rows: [], columns: [] }),
+            },
+        });
+
+        expect(outcome.scriptError).toContain(KGBP_REQUIRED_FIELDS_MESSAGE);
+    });
+
     it('rejects before calling when msgtype is empty', async () => {
         const emptyMsgtypeTab = {
             ...tab,
@@ -340,7 +363,7 @@ describe('invokeKcbpCall', () => {
             name: '接口名称',
         };
 
-        await expect(invokeKcbpCall(emptyMsgtypeTab, 'ui')).rejects.toThrow(
+        await expect(invokeApiCall(emptyMsgtypeTab, 'ui')).rejects.toThrow(
             '请先填写 Msgtype 后再调用',
         );
         expect(mockCallKcbp).not.toHaveBeenCalled();
@@ -357,7 +380,7 @@ describe('invokeKcbpCall', () => {
             ] as ParamItem[],
         };
 
-        const outcome = await invokeKcbpCall(funcIdTab, 'ui');
+        const outcome = await invokeApiCall(funcIdTab, 'ui');
 
         expect(mockCallKcbp.mock.calls[0][0].param.msgtype).toBe('150501');
         expect(outcome.msgtype).toBe('150501');
@@ -372,7 +395,7 @@ describe('invokeKcbpCall', () => {
             ] as ParamItem[],
         };
 
-        await invokeKcbpCall(fileTab, 'ui');
+        await invokeApiCall(fileTab, 'ui');
 
         expect(mockCallKcbp.mock.calls[0][0].param).toMatchObject({
             fields: { datasize: '' },
@@ -392,7 +415,7 @@ describe('invokeKcbpCall', () => {
 }`,
         };
 
-        await invokeKcbpCall(scriptTab, 'script');
+        await invokeApiCall(scriptTab, 'script');
 
         expect(mockCallKcbp.mock.calls[0][0].param.binaryFields).toEqual({
             databody: 'D:/data/1.zip',
@@ -408,7 +431,7 @@ describe('invokeKcbpCall', () => {
 }`,
         };
 
-        const outcome = await invokeKcbpCall(scriptTab, 'script');
+        const outcome = await invokeApiCall(scriptTab, 'script');
 
         expect(mockCallKcbp).toHaveBeenCalledTimes(1);
         expect(outcome.scriptTest?.passed).toBe(true);
@@ -425,7 +448,7 @@ describe('invokeKcbpCall', () => {
 }`,
         };
 
-        const outcome = await invokeKcbpCall(scriptTab, 'script', {
+        const outcome = await invokeApiCall(scriptTab, 'script', {
             effectiveAddress: '10.0.0.5:22000/150501',
             electronDeps: {
                 callKcbp: injectedCall,
@@ -459,7 +482,7 @@ describe('invokeKcbpCall', () => {
 }`,
         };
 
-        const outcome = await invokeKcbpCall(scriptTab, 'tcd', { runInput: { fundid: '8' } });
+        const outcome = await invokeApiCall(scriptTab, 'tcd', { runInput: { fundid: '8' } });
 
         expect(mockCallKcbp).toHaveBeenCalledTimes(2);
         expect(outcome.callSteps).toHaveLength(2);
@@ -510,7 +533,7 @@ describe('invokeKcbpCall', () => {
             },
         ]);
 
-        const outcome = await invokeKcbpCall(parentTab, 'tcd', {
+        const outcome = await invokeApiCall(parentTab, 'tcd', {
             runInput: { fundid: '8' },
             caseIndex,
         });

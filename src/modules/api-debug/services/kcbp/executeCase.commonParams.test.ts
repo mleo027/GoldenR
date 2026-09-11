@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { ParamItem } from '../../types/workspace';
-import { invokeKcbpCall } from './executeCase';
+import { invokeApiCall } from '../call/callService';
 
 const p = (name: string, value: string): ParamItem => ({ name, value, type: 'string' });
 
@@ -28,10 +28,10 @@ function makeCallKcbp() {
     });
 }
 
-describe('invokeKcbpCall 公共参数合并（UI 模式）', () => {
+describe('invokeApiCall 公共参数合并（UI 模式）', () => {
     it('发送的 fields 含公共参数，case 同名覆盖；nextParams 保持 case-only', async () => {
         const callKcbp = makeCallKcbp();
-        const outcome = await invokeKcbpCall(makeTab([p('orgid', '0202')]), 'ui', {
+        const outcome = await invokeApiCall(makeTab([p('orgid', '0202')]), 'ui', {
             electronDeps: { callKcbp, queryScriptSql: vi.fn() } as never,
             commonParams: [p('orgid', '0101'), p('brhid', '1')],
         });
@@ -47,7 +47,7 @@ describe('invokeKcbpCall 公共参数合并（UI 模式）', () => {
 
     it('未传 commonParams 时行为不变', async () => {
         const callKcbp = makeCallKcbp();
-        const outcome = await invokeKcbpCall(makeTab([p('orgid', '0202')]), 'ui', {
+        const outcome = await invokeApiCall(makeTab([p('orgid', '0202')]), 'ui', {
             electronDeps: { callKcbp, queryScriptSql: vi.fn() } as never,
         });
 
@@ -61,7 +61,7 @@ describe('invokeKcbpCall 公共参数合并（UI 模式）', () => {
 
     it('公共参数可以提供缺失的功能号', async () => {
         const callKcbp = makeCallKcbp();
-        await invokeKcbpCall(
+        await invokeApiCall(
             { ...makeTab([]), address: '127.0.0.1:21000?queue=req1&timeout=300' },
             'ui',
             {
@@ -79,7 +79,7 @@ describe('invokeKcbpCall 公共参数合并（UI 模式）', () => {
 
     it('脚本失败回退发送时也合并公共参数', async () => {
         const callKcbp = makeCallKcbp();
-        const outcome = await invokeKcbpCall(
+        const outcome = await invokeApiCall(
             { ...makeTab([p('orgid', '0202')]), script: 'throw new Error("script failed")' },
             'script',
             {
