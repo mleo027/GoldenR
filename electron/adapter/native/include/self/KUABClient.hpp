@@ -3,7 +3,12 @@
 #include <map>
 #include <string>
 #include <fstream>
+// kuabcli.h 与 kcbpcli/lib/KCBPCli.h 都在全局命名空间定义 tagCallCtrl，且布局不同，
+// 同一编译单元内无法共存（C2371）。KUAB 侧的 tagCallCtrl 仅被本适配器未使用的异步接口
+// (KUABCLI_ACallProgram / KUABCLI_GetReply / KUABCLI_Cancel) 引用，这里改名后引入以规避重定义。
+#define tagCallCtrl KUAB_tagCallCtrl
 #include "kuabcli.h"
+#undef tagCallCtrl
 #include <stdexcept>
 #include "utils.hpp"
 using std::string;
@@ -12,10 +17,11 @@ using std::string;
 #define CONNECTED 1
 #define DEFAULT_CONNTIMEOUT 5
 #define DEFAULT_REQTIMEOUT 15
-#define KUAB_OPTION_WANTTRAN 103
-#define KUAB_OPTION_CONFIG_NAME 110
-#define KUAB_OPTION_CONFIG_DIR 108
-#define KUAB_OPTION_LOG_DIR 109
+// KUAB 的客户配置不走选项：KUABCli.dll 通过 GetModuleFileNameA 从【自身所在目录】
+// 读取 KCBPCli.json（AppID/AppSecret 等）与跟 AppID 同名的 <AppID>.key（RSA 私钥）。
+// 这两个文件必须与 KUABCli.dll 同级（electron/adapter/kuab/），由部署环节提供。
+// 切勿调用 KUAB_OPTION_CONFIG_DIR(108)：实测在 KUABCLI_Init 之后调用它会把已加载的
+// 配置清空，导致 ConnectServer 返回 -900204 "config is empty"。
 
 struct KUABClientConfig
 {
@@ -39,10 +45,6 @@ struct KUABClientConfig
 	string sAnsQue;
 	string sUserName;
 	string sPassword;
-	string sConfigDir;
-	string sConfigName;
-	string sLogDir;
-	string sWantTran;
 	int nProtocal;		 // 0: TCP, 1: UDP
 	int nReqTimeout;	 // ����ʱʱ�䣬��λ��
 	int nConnectTimeout; // ���ӳ�ʱʱ�䣬��λ��
@@ -118,8 +120,10 @@ public:
 
 	bool connect(std::string &sErrMsg)
 	{
-		tagKUABConnectOption stOption;
+		tagKUABConnectOption stOption = {};
 
+		// sizeof(std::string) = 32（MSVC x64），恰好小于缓冲区 33 字节，所以不会溢出；
+		// 但这是隐式依赖，实际效果是把地址/队列名截断在 32 字符以内。
 		strncpy_s(stOption.szAddress, sAddress_.c_str(), sizeof(sAddress_));
 		strncpy_s(stOption.szSendQName, sReqQue.c_str(), sizeof(sReqQue));
 		strncpy_s(stOption.szReceiveQName, sAnsQue.c_str(), sizeof(sAnsQue));
@@ -129,7 +133,7 @@ public:
 
 		if (0 != KUABCLI_SetOptions(pHandle_, KUAB_OPTION_CONNECT, &stOption, sizeof(stOption)))
 		{
-			sErrMsg = "KUABCLI_SetOptions failed";
+			sErrMsg = "KUABCLI_SetOptions(OPTION_CONNECT) failed";
 			return false;
 		}
 
@@ -139,15 +143,13 @@ public:
 		KUABCLI_SetOption(pHandle_, KUAB_OPTION_CRYPT, &temp);
 		KUABCLI_SetOption(pHandle_, KUAB_OPTION_CONFIRM, &temp);
 		KUABCLI_SetOption(pHandle_, KUAB_OPTION_TIMEOUT, &nConnTimeout_);
-		if (!config.sConfigDir.empty()) KUABCLI_SetOption(pHandle_, KUAB_OPTION_CONFIG_DIR, (void *)config.sConfigDir.c_str());
-		if (!config.sLogDir.empty()) KUABCLI_SetOption(pHandle_, KUAB_OPTION_LOG_DIR, (void *)config.sLogDir.c_str());
-		if (!config.sConfigName.empty()) KUABCLI_SetOption(pHandle_, KUAB_OPTION_CONFIG_NAME, (void *)config.sConfigName.c_str());
-		if (!config.sWantTran.empty()) KUABCLI_SetOption(pHandle_, KUAB_OPTION_WANTTRAN, (void *)config.sWantTran.c_str());
 
 		int nRetcode = KUABCLI_ConnectServer(pHandle_, stOption.szServerName, (char *)sUserName_.c_str(), (char *)sPassword_.c_str());
 		if (nRetcode != 0)
 		{
-			sErrMsg = "KUABCLI_ConnectServer failed " + std::to_string(nRetcode);
+			char errmsg[1024] = {0};
+			KUABCLI_GetErrorMsg(pHandle_, errmsg);
+			sErrMsg = "KUABCLI_ConnectServer failed " + std::to_string(nRetcode) + " " + gbkToUtf8(std::string(errmsg));
 			return false;
 		}
 		KUABCLI_SetOption(pHandle_, KUAB_OPTION_TIMEOUT, &nReqTimeout_);
@@ -286,9 +288,9 @@ public:
 				sErrMsg = "KCBP调用错误 ";
 			}
 
-			char errmsg[1024];
+			char errmsg[1024] = {0};
 			KUABCLI_GetErrorMsg(pHandle_, errmsg);
-			sErrMsg += std::string(errmsg) + " " + std::to_string(retcode);
+			sErrMsg += gbkToUtf8(std::string(errmsg)) + " " + std::to_string(retcode);
 
 			KUABCLI_Exit(pHandle_);
 			pHandle_ = NULL;
@@ -475,21 +477,19 @@ void callKUABBackend(const NJSON &inputJson, NJSON &outputJson)
 	if (connection.contains("serverName") && connection["serverName"].is_string()) config.sServerName = connection["serverName"].get<string>();
 	if (connection.contains("username") && connection["username"].is_string()) config.sUserName = connection["username"].get<string>();
 	if (connection.contains("password") && connection["password"].is_string()) config.sPassword = connection["password"].get<string>();
-	if (connection.contains("configDir") && connection["configDir"].is_string()) config.sConfigDir = connection["configDir"].get<string>();
-	if (connection.contains("configName") && connection["configName"].is_string()) config.sConfigName = connection["configName"].get<string>();
-	if (connection.contains("logDir") && connection["logDir"].is_string()) config.sLogDir = connection["logDir"].get<string>();
-	if (connection.contains("wantTran") && connection["wantTran"].is_string()) config.sWantTran = connection["wantTran"].get<string>();
 
 	KUABClient c(config);
 	string sErrMsg;
 
 	if (!c.connect(sErrMsg))
 	{
-		throw std::runtime_error("connect failed: " + ip + port + reqqueue + ansqueue);
+		throw std::runtime_error("connect failed: ip=" + ip + " port=" + port +
+								 " reqqueue=" + reqqueue + " ansqueue=" + ansqueue +
+								 " serverName=" + config.sServerName + " reason=" + sErrMsg);
 	}
 
 	if (!c.Call(inputJson["param"], outputJson, sErrMsg))
 	{
-		throw std::runtime_error("call reomte backend failed:" + sErrMsg);
+		throw std::runtime_error("call remote backend failed: " + sErrMsg);
 	}
 }
