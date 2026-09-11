@@ -2,7 +2,7 @@ import { useApiDebugEnv } from '../../store/useApiDebugEnv';
 import { useTabsActions, useActiveTab } from '../../store/useTabs';
 import { useCommonParamsState } from '../../store/useCommonParams';
 import { resolveCommonParamsById, stripMountedCommonParams } from '../../utils/workspace/commonParams';
-import { useKcbpCall } from '../../hooks/useKcbpCall';
+import { useApiCall } from '../../hooks/useApiCall';
 import type { RequestHistoryEntry } from '../../types/requestHistory';
 
 export function useHistoryActions(onClose: () => void) {
@@ -10,7 +10,7 @@ export function useHistoryActions(onClose: () => void) {
     const { activeProject } = useActiveTab();
     const { sets } = useCommonParamsState();
     const { updateEnv } = useApiDebugEnv();
-    const { run } = useKcbpCall();
+    const { run } = useApiCall();
 
     const loadEntry = (entry: RequestHistoryEntry) => {
         const commonParams = resolveCommonParamsById(sets, activeProject?.commonParamSetId);

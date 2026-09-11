@@ -1,47 +1,18 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { App, message } from 'antd';
-import type { MenuProps } from 'antd';
-import {
-    CopyOutlined,
-    DeleteOutlined,
-    FormatPainterOutlined,
-    ShareAltOutlined,
-    SnippetsOutlined,
-    ThunderboltOutlined,
-} from '@ant-design/icons';
-import { useTabsActions, useActiveTab } from '../store/useTabs';
-import { useApiDebugEnv } from '../store/useApiDebugEnv';
-import { useResponse } from '../store/useResponse';
-import { useCommonParamsState } from '../store/useCommonParams';
-import { useKcbpCall } from './useKcbpCall';
-import { useDebouncedCommit } from '../../../hooks/useDebouncedCommit';
-import {
-    flushAllTabDrafts,
-    readPendingTabDrafts,
-    registerTabDraftFlusher,
-    registerTabDraftReader,
-} from '../utils/workspace/tabDraftRegistry';
-import { buildParamsRawText, type ParamsRawTextOptions } from '../utils/workspace/rawText';
-import {
-    buildShareReportFilename,
-    buildShareReportHtml,
-    resolveShareReportMeta,
-} from '../utils/workspace/shareReport';
+import { useMemo } from 'react';
+import { App } from 'antd';
+import { DEFAULT_KCBP_TIMEOUT } from '../utils/kcbp/kcbpAddress';
 import { resolveCommonParamsById } from '../utils/workspace/commonParams';
-import { getElectronAPI } from '../../../lib/electron';
-import { formatActiveScript } from '../utils/script/scriptFormatRegistry';
-import { generateTestScriptFromParams } from '../utils/script/apiScript';
-import { parseKcbpResponseStatus } from '../utils/kcbp/kcbpResponse';
-import { UI_DEBOUNCE_MS } from '../../../constants/ui';
+import { useActiveTab, useTabsActions } from '../store/useTabs';
+import { useApiDebugEnv } from '../store/useApiDebugEnv';
+import { useCommonParamsState } from '../store/useCommonParams';
+import { useResponse } from '../store/useResponse';
+import { useApiCall } from './useApiCall';
 import {
-    DEFAULT_KCBP_TIMEOUT,
-    normalizeKcbpAddress,
-    parseKcbpAddress,
-    serializeKcbpAddress,
-    type KcbpAddressParts,
-} from '../utils/kcbp/kcbpAddress';
-import { getActiveKcxpEnvironment } from '../utils/workspace/kcxpEnvironment';
-import { getPathEnvVariant, getPathEnvShortLabel } from '../utils/workspace/pathEnvVariant';
+    usePathAddressDraft,
+    usePathCommands,
+    usePathEnvironment,
+    usePathOverflowMenu,
+} from './pathBar/usePathBarSections';
 
 interface UsePathBarControllerOptions {
     onQuickFill?: () => void;
@@ -50,289 +21,64 @@ interface UsePathBarControllerOptions {
 export function usePathBarController({ onQuickFill }: UsePathBarControllerOptions) {
     const { modal } = App.useApp();
     const { activeTab, activeProject } = useActiveTab();
-    const { sets: commonParamSets } = useCommonParamsState();
-    const commonParams = useMemo(
-        () => resolveCommonParamsById(commonParamSets, activeProject?.commonParamSetId),
-        [activeProject?.commonParamSetId, commonParamSets],
-    );
+    const { sets } = useCommonParamsState();
     const { updateTab, updateTabUndoable, applyKcxpEnvironment } = useTabsActions();
     const { env, updateEnv } = useApiDebugEnv();
-    const { loading, run } = useKcbpCall();
+    const { loading, run } = useApiCall();
     const response = useResponse(activeTab.id);
-
-    const commitAddress = useCallback(
-        (address: string) => {
-            updateTabUndoable({ address }, '修改地址');
-        },
-        [updateTabUndoable],
+    const commonParams = useMemo(
+        () => resolveCommonParamsById(sets, activeProject.commonParamSetId),
+        [activeProject.commonParamSetId, sets],
     );
-
-    const {
-        draft: addressDraft,
-        setDraftDebounced,
-        flushPending,
-    } = useDebouncedCommit(activeTab.address, {
-        delayMs: UI_DEBOUNCE_MS.edit,
-        onCommit: commitAddress,
-    });
-    const addressDraftRef = useRef(addressDraft);
-    addressDraftRef.current = addressDraft;
-
-    useEffect(() => {
-        const unregisterFlusher = registerTabDraftFlusher(flushPending);
-        const unregisterReader = registerTabDraftReader(() => ({
-            address: addressDraftRef.current,
-        }));
-        return () => {
-            unregisterFlusher();
-            unregisterReader();
-        };
-    }, [flushPending]);
-
-    useEffect(
-        () => () => {
-            flushPending();
-        },
-        [activeTab.id, flushPending],
-    );
-
-    useEffect(() => {
-        const normalized = normalizeKcbpAddress(activeTab.address);
-        if (normalized !== activeTab.address.trim() && activeTab.address.trim()) {
-            updateTab({ address: normalized });
-        }
-    }, [activeTab.address, activeTab.id, updateTab]);
-
-    const addressParts = useMemo(() => parseKcbpAddress(addressDraft), [addressDraft]);
-
-    const handleAddressPartChange = (field: keyof KcbpAddressParts, value: string) => {
-        setDraftDebounced(
-            serializeKcbpAddress({
-                ...addressParts,
-                [field]: value,
-            }),
-        );
-    };
-
-    /** 当前 raw 入参输入（含未提交草稿），供复制与分享共用 */
-    const readRawTextInput = useCallback((): ParamsRawTextOptions => {
-        flushPending();
-        const drafts = readPendingTabDrafts();
-        return {
-            protocol: activeTab.protocol,
-            address: drafts.address ?? activeTab.address,
-            tabName: activeTab.name,
-            params: drafts.params ?? activeTab.params,
-            commonParams,
-        };
-    }, [
-        activeTab.address,
-        activeTab.name,
-        activeTab.params,
-        activeTab.protocol,
+    const address = usePathAddressDraft({
+        tab: activeTab,
         commonParams,
-        flushPending,
-    ]);
-
-    const handleCopyParams = useCallback(async () => {
-        const text = buildParamsRawText(readRawTextInput());
-        try {
-            await navigator.clipboard.writeText(text);
-            message.success('已复制地址与请求参数');
-        } catch {
-            message.error('复制失败');
-        }
-    }, [readRawTextInput]);
-
-    const handleShareReport = useCallback(async () => {
-        if (!response) return;
-        const input = readRawTextInput();
-        const html = buildShareReportHtml({ ...input, response });
-        const { msgtype } = resolveShareReportMeta(input);
-        const filename = buildShareReportFilename(input.tabName, msgtype);
-        try {
-            const result = await getElectronAPI()?.importExport.saveHtml(html, filename);
-            if (!result) {
-                message.error('分享失败：Electron API 不可用');
-            } else if (result.saved) {
-                message.success(`已保存：${result.filePath}`);
-            } else if (result.error) {
-                message.error(`分享失败：${result.error}`);
-            }
-        } catch {
-            message.error('分享失败');
-        }
-    }, [readRawTextInput, response]);
-
-    const hasCopyableContent = addressDraft.trim().length > 0 || activeTab.params.length > 0;
-    const isScriptMode = env.editorMode === 'script';
-    const isCodeEditorMode = isScriptMode;
-    const msgtype = addressParts.msgtype.trim() || activeTab.name.trim();
-
-    const canGenerateTestScript = useMemo(() => {
-        if (isScriptMode || loading || !response) {
-            return false;
-        }
-        if (String(response.code) === '-1') {
-            return false;
-        }
-        return parseKcbpResponseStatus(response).kind === 'success';
-    }, [isScriptMode, loading, response]);
-
-    const applyGeneratedScript = useCallback(() => {
-        const script = generateTestScriptFromParams(activeTab.params, msgtype);
-        updateTab({ script });
-        updateEnv('editorMode', 'script');
-        message.success('已生成测试脚本，已切换到脚本模式');
-    }, [activeTab.params, msgtype, updateEnv, updateTab]);
-
-    const handleGenerateTestScript = useCallback(() => {
-        flushPending();
-        flushAllTabDrafts();
-
-        const script = generateTestScriptFromParams(activeTab.params, msgtype);
-        const existing = activeTab.script?.trim() ?? '';
-
-        if (existing && existing !== script.trim()) {
-            modal.confirm({
-                title: '覆盖现有脚本？',
-                content: '当前接口已有脚本内容，生成将覆盖为基于入参的测试模板。',
-                centered: true,
-                mousePosition: null,
-                okText: '覆盖生成',
-                cancelText: '取消',
-                onOk: applyGeneratedScript,
-            });
-            return;
-        }
-
-        applyGeneratedScript();
-    }, [activeTab.params, activeTab.script, applyGeneratedScript, flushPending, modal, msgtype]);
-
-    const handleClearParams = useCallback(() => {
-        flushPending();
-        updateTab({ params: [] });
-        message.success('已清空全部参数');
-    }, [flushPending, updateTab]);
-
-    const environmentOptions = useMemo(
-        () =>
-            env.kcxpEnvironments.map((item) => ({
-                value: item.id,
-                // 触发器允许显示完整名称（CSS 负责省略），下拉项则渲染完整名称与连接详情。
-                label: item.name.trim() || getPathEnvShortLabel(item.name),
-                environmentName: item.name,
-                environment: item,
-            })),
-        [env.kcxpEnvironments],
-    );
-
-    const handleEnvironmentChange = (environmentId: string) => {
-        flushPending();
-        const environment = getActiveKcxpEnvironment(env.kcxpEnvironments, environmentId);
-        updateEnv('activeKcxpEnvironmentId', environmentId);
-        applyKcxpEnvironment(environment);
-    };
-
-    const activeEnvironment = useMemo(
-        () => getActiveKcxpEnvironment(env.kcxpEnvironments, env.activeKcxpEnvironmentId),
-        [env.activeKcxpEnvironmentId, env.kcxpEnvironments],
-    );
-
-    const envVariant = getPathEnvVariant(activeEnvironment.name);
-
-    const showInlineActions = false;
-    const showOverflowMenu = true;
-
-    const overflowMenuItems = useMemo((): MenuProps['items'] => {
-        const items: NonNullable<MenuProps['items']> = [];
-
-        if (onQuickFill) {
-            items.push({
-                key: 'quick-fill',
-                label: '快速填充入参',
-                icon: <ThunderboltOutlined />,
-                onClick: onQuickFill,
-            });
-        }
-
-        if (isCodeEditorMode) {
-            items.push({
-                key: 'format',
-                label: '格式化脚本',
-                icon: <FormatPainterOutlined />,
-                onClick: () => formatActiveScript(),
-            });
-        } else {
-            items.push({
-                key: 'generate',
-                label: '生成测试脚本',
-                icon: <SnippetsOutlined />,
-                disabled: !canGenerateTestScript,
-                onClick: () => handleGenerateTestScript(),
-            });
-        }
-
-        items.push(
-            { type: 'divider' },
-            {
-                key: 'copy',
-                label: '复制地址与参数',
-                icon: <CopyOutlined />,
-                disabled: !hasCopyableContent,
-                onClick: () => void handleCopyParams(),
-            },
-            {
-                key: 'share',
-                label: '分享',
-                icon: <ShareAltOutlined />,
-                disabled: !response,
-                onClick: () => void handleShareReport(),
-            },
-        );
-        items.push({
-            key: 'clear',
-            label: '清空全部参数',
-            icon: <DeleteOutlined />,
-            disabled: activeTab.params.length === 0,
-            onClick: () => handleClearParams(),
-        });
-
-        return items;
-    }, [
-        activeTab.params.length,
-        canGenerateTestScript,
-        handleClearParams,
-        handleCopyParams,
-        handleGenerateTestScript,
-        handleShareReport,
-        hasCopyableContent,
-        isCodeEditorMode,
-        onQuickFill,
+        updateTab,
+        updateUndoable: updateTabUndoable,
+    });
+    const isCodeEditorMode = env.editorMode === 'script';
+    const msgtype = address.addressParts.msgtype.trim() || activeTab.name.trim();
+    const commands = usePathCommands({
+        tab: activeTab,
         response,
-    ]);
+        editorMode: env.editorMode,
+        loading,
+        msgtype,
+        flushPending: address.flushPending,
+        readRawTextInput: address.readRawTextInput,
+        updateTab,
+        updateEditorMode: () => updateEnv('editorMode', 'script'),
+        modal,
+    });
+    const environment = usePathEnvironment(
+        env,
+        address.flushPending,
+        updateEnv,
+        applyKcxpEnvironment,
+    );
+    const hasCopyableContent =
+        address.addressDraft.trim().length > 0 || activeTab.params.length > 0;
+    const overflowMenuItems = usePathOverflowMenu({
+        onQuickFill,
+        isCodeEditorMode,
+        canGenerateTestScript: commands.canGenerateTestScript,
+        hasCopyableContent,
+        hasResponse: Boolean(response),
+        hasParams: activeTab.params.length > 0,
+        commands,
+    });
 
     return {
         activeTab,
         env,
-        activeEnvironment,
         run,
-        flushPending,
-        addressDraft,
-        addressParts,
-        handleAddressPartChange,
-        handleCopyParams,
-        handleShareReport,
+        ...address,
+        ...commands,
+        ...environment,
         hasCopyableContent,
         isCodeEditorMode,
-        canGenerateTestScript,
-        handleGenerateTestScript,
-        handleClearParams,
-        environmentOptions,
-        handleEnvironmentChange,
-        envVariant,
-        showInlineActions,
-        showOverflowMenu,
+        showInlineActions: false,
+        showOverflowMenu: true,
         overflowMenuItems,
         DEFAULT_KCBP_TIMEOUT,
     };

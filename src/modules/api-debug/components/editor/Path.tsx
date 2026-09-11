@@ -15,11 +15,12 @@ import {
     ThunderboltOutlined,
     UnorderedListOutlined,
 } from '@ant-design/icons';
-import { useKcbpCall } from '../../hooks/useKcbpCall';
+import { useApiCall } from '../../hooks/useApiCall';
 import { usePathBarController } from '../../hooks/usePathBarController';
-import { getElectronAPI } from '../../../../lib/electron';
+import { apiCallRuntime } from '../../../../runtime/apiCallFacade';
 import type { PathBarLayout } from '../../utils/pathBarLayout';
 import { formatActiveScript } from '../../utils/script/scriptFormatRegistry';
+import type { KcxpEnvironment } from '../../types/kcxp';
 
 interface PathProps {
     showScriptBadge?: boolean;
@@ -31,8 +32,8 @@ interface PathProps {
 }
 
 export function PathRunButton() {
-    const { loading, run, cancel, traceEnabled, setTraceEnabled } = useKcbpCall();
-    const canRun = Boolean(getElectronAPI()?.kcbp.call);
+    const { loading, run, cancel, traceEnabled, setTraceEnabled } = useApiCall();
+    const canRun = apiCallRuntime.isAvailable();
     const [elapsedSec, setElapsedSec] = useState(0);
 
     useEffect(() => {
@@ -343,6 +344,64 @@ function PathOverflowMenu({
     );
 }
 
+function getEnvironmentDetail(environment: KcxpEnvironment | undefined, fallback: string) {
+    const protocol = environment?.protocol || 'KCBP';
+    const details = [protocol, environment?.host, `timeout=${environment?.timeout || fallback}s`];
+    if (protocol === 'KGBP') {
+        if (environment?.service) details.push(`service=${environment.service}`);
+        if (environment?.nodeId) details.push(`node=${environment.nodeId}`);
+        if (environment?.clientSessionId) details.push(`session=${environment.clientSessionId}`);
+    } else if (environment?.queue) details.push(`queue=${environment.queue}`);
+    return details.filter(Boolean).join(' · ');
+}
+
+function PathEnvironmentSelector({
+    activeId,
+    activeEnvironment,
+    options,
+    defaultTimeout,
+    onChange,
+}: {
+    activeId: string;
+    activeEnvironment: KcxpEnvironment;
+    options: ReturnType<typeof usePathBarController>['environmentOptions'];
+    defaultTimeout: string;
+    onChange(id: string): void;
+}) {
+    return (
+        <div className="path-env-selector" title={activeEnvironment.name}>
+            <span
+                className={`path-env-protocol path-env-protocol--${(
+                    activeEnvironment.protocol || 'KCBP'
+                ).toLowerCase()}`}
+                aria-label={`${activeEnvironment.protocol || 'KCBP'} 环境`}
+            />
+            <Select
+                value={activeId}
+                options={options}
+                onChange={onChange}
+                size="sm"
+                variant="borderless"
+                className="path-env-select"
+                popupClassName="path-env-dropdown"
+                popupMatchSelectWidth={false}
+                optionLabelProp="label"
+                optionRender={(option) => (
+                    <div className="path-env-option">
+                        <div className="path-env-option-name">
+                            {option.data?.environmentName || option.label}
+                        </div>
+                        <div className="path-env-option-detail">
+                            {getEnvironmentDetail(option.data?.environment, defaultTimeout)}
+                        </div>
+                    </div>
+                )}
+                suffixIcon={<DownOutlined className="path-env-select-chevron" />}
+            />
+        </div>
+    );
+}
+
 export default function Path({
     showScriptBadge = false,
     hideRunButton = false,
@@ -381,53 +440,13 @@ export default function Path({
                         <div className="path-command-divider" aria-hidden />
                     </>
                 ) : null}
-                <div className="path-env-selector" title={activeEnvironment.name}>
-                    <span
-                        className={`path-env-protocol path-env-protocol--${(
-                            activeEnvironment.protocol || 'KCBP'
-                        ).toLowerCase()}`}
-                        aria-label={`${activeEnvironment.protocol || 'KCBP'} 环境`}
-                    />
-                    <Select
-                        value={env.activeKcxpEnvironmentId}
-                        options={environmentOptions}
-                        onChange={handleEnvironmentChange}
-                        size="sm"
-                        variant="borderless"
-                        className="path-env-select"
-                        popupClassName="path-env-dropdown"
-                        popupMatchSelectWidth={false}
-                        optionLabelProp="label"
-                        optionRender={(option) => {
-                            const environment = option.data?.environment;
-                            const name = option.data?.environmentName || option.label;
-                            const protocol = environment?.protocol || 'KCBP';
-                            const detailParts = [
-                                protocol,
-                                environment?.host,
-                                `timeout=${environment?.timeout || DEFAULT_KCBP_TIMEOUT}s`,
-                            ];
-                            if (protocol === 'KGBP') {
-                                if (environment?.service)
-                                    detailParts.push(`service=${environment.service}`);
-                                if (environment?.nodeId)
-                                    detailParts.push(`node=${environment.nodeId}`);
-                                if (environment?.clientSessionId)
-                                    detailParts.push(`session=${environment.clientSessionId}`);
-                            } else if (environment?.queue) {
-                                detailParts.push(`queue=${environment.queue}`);
-                            }
-                            const detail = detailParts.filter(Boolean).join(' · ');
-                            return (
-                                <div className="path-env-option">
-                                    <div className="path-env-option-name">{name}</div>
-                                    <div className="path-env-option-detail">{detail}</div>
-                                </div>
-                            );
-                        }}
-                        suffixIcon={<DownOutlined className="path-env-select-chevron" />}
-                    />
-                </div>
+                <PathEnvironmentSelector
+                    activeId={env.activeKcxpEnvironmentId}
+                    activeEnvironment={activeEnvironment}
+                    options={environmentOptions}
+                    defaultTimeout={DEFAULT_KCBP_TIMEOUT}
+                    onChange={handleEnvironmentChange}
+                />
                 <div className="path-command-divider" aria-hidden />
                 <PathAddressFields
                     addressParts={addressParts}

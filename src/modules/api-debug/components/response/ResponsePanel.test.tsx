@@ -52,8 +52,8 @@ vi.mock('../../../../store/useAppEnv', () => ({
     useAppEnv: () => ({ env: { showRowIndex: true } }),
 }));
 
-vi.mock('../../hooks/useKcbpCall', () => ({
-    useKcbpCall: () => ({ loading: callState.loading }),
+vi.mock('../../hooks/useApiCall', () => ({
+    useApiCall: () => ({ loading: callState.loading }),
 }));
 
 vi.mock('../../store/useResponse', () => ({

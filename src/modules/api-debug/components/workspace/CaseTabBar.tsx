@@ -2,7 +2,7 @@ import { memo, useCallback, useMemo } from 'react';
 import { HistoryOutlined, StarFilled } from '@ant-design/icons';
 import TitleBarTabBar, { type TitleBarTabItem } from '../../../../platform/shell/TitleBarTabBar';
 import { useTabsActions, useTabsNavigation } from '../../store/useTabs';
-import { useKcbpCall } from '../../hooks/useKcbpCall';
+import { useApiCall } from '../../hooks/useApiCall';
 import { useRequestHistoryNavigation } from '../../store/useRequestHistoryNavigation';
 import { useRequestHistoryState } from '../../store/useRequestHistory';
 import { findCaseLocation } from '../../utils/workspace/openCaseTabs';
@@ -130,7 +130,7 @@ function buildTraceTabItem({
 }
 
 function CaseTabBar({ variant = 'default' }: CaseTabBarProps) {
-    const { runningCaseId, cancel } = useKcbpCall();
+    const { runningCaseId, cancel } = useApiCall();
     const { projects, activeProjectIndex, activeCaseIndex, openCaseIds } = useTabsNavigation();
     const { selectCase, closeCaseTab } = useTabsActions();
     const { entries } = useRequestHistoryState();

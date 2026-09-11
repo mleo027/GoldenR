@@ -1,9 +1,9 @@
 import { usePlatformShortcut } from '../../../platform/shell/usePlatformShortcut';
 import { PLATFORM_SHORTCUT } from '../../../platform/shell/platformShortcuts';
-import { useKcbpCall } from './useKcbpCall';
+import { useApiCall } from './useApiCall';
 
 export function useRunShortcut() {
-    const { run } = useKcbpCall();
+    const { run } = useApiCall();
 
     usePlatformShortcut({
         ...PLATFORM_SHORTCUT.RUN,

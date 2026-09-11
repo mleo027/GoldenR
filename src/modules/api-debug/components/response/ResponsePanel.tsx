@@ -7,7 +7,7 @@ import ResponseTableTools from '../../../../components/ui/ResponseTableTools';
 import type { ResponseData } from '../../types/workspace';
 import { useActiveTab } from '../../store/useTabs';
 import { useAppEnv } from '../../../../store/useAppEnv';
-import { useKcbpCall } from '../../hooks/useKcbpCall';
+import { useApiCall } from '../../hooks/useApiCall';
 import { useResponse } from '../../store/useResponse';
 import { getCaseLabel, parseMsgtypeFromAddress } from '../../utils/workspace/caseLabel';
 import { useRequestHistoryNavigation } from '../../store/useRequestHistoryNavigation';
@@ -39,6 +39,8 @@ interface ResponseBodyProps {
     onResultSetChange: (index: number) => void;
     traceAvailable: boolean;
     onViewTrace: () => void;
+    visibleColumnKeys: string[];
+    onVisibleColumnKeysChange: (keys: string[]) => void;
 }
 
 const ResponseBody = memo(function ResponseBody({
@@ -59,6 +61,8 @@ const ResponseBody = memo(function ResponseBody({
     onResultSetChange,
     traceAvailable,
     onViewTrace,
+    visibleColumnKeys,
+    onVisibleColumnKeysChange,
 }: ResponseBodyProps) {
     const hasResponseData = responseData.length > 0;
     const hasSelectedResultSet = resultSets[selectedResultSetIndex] != null;
@@ -125,6 +129,9 @@ const ResponseBody = memo(function ResponseBody({
                             exportFilename={`${parseMsgtypeFromAddress(activeTabAddress) || activeTabName || 'response'}.csv`}
                             traceAvailable={traceAvailable}
                             onViewTrace={onViewTrace}
+                            columnKeys={responseColumns}
+                            visibleColumnKeys={visibleColumnKeys}
+                            onVisibleColumnKeysChange={onVisibleColumnKeysChange}
                         />
                     </div>
                 )}
@@ -139,8 +146,9 @@ const ResponseBody = memo(function ResponseBody({
                         <ResponseIdleMetrics response={response} loading={loading} />
                     ) : (
                         <Grid
+                            key={selectedResultSetIndex}
                             data={responseData}
-                            columnKeys={responseColumns}
+                            columnKeys={visibleColumnKeys}
                             searchKeyword={searchKeyword}
                             showRowIndex={showRowIndex}
                             loading={loading}
@@ -166,7 +174,7 @@ export default function ResponsePanel({
 }: ResponsePanelProps) {
     const { activeTab, activeCaseIndex } = useActiveTab();
     const { env } = useAppEnv();
-    const { loading } = useKcbpCall();
+    const { loading } = useApiCall();
     const { showRowIndex } = env;
     const response = useResponse(activeTab.id);
     const { openTrace } = useRequestHistoryNavigation();
@@ -177,7 +185,23 @@ export default function ResponsePanel({
     const resultSets = response?.resultSets ?? [];
     const selectedResultSet = resultSets[selectedResultSetIndex];
     const responseData = selectedResultSet?.rows ?? EMPTY_RESPONSE_ROWS;
-    const responseColumns = selectedResultSet?.columns;
+    const responseColumns = useMemo(
+        () => selectedResultSet?.columns ?? Object.keys(responseData[0] ?? {}),
+        [responseData, selectedResultSet?.columns],
+    );
+    const [visibleColumnKeys, setVisibleColumnKeys] = useState<string[]>(responseColumns ?? []);
+    const displayedColumnKeys = useMemo(() => {
+        const available = responseColumns ?? [];
+        const retained = visibleColumnKeys.filter((key) => available.includes(key));
+        return retained.length > 0 ? retained : available;
+    }, [responseColumns, visibleColumnKeys]);
+    useEffect(() => {
+        setVisibleColumnKeys((current) => {
+            const available = responseColumns ?? [];
+            const retained = current.filter((key) => available.includes(key));
+            return retained.length > 0 ? retained : available;
+        });
+    }, [responseColumns]);
     const traceAvailable = Boolean(response?.trace?.events.length) && !loading;
 
     useEffect(() => {
@@ -192,6 +216,8 @@ export default function ResponsePanel({
                 response={response}
                 responseData={responseData}
                 responseColumns={responseColumns}
+                visibleColumnKeys={displayedColumnKeys}
+                onVisibleColumnKeysChange={setVisibleColumnKeys}
                 searchKeyword={searchKeyword}
                 showRowIndex={showRowIndex}
                 loading={loading}
@@ -220,6 +246,8 @@ export default function ResponsePanel({
                         open={fullscreenOpen}
                         data={responseData}
                         columnKeys={responseColumns}
+                        visibleColumnKeys={displayedColumnKeys}
+                        onVisibleColumnKeysChange={setVisibleColumnKeys}
                         response={response}
                         searchKeyword={searchKeyword}
                         showRowIndex={showRowIndex}

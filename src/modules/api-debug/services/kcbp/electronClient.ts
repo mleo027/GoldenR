@@ -1,12 +1,11 @@
-import { getElectronAPI } from '../../../../lib/electron';
+import { apiCallRuntime } from '../../../../runtime/apiCallFacade';
 
 export function canInvokeKcbp(): boolean {
-    return Boolean(getElectronAPI()?.kcbp.call);
+    return apiCallRuntime.isAvailable();
 }
 
 export function cancelKcbpCall(): void {
-    const cancel = getElectronAPI()?.kcbp.cancel;
-    if (cancel) {
-        void cancel().catch(console.error);
+    if (apiCallRuntime.isAvailable()) {
+        void apiCallRuntime.cancel().catch(console.error);
     }
 }

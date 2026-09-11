@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { KcbpResponseData } from '../../../types/kcbp';
-import { useKcbpCall } from '../hooks/useKcbpCall';
+import { useApiCall } from '../hooks/useApiCall';
 import { useApiDebugEnv } from '../store/useApiDebugEnv';
 import { ApiDebugProviders } from './ApiDebugProviders';
 import { AppEnvProvider } from '../../../store/appEnvStore';
@@ -26,7 +26,7 @@ const mockConfigWrite = vi.fn<(name: string, data: unknown) => Promise<void>>(
 );
 
 function Harness() {
-    const { loading, run, cancel } = useKcbpCall();
+    const { loading, run, cancel } = useApiCall();
     const { env } = useApiDebugEnv();
     return (
         <div>

@@ -8,7 +8,7 @@ import { TabsProvider } from '../store/tabsStore';
 import { ResponseProvider } from '../store/responseStore';
 import { ScriptConsoleProvider } from '../store/scriptConsoleStore';
 import { ResponseLifecycleSync } from '../store/ResponseLifecycleSync';
-import { KcbpCallProvider } from '../store/kcbpCallStore';
+import { ApiCallProvider } from '../store/apiCallProvider';
 import { ParamSuggestProvider } from '../store/paramSuggestStore';
 import { CommonParamsProvider } from '../store/commonParamsStore';
 import { ApiDebugEnvProvider } from '../store/apiDebugEnvStore';
@@ -31,10 +31,10 @@ export function ApiDebugProviders({ children }: { children: ReactNode }) {
                                     <ScriptConsoleProvider>
                                         <ResponseLifecycleSync />
                                         <RunLogProvider>
-                                            <KcbpCallProvider>
+                                            <ApiCallProvider>
                                                 <KcbpFeedbackSync />
                                                 {children}
-                                            </KcbpCallProvider>
+                                            </ApiCallProvider>
                                         </RunLogProvider>
                                     </ScriptConsoleProvider>
                                 </ResponseProvider>
