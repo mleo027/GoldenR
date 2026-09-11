@@ -38,6 +38,10 @@ const callState = vi.hoisted(() => ({
     loading: false,
 }));
 
+const traceNav = vi.hoisted(() => ({
+    openTrace: vi.fn(),
+}));
+
 vi.mock('../../store/useTabs', () => ({
     useActiveTab: () => ({
         activeTab: { id: 'case-1', name: 'Case', address: 'host/150501' },
@@ -54,6 +58,10 @@ vi.mock('../../hooks/useKcbpCall', () => ({
 
 vi.mock('../../store/useResponse', () => ({
     useResponse: () => responseState.value,
+}));
+
+vi.mock('../../store/useRequestHistoryNavigation', () => ({
+    useRequestHistoryNavigation: () => traceNav,
 }));
 
 describe('ResponsePanel', () => {
