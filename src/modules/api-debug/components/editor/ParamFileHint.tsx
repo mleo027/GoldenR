@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { WarningOutlined } from '@ant-design/icons';
 import { Spin, Tooltip } from 'antd';
 import { UI_DEBOUNCE_MS } from '../../../../constants/ui';
-import { getElectronAPI } from '../../../../lib/electron';
+import { importExportRuntime } from '../../../../runtime/importExportFacade';
 import { parseFileParamPath } from '../../utils/kcbp/kcbpFields';
 
 interface ParamFileHintProps {
@@ -31,9 +31,7 @@ export default function ParamFileHint({ value, disabled = false }: ParamFileHint
             setError(null);
             return;
         }
-
-        const api = getElectronAPI();
-        if (!api?.importExport.statParamFile) {
+        if (!importExportRuntime.isAvailable()) {
             setChecking(false);
             setExists(null);
             setSize(null);
@@ -48,7 +46,7 @@ export default function ParamFileHint({ value, disabled = false }: ParamFileHint
         setError(null);
 
         const timer = window.setTimeout(() => {
-            void api.importExport
+            void importExportRuntime
                 .statParamFile(filePath)
                 .then((result) => {
                     if (cancelled) return;

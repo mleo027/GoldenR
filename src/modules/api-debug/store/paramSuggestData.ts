@@ -12,6 +12,7 @@ import {
 import { normalizeParamFieldRules } from '../utils/suggest/paramSuggestResolve';
 import type { ConfigStorageFileName } from '@/shared/config/files';
 import { UI_DEBOUNCE_MS } from '../../../constants/ui';
+import { suggestRuntime } from '../../../runtime/suggestFacade';
 import { getElectronAPI } from '../../../lib/electron';
 import { configStorage } from '../../../services/persistence/configStorage';
 import { DebounceWriter } from '../../../services/persistence/debounceWriter';
@@ -118,8 +119,7 @@ export async function flushPendingParamSuggestSaveAsync(): Promise<void> {
 }
 
 export async function reloadMainProcessSuggestConfig(): Promise<void> {
-    const api = getElectronAPI();
-    if (api?.database.reloadSuggestConfig) {
-        await api.database.reloadSuggestConfig();
+    if (getElectronAPI()) {
+        await suggestRuntime.reloadConfig();
     }
 }

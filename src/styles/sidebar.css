@@ -76,7 +76,7 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    min-height: 32px;
+    min-height: 34px;
     margin: 0 4px;
     padding: 2px 4px;
     border-radius: 0;
@@ -91,7 +91,7 @@
 
 .case-project-active {
     background: var(--color-bg-group);
-    box-shadow: inset 0 0 0 1px var(--color-border-light);
+    box-shadow: inset 3px 0 0 var(--color-primary);
 }
 
 .case-project-caret {
@@ -149,6 +149,7 @@
     font-size: 10px;
     font-weight: 500;
     color: var(--color-text-muted);
+    opacity: 0.72;
     transition: color var(--transition-fast);
 }
 
@@ -166,7 +167,7 @@
     position: relative;
     margin-left: 12px;
     padding-left: 4px;
-    border-left: 1px solid var(--color-border);
+    border-left: 1px solid color-mix(in srgb, var(--color-border) 58%, transparent);
 }
 
 .case-item-draggable {
@@ -185,7 +186,7 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    min-height: 29px;
+    min-height: 30px;
     margin: 0 4px 0 4px;
     padding: 1px 4px 1px 5px;
     border-radius: 0;
@@ -199,7 +200,7 @@
 
 .case-folder-row {
     position: relative;
-    min-height: 26px;
+    min-height: 29px;
     margin: 0 4px;
     padding-right: 4px;
     border-radius: 3px;
@@ -210,9 +211,13 @@
     background: var(--color-bg-hover);
 }
 
+.case-folder-row:focus-within {
+    background: var(--color-primary-subtle);
+}
+
 .case-folder-block {
     position: relative;
-    border-left: 1px solid var(--color-border);
+    border-left: 1px solid color-mix(in srgb, var(--color-border) 52%, transparent);
 }
 
 .case-folder-block > .case-folder-row::before {
@@ -221,7 +226,7 @@
     top: 50%;
     left: -1px;
     width: 8px;
-    border-top: 1px solid var(--color-border);
+    border-top: 1px solid color-mix(in srgb, var(--color-border) 52%, transparent);
 }
 
 .case-item:hover:not(.case-item-active) {
@@ -231,7 +236,7 @@
 .case-item-active {
     background: var(--color-primary-subtle);
     border-left-color: var(--color-primary);
-    box-shadow: none;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 14%, transparent);
 }
 
 .case-item-active .case-item-name {
@@ -257,7 +262,7 @@
     flex-shrink: 0;
     font-size: 11px;
     font-weight: 500;
-    color: var(--color-text-muted);
+    color: color-mix(in srgb, var(--color-text-muted) 86%, var(--color-text-body));
     font-variant-numeric: tabular-nums;
     font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
@@ -271,6 +276,30 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.case-folder-name {
+    flex: 1;
+    min-width: 0;
+    color: var(--color-text-body);
+    font-weight: 550;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.case-folder-row > span:last-child {
+    flex-shrink: 0;
+    opacity: 0.62;
+    font-variant-numeric: tabular-nums;
+    transition:
+        opacity var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.case-folder-row:hover > span:last-child {
+    opacity: 0.9;
+    color: var(--color-text-secondary) !important;
 }
 
 .case-item-input {

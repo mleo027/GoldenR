@@ -1,5 +1,6 @@
 import type { ProjectData, TabData } from '../../types/workspace';
 import { getElectronAPI } from '../../../../lib/electron';
+import { importExportRuntime } from '../../../../runtime/importExportFacade';
 import { parseKcbpAddress, splitHost } from '../kcbp/kcbpAddress';
 import { getDefaultCaseName } from '../workspace/caseLabel';
 import { escapeIniText } from './configIniCodec';
@@ -76,10 +77,8 @@ export async function exportProjectToIni(
     }
 
     const content = buildConfigIniContent(project);
-    const electronAPI = getElectronAPI();
-
-    if (electronAPI?.importExport.saveIni) {
-        const result = await electronAPI.importExport.saveIni(content, filename);
+    if (getElectronAPI()?.importExport.saveIni) {
+        const result = await importExportRuntime.saveIni(content, filename);
         if (!result.saved) {
             if (result.error) {
                 return { saved: false, reason: 'error', error: result.error };

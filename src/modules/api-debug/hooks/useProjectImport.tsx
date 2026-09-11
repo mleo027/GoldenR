@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { App, Button, message } from 'antd';
 import type { ProjectData, TabData } from '../types/workspace';
 import type { ImportFileFormat } from '../../../types/electron';
-import { getElectronAPI } from '../../../lib/electron';
+import { importExportRuntime } from '../../../runtime/importExportFacade';
 import { getProjectHostTemplate, parseKuabImportJson } from '../utils/import/kuabImport';
 import { parseConfigIni } from '../utils/import/configIniImport';
 
@@ -16,8 +16,7 @@ export function useProjectImport({ projects, importCases }: UseProjectImportOpti
 
     const runImport = useCallback(
         async (projectIndex: number, format: ImportFileFormat) => {
-            const api = getElectronAPI();
-            if (!api?.importExport.openImportFile) {
+            if (!importExportRuntime.isAvailable()) {
                 message.error('当前环境不支持文件导入');
                 return;
             }
@@ -26,7 +25,7 @@ export function useProjectImport({ projects, importCases }: UseProjectImportOpti
             if (!project) return;
 
             try {
-                const result = await api.importExport.openImportFile(format);
+                const result = await importExportRuntime.openImportFile(format);
                 if (!result.opened) return;
 
                 const hostTemplate = getProjectHostTemplate(project);
