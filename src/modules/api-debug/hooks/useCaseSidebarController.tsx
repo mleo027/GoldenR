@@ -1,52 +1,27 @@
-import { useCallback, useRef, useState, type DragEvent } from 'react';
-import { App, message } from 'antd';
-import type { MenuProps } from 'antd';
+import { useRef, useState } from 'react';
+import { App } from 'antd';
 import type { InputRef } from '../../../components/ui/primitives';
-import {
-    CloseOutlined,
-    CopyOutlined,
-    EditOutlined,
-    ExportOutlined,
-    ImportOutlined,
-    PlusOutlined,
-    CheckOutlined,
-    SolutionOutlined,
-    StarOutlined,
-} from '@ant-design/icons';
 import { useTabsActions, useTabsNavigation } from '../store/useTabs';
 import { useCommonParamsState } from '../store/useCommonParams';
-import { applyTabDraftsToWorkspace } from '../store/tabsData';
-import { useInlineRename, type RenameTarget } from '../../../hooks/useInlineRename';
-import { useDragAutoScroll } from '../../../hooks/useDragAutoScroll';
 import { useVisibleProjects } from './useVisibleProjects';
-import { useStableHandlerMap } from '../../../hooks/useStableHandlerMap';
 import { useProjectImport } from './useProjectImport';
-import { exportProjectToIni } from '../utils/import/configIniExport';
-import { getCaseLabel, getCaseMsgtype } from '../utils/workspace/caseLabel';
-import { isCaseDragEvent, readCaseDragData, writeCaseDragData } from '../utils/workspace/caseDrag';
 import { getCaseSearchHighlightTerm, parseCaseSearchQuery } from '../utils/workspace/caseSearch';
-import { flushAllTabDrafts } from '../utils/workspace/tabDraftRegistry';
+import { useCaseSidebarDrag } from './caseSidebar/useCaseSidebarDrag';
+import { useCaseSidebarMenus } from './caseSidebar/useCaseSidebarMenus';
+import { useCaseSidebarRename } from './caseSidebar/useCaseSidebarRename';
 
 export function useCaseSidebarController() {
     const { modal } = App.useApp();
+    const actions = useTabsActions();
     const {
         addProject,
-        deleteProject,
         renameProject,
         toggleProjectExpand,
-        addCase,
-        duplicateCase,
-        deleteCase,
         importCases,
-        selectCase,
         renameCase,
-        toggleCaseFavorite,
         moveCase,
-        setProjectCommonParamSet,
-        addFolder,
         renameFolder,
-        deleteFolder,
-    } = useTabsActions();
+    } = actions;
 
     const state = useTabsNavigation();
     const { sets: commonSets } = useCommonParamsState();
@@ -59,92 +34,8 @@ export function useCaseSidebarController() {
     const [searchKeyword, setSearchKeyword] = useState('');
     const searchInputRef = useRef<InputRef>(null);
     const searchHighlightTerm = getCaseSearchHighlightTerm(parseCaseSearchQuery(searchKeyword));
-    const [draggingCaseId, setDraggingCaseId] = useState<string | null>(null);
-    const [dropTargetProjectIndex, setDropTargetProjectIndex] = useState<number | null>(null);
-    const dragSourceProjectIndexRef = useRef<number | null>(null);
-    const dragStartExpandedRef = useRef<string[]>([]);
-    const sidebarRef = useRef<HTMLDivElement>(null);
-    const sidebarListRef = useRef<HTMLDivElement>(null);
-
-    useDragAutoScroll(sidebarListRef, {
-        enabled: draggingCaseId !== null,
-        boundsRef: sidebarRef,
-    });
-
-    const getRenameName = useCallback(
-        (target: RenameTarget) => {
-            if (target.type === 'project') {
-                return state.projects[target.projectIndex].name;
-            }
-            if (target.type === 'folder') {
-                return (
-                    state.projects[target.projectIndex].folders?.find(
-                        (folder) => folder.id === target.folderId,
-                    )?.name ?? ''
-                );
-            }
-            return state.projects[target.projectIndex].cases[target.caseIndex].name;
-        },
-        [state.projects],
-    );
-
-    const commitRename = useCallback(
-        (target: RenameTarget, name: string) => {
-            if (target.type === 'project') {
-                renameProject(target.projectIndex, name);
-            } else if (target.type === 'folder') {
-                renameFolder(target.projectIndex, target.folderId, name);
-            } else {
-                renameCase(target.projectIndex, target.caseIndex, name);
-            }
-        },
-        [renameCase, renameFolder, renameProject],
-    );
-
     const { inputRef, editingName, setEditingName, startRename, finishRename, isEditing } =
-        useInlineRename(getRenameName, commitRename);
-
-    const getFolderMenu = useCallback(
-        (projectIndex: number, folderId: string): MenuProps['items'] => [
-            {
-                key: 'add-child',
-                label: '新建子目录',
-                icon: <PlusOutlined />,
-                onClick: () => addFolder(projectIndex, folderId),
-            },
-            {
-                key: 'add-case',
-                label: '在此目录新建接口',
-                icon: <PlusOutlined />,
-                onClick: () => addCase(projectIndex, folderId),
-            },
-            {
-                key: 'rename',
-                label: '重命名',
-                icon: <EditOutlined />,
-                onClick: () => startRename({ type: 'folder', projectIndex, folderId }),
-            },
-            { type: 'divider' },
-            {
-                key: 'delete',
-                label: '删除目录',
-                icon: <CloseOutlined />,
-                danger: true,
-                onClick: () => {
-                    modal.confirm({
-                        title: '删除用例目录',
-                        content:
-                            '目录及其子目录会被删除，其中的用例会移动到项目根目录，确定继续吗？',
-                        okText: '删除',
-                        okType: 'danger',
-                        cancelText: '取消',
-                        onOk: () => deleteFolder(projectIndex, folderId),
-                    });
-                },
-            },
-        ],
-        [addCase, addFolder, deleteFolder, modal, startRename],
-    );
+        useCaseSidebarRename({ projects: state.projects, renameProject, renameFolder, renameCase });
 
     const visibleProjects = useVisibleProjects(
         state.projects,
@@ -152,380 +43,37 @@ export function useCaseSidebarController() {
         searchKeyword,
     );
 
-    const handleDeleteProject = useCallback(
-        (projectIndex: number) => {
-            const project = state.projects[projectIndex];
-            if (!project) return;
-
-            const isLastProject = state.projects.length === 1;
-            const projectName = project.name.trim() || '未命名项目';
-            const caseCount = project.cases.length;
-
-            modal.confirm({
-                title: '删除项目',
-                centered: true,
-                mousePosition: null,
-                autoFocusButton: 'cancel',
-                content: isLastProject
-                    ? `确定要删除项目「${projectName}」吗？删除后将重置为空白项目。`
-                    : `确定要删除项目「${projectName}」吗？其下 ${caseCount} 个接口将一并删除。`,
-                okText: '删除',
-                okType: 'danger',
-                cancelText: '取消',
-                onOk: () => {
-                    deleteProject(projectIndex);
-                    message.success(isLastProject ? '已删除项目，已重置为空白项目' : '已删除项目');
-                },
-            });
-        },
-        [deleteProject, modal, state.projects],
-    );
-
-    const handleDeleteCase = useCallback(
-        (projectIndex: number, caseIndex: number) => {
-            const project = state.projects[projectIndex];
-            const caseItem = project?.cases[caseIndex];
-            if (!project || !caseItem) return;
-
-            const isLastCase = project.cases.length === 1;
-            const caseLabel = getCaseLabel(caseItem, caseIndex);
-            const projectName = project.name.trim() || '未命名项目';
-
-            modal.confirm({
-                title: '删除接口',
-                centered: true,
-                mousePosition: null,
-                autoFocusButton: 'cancel',
-                content: isLastCase
-                    ? `确定要删除接口「${caseLabel}」吗？这是项目「${projectName}」的最后一个接口，删除后将保留空占位。`
-                    : `确定要删除接口「${caseLabel}」吗？`,
-                okText: '删除',
-                okType: 'danger',
-                cancelText: '取消',
-                onOk: () => {
-                    deleteCase(projectIndex, caseIndex);
-                    message.success('已删除接口');
-                },
-            });
-        },
-        [deleteCase, modal, state.projects],
-    );
-
-    const handleImportProject = useCallback(
-        (projectIndex: number) => {
-            openImportFormatPicker(projectIndex);
-        },
-        [openImportFormatPicker],
-    );
-
-    const handleExportProject = useCallback(
-        async (projectIndex: number) => {
-            try {
-                const workspace = applyTabDraftsToWorkspace(
-                    {
-                        projects: state.projects,
-                        activeProjectIndex: state.activeProjectIndex,
-                        activeCaseIndex: state.activeCaseIndex,
-                        expandedProjectIds: state.expandedProjectIds,
-                        openCaseIds: state.openCaseIds,
-                    },
-                    flushAllTabDrafts(),
-                );
-                const project = workspace.projects[projectIndex];
-                if (!project) return;
-
-                const safeName = project.name.trim().replace(/[\\/:*?"<>|]/g, '_') || 'project';
-                const filename = `${safeName}.ini`;
-                const result = await exportProjectToIni(project, filename);
-                if (result.saved) {
-                    message.success(`已导出项目 INI：${result.filePath}`);
-                    return;
-                }
-                if (result.reason === 'empty') {
-                    message.warning('当前项目没有可导出的接口');
-                } else if (result.reason === 'error') {
-                    message.error(`导出项目 INI 失败：${result.error ?? '保存失败'}`);
-                }
-            } catch (error) {
-                const messageText = error instanceof Error ? error.message : String(error);
-                message.error(`导出项目 INI 失败：${messageText}`);
-            }
-        },
-        [state],
-    );
-
-    const getCaseMenu = useCallback(
-        (projectIndex: number, caseIndex: number): MenuProps['items'] => [
-            {
-                key: 'copy',
-                label: '复制接口',
-                icon: <CopyOutlined />,
-                onClick: () => {
-                    duplicateCase(projectIndex, caseIndex);
-                    message.success('已复制接口');
-                },
-            },
-            {
-                key: 'rename',
-                label: '重命名',
-                icon: <EditOutlined />,
-                onClick: () => startRename({ type: 'case', projectIndex, caseIndex }),
-            },
-            {
-                key: 'favorite',
-                label: state.projects[projectIndex]?.cases[caseIndex]?.favorite
-                    ? '取消收藏'
-                    : '收藏',
-                icon: <StarOutlined />,
-                onClick: () => toggleCaseFavorite(projectIndex, caseIndex),
-            },
-            { type: 'divider' },
-            {
-                key: 'delete',
-                label: '删除接口',
-                icon: <CloseOutlined />,
-                danger: true,
-                onClick: () => handleDeleteCase(projectIndex, caseIndex),
-            },
-        ],
-        [duplicateCase, handleDeleteCase, startRename, state.projects, toggleCaseFavorite],
-    );
-
-    const getProjectMenu = useCallback(
-        (projectIndex: number): MenuProps['items'] => {
-            const project = state.projects[projectIndex];
-            return [
-                {
-                    key: 'import',
-                    label: '导入接口 JSON|INI',
-                    icon: <ImportOutlined />,
-                    onClick: () => handleImportProject(projectIndex),
-                },
-                {
-                    key: 'export',
-                    label: '导出项目 INI',
-                    icon: <ExportOutlined />,
-                    onClick: () => void handleExportProject(projectIndex),
-                },
-                {
-                    key: 'add-case',
-                    label: '添加接口',
-                    icon: <PlusOutlined />,
-                    onClick: () => addCase(projectIndex),
-                },
-                {
-                    key: 'add-folder',
-                    label: '新建用例目录',
-                    icon: <PlusOutlined />,
-                    onClick: () => addFolder(projectIndex),
-                },
-                {
-                    key: 'rename',
-                    label: '重命名项目',
-                    icon: <EditOutlined />,
-                    onClick: () => startRename({ type: 'project', projectIndex }),
-                },
-                { type: 'divider' },
-                {
-                    key: 'common-params',
-                    label: '公共参数',
-                    icon: <SolutionOutlined />,
-                    children: [
-                        {
-                            key: 'common-params-none',
-                            label: '不设置',
-                            icon:
-                                project?.commonParamSetId === undefined ? (
-                                    <CheckOutlined />
-                                ) : undefined,
-                            onClick: () => setProjectCommonParamSet(projectIndex, null),
-                        },
-                        ...commonSets.map((set) => ({
-                            key: `common-params-${set.id}`,
-                            label: set.name,
-                            icon:
-                                project?.commonParamSetId === set.id ? (
-                                    <CheckOutlined />
-                                ) : undefined,
-                            onClick: () => setProjectCommonParamSet(projectIndex, set.id),
-                        })),
-                    ],
-                },
-                { type: 'divider' },
-                {
-                    key: 'delete',
-                    label: '删除项目',
-                    icon: <CloseOutlined />,
-                    danger: true,
-                    onClick: () => handleDeleteProject(projectIndex),
-                },
-            ];
-        },
-        [
-            addCase,
-            addFolder,
-            commonSets,
-            handleDeleteProject,
-            handleExportProject,
-            handleImportProject,
-            setProjectCommonParamSet,
-            startRename,
-            state.projects,
-        ],
-    );
-
-    const getCaseActionHandler = useStableHandlerMap((key: string) => {
-        const [projectIndex, caseIndex, action] = key.split(':');
-        const p = Number(projectIndex);
-        const c = Number(caseIndex);
-        switch (action) {
-            case 'select':
-                return () => selectCase(p, c);
-            case 'rename':
-                return () => startRename({ type: 'case', projectIndex: p, caseIndex: c });
-            case 'duplicate':
-                return () => {
-                    duplicateCase(p, c);
-                    message.success('已复制接口');
-                };
-            case 'delete':
-                return () => handleDeleteCase(p, c);
-            case 'favorite':
-                return () => toggleCaseFavorite(p, c);
-            case 'copy-msgtype': {
-                return () => {
-                    const caseItem = state.projects[p]?.cases[c];
-                    if (!caseItem) return;
-                    const msgtype = getCaseMsgtype(caseItem);
-                    if (!msgtype) {
-                        message.warning('当前接口没有可复制的功能号');
-                        return;
-                    }
-                    void navigator.clipboard.writeText(msgtype).then(() => {
-                        message.success(`已复制功能号 ${msgtype}`);
-                    });
-                };
-            }
-            default:
-                return () => undefined;
-        }
+    const {
+        getCaseMenu,
+        getProjectMenu,
+        getFolderMenu,
+        getCaseActionHandler,
+        getProjectActionHandler,
+    } = useCaseSidebarMenus({
+        modal,
+        state,
+        commonSets,
+        actions,
+        startRename,
+        openImport: openImportFormatPicker,
     });
 
-    const getProjectActionHandler = useStableHandlerMap((key: string) => {
-        const parts = key.split(':');
-        const p = Number(parts[0]);
-        const action = parts[1];
-        const projectId = parts[2] ?? '';
-        switch (action) {
-            case 'toggle':
-                return () => toggleProjectExpand(projectId);
-            case 'rename':
-                return () => startRename({ type: 'project', projectIndex: p });
-            case 'add':
-                return () => addCase(p);
-            case 'import':
-                return () => handleImportProject(p);
-            default:
-                return () => undefined;
-        }
+    const {
+        draggingCaseId,
+        dropTargetProjectIndex,
+        sidebarRef,
+        sidebarListRef,
+        handleCaseDragStart,
+        handleProjectDragOver,
+        handleProjectDragLeave,
+        handleProjectDrop,
+        handleCaseDragEnd,
+    } = useCaseSidebarDrag({
+        projects: state.projects,
+        expandedProjectIds: state.expandedProjectIds,
+        toggleProjectExpand,
+        moveCase,
     });
-
-    const clearCaseDragState = useCallback(() => {
-        setDraggingCaseId(null);
-        setDropTargetProjectIndex(null);
-        dragSourceProjectIndexRef.current = null;
-    }, []);
-
-    const handleCaseDragStart = useCallback(
-        (
-            projectIndex: number,
-            caseIndex: number,
-            caseId: string,
-            event: DragEvent<HTMLDivElement>,
-        ) => {
-            const target = event.target as HTMLElement;
-            if (
-                target.closest(
-                    '.case-item-star-btn, .case-item-action, .case-item-input, .ant-input',
-                )
-            ) {
-                event.preventDefault();
-                return;
-            }
-
-            dragSourceProjectIndexRef.current = projectIndex;
-            setDraggingCaseId(caseId);
-
-            // 拖拽期间折叠全部项目（落点是整个项目，展开无必要）
-            // 先记录当前展开状态，拖拽结束再还原
-            const prevExpanded = state.expandedProjectIds;
-            dragStartExpandedRef.current = prevExpanded;
-            // 延迟到下一帧折叠，确保浏览器已捕获拖拽影像，避免移除源节点中断拖拽
-            requestAnimationFrame(() => {
-                prevExpanded.forEach((id) => toggleProjectExpand(id));
-            });
-
-            writeCaseDragData(event.dataTransfer, {
-                fromProjectIndex: projectIndex,
-                fromCaseIndex: caseIndex,
-                caseId,
-            });
-        },
-        [state.expandedProjectIds, toggleProjectExpand],
-    );
-
-    const handleProjectDragOver = useCallback(
-        (projectIndex: number, event: DragEvent<HTMLDivElement>) => {
-            if (!isCaseDragEvent(event.dataTransfer)) return;
-
-            event.preventDefault();
-            event.dataTransfer.dropEffect = 'move';
-            if (dragSourceProjectIndexRef.current === projectIndex) return;
-
-            // 落点是整个项目（不支持项目内定位），拖拽时保持项目折叠，不自动展开
-            setDropTargetProjectIndex(projectIndex);
-        },
-        [],
-    );
-
-    const handleProjectDragLeave = useCallback(
-        (projectIndex: number, event: DragEvent<HTMLDivElement>) => {
-            const nextTarget = event.relatedTarget as Node | null;
-            const currentTarget = event.currentTarget;
-            if (nextTarget && currentTarget.contains(nextTarget)) return;
-            setDropTargetProjectIndex((current) => (current === projectIndex ? null : current));
-        },
-        [],
-    );
-
-    const handleProjectDrop = useCallback(
-        (projectIndex: number, event: DragEvent<HTMLDivElement>) => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            const payload = readCaseDragData(event.dataTransfer);
-            clearCaseDragState();
-            if (!payload) return;
-            if (payload.fromProjectIndex === projectIndex) return;
-
-            moveCase(payload.fromProjectIndex, payload.fromCaseIndex, projectIndex);
-
-            const caseItem = state.projects[payload.fromProjectIndex]?.cases[payload.fromCaseIndex];
-            const label = caseItem ? getCaseLabel(caseItem, payload.fromCaseIndex) : '接口';
-            const targetName = state.projects[projectIndex]?.name.trim() || '未命名项目';
-            message.success(`已将「${label}」移动到「${targetName}」`);
-        },
-        [clearCaseDragState, moveCase, state.projects],
-    );
-
-    const handleCaseDragEnd = useCallback(() => {
-        clearCaseDragState();
-        const prevExpanded = dragStartExpandedRef.current;
-        if (prevExpanded.length > 0) {
-            prevExpanded.forEach((id) => toggleProjectExpand(id));
-            dragStartExpandedRef.current = [];
-        }
-    }, [clearCaseDragState, toggleProjectExpand]);
 
     return {
         state,
