@@ -1,20 +1,41 @@
-import { useContext, useMemo } from 'react';
-import { TabsActionsContext, TabsStateContext } from './TabsContext';
+import { useMemo } from 'react';
+import { useTabsStore } from './tabsZustand';
+import { useShallow } from 'zustand/react/shallow';
 
 export function useTabsState() {
-    const context = useContext(TabsStateContext);
-    if (!context) {
-        throw new Error('useTabsState must be used within a TabsProvider');
-    }
-    return context;
+    const state = useTabsStore((current) => current);
+    const activeProject = state.projects[state.activeProjectIndex];
+    const activeTab = activeProject.cases[state.activeCaseIndex];
+    return useMemo(() => ({ state, activeProject, activeTab }), [activeProject, activeTab, state]);
 }
 
 export function useTabsActions() {
-    const context = useContext(TabsActionsContext);
-    if (!context) {
-        throw new Error('useTabsActions must be used within a TabsProvider');
-    }
-    return context;
+    const storeActions = useTabsStore(
+        useShallow((state) => ({
+            addProject: state.addProject,
+            deleteProject: state.deleteProject,
+            addCase: state.addCase,
+            renameProject: state.renameProject,
+            toggleProjectExpand: state.toggleProjectExpand,
+            setProjectCommonParamSet: state.setProjectCommonParamSet,
+            addFolder: state.addFolder,
+            renameFolder: state.renameFolder,
+            deleteFolder: state.deleteFolder,
+            moveCaseToFolder: state.moveCaseToFolder,
+            duplicateCase: state.duplicateCase,
+            deleteCase: state.deleteCase,
+            selectCase: state.selectCase,
+            closeCaseTab: state.closeCaseTab,
+            updateTab: state.updateTab,
+            renameCase: state.renameCase,
+            toggleCaseFavorite: state.toggleCaseFavorite,
+            importCases: state.importCases,
+            moveCase: state.moveCase,
+            updateTabUndoable: state.updateTabUndoable,
+            applyKcxpEnvironment: state.applyKcxpEnvironment,
+        })),
+    );
+    return storeActions;
 }
 
 export function useTabsNavigation() {
@@ -41,13 +62,17 @@ export function useTabsNavigation() {
 
 /** 仅订阅当前选中项目/接口，避免无关 state 变更导致重渲染 */
 export function useActiveTab() {
-    const { activeProject, activeTab, state } = useTabsState();
+    const activeProject = useTabsStore((state) => state.projects[state.activeProjectIndex]);
+    const activeTab = useTabsStore(
+        (state) => state.projects[state.activeProjectIndex].cases[state.activeCaseIndex],
+    );
+    const activeCaseIndex = useTabsStore((state) => state.activeCaseIndex);
     return useMemo(
         () => ({
             activeProject,
             activeTab,
-            activeCaseIndex: state.activeCaseIndex,
+            activeCaseIndex,
         }),
-        [activeProject, activeTab, state.activeCaseIndex],
+        [activeProject, activeCaseIndex, activeTab],
     );
 }
