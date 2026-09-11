@@ -19,7 +19,7 @@ import {
 } from '../services/call/callExecutionCoordinator';
 
 export function ApiCallProvider({ children }: { children: ReactNode }) {
-    const { updateTab } = useTabsActions();
+    const { updateCaseById } = useTabsActions();
     const { env } = useApiDebugEnv();
     const { activeProject, activeTab, activeCaseIndex } = useActiveTab();
     const { sets: commonSets } = useCommonParamsState();
@@ -38,7 +38,7 @@ export function ApiCallProvider({ children }: { children: ReactNode }) {
         feedbackRef.current = handler;
     }, []);
     const coordinatorDepsRef = useRef<CallExecutionCoordinatorDeps>({
-        updateTab,
+        updateTab: updateCaseById,
         setResponse,
         setScriptConsole,
         pushLog,
@@ -49,7 +49,7 @@ export function ApiCallProvider({ children }: { children: ReactNode }) {
         notifyMissingMsgtype: (message) => notify('warning', message),
     });
     coordinatorDepsRef.current = {
-        updateTab,
+        updateTab: updateCaseById,
         setResponse,
         setScriptConsole,
         pushLog,
@@ -62,7 +62,7 @@ export function ApiCallProvider({ children }: { children: ReactNode }) {
     const coordinatorRef = useRef<ReturnType<typeof createCallExecutionCoordinator> | null>(null);
     if (!coordinatorRef.current) {
         coordinatorRef.current = createCallExecutionCoordinator({
-            updateTab: (updates) => coordinatorDepsRef.current.updateTab(updates),
+            updateTab: (caseId, updates) => coordinatorDepsRef.current.updateTab(caseId, updates),
             setResponse: (caseId, response) =>
                 coordinatorDepsRef.current.setResponse(caseId, response),
             setScriptConsole: (caseId, snapshot) =>

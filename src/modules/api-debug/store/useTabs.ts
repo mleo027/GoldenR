@@ -1,9 +1,21 @@
 import { useMemo } from 'react';
 import { useTabsStore } from './tabsZustand';
 import { useShallow } from 'zustand/react/shallow';
+import type { TabsState } from './tabsReducer';
 
 export function useTabsState() {
-    const state = useTabsStore((current) => current);
+    const state = useTabsStore(
+        useShallow(
+            (current): TabsState => ({
+                projects: current.projects,
+                activeProjectIndex: current.activeProjectIndex,
+                activeCaseIndex: current.activeCaseIndex,
+                expandedProjectIds: current.expandedProjectIds,
+                openCaseIds: current.openCaseIds,
+                loaded: current.loaded,
+            }),
+        ),
+    );
     const activeProject = state.projects[state.activeProjectIndex];
     const activeTab = activeProject.cases[state.activeCaseIndex];
     return useMemo(() => ({ state, activeProject, activeTab }), [activeProject, activeTab, state]);
@@ -27,6 +39,7 @@ export function useTabsActions() {
             selectCase: state.selectCase,
             closeCaseTab: state.closeCaseTab,
             updateTab: state.updateTab,
+            updateCaseById: state.updateCaseById,
             renameCase: state.renameCase,
             toggleCaseFavorite: state.toggleCaseFavorite,
             importCases: state.importCases,
@@ -39,24 +52,15 @@ export function useTabsActions() {
 }
 
 export function useTabsNavigation() {
-    const { state } = useTabsState();
-    return useMemo(
-        () => ({
+    return useTabsStore(
+        useShallow((state) => ({
             projects: state.projects,
             activeProjectIndex: state.activeProjectIndex,
             activeCaseIndex: state.activeCaseIndex,
             expandedProjectIds: state.expandedProjectIds,
             openCaseIds: state.openCaseIds,
             loaded: state.loaded,
-        }),
-        [
-            state.projects,
-            state.activeProjectIndex,
-            state.activeCaseIndex,
-            state.expandedProjectIds,
-            state.openCaseIds,
-            state.loaded,
-        ],
+        })),
     );
 }
 

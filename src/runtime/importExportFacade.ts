@@ -18,13 +18,19 @@ export interface ImportExportRuntime {
     statParamFile(filePath: string): Promise<ParamFileStatResult>;
 }
 
+function requireImportExportApi() {
+    const api = getElectronAPI()?.importExport;
+    if (!api) throw new Error('Import/export runtime is unavailable');
+    return api;
+}
+
 export const importExportRuntime: ImportExportRuntime = {
     isAvailable: () => Boolean(getElectronAPI()?.importExport),
-    saveCsv: (content, filename) => getElectronAPI()!.importExport.saveCsv(content, filename),
-    saveTxt: (content, filename) => getElectronAPI()!.importExport.saveTxt(content, filename),
-    saveHtml: (content, filename) => getElectronAPI()!.importExport.saveHtml(content, filename),
-    saveIni: (content, filename) => getElectronAPI()!.importExport.saveIni(content, filename),
-    openImportFile: (format) => getElectronAPI()!.importExport.openImportFile(format),
-    openParamFile: () => getElectronAPI()!.importExport.openParamFile(),
-    statParamFile: (filePath) => getElectronAPI()!.importExport.statParamFile(filePath),
+    saveCsv: async (content, filename) => requireImportExportApi().saveCsv(content, filename),
+    saveTxt: async (content, filename) => requireImportExportApi().saveTxt(content, filename),
+    saveHtml: async (content, filename) => requireImportExportApi().saveHtml(content, filename),
+    saveIni: async (content, filename) => requireImportExportApi().saveIni(content, filename),
+    openImportFile: async (format) => requireImportExportApi().openImportFile(format),
+    openParamFile: async () => requireImportExportApi().openParamFile(),
+    statParamFile: async (filePath) => requireImportExportApi().statParamFile(filePath),
 };

@@ -32,6 +32,7 @@ type CaseTabsAction = Extract<
             | 'SELECT_CASE'
             | 'CLOSE_CASE_TAB'
             | 'UPDATE_ACTIVE_CASE'
+            | 'UPDATE_CASE_BY_ID'
             | 'RENAME_CASE'
             | 'TOGGLE_CASE_FAVORITE'
             | 'MOVE_CASE'
@@ -63,6 +64,7 @@ const CASE_ACTION_TYPES = new Set<CaseTabsAction['type']>([
     'SELECT_CASE',
     'CLOSE_CASE_TAB',
     'UPDATE_ACTIVE_CASE',
+    'UPDATE_CASE_BY_ID',
     'RENAME_CASE',
     'TOGGLE_CASE_FAVORITE',
     'MOVE_CASE',

@@ -9,6 +9,7 @@ import { useWorkspacePersistence } from './useWorkspacePersistence';
 const mocks = vi.hoisted(() => ({
     flushDrafts: vi.fn(),
     flushPending: vi.fn(),
+    loadWorkspace: vi.fn(),
     registeredFlush: undefined as (() => Promise<void>) | undefined,
 }));
 
@@ -19,7 +20,7 @@ vi.mock('./tabsData', async (importOriginal) => {
         applyTabDraftsToWorkspace: (workspace: unknown) => workspace,
         flushPendingSavesAsync: mocks.flushPending,
         hashPersistedProjects: (projects: unknown) => JSON.stringify(projects),
-        loadWorkspace: vi.fn().mockResolvedValue(null),
+        loadWorkspace: mocks.loadWorkspace,
         saveProjects: vi.fn(),
         saveSettings: vi.fn(),
     };
@@ -40,10 +41,36 @@ vi.mock('./workspaceFlushRegistry', () => ({
 beforeEach(() => {
     mocks.flushDrafts.mockReset().mockReturnValue({});
     mocks.flushPending.mockReset().mockResolvedValue(undefined);
+    mocks.loadWorkspace.mockReset().mockResolvedValue(null);
     mocks.registeredFlush = undefined;
 });
 
 describe('useWorkspacePersistence', () => {
+    it('does not dispatch a workspace loaded after the provider unmounts', async () => {
+        let resolveLoad!: (workspace: null) => void;
+        mocks.loadWorkspace.mockReturnValue(
+            new Promise<null>((resolve) => {
+                resolveLoad = resolve;
+            }),
+        );
+        const dispatch = vi.fn();
+        const { unmount } = renderHook(() =>
+            useWorkspacePersistence({
+                state: { ...createInitialTabsState(), loaded: false },
+                dispatch,
+                autoSave: true,
+                apiEnv: DEFAULT_API_DEBUG_ENV,
+                apiEnvLoaded: true,
+            }),
+        );
+
+        unmount();
+        resolveLoad(null);
+        await Promise.resolve();
+
+        expect(dispatch).not.toHaveBeenCalled();
+    });
+
     it('attempts pending persistence after a draft flush failure and reports both errors', async () => {
         mocks.flushDrafts.mockImplementation(() => {
             throw new Error('draft failed');

@@ -24,6 +24,7 @@ type DeleteCaseAction = Extract<TabsAction, { type: 'DELETE_CASE' }>;
 type SelectCaseAction = Extract<TabsAction, { type: 'SELECT_CASE' }>;
 type CloseCaseTabAction = Extract<TabsAction, { type: 'CLOSE_CASE_TAB' }>;
 type UpdateActiveCaseAction = Extract<TabsAction, { type: 'UPDATE_ACTIVE_CASE' }>;
+type UpdateCaseByIdAction = Extract<TabsAction, { type: 'UPDATE_CASE_BY_ID' }>;
 type RenameCaseAction = Extract<TabsAction, { type: 'RENAME_CASE' }>;
 type ToggleCaseFavoriteAction = Extract<TabsAction, { type: 'TOGGLE_CASE_FAVORITE' }>;
 type MoveCaseAction = Extract<TabsAction, { type: 'MOVE_CASE' }>;
@@ -36,6 +37,7 @@ type CaseAction =
     | SelectCaseAction
     | CloseCaseTabAction
     | UpdateActiveCaseAction
+    | UpdateCaseByIdAction
     | RenameCaseAction
     | ToggleCaseFavoriteAction
     | MoveCaseAction
@@ -239,6 +241,39 @@ function reduceUpdateActiveCase(state: TabsState, action: UpdateActiveCaseAction
     };
 }
 
+function reduceUpdateCaseById(state: TabsState, action: UpdateCaseByIdAction): TabsState {
+    const location = findCaseLocation(state.projects, action.caseId);
+    if (!location) return state;
+    const project = state.projects[location.projectIndex];
+    const currentCase = project.cases[location.caseIndex];
+    const safeUpdates = { ...action.updates } as Partial<TabData> & { response?: unknown };
+    if ('response' in safeUpdates) delete safeUpdates.response;
+    const updatedCase = { ...currentCase, ...safeUpdates, updatedAt: Date.now() };
+    const nextCases = project.cases.map((item) => (item.id === action.caseId ? updatedCase : item));
+    const sortedCases = shouldResortCasesForUpdate(safeUpdates, currentCase)
+        ? sortCasesByMsgtype(nextCases)
+        : nextCases;
+    const activeCaseId = getActiveCaseId(
+        state.projects,
+        state.activeProjectIndex,
+        state.activeCaseIndex,
+    );
+    const nextProjects = state.projects.map((item, projectIndex) =>
+        projectIndex === location.projectIndex
+            ? { ...item, cases: sortedCases, updatedAt: Date.now() }
+            : item,
+    );
+    const activeLocation = activeCaseId ? findCaseLocation(nextProjects, activeCaseId) : null;
+    return activeLocation
+        ? {
+              ...state,
+              projects: nextProjects,
+              activeProjectIndex: activeLocation.projectIndex,
+              activeCaseIndex: activeLocation.caseIndex,
+          }
+        : { ...state, projects: nextProjects };
+}
+
 function reduceRenameCase(state: TabsState, action: RenameCaseAction): TabsState {
     const nextProjects = state.projects.map((project, projectIndex) => {
         if (projectIndex !== action.projectIndex) return project;
@@ -385,6 +420,8 @@ export function reduceCaseAction(state: TabsState, action: CaseAction): TabsStat
             return reduceCloseCaseTab(state, action);
         case 'UPDATE_ACTIVE_CASE':
             return reduceUpdateActiveCase(state, action);
+        case 'UPDATE_CASE_BY_ID':
+            return reduceUpdateCaseById(state, action);
         case 'RENAME_CASE':
             return reduceRenameCase(state, action);
         case 'TOGGLE_CASE_FAVORITE':

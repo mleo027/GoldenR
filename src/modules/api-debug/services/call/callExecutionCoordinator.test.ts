@@ -96,6 +96,9 @@ describe('createCallExecutionCoordinator', () => {
         await firstRun;
 
         expect(cancelKcbpCall).toHaveBeenCalledTimes(1);
+        expect(deps.updateTab).toHaveBeenCalledTimes(1);
+        expect(deps.updateTab).toHaveBeenCalledWith('case-2', expect.any(Object));
+        expect(deps.updateTab).not.toHaveBeenCalledWith('case-1', expect.anything());
         expect(deps.setResponse).toHaveBeenCalledTimes(1);
         expect(deps.setResponse).toHaveBeenCalledWith('case-2', expect.any(Object));
         expect(coordinator.getRunningCaseId()).toBeNull();

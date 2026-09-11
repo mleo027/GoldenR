@@ -144,6 +144,11 @@ const ResponseBody = memo(function ResponseBody({
                 <div className="flex-1 overflow-hidden min-w-0 min-h-0">
                     {showIdleMetrics ? (
                         <ResponseIdleMetrics response={response} loading={loading} />
+                    ) : visibleColumnKeys.length === 0 ? (
+                        <div className="response-empty-columns" role="status">
+                            <div>未选择展示列</div>
+                            <div>请在“列”菜单中选择要展示的字段</div>
+                        </div>
                     ) : (
                         <Grid
                             key={selectedResultSetIndex}
@@ -189,19 +194,26 @@ export default function ResponsePanel({
         () => selectedResultSet?.columns ?? Object.keys(responseData[0] ?? {}),
         [responseData, selectedResultSet?.columns],
     );
-    const [visibleColumnKeys, setVisibleColumnKeys] = useState<string[]>(responseColumns);
+    const [visibleColumnsByResultSet, setVisibleColumnsByResultSet] = useState<
+        Record<number, string[]>
+    >({});
+    const visibleColumnKeys = visibleColumnsByResultSet[selectedResultSetIndex] ?? responseColumns;
     const displayedColumnKeys = useMemo(() => {
         return visibleColumnKeys.filter((key) => responseColumns.includes(key));
     }, [responseColumns, visibleColumnKeys]);
-    useEffect(() => {
-        setVisibleColumnKeys(responseColumns);
-    }, [responseColumns]);
+    const setVisibleColumnKeys = (keys: string[]) => {
+        setVisibleColumnsByResultSet((current) => ({
+            ...current,
+            [selectedResultSetIndex]: keys,
+        }));
+    };
     const traceAvailable = Boolean(response?.trace?.events.length) && !loading;
 
     useEffect(() => {
         setSearchKeyword('');
         setFullscreenOpen(false);
         setSelectedResultSetIndex(0);
+        setVisibleColumnsByResultSet({});
     }, [activeTab.id, response?.calledAt]);
 
     return (

@@ -9,7 +9,7 @@ import { parseKcbpAddress } from '../../utils/kcbp/kcbpAddress';
 import { parseKcbpResponseStatus } from '../../utils/kcbp/kcbpResponse';
 
 export interface CallResultCoordinatorDeps {
-    updateTab(updates: Partial<TabData>): void;
+    updateTab(caseId: string, updates: Partial<TabData>): void;
     setResponse(caseId: string, response: ResponseData): void;
     setScriptConsole(caseId: string, snapshot: ScriptConsoleSnapshot): void;
     pushLog(entry: Omit<RunLogEntry, 'id'>): void;
@@ -68,7 +68,7 @@ export function coordinateCallSuccess(
     const msgtype = outcome.msgtype || context.msgtype;
     const success = feedback.level === 'success' || feedback.level === 'info';
 
-    deps.updateTab({
+    deps.updateTab(context.tab.id, {
         params: outcome.nextParams,
         ...(outcome.nextScript ? { script: outcome.nextScript } : {}),
     });

@@ -62,18 +62,24 @@ export function useWorkspacePersistence({
     ]);
 
     useEffect(() => {
+        let active = true;
         void loadWorkspace()
             .then((workspace) => {
+                if (!active) return;
                 if (workspace) {
                     savedHashRef.current = hashPersistedProjects(workspace.projects);
                     dispatch({ type: 'SET_WORKSPACE', workspace });
                 } else dispatch({ type: 'MARK_LOADED' });
             })
             .catch((error) => {
+                if (!active) return;
                 console.error('Failed to load workspace:', error);
                 savedHashRef.current = hashPersistedProjects(workspaceRef.current.projects);
                 dispatch({ type: 'MARK_LOADED' });
             });
+        return () => {
+            active = false;
+        };
     }, [dispatch]);
 
     useEffect(() => {

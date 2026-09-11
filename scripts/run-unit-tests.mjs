@@ -40,6 +40,7 @@ const suites = {
         'src/modules/api-debug/utils/import/configIniImport.test.ts',
         'src/modules/api-debug/utils/import/configIniExport.test.ts',
         'src/modules/api-debug/utils/import/readIniText.test.ts',
+        'src/modules/api-debug/hooks/useProjectImport.test.tsx',
     ],
     script: [
         'src/modules/api-debug/utils/script/apiScript.test.ts',
@@ -74,6 +75,9 @@ const suites = {
         'src/modules/api-debug/utils/workspace/tabDraftRegistry.test.ts',
         'src/modules/api-debug/utils/workspace/caseSidebarVirtualList.test.ts',
         'src/modules/api-debug/utils/workspace/kcxpEnvironment.test.ts',
+        'src/components/ui/ResponseTableTools.test.tsx',
+        'src/modules/api-debug/components/workspace/ProjectTreeItem.test.tsx',
+        'src/modules/api-debug/components/settings/ParamSuggestRulesSettings.test.tsx',
         'src/runtime/apiCallFacade.test.ts',
         'src/runtime/runtimeFacades.test.ts',
     ],

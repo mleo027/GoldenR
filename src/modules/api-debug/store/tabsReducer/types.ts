@@ -33,6 +33,7 @@ export type TabsAction =
     | { type: 'SELECT_CASE'; projectIndex: number; caseIndex: number }
     | { type: 'CLOSE_CASE_TAB'; caseId: string }
     | { type: 'UPDATE_ACTIVE_CASE'; updates: Partial<TabData> }
+    | { type: 'UPDATE_CASE_BY_ID'; caseId: string; updates: Partial<TabData> }
     | { type: 'RENAME_CASE'; projectIndex: number; caseIndex: number; name: string }
     | { type: 'TOGGLE_CASE_FAVORITE'; projectIndex: number; caseIndex: number }
     | { type: 'IMPORT_CASES'; projectIndex: number; cases: TabData[] }

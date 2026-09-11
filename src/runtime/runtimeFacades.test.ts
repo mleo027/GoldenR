@@ -57,6 +57,9 @@ describe('runtime facades', () => {
         const original = bridge.importExport;
         bridge.importExport = undefined as never;
         expect(importExportRuntime.isAvailable()).toBe(false);
+        await expect(importExportRuntime.saveCsv('csv', 'file.csv')).rejects.toThrow(
+            'Import/export runtime is unavailable',
+        );
         bridge.importExport = original;
     });
 });

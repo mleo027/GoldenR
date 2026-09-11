@@ -24,6 +24,7 @@ export interface TabsZustandState extends TabsState {
     selectCase(projectIndex: number, caseIndex: number): void;
     closeCaseTab(caseId: string): void;
     updateTab(updates: Partial<TabData>): void;
+    updateCaseById(caseId: string, updates: Partial<TabData>): void;
     renameCase(projectIndex: number, caseIndex: number, name: string): void;
     toggleCaseFavorite(projectIndex: number, caseIndex: number): void;
     importCases(projectIndex: number, cases: TabData[]): void;
@@ -69,6 +70,8 @@ export const useTabsStore = create<TabsZustandState>((set, get) => {
             dispatch({ type: 'SELECT_CASE', projectIndex, caseIndex }),
         closeCaseTab: (caseId) => dispatch({ type: 'CLOSE_CASE_TAB', caseId }),
         updateTab: (updates) => dispatch({ type: 'UPDATE_ACTIVE_CASE', updates }),
+        updateCaseById: (caseId, updates) =>
+            dispatch({ type: 'UPDATE_CASE_BY_ID', caseId, updates }),
         renameCase: (projectIndex, caseIndex, name) =>
             dispatch({ type: 'RENAME_CASE', projectIndex, caseIndex, name }),
         toggleCaseFavorite: (projectIndex, caseIndex) =>
