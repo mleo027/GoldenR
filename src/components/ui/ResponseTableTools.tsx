@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
-import { Button, Modal, Radio, Space, Tooltip, message } from 'antd';
+import { Button, Checkbox, Modal, Popover, Radio, Space, Tooltip, message } from 'antd';
 import {
     ExportOutlined,
     EyeOutlined,
@@ -23,6 +23,9 @@ interface ResponseTableToolsProps {
     exportFilename?: string;
     traceAvailable?: boolean;
     onViewTrace?: () => void;
+    columnKeys?: string[];
+    visibleColumnKeys?: string[];
+    onVisibleColumnKeysChange?: (keys: string[]) => void;
 }
 
 type ExportFormat = 'csv' | 'text';
@@ -100,11 +103,15 @@ export default function ResponseTableTools({
     exportFilename = 'response.csv',
     traceAvailable = false,
     onViewTrace,
+    columnKeys = [],
+    visibleColumnKeys = columnKeys,
+    onVisibleColumnKeysChange,
 }: ResponseTableToolsProps) {
     const inputRef = useRef<InputRef>(null);
     const [searchExpanded, setSearchExpanded] = useState(false);
     const [formatModalOpen, setFormatModalOpen] = useState(false);
     const [exportFormat, setExportFormat] = useState<ExportFormat>('csv');
+    const [columnSearch, setColumnSearch] = useState('');
 
     const { draft, setDraftDebounced, commitNow, clearDraft, flushPending } = useDebouncedDraft(
         searchKeyword,
@@ -159,6 +166,56 @@ export default function ResponseTableTools({
         await exportResponseTable(exportData, exportFilename, exportFormat);
     };
 
+    const filteredColumnKeys = columnKeys.filter((key) =>
+        key.toLowerCase().includes(columnSearch.trim().toLowerCase()),
+    );
+    const allColumnsSelected =
+        columnKeys.length > 0 && visibleColumnKeys.length === columnKeys.length;
+
+    const columnPicker =
+        columnKeys.length > 0 && onVisibleColumnKeysChange ? (
+            <div className="response-column-picker">
+                <div className="response-column-picker-actions">
+                    <Button
+                        type="link"
+                        size="small"
+                        onClick={() =>
+                            onVisibleColumnKeysChange(allColumnsSelected ? [] : columnKeys)
+                        }
+                    >
+                        {allColumnsSelected ? '取消全选' : '全选'}
+                    </Button>
+                </div>
+                <Input
+                    allowClear
+                    size="sm"
+                    value={columnSearch}
+                    onChange={(event) => setColumnSearch(event.target.value)}
+                    placeholder="搜索列名"
+                    className="response-column-picker-search"
+                />
+                <div className="response-column-picker-list">
+                    {filteredColumnKeys.map((key) => (
+                        <Checkbox
+                            key={key}
+                            checked={visibleColumnKeys.includes(key)}
+                            onChange={(event) => {
+                                const next = event.target.checked
+                                    ? [...visibleColumnKeys, key]
+                                    : visibleColumnKeys.filter((item) => item !== key);
+                                onVisibleColumnKeysChange(next);
+                            }}
+                        >
+                            {key}
+                        </Checkbox>
+                    ))}
+                    {filteredColumnKeys.length === 0 && (
+                        <span className="response-column-picker-empty">未找到列</span>
+                    )}
+                </div>
+            </div>
+        ) : null;
+
     return (
         <div className="response-table-tools">
             {showSearchInput && (
@@ -194,6 +251,25 @@ export default function ResponseTableTools({
                         onClick={onViewTrace}
                     />
                 </Tooltip>
+            ) : null}
+            {columnPicker ? (
+                <Popover
+                    trigger="click"
+                    placement="bottomRight"
+                    content={columnPicker}
+                    title="显示列"
+                >
+                    <Tooltip title="选择显示列">
+                        <Button
+                            type="text"
+                            size="small"
+                            className="response-table-tools-btn"
+                            aria-label="选择显示列"
+                        >
+                            列
+                        </Button>
+                    </Tooltip>
+                </Popover>
             ) : null}
             <Tooltip title="导出">
                 <Button

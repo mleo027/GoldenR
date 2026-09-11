@@ -1,4 +1,5 @@
 import { getElectronAPI } from '../lib/electron';
+import { importExportRuntime } from '../runtime/importExportFacade';
 
 function stringifyExportValue(value: unknown): string {
     return value == null ? '' : typeof value === 'object' ? JSON.stringify(value) : String(value);
@@ -101,10 +102,8 @@ export async function exportTableToCsv(
     }
 
     const content = buildCsvContent(data);
-    const electronAPI = getElectronAPI();
-
-    if (electronAPI?.importExport.saveCsv) {
-        const result = await electronAPI.importExport.saveCsv(content, filename);
+    if (getElectronAPI()?.importExport.saveCsv) {
+        const result = await importExportRuntime.saveCsv(content, filename);
         if (!result.saved) {
             return { saved: false, reason: 'cancelled' };
         }
@@ -135,10 +134,8 @@ export async function exportTableToText(
     }
 
     const content = buildAlignedTextTable(data);
-    const electronAPI = getElectronAPI();
-
-    if (electronAPI?.importExport.saveTxt) {
-        const result = await electronAPI.importExport.saveTxt(content, filename);
+    if (getElectronAPI()?.importExport.saveTxt) {
+        const result = await importExportRuntime.saveTxt(content, filename);
         if (!result.saved) {
             return { saved: false, reason: 'cancelled' };
         }

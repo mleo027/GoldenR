@@ -9,13 +9,13 @@ import {
     type MutableRefObject,
     type RefObject,
 } from 'react';
-import {App, Dropdown, Spin, Tooltip, Typography} from 'antd';
+import { App, Dropdown, Spin, Tooltip, Typography } from 'antd';
 import type { TextAreaRef } from 'antd/es/input/TextArea';
 import { SearchOutlined } from '@ant-design/icons';
 import type { ParamItem } from '../../types/workspace';
 import type { DbSuggestOption } from '../../types/paramSuggest';
 import { useParamSuggestions } from '../../hooks/useParamSuggestions';
-import { getElectronAPI } from '../../../../lib/electron';
+import { importExportRuntime } from '../../../../runtime/importExportFacade';
 import { UI_DEBOUNCE_MS } from '../../../../constants/ui';
 import {
     formatFileParamValue,
@@ -187,12 +187,10 @@ function useFileParamHandlers({
     const openFilePickerForValue = useCallback(
         (triggerValue: string) => {
             if (filePickerInFlightRef.current || !isFilePickerTriggerValue(triggerValue)) return;
-
-            const api = getElectronAPI();
-            if (!api?.importExport.openParamFile) return;
+            if (!importExportRuntime.isAvailable()) return;
 
             filePickerInFlightRef.current = true;
-            void api.importExport
+            void importExportRuntime
                 .openParamFile()
                 .then((result) => {
                     if (!result.opened) return;
@@ -247,10 +245,8 @@ function useFileParamHandlers({
                 window.clearTimeout(filePromptTimerRef.current);
             }
             filePromptTimerRef.current = window.setTimeout(() => {
-                const api = getElectronAPI();
-                if (!api?.importExport.statParamFile) return;
-
-                void api.importExport
+                if (!importExportRuntime.isAvailable()) return;
+                void importExportRuntime
                     .statParamFile(filePath)
                     .then((result) => {
                         if (!result.exists || trimPathQuotes(latestRawRef.current) !== filePath)
@@ -372,6 +368,62 @@ function useParamSuggestInputEvents({
     return { placeholder, handleFocus, handleBlur, handleInputChange, handlePick, handleCopy };
 }
 
+interface ParamSuggestInputViewProps {
+    inputRef: RefObject<TextAreaRef>;
+    localValue: string;
+    placeholder: string;
+    disabled: boolean;
+    hasFieldRule: boolean;
+    open: boolean;
+    active: boolean;
+    loading: boolean;
+    pendingDeps: string[];
+    options: DbSuggestOption[];
+    onFocus(): void;
+    onBlur(): void;
+    onChange(value: string): void;
+    onPick(value: string): void;
+    onCopy(event: ClipboardEvent<HTMLTextAreaElement>): void;
+}
+
+function ParamSuggestInputView(props: ParamSuggestInputViewProps) {
+    const input = (
+        <ParamSuggestTextArea
+            inputRef={props.inputRef}
+            value={formatControlCharsForTitle(props.localValue)}
+            placeholder={props.placeholder}
+            disabled={props.disabled}
+            className={`param-input${props.hasFieldRule ? ' param-suggest-input' : ''}`}
+            onFocus={props.onFocus}
+            onBlur={props.onBlur}
+            onChange={props.onChange}
+            onCopy={props.onCopy}
+            title={formatControlCharsForTitle(props.localValue)}
+        />
+    );
+    if (!props.hasFieldRule) return input;
+    return (
+        <Dropdown
+            open={props.open && props.active}
+            trigger={[]}
+            destroyOnHidden={false}
+            placement="bottomLeft"
+            overlayClassName="param-suggest-dropdown-overlay"
+            popupRender={() => (
+                <SuggestDropdownPanel
+                    loading={props.loading}
+                    pendingDeps={props.pendingDeps}
+                    placeholder={props.placeholder}
+                    options={props.options}
+                    onPick={props.onPick}
+                />
+            )}
+        >
+            {input}
+        </Dropdown>
+    );
+}
+
 function ParamSuggestInput({
     fieldName,
     value,
@@ -457,53 +509,24 @@ function ParamSuggestInput({
             scheduleWindowsFilePrompt,
         });
 
-    if (!hasFieldRule) {
-        return (
-            <ParamSuggestTextArea
-                inputRef={inputRef}
-                value={formatControlCharsForTitle(localValue)}
-                placeholder={placeholder}
-                disabled={disabled}
-                className="param-input"
-                onFocus={handleFocus}
-                onBlur={handleBlur}
-                onChange={handleInputChange}
-                onCopy={handleCopy}
-                title={formatControlCharsForTitle(localValue)}
-            />
-        );
-    }
-
     return (
-        <Dropdown
-            open={open && active}
-            trigger={[]}
-            destroyOnHidden={false}
-            placement="bottomLeft"
-            overlayClassName="param-suggest-dropdown-overlay"
-            popupRender={() => (
-                <SuggestDropdownPanel
-                    loading={loading}
-                    pendingDeps={pendingDeps}
-                    placeholder={placeholder}
-                    options={options}
-                    onPick={handlePick}
-                />
-            )}
-        >
-            <ParamSuggestTextArea
-                inputRef={inputRef}
-                value={formatControlCharsForTitle(localValue)}
-                placeholder={placeholder}
-                disabled={disabled}
-                className="param-input param-suggest-input"
-                onFocus={handleFocus}
-                onBlur={handleBlur}
-                onChange={handleInputChange}
-                onCopy={handleCopy}
-                title={formatControlCharsForTitle(localValue)}
-            />
-        </Dropdown>
+        <ParamSuggestInputView
+            inputRef={inputRef}
+            localValue={localValue}
+            placeholder={placeholder}
+            disabled={disabled}
+            hasFieldRule={hasFieldRule}
+            open={open}
+            active={active}
+            loading={loading}
+            pendingDeps={pendingDeps}
+            options={options}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            onChange={handleInputChange}
+            onPick={handlePick}
+            onCopy={handleCopy}
+        />
     );
 }
 

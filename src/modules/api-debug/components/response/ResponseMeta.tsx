@@ -46,10 +46,22 @@ function isNonZeroCode(code: string | number): boolean {
 function ResponseMetaFooter({ response, className }: ResponseMetaProps) {
     const status = parseKcbpResponseStatus(response);
     const dataSize = formatDataSize(response.resultSets);
+    const rowCount = response.stats?.rows ?? sumResultSetRows(response.resultSets);
+    const showInlineDetails = false;
+    const hoverDetails = [
+        `${rowCount} Rows`,
+        response.stats ? `${response.stats.timecost} ms` : null,
+        response.resultSets.length > 0 ? dataSize : null,
+        response.calledAt != null ? formatDateTime(response.calledAt) : null,
+        hasTransportMismatch(response) ? `Transport ${status.transportCode}` : null,
+    ]
+        .filter(Boolean)
+        .join(' · ');
 
     return (
         <div
             className={`response-meta flex items-center gap-2 min-w-0 flex-wrap ${className ?? ''}`}
+            title={hoverDetails || undefined}
         >
             {status.businessMsg && (
                 <>
@@ -67,7 +79,8 @@ function ResponseMetaFooter({ response, className }: ResponseMetaProps) {
                     </Tooltip>
                 </>
             )}
-            {response.resultSets.length > 0 && (
+            {/* Additional metrics are available through the native title tooltip. */}
+            {showInlineDetails && response.resultSets.length > 0 && (
                 <>
                     {status.businessMsg && (
                         <span className="response-meta-sep shrink-0" aria-hidden="true" />
@@ -79,7 +92,7 @@ function ResponseMetaFooter({ response, className }: ResponseMetaProps) {
                     </Tooltip>
                 </>
             )}
-            {hasTransportMismatch(response) && (
+            {showInlineDetails && hasTransportMismatch(response) && (
                 <>
                     <span className="response-meta-sep shrink-0" aria-hidden="true" />
                     <Tooltip

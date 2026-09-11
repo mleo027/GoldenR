@@ -189,18 +189,12 @@ export default function ResponsePanel({
         () => selectedResultSet?.columns ?? Object.keys(responseData[0] ?? {}),
         [responseData, selectedResultSet?.columns],
     );
-    const [visibleColumnKeys, setVisibleColumnKeys] = useState<string[]>(responseColumns ?? []);
+    const [visibleColumnKeys, setVisibleColumnKeys] = useState<string[]>(responseColumns);
     const displayedColumnKeys = useMemo(() => {
-        const available = responseColumns ?? [];
-        const retained = visibleColumnKeys.filter((key) => available.includes(key));
-        return retained.length > 0 ? retained : available;
+        return visibleColumnKeys.filter((key) => responseColumns.includes(key));
     }, [responseColumns, visibleColumnKeys]);
     useEffect(() => {
-        setVisibleColumnKeys((current) => {
-            const available = responseColumns ?? [];
-            const retained = current.filter((key) => available.includes(key));
-            return retained.length > 0 ? retained : available;
-        });
+        setVisibleColumnKeys(responseColumns);
     }, [responseColumns]);
     const traceAvailable = Boolean(response?.trace?.events.length) && !loading;
 

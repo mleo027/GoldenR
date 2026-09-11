@@ -14,6 +14,8 @@ interface ResponseFullscreenModalProps {
     showRowIndex?: boolean;
     onSearchKeywordChange: (value: string) => void;
     onClose: () => void;
+    visibleColumnKeys?: string[];
+    onVisibleColumnKeysChange?: (keys: string[]) => void;
 }
 
 export default function ResponseFullscreenModal({
@@ -25,6 +27,8 @@ export default function ResponseFullscreenModal({
     showRowIndex = true,
     onSearchKeywordChange,
     onClose,
+    visibleColumnKeys,
+    onVisibleColumnKeysChange,
 }: ResponseFullscreenModalProps) {
     const hasData = data.length > 0;
 
@@ -51,6 +55,9 @@ export default function ResponseFullscreenModal({
                         fullscreenActive
                         exportData={data}
                         exportFilename="response-fullscreen.csv"
+                        columnKeys={columnKeys}
+                        visibleColumnKeys={visibleColumnKeys}
+                        onVisibleColumnKeysChange={onVisibleColumnKeysChange}
                     />
                 </div>
             }
@@ -65,7 +72,7 @@ export default function ResponseFullscreenModal({
             <div className="response-fullscreen-body">
                 <Grid
                     data={data}
-                    columnKeys={columnKeys}
+                    columnKeys={visibleColumnKeys ?? columnKeys}
                     searchKeyword={searchKeyword}
                     showRowIndex={showRowIndex}
                     footerStart={response ? <ResponseMeta response={response} /> : undefined}

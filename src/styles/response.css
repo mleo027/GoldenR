@@ -124,6 +124,12 @@
     gap: 10px;
 }
 
+/* 普通响应底部只展示 code 和 msg，其余指标通过悬停查看。 */
+.response-footer-meta .response-meta > .response-meta-badge:not(:first-child),
+.response-footer-meta .response-meta > .response-meta-sep {
+    display: none;
+}
+
 .response-footer-meta .response-meta-tag {
     font-size: 12px;
     line-height: 22px;
@@ -161,6 +167,27 @@
 .response-footer-pagination .ant-pagination-total-text {
     font-size: 12px;
     color: var(--color-text-secondary);
+}
+
+@media (max-width: 760px) {
+    .response-footer {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 6px 12px;
+    }
+
+    .response-footer-meta {
+        flex: 1 1 100%;
+        overflow: visible;
+    }
+
+    .response-footer-meta .response-meta {
+        row-gap: 6px;
+    }
+
+    .response-footer-pagination {
+        margin-left: 0;
+    }
 }
 
 .response-pagination .ant-pagination-item {
@@ -482,6 +509,48 @@ body.col-resizing {
 
 .response-table-tools-search {
     width: 168px;
+}
+
+.response-column-picker {
+    width: 240px;
+}
+
+.response-column-picker-actions {
+    display: flex;
+    justify-content: space-between;
+    margin: -4px -8px 6px;
+    padding: 0 4px 4px;
+    border-bottom: 1px solid var(--color-divider);
+}
+
+.response-column-picker-list {
+    display: flex;
+    max-height: 320px;
+    flex-direction: column;
+    gap: 6px;
+    overflow-y: auto;
+}
+
+.response-column-picker-list .ant-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    margin-inline-start: 0;
+    padding: 4px 6px;
+    border-radius: var(--radius-control);
+}
+
+.response-column-picker-list .ant-checkbox-wrapper:hover {
+    background: var(--color-bg-hover);
+}
+
+.response-column-picker-list .ant-checkbox-wrapper > span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--color-text-body);
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .response-table-tools-btn {
