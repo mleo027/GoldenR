@@ -22,6 +22,6 @@ describe('configStorage', () => {
         });
 
         await expect(configStorage.read('app.json')).rejects.toThrow('disk read failed');
-        expect(read).toHaveBeenCalledWith('app.json', undefined);
+        expect(read).toHaveBeenCalledWith('app.json');
     });
 });

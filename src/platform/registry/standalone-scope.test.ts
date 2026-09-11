@@ -36,7 +36,7 @@ describe('standalone registry scope', () => {
 
     it('keeps only core api-debug settings sections', () => {
         const keys = apiDebugModule.settingsSections?.map((section) => section.key) ?? [];
-        expect(keys).toEqual(['api-request', 'api-database', 'api-rules']);
+        expect(keys).toEqual(['api-request', 'api-rules', 'api-common-params']);
 
         for (const key of REMOVED_SETTINGS_KEYS) {
             expect(keys).not.toContain(key);

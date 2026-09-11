@@ -17,7 +17,10 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const suites = {
-    database: ['electron/database/database.test.ts'],
+    database: [
+        'electron/database/database.test.ts',
+        'electron/database/legacy-import/importLegacyConfig.test.ts',
+    ],
     kcbp: [
         'electron/kcbpBridge.test.ts',
         'electron/services/kcbp/kcbp.test.ts',

@@ -1,70 +1,102 @@
-import fs from 'fs/promises';
-import os from 'os';
-import path from 'path';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { ConfigRepository } from '../../database/repositories/configRepository';
 import {
     invalidateKcbpRuntimeConfigCache,
     loadKcbpRuntimeConfig,
+    normalizeKcbpRuntimeConfig,
+    saveKcbpRuntimeConfig,
+    setKcbpRuntimeConfigRepository,
     setKcbpRuntimeConfigUserDataDir,
 } from './kcbpRuntimeConfigStore';
 
-const tempDirs: string[] = [];
+function createRepository(stored: unknown = undefined) {
+    const read = vi.fn(() => stored);
+    const write = vi.fn();
+    return { read, write, repository: { read, write } as unknown as ConfigRepository };
+}
 
-afterEach(async () => {
+afterEach(() => {
     invalidateKcbpRuntimeConfigCache();
-    await Promise.all(
-        tempDirs.splice(0).map((dir) => fs.rm(dir, { recursive: true, force: true })),
-    );
 });
 
-describe('kcbpRuntimeConfigStore migration', () => {
-    it('migrates legacy KCBP fields out of tracecode.env.json', async () => {
-        const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'golden-kcbp-runtime-'));
-        tempDirs.push(dir);
-        setKcbpRuntimeConfigUserDataDir(dir);
+describe('kcbpRuntimeConfigStore', () => {
+    it('falls back to defaults when the database has no stored config', async () => {
+        const repo = createRepository(undefined);
+        setKcbpRuntimeConfigRepository(repo.repository);
 
-        await fs.writeFile(
-            path.join(dir, 'tracecode.env.json'),
-            `${JSON.stringify({
-                openCppCoveragePath: 'C:/occ/OpenCppCoverage.exe',
-                kcbpExecutable: 'C:/kcbp/kcbp.exe',
-                kcbpWorkingDir: 'C:/kcbp',
-                kcbpArgs: ['--foo', '--bar'],
-            })}\n`,
-            'utf8',
-        );
+        await expect(loadKcbpRuntimeConfig()).resolves.toEqual({
+            executable: '',
+            workingDir: '',
+            args: [],
+        });
+        expect(repo.read).toHaveBeenCalledWith('kcbp.env.json');
+    });
 
-        const loaded = await loadKcbpRuntimeConfig();
+    it('normalizes stored values and caches the result', async () => {
+        const repo = createRepository({
+            executable: '  C:/kcbp/kcbp.exe  ',
+            workingDir: ' C:/kcbp ',
+            args: [' --foo ', '', '  ', '--bar'],
+        });
+        setKcbpRuntimeConfigRepository(repo.repository);
 
-        expect(loaded).toEqual({
+        await expect(loadKcbpRuntimeConfig()).resolves.toEqual({
             executable: 'C:/kcbp/kcbp.exe',
             workingDir: 'C:/kcbp',
             args: ['--foo', '--bar'],
         });
+        await loadKcbpRuntimeConfig();
+        expect(repo.read).toHaveBeenCalledTimes(1);
+    });
 
-        const runtimeRaw = JSON.parse(
-            await fs.readFile(path.join(dir, 'kcbp.env.json'), 'utf8'),
-        ) as Record<string, unknown>;
-        const tracecodeRaw = JSON.parse(
-            await fs.readFile(path.join(dir, 'tracecode.env.json'), 'utf8'),
-        ) as Record<string, unknown>;
-        const backupRaw = JSON.parse(
-            await fs.readFile(path.join(dir, 'tracecode.kcbp.legacy-migrated.json'), 'utf8'),
-        ) as Record<string, unknown>;
+    it('writes normalized config back through the repository', async () => {
+        const repo = createRepository(undefined);
+        setKcbpRuntimeConfigRepository(repo.repository);
 
-        expect(runtimeRaw).toEqual({
+        await expect(
+            saveKcbpRuntimeConfig({
+                executable: ' C:/kcbp/kcbp.exe ',
+                workingDir: 'C:/kcbp',
+                args: ['--foo'],
+            }),
+        ).resolves.toEqual({
             executable: 'C:/kcbp/kcbp.exe',
             workingDir: 'C:/kcbp',
-            args: ['--foo', '--bar'],
+            args: ['--foo'],
         });
-        expect(tracecodeRaw).toEqual({
-            openCppCoveragePath: 'C:/occ/OpenCppCoverage.exe',
+        expect(repo.write).toHaveBeenCalledWith('kcbp.env.json', {
+            executable: 'C:/kcbp/kcbp.exe',
+            workingDir: 'C:/kcbp',
+            args: ['--foo'],
         });
-        expect(backupRaw).toEqual({
-            openCppCoveragePath: 'C:/occ/OpenCppCoverage.exe',
-            kcbpExecutable: 'C:/kcbp/kcbp.exe',
-            kcbpWorkingDir: 'C:/kcbp',
-            kcbpArgs: ['--foo', '--bar'],
+
+        // The saved value becomes the cache, so a follow-up load skips the database.
+        await expect(loadKcbpRuntimeConfig()).resolves.toMatchObject({
+            executable: 'C:/kcbp/kcbp.exe',
         });
+        expect(repo.read).not.toHaveBeenCalled();
+    });
+
+    it('leaves execution defaults intact for partial input', () => {
+        expect(normalizeKcbpRuntimeConfig({ executable: ' C:/kcbp/kcbp.exe ' })).toEqual({
+            executable: 'C:/kcbp/kcbp.exe',
+            workingDir: '',
+            args: [],
+        });
+        expect(normalizeKcbpRuntimeConfig()).toEqual({ executable: '', workingDir: '', args: [] });
+    });
+
+    it('detaches the database repository through the deprecated user-data shim', async () => {
+        const repo = createRepository({ executable: 'C:/kcbp/kcbp.exe' });
+        setKcbpRuntimeConfigRepository(repo.repository);
+        await loadKcbpRuntimeConfig();
+
+        setKcbpRuntimeConfigUserDataDir('C:/data');
+
+        // Runtime configuration is database-backed, so the shim must not leave a
+        // stale repository behind: saving without a database fails loudly.
+        await expect(
+            saveKcbpRuntimeConfig({ executable: '', workingDir: '', args: [] }),
+        ).rejects.toThrow('Database has not been initialized');
     });
 });

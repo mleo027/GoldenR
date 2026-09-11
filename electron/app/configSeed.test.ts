@@ -62,6 +62,7 @@ describe('seedPortableConfigs', () => {
             'settings.json',
             'db.json',
             'param-suggest-rules.json',
+            'common-params.json',
             'kcbp.env.json',
         ]);
     });

@@ -46,12 +46,23 @@ describe('suggest IPC handlers', () => {
         expect(await invoke('db:testConnection', connection)).toEqual({ ok: true });
         expect(mock.testDbConnection).toHaveBeenCalledWith(connection);
 
-        await invoke('db:suggest', { field: 'bsflag', contextParams: {} });
+        await invoke('db:suggest', {
+            field: 'bsflag',
+            contextParams: {},
+            databaseConfig: { server: '127.0.0.1', database: 'db' },
+        });
         expect(mock.executeSuggest).toHaveBeenCalledTimes(1);
     });
 
     it('validates suggest and SQL payloads', async () => {
         await expect(invoke('db:suggest', {})).rejects.toThrow();
+        await expect(
+            invoke('db:suggest', {
+                field: 'bsflag',
+                contextParams: {},
+                databaseConfig: { server: '127.0.0.1', database: 'db' },
+            }),
+        ).resolves.toEqual({ options: [] });
         await expect(invoke('db:query', {})).rejects.toThrow();
     });
 
