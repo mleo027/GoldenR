@@ -9,6 +9,10 @@
   "engines": {
     "node": ">=20"
   },
+  "config": {
+    "electron_mirror": "https://npmmirror.com/mirrors/electron/",
+    "electron_builder_binaries_mirror": "https://npmmirror.com/mirrors/electron-builder-binaries/"
+  },
   "scripts": {
     "prepare": "node scripts/install-git-hooks.mjs",
     "dev": "vite",
