@@ -1,7 +1,7 @@
 import { Dropdown, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import { FolderOpenOutlined, RightOutlined } from '@ant-design/icons';
-import { useState, type RefObject, type ReactNode } from 'react';
+import { useState, type DragEvent, type RefObject, type ReactNode } from 'react';
 import { Input } from '../../../../components/ui/primitives';
 import type { InputRef } from '../../../../components/ui/primitives';
 import type { CaseFolderTreeNode } from '../../utils/workspace/caseFolders';
@@ -17,6 +17,10 @@ interface CaseFolderTreeProps {
     onEditingNameChange: (name: string) => void;
     onFinishRename: () => void;
     getMenu: (folderId: string) => MenuProps['items'];
+    dropTargetFolderId?: string | null;
+    onFolderDragOver?: (folderId: string, event: DragEvent<HTMLDivElement>) => void;
+    onFolderDragLeave?: (folderId: string, event: DragEvent<HTMLDivElement>) => void;
+    onFolderDrop?: (folderId: string, event: DragEvent<HTMLDivElement>) => void;
     forceExpanded?: boolean;
     depth?: number;
 }
@@ -32,6 +36,10 @@ export default function CaseFolderTree({
     onEditingNameChange,
     onFinishRename,
     getMenu,
+    dropTargetFolderId = null,
+    onFolderDragOver = () => undefined,
+    onFolderDragLeave = () => undefined,
+    onFolderDrop = () => undefined,
     forceExpanded = false,
     depth = 0,
 }: CaseFolderTreeProps) {
@@ -47,9 +55,12 @@ export default function CaseFolderTree({
                 >
                     <Dropdown trigger={['contextMenu']} menu={{ items: getMenu(node.folder.id) }}>
                         <div
-                            className="case-folder-row flex items-center gap-1.5 py-1 pr-2 text-xs text-[var(--color-text-secondary)]"
+                            className={`case-folder-row flex items-center gap-1.5 py-1 pr-2 text-xs text-[var(--color-text-secondary)]${dropTargetFolderId === node.folder.id ? ' case-folder-row-drop-target' : ''}`}
                             style={{ paddingLeft: '8px' }}
                             data-folder-id={node.folder.id}
+                            onDragOver={(event) => onFolderDragOver(node.folder.id, event)}
+                            onDragLeave={(event) => onFolderDragLeave(node.folder.id, event)}
+                            onDrop={(event) => onFolderDrop(node.folder.id, event)}
                             onClick={() => {
                                 setCollapsed((current) => {
                                     const next = new Set(current);
@@ -107,6 +118,10 @@ export default function CaseFolderTree({
                                 onEditingNameChange={onEditingNameChange}
                                 onFinishRename={onFinishRename}
                                 getMenu={getMenu}
+                                dropTargetFolderId={dropTargetFolderId}
+                                onFolderDragOver={onFolderDragOver}
+                                onFolderDragLeave={onFolderDragLeave}
+                                onFolderDrop={onFolderDrop}
                                 forceExpanded={forceExpanded}
                                 depth={depth + 1}
                             />

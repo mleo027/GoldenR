@@ -9,11 +9,10 @@ import CaseTreeItem from './CaseTreeItem';
 describe('CaseTreeItem', () => {
     afterEach(cleanup);
 
-    it('selects, favorites, and copies the message type', async () => {
+    it('selects and favorites an interface', async () => {
         const user = userEvent.setup();
         const onSelect = vi.fn();
         const onToggleFavorite = vi.fn();
-        const onCopyMsgtype = vi.fn();
         render(
             <CaseTreeItem
                 caseItem={createCaseTab({ name: '登录接口' })}
@@ -30,16 +29,13 @@ describe('CaseTreeItem', () => {
                 onEditingNameChange={vi.fn()}
                 onFinishRename={vi.fn()}
                 onToggleFavorite={onToggleFavorite}
-                onCopyMsgtype={onCopyMsgtype}
             />,
         );
 
         await user.click(screen.getByText('登录接口'));
         await user.click(screen.getByRole('button', { name: '收藏接口' }));
-        await user.click(screen.getByRole('button', { name: /复制功能号/ }));
 
         expect(onSelect).toHaveBeenCalledTimes(1);
         expect(onToggleFavorite).toHaveBeenCalledTimes(1);
-        expect(onCopyMsgtype).toHaveBeenCalledTimes(1);
     });
 });

@@ -16,10 +16,10 @@ export function useCaseSidebarController() {
     const {
         addProject,
         renameProject,
-        toggleProjectExpand,
         importCases,
         renameCase,
         moveCase,
+        moveCaseToFolder,
         renameFolder,
     } = actions;
 
@@ -67,12 +67,15 @@ export function useCaseSidebarController() {
         handleProjectDragOver,
         handleProjectDragLeave,
         handleProjectDrop,
+        dropTargetFolderId,
+        handleFolderDragOver,
+        handleFolderDragLeave,
+        handleFolderDrop,
         handleCaseDragEnd,
     } = useCaseSidebarDrag({
         projects: state.projects,
-        expandedProjectIds: state.expandedProjectIds,
-        toggleProjectExpand,
         moveCase,
+        moveCaseToFolder,
     });
 
     return {
@@ -84,6 +87,7 @@ export function useCaseSidebarController() {
         searchHighlightTerm,
         draggingCaseId,
         dropTargetProjectIndex,
+        dropTargetFolderId,
         sidebarRef,
         sidebarListRef,
         visibleProjects,
@@ -102,6 +106,9 @@ export function useCaseSidebarController() {
         handleProjectDragOver,
         handleProjectDragLeave,
         handleProjectDrop,
+        handleFolderDragOver,
+        handleFolderDragLeave,
+        handleFolderDrop,
         handleCaseDragEnd,
     };
 }

@@ -1,5 +1,6 @@
 import type { TabData, ProjectData, PersistedWorkspace } from '../types/workspace';
 import { paramsToCaseScript } from '../utils/script/apiScript';
+import type { ClipboardCase } from '../utils/workspace/caseClipboard';
 
 const generateId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
@@ -40,6 +41,25 @@ export const cloneCase = (source: TabData): TabData => {
     return {
         id: generateId(),
         name: copyName,
+        protocol: source.protocol,
+        address: source.address,
+        params: source.params.map((item) => ({ ...item })),
+        script: source.script,
+        runInput: source.runInput ? { ...source.runInput } : undefined,
+        requestScript: source.requestScript,
+        responseScript: source.responseScript,
+        favorite: source.favorite ?? false,
+        createdAt: now,
+        updatedAt: now,
+    };
+};
+
+export const createPastedCase = (source: ClipboardCase, folderId: string): TabData => {
+    const now = Date.now();
+    return {
+        id: generateId(),
+        folderId,
+        name: source.name,
         protocol: source.protocol,
         address: source.address,
         params: source.params.map((item) => ({ ...item })),

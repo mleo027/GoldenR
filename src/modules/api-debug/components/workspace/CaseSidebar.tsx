@@ -41,6 +41,7 @@ function CaseSidebarTree({ controller }: { controller: CaseSidebarController }) 
         searchHighlightTerm,
         draggingCaseId,
         dropTargetProjectIndex,
+        dropTargetFolderId,
         sidebarListRef,
         visibleProjects,
         inputRef,
@@ -58,6 +59,9 @@ function CaseSidebarTree({ controller }: { controller: CaseSidebarController }) 
         handleProjectDragOver,
         handleProjectDragLeave,
         handleProjectDrop,
+        handleFolderDragOver,
+        handleFolderDragLeave,
+        handleFolderDrop,
         handleCaseDragEnd,
     } = controller;
 
@@ -123,6 +127,12 @@ function CaseSidebarTree({ controller }: { controller: CaseSidebarController }) 
                                         onFinishRename={finishRename}
                                         getMenu={(folderId) =>
                                             getFolderMenu(projectIndex, folderId)
+                                        }
+                                        dropTargetFolderId={dropTargetFolderId}
+                                        onFolderDragOver={handleFolderDragOver}
+                                        onFolderDragLeave={handleFolderDragLeave}
+                                        onFolderDrop={(folderId, event) =>
+                                            handleFolderDrop(projectIndex, folderId, event)
                                         }
                                         forceExpanded={Boolean(controller.searchKeyword.trim())}
                                         renderCases={(node) => (

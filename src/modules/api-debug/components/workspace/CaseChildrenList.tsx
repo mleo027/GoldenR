@@ -123,7 +123,6 @@ function CaseCaseList({
             onEditingNameChange={onEditingNameChange}
             onFinishRename={onFinishRename}
             onToggleFavorite={getCaseActionHandler(`${projectIndex}:${item.caseIndex}:favorite`)}
-            onCopyMsgtype={getCaseActionHandler(`${projectIndex}:${item.caseIndex}:copy-msgtype`)}
             isDragging={draggingCaseId === item.caseItem.id}
             onDragStart={
                 onCaseDragStart

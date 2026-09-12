@@ -9,6 +9,7 @@ import {
     ExportOutlined,
     ImportOutlined,
     PlusOutlined,
+    SnippetsOutlined,
     SolutionOutlined,
     StarOutlined,
 } from '@ant-design/icons';
@@ -18,7 +19,12 @@ import type { useTabsActions, useTabsNavigation } from '../../store/useTabs';
 import { applyTabDraftsToWorkspace } from '../../store/tabsData';
 import { flushAllTabDrafts } from '../../utils/workspace/tabDraftRegistry';
 import { exportProjectToIni } from '../../services/import/exportProjectIni';
-import { getCaseLabel, getCaseMsgtype } from '../../utils/workspace/caseLabel';
+import { getCaseLabel } from '../../utils/workspace/caseLabel';
+import { createPastedCase } from '../../constants/workspace';
+import {
+    parseCaseFromClipboard,
+    serializeCaseForClipboard,
+} from '../../utils/workspace/caseClipboard';
 
 interface Config {
     modal: ReturnType<typeof App.useApp>['modal'];
@@ -110,6 +116,23 @@ function useProjectTransfer(config: Config) {
 
 function useFolderMenu(config: Config) {
     const { actions, modal, startRename } = config;
+    const handlePasteCase = useCallback(
+        async (projectIndex: number, folderId: string) => {
+            try {
+                const clipboardText = await navigator.clipboard.readText();
+                const clipboardCase = parseCaseFromClipboard(clipboardText);
+                if (!clipboardCase) {
+                    message.warning('剪贴板中没有可粘贴的接口');
+                    return;
+                }
+                actions.importCases(projectIndex, [createPastedCase(clipboardCase, folderId)]);
+                message.success('已粘贴接口');
+            } catch {
+                message.error('读取剪贴板失败');
+            }
+        },
+        [actions],
+    );
     const getFolderMenu = useCallback(
         (projectIndex: number, folderId: string): MenuProps['items'] => [
             {
@@ -123,6 +146,12 @@ function useFolderMenu(config: Config) {
                 label: '在此目录新建接口',
                 icon: <PlusOutlined />,
                 onClick: () => actions.addCase(projectIndex, folderId),
+            },
+            {
+                key: 'paste-case',
+                label: '粘贴接口',
+                icon: <SnippetsOutlined />,
+                onClick: () => void handlePasteCase(projectIndex, folderId),
             },
             {
                 key: 'rename',
@@ -148,7 +177,7 @@ function useFolderMenu(config: Config) {
                     }),
             },
         ],
-        [actions, modal, startRename],
+        [actions, handlePasteCase, modal, startRename],
     );
     return getFolderMenu;
 }
@@ -165,8 +194,12 @@ function useCaseMenu(
                 label: '复制接口',
                 icon: <CopyOutlined />,
                 onClick: () => {
-                    actions.duplicateCase(projectIndex, caseIndex);
-                    message.success('已复制接口');
+                    const caseItem = state.projects[projectIndex]?.cases[caseIndex];
+                    if (!caseItem) return;
+                    void navigator.clipboard
+                        .writeText(serializeCaseForClipboard(caseItem))
+                        .then(() => message.success('已复制接口到剪贴板'))
+                        .catch(() => message.error('写入剪贴板失败'));
                 },
             },
             {
@@ -304,15 +337,6 @@ function useActionHandlers(
             };
         if (action === 'delete') return () => deleteCase(p, c);
         if (action === 'favorite') return () => config.actions.toggleCaseFavorite(p, c);
-        if (action === 'copy-msgtype')
-            return () => {
-                const value = config.state.projects[p]?.cases[c];
-                const msgtype = value && getCaseMsgtype(value);
-                if (!msgtype) return void message.warning('当前接口没有可复制的功能号');
-                void navigator.clipboard
-                    .writeText(msgtype)
-                    .then(() => message.success(`已复制功能号 ${msgtype}`));
-            };
         return () => undefined;
     });
     const getProjectActionHandler = useStableHandlerMap((key: string) => {

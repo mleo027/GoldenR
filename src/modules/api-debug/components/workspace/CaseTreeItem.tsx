@@ -1,10 +1,10 @@
 import { memo, type RefObject } from 'react';
 import { Button, Dropdown, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
-import { CopyOutlined, StarFilled, StarOutlined } from '@ant-design/icons';
+import { StarFilled, StarOutlined } from '@ant-design/icons';
 import TextHighlight from '../../../../components/ui/TextHighlight';
 import type { TabData } from '../../types/workspace';
-import { getCaseDisplayParts, getCaseLabel, getCaseMsgtype } from '../../utils/workspace/caseLabel';
+import { getCaseDisplayParts, getCaseLabel } from '../../utils/workspace/caseLabel';
 import InlineRenameInput from './InlineRenameInput';
 import type { InputRef } from '../../../../components/ui/primitives';
 
@@ -24,7 +24,6 @@ interface CaseTreeItemProps {
     onEditingNameChange: (value: string) => void;
     onFinishRename: () => void;
     onToggleFavorite: () => void;
-    onCopyMsgtype: () => void;
     onDragStart?: (event: React.DragEvent<HTMLDivElement>) => void;
     onDragEnd?: () => void;
 }
@@ -69,26 +68,6 @@ function CaseLabel({ item, index, query }: { item: TabData; index: number; query
     );
 }
 
-function CopyButton({ msgtype, onCopy }: { msgtype: string; onCopy: () => void }) {
-    return (
-        <div className="case-item-actions">
-            <Tooltip title={`复制功能号${msgtype}`}>
-                <Button
-                    type="text"
-                    size="small"
-                    icon={<CopyOutlined className="text-[10px]" />}
-                    className="case-item-action"
-                    aria-label={`复制功能号${msgtype}`}
-                    onClick={(event) => {
-                        event.stopPropagation();
-                        onCopy();
-                    }}
-                />
-            </Tooltip>
-        </div>
-    );
-}
-
 function CaseTreeItem({
     caseItem,
     caseIndex,
@@ -104,13 +83,11 @@ function CaseTreeItem({
     onEditingNameChange,
     onFinishRename,
     onToggleFavorite,
-    onCopyMsgtype,
     onDragStart,
     onDragEnd,
 }: CaseTreeItemProps) {
     const label = getCaseLabel(caseItem, caseIndex);
     const favorite = caseItem.favorite ?? false;
-    const msgtype = getCaseMsgtype(caseItem);
     const draggable = Boolean(onDragStart) && !isEditing;
     return (
         <Dropdown menu={{ items: menuItems }} trigger={['contextMenu']}>
@@ -141,7 +118,6 @@ function CaseTreeItem({
                         <CaseLabel item={caseItem} index={caseIndex} query={searchHighlightTerm} />
                     </Tooltip>
                 )}
-                {!isEditing && msgtype && <CopyButton msgtype={msgtype} onCopy={onCopyMsgtype} />}
             </div>
         </Dropdown>
     );

@@ -211,6 +211,12 @@
     background: var(--color-bg-hover);
 }
 
+.case-folder-row-drop-target {
+    background: var(--color-primary-subtle);
+    outline: 1px dashed var(--color-primary);
+    outline-offset: -1px;
+}
+
 .case-folder-row:focus-within {
     background: var(--color-primary-subtle);
 }
