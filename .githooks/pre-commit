@@ -5,3 +5,4 @@ node scripts/verify-staged-guards.mjs
 npm run ipc:check
 npx --no-install tsc -b
 npx --no-install eslint . --report-unused-disable-directives --max-warnings=0
+node scripts/run-related-tests.mjs
