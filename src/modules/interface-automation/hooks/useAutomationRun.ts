@@ -11,13 +11,12 @@ import type {
 import type { KcxpEnvironment } from '@/shared/kcxp/types';
 import { AutomationRunController, inspectAutomationScript } from '../services/automationRunner';
 import { saveFolderReport, saveScenarioReport } from '../services/automationData';
-import { resolveScenarioInputs, validateScenarioInputs } from '../utils/scenarioInputs';
+import {
+    resolveScenarioInputs,
+    sensitiveInputNames,
+    validateScenarioInputs,
+} from '../utils/scenarioInputs';
 import { useAutomationStore } from '../store/automationStore';
-
-const sensitiveNames = (metadata: AutomationScenarioMetadata) =>
-    Object.entries(metadata.inputs ?? {})
-        .filter(([, item]) => item.sensitive)
-        .map(([name]) => name);
 
 async function runScenario(
     scenario: AutomationScenario,
@@ -30,7 +29,7 @@ async function runScenario(
         scenario,
         environment,
         inputs: validateScenarioInputs(metadata, inputs),
-        sensitiveInputNames: sensitiveNames(metadata),
+        sensitiveInputNames: sensitiveInputNames(metadata),
     });
 }
 

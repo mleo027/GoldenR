@@ -70,6 +70,13 @@ export function rememberScenarioInputs(scenarioId: string, values: AutomationInp
     scenarioInputCache.set(scenarioId, { ...values });
 }
 
+/** 标记为敏感的输入名，报告显示与持久化前需要遮罩。 */
+export function sensitiveInputNames(metadata: AutomationScenarioMetadata): string[] {
+    return Object.entries(metadata.inputs ?? {})
+        .filter(([, item]) => item.sensitive)
+        .map(([name]) => name);
+}
+
 export function resolveScenarioInputs(
     scenarioId: string,
     metadata: AutomationScenarioMetadata,

@@ -9,6 +9,7 @@ type RuntimeStorageName =
     | 'projects'
     | 'commonParams'
     | 'paramSuggestRules'
+    | 'agentGateway'
     | 'requestHistory';
 
 const encode = (value: unknown, fallback: unknown = null): string =>
@@ -93,9 +94,24 @@ export class ConfigRepository {
         this.writeStorage('requestHistory', value);
     }
 
+    /**
+     * Agent 模型网关配置。
+     *
+     * 密钥由 electron/services/agent 使用 safeStorage 加密后以字符串形式存在这里，
+     * 本仓储不感知加密细节，只负责持久化。
+     */
+    readAgentGatewayConfig(): unknown | null {
+        return this.readStorage('agentGateway');
+    }
+    writeAgentGatewayConfig(value: unknown): void {
+        this.writeStorage('agentGateway', value);
+    }
+
     private readStorage(name: RuntimeStorageName): unknown | null {
         if (name === 'appEnv')
             return this.oneJson("SELECT value FROM app_preferences WHERE key='appEnv'");
+        if (name === 'agentGateway')
+            return this.oneJson("SELECT value FROM app_preferences WHERE key='agentGateway'");
         if (name === 'workspace')
             return this.oneJson("SELECT value FROM workspace_state WHERE key='snapshot'");
         if (name === 'dbConnection') {
@@ -156,6 +172,8 @@ export class ConfigRepository {
     private writeStorage(name: RuntimeStorageName, value: unknown): void {
         const tx = this.db.transaction(() => {
             if (name === 'appEnv')
+                return this.upsert('app_preferences', 'key', name, { value: encode(value, {}) });
+            if (name === 'agentGateway')
                 return this.upsert('app_preferences', 'key', name, { value: encode(value, {}) });
             if (name === 'workspace')
                 return this.upsert('workspace_state', 'key', 'snapshot', {

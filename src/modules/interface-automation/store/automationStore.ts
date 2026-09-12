@@ -57,6 +57,12 @@ interface AutomationState {
     addProject(): void;
     addFolder(projectId: string, parentId?: string): void;
     addScenario(projectId: string, folderId?: string): void;
+    createScenario(input: {
+        projectId: string;
+        folderId?: string;
+        name: string;
+        script: string;
+    }): string;
     duplicateScenario(id: string): void;
     updateProject(id: string, name: string): void;
     updateFolder(id: string, name: string): void;
@@ -78,6 +84,36 @@ type GetState = () => AutomationState;
 function persist(set: SetState, workspace: AutomationWorkspace) {
     set({ workspace });
     saveAutomationWorkspace(workspace);
+}
+
+type ScenarioDraft = {
+    projectId: string;
+    folderId?: string;
+    name: string;
+    script: string;
+};
+
+/** 按指定内容新建场景；从 createAddActions 拆出以控制函数长度。 */
+function insertScenario(set: SetState, get: GetState, input: ScenarioDraft): string {
+    const workspace = get().workspace;
+    const stamp = now();
+    const position = workspace.scenarios.filter(
+        (item) => item.projectId === input.projectId && item.folderId === input.folderId,
+    ).length;
+    const scenario: AutomationScenario = {
+        id: id('automation-scenario'),
+        projectId: input.projectId,
+        folderId: input.folderId,
+        name: input.name,
+        script: input.script,
+        position,
+        enabled: true,
+        createdAt: stamp,
+        updatedAt: stamp,
+    };
+    persist(set, { ...workspace, scenarios: [...workspace.scenarios, scenario] });
+    set({ selectedScenarioId: scenario.id });
+    return scenario.id;
 }
 
 function createAddActions(set: SetState, get: GetState) {
@@ -140,6 +176,9 @@ function createAddActions(set: SetState, get: GetState) {
             };
             persist(set, { ...workspace, scenarios: [...workspace.scenarios, scenario] });
             set({ selectedScenarioId: scenario.id });
+        },
+        createScenario(input: ScenarioDraft) {
+            return insertScenario(set, get, input);
         },
         duplicateScenario(scenarioId: string) {
             const workspace = get().workspace;

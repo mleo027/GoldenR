@@ -1,0 +1,297 @@
+/* 接口自动化 · Agent 侧边栏 */
+
+.automation-main-split-wrap {
+    position: relative;
+    height: 100%;
+    min-height: 0;
+}
+
+.automation-main-split {
+    height: 100%;
+    min-height: 0;
+}
+
+.automation-agent-resize {
+    cursor: col-resize;
+}
+
+.automation-agent-resize.is-collapsed {
+    display: none;
+}
+
+.automation-agent-rail {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 5;
+    padding: 8px 6px;
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--radius-sm);
+    color: var(--color-primary);
+    background: var(--color-bg-container);
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    font-size: 12px;
+    writing-mode: vertical-rl;
+}
+
+.automation-agent {
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 8px;
+    background: var(--color-bg-container);
+}
+
+.automation-agent-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.automation-agent-title {
+    color: var(--color-text);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.automation-agent-head-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.automation-agent-env {
+    width: 140px;
+}
+
+.automation-agent-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--color-text-tertiary);
+    font-size: 12px;
+}
+
+.automation-agent-status i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-text-muted);
+}
+
+.automation-agent-status.is-ready i {
+    background: var(--color-success);
+}
+
+.automation-agent-status.is-starting i {
+    background: var(--color-warning);
+}
+
+.automation-agent-status.is-failed i {
+    background: var(--color-error);
+}
+
+.automation-agent-body {
+    display: flex;
+    min-height: 0;
+    flex: 1;
+    flex-direction: column;
+    gap: 10px;
+    overflow: auto;
+    padding: 12px;
+}
+
+.automation-agent-empty {
+    color: var(--color-text-tertiary);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.automation-agent-message {
+    display: flex;
+}
+
+.automation-agent-message.is-user {
+    justify-content: flex-end;
+}
+
+.automation-agent-bubble {
+    max-width: 92%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--color-text-body);
+    background: var(--color-fill-tertiary);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.automation-agent-message.is-user .automation-agent-bubble {
+    color: var(--color-primary);
+    background: var(--color-primary-bg);
+}
+
+.automation-agent-tools {
+    display: grid;
+    gap: 4px;
+}
+
+.automation-agent-tool {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 5px 8px;
+    border-left: 2px solid var(--color-border-secondary);
+    color: var(--color-text-tertiary);
+    background: var(--color-bg-row-even);
+    font-size: 12px;
+}
+
+.automation-agent-tool b {
+    color: var(--color-text-secondary);
+    font-family: var(--font-family-mono);
+    font-weight: 500;
+}
+
+.automation-agent-tool.is-ok {
+    border-left-color: var(--color-success);
+}
+
+.automation-agent-tool.is-error {
+    border-left-color: var(--color-error);
+}
+
+.automation-agent-draft {
+    padding: 10px;
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 8px;
+    background: var(--color-bg-row-even);
+}
+
+.automation-agent-draft-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.automation-agent-draft-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-text);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.automation-agent-draft-title b.is-added {
+    color: var(--color-success);
+    font-size: 12px;
+}
+
+.automation-agent-draft-title b.is-removed {
+    color: var(--color-error);
+    font-size: 12px;
+}
+
+.automation-agent-draft-summary {
+    margin-top: 4px;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+}
+
+.automation-agent-link {
+    padding: 0;
+    border: 0;
+    color: var(--color-primary);
+    background: transparent;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.automation-agent-diff {
+    overflow: auto;
+    max-height: 260px;
+    margin: 8px 0 0;
+    padding: 8px;
+    border-radius: 4px;
+    background: var(--color-bg-container);
+    font-family: var(--font-family-mono);
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.automation-agent-diff-line {
+    display: block;
+    color: var(--color-text-secondary);
+    white-space: pre-wrap;
+}
+
+.automation-agent-diff-line.is-added {
+    color: var(--color-success);
+}
+
+.automation-agent-diff-line.is-removed {
+    color: var(--color-error);
+}
+
+.automation-agent-draft-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.automation-agent-settings {
+    display: grid;
+    gap: 8px;
+    padding: 12px;
+    border-bottom: 1px solid var(--color-border-secondary);
+    background: var(--color-bg-row-even);
+}
+
+.automation-agent-field {
+    display: grid;
+    gap: 4px;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+}
+
+.automation-agent-settings-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.automation-agent-hint {
+    color: var(--color-text-tertiary);
+    font-size: 12px;
+}
+
+.automation-agent-error {
+    padding: 7px 9px;
+    border-radius: 6px;
+    color: var(--color-error);
+    background: var(--color-error-bg);
+    font-size: 12px;
+}
+
+.automation-agent-composer {
+    display: grid;
+    gap: 8px;
+    padding: 12px;
+    border-top: 1px solid var(--color-border-secondary);
+}
+
+.automation-agent-composer-actions {
+    display: flex;
+    justify-content: flex-end;
+}

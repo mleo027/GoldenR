@@ -13,24 +13,34 @@
 
 ```text
 Renderer（src/modules/interface-automation）
-  └─ Agent 侧边栏（自建 React 面板）
-        │  IPC: agent:send / agent:cancel / agent:event(stream)
+  └─ Agent 侧边栏（自建 React 面板，位于工作区右侧）
+        │  IPC: agent:send / agent:cancel / agent:toolResult / agent:event(stream)
+        │  ★ 工具白名单在此实现（services/agentTools.ts）
+        │    场景读写走 store、运行走模块内运行器，界面与数据始终一致
         ▼
 Electron 主进程 —— 稳定层（本仓库维护）
-  ├─ ipc/agent.ts                channel 校验 + 事件转发
+  ├─ ipc/agent.ts                channel 校验 + 事件广播
   ├─ services/agent/
-  │    ├─ agentProcess.ts        spawn / 版本握手 / 重启 / 超时
+  │    ├─ agentService.ts        生命周期编排（启动 / 重启 / 取消）
+  │    ├─ agentProcess.ts        spawn / 版本握手 / 超时 / stderr 诊断
   │    ├─ agentClient.ts         HTTP + SSE 客户端
-  │    └─ agentHost.ts           工具白名单的宿主实现（读写场景、跑场景、读报告）
+  │    ├─ agentGateway.ts        网关配置（密钥经 safeStorage 加密）
+  │    └─ agentPaths.ts          dev / 打包路径解析（含 asar 映射）
   └─ src/shared/agent/protocol.ts   ★ 冻结契约 v1（唯一耦合面）
         │  HTTP + SSE（127.0.0.1 随机端口，Bearer token）
         ▼
 resources/agent/ —— 可整体替换层（独立维护）
   ├─ main.mjs        协议层（随契约稳定）
-  ├─ engine.mjs      ★ 真正接入 Pi 时的替换点
-  ├─ runs.mjs        运行状态与工具回调
-  └─ package.json    自有依赖树（@earendil-works/pi-*），不进主仓库依赖
+  ├─ gateway.mjs     OpenAI 兼容网关客户端（零依赖）
+  ├─ prompt.mjs      DSL 提示词
+  ├─ tools.mjs       暴露给模型的工具定义
+  ├─ engine.mjs      ★ 接入 Pi 时的替换点
+  └─ package.json    自有依赖树，不进主仓库依赖
 ```
+
+**为什么工具在渲染层执行**：场景的实时状态、Web Worker 运行器与 SQL/API 调用都在渲染层。
+主进程若自行执行业务工具，会造成界面与数据不一致，也无法复用既有的运行与安全策略。
+因此主进程只负责进程边界、契约校验与凭据，工具执行留在渲染层。
 
 Agent 以独立进程运行在**打包自带的 Node**（`resources/node`）上，避免 Electron ABI 问题，也避免把 Pi 的依赖树打进 `dist-electron/main.js`。
 
@@ -67,18 +77,23 @@ sidecar 启动后向 stdout 写入单行 JSON：
 
 ### 工具白名单
 
-Agent **没有**文件系统、网络或数据库工具，只能在 `tool.call` 中请求以下能力，由主进程执行：
+Agent **没有**文件系统、网络或数据库工具，只能在 `tool.call` 中请求以下能力：
 
-| 工具                | 用途                           |
-| ------------------- | ------------------------------ |
-| `list_scenarios`    | 列出可选场景                   |
-| `read_scenario`     | 读取既有脚本                   |
-| `write_scenario`    | 写入脚本（保留旧版本以便回滚） |
-| `list_environments` | 列出 KCXP 环境                 |
-| `run_scenario`      | 运行场景并返回报告             |
-| `read_report`       | 读取最近报告                   |
+| 工具                | 用途                               |
+| ------------------- | ---------------------------------- |
+| `list_scenarios`    | 列出可选场景                       |
+| `read_scenario`     | 读取既有脚本                       |
+| `write_scenario`    | 写入脚本（返回旧版本，供界面回滚） |
+| `list_environments` | 列出 KCXP 环境                     |
+| `run_scenario`      | 运行场景并返回报告                 |
+| `read_report`       | 读取最近报告                       |
 
-契约同时提供 `AGENT_CAPABILITIES` 常量，Agent 用它自报能力；宿主据此决定放行范围。
+执行位置：`src/modules/interface-automation/services/agentTools.ts`（渲染层），由
+`useAgentToolDispatch` 组装上下文并回填结果。sidecar 侧另有一个**本地工具**
+`propose_script`，只在 sidecar 内处理，用于把草稿推给界面确认，不属于宿主白名单。
+
+契约同时提供 `AGENT_CAPABILITIES` 与 `AGENT_TOOL_NAMES` 常量，Agent 用前者自报能力；
+两者与 sidecar 的一致性由契约测试双向校验。
 
 ## 可替换性：升级 SOP
 
@@ -118,10 +133,22 @@ Agent **没有**文件系统、网络或数据库工具，只能在 `tool.call` 
 | 阶段 | 内容                                                         | 状态   |
 | ---- | ------------------------------------------------------------ | ------ |
 | 1    | 冻结契约、sidecar 骨架、契约守卫测试、打包接线               | 已完成 |
-| 2    | 工具白名单的主进程实现（`agentHost`）与 IPC 通道             | 进行中 |
-| 3    | `agent/engine.mjs` 接入 Pi 与公司网关                        | 待开始 |
-| 4    | 侧边栏 React 面板（消息流、工具卡片、脚本 diff、运行与回滚） | 待开始 |
-| 5    | 可视化步骤编排器（主路径）                                   | 待开始 |
+| 2    | 工具白名单实现（`agentTools.ts`）、主进程托管与 IPC 通道     | 已完成 |
+| 3    | `agent/engine.mjs` 接入模型并跑通工具调用循环                | 已完成 |
+| 4    | 侧边栏 React 面板（消息流、工具卡片、脚本 diff、运行与回滚） | 已完成 |
+| 5    | 可视化步骤编排器（业务人员主路径）                           | 待开始 |
+
+## 引擎
+
+`agent/engine.mjs` 实现一个**零依赖**的 OpenAI 兼容工具调用循环，最多 10 轮；
+工具失败会作为结果回填给模型，以支持自修复。选择零依赖而非直接引入 Pi SDK 的原因：
+
+- 公司网关普遍暴露 `/chat/completions`，内置 `fetch` 即可，sidecar 无需安装依赖；
+- 供应链面最小，离线构建不受影响；
+- `engine.mjs` 是唯一替换点，接入 Pi 时只改这一个文件，协议层与宿主侧不动。
+
+引擎经环境变量接收配置（由主进程注入）：`AGENT_GATEWAY_URL`、`AGENT_GATEWAY_KEY`、
+`AGENT_MODEL`。网关配置变更后主进程会重启 sidecar，使新配置生效。
 
 > 侧边栏交互参考 `@earendil-works/pi-web-ui`（官方 scope，MIT）的信息架构，但**不作为依赖引入**：该包停在 0.75.3，落后当前 pi 10 个 minor，且以浏览器侧 IndexedDB 存密钥、依赖非 registry 的 `xlsx` tarball，与本方案的凭据与供应链约束冲突。
 

@@ -51,7 +51,14 @@ function readReadyLine(child: SidecarProcess): Promise<Record<string, unknown>> 
 async function startSidecar(): Promise<Sidecar> {
     const token = randomUUID();
     const child = spawn(process.execPath, [agentEntry], {
-        env: { ...process.env, AGENT_TOKEN: token, AGENT_PORT: '0' },
+        env: {
+            ...process.env,
+            AGENT_TOKEN: token,
+            AGENT_PORT: '0',
+            AGENT_GATEWAY_URL: '',
+            AGENT_GATEWAY_KEY: '',
+            AGENT_MODEL: '',
+        },
         stdio: ['ignore', 'pipe', 'pipe'],
     });
     running.push(child);
@@ -153,7 +160,7 @@ describe('agent 契约 v1', () => {
         expect(response.status).toBe(401);
     });
 
-    it('一次运行经工具回调产出脚本提案', async () => {
+    it('缺少网关配置时以 run.error 干净收尾', async () => {
         const sidecar = await startSidecar();
         const created = (await (
             await request(sidecar, 'POST', '/runs', {
@@ -162,12 +169,10 @@ describe('agent 契约 v1', () => {
             })
         ).json()) as { runId: string };
 
-        const { types, proposedScript } = await collectRunEvents(sidecar, created.runId);
+        const { types } = await collectRunEvents(sidecar, created.runId);
 
         expect(types).toContain('run.started');
-        expect(types).toContain('tool.call');
-        expect(types).toContain('script.proposed');
-        expect(types).toContain('run.finished');
-        expect(proposedScript).toContain('scenario(');
+        expect(types).toContain('run.error');
+        expect(types).not.toContain('tool.call');
     });
 });
