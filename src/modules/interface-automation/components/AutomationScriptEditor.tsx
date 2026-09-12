@@ -3,6 +3,11 @@ import Editor, { type OnMount } from '@monaco-editor/react';
 import type * as Monaco from 'monaco-editor';
 import { useAppEnv } from '@/store/useAppEnv';
 import { AUTOMATION_DSL_TYPES } from '../constants/automationDsl';
+import {
+    AUTOMATION_EDITOR_THEME_DARK,
+    AUTOMATION_EDITOR_THEME_LIGHT,
+    defineAutomationEditorThemes,
+} from '../utils/scriptEditorTheme';
 
 export default function AutomationScriptEditor({
     value,
@@ -32,11 +37,12 @@ export default function AutomationScriptEditor({
 
     return (
         <Editor
-            theme={env.darkMode ? 'vs-dark' : 'vs'}
+            theme={env.darkMode ? AUTOMATION_EDITOR_THEME_DARK : AUTOMATION_EDITOR_THEME_LIGHT}
             language="javascript"
             value={value}
             onChange={(next) => onChange(next ?? '')}
             onMount={onMount}
+            beforeMount={defineAutomationEditorThemes}
             options={{
                 fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
                 fontSize: 13,
@@ -45,6 +51,7 @@ export default function AutomationScriptEditor({
                 renderLineHighlight: 'all',
                 folding: true,
                 guides: { indentation: true },
+                bracketPairColorization: { enabled: true },
                 minimap: { enabled: false },
                 padding: { top: 12, bottom: 12 },
                 scrollBeyondLastLine: false,

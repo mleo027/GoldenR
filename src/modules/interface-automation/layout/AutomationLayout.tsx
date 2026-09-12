@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { Tooltip } from 'antd';
+import { ThunderboltOutlined } from '@ant-design/icons';
 import {
     Panel,
     PanelGroup,
@@ -68,13 +70,17 @@ function AutomationMainWithAgent() {
                 </Panel>
             </PanelGroup>
             {collapsed ? (
-                <button
-                    type="button"
-                    className="automation-agent-rail"
-                    onClick={() => setCollapsed(false)}
-                >
-                    Agent
-                </button>
+                <Tooltip title="展开 Agent 助手" placement="left">
+                    <button
+                        type="button"
+                        className="automation-agent-rail"
+                        aria-label="展开 Agent 助手"
+                        onClick={() => setCollapsed(false)}
+                    >
+                        <ThunderboltOutlined />
+                        <span className="automation-agent-rail-label">Agent</span>
+                    </button>
+                </Tooltip>
             ) : null}
         </div>
     );

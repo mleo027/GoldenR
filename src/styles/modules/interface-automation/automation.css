@@ -7,7 +7,7 @@
 .automation-sidebar {
     overflow: auto;
     padding: 12px 10px;
-    background: var(--color-bg-container);
+    background: var(--color-bg-sidebar);
 }
 
 .automation-sidebar-title,
@@ -71,9 +71,17 @@
 .automation-scenario-row:hover {
     background: var(--color-fill-tertiary);
 }
+/* 选中态：浅色微光底 + 左侧 3px 指示条，文字保持深色加粗，避免整行高饱和色块压过其余行 */
 .automation-scenario-row.is-active {
-    color: var(--color-primary);
-    background: var(--color-primary-bg);
+    color: var(--color-text-title);
+    background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+    box-shadow: inset 3px 0 0 var(--color-primary);
+    font-weight: 600;
+}
+
+.automation-scenario-row.is-active .automation-scenario-icon,
+.automation-scenario-row.is-active .automation-scenario-label {
+    color: var(--color-text-title);
 }
 
 .automation-status-dot {
@@ -203,11 +211,64 @@
     font-size: 11px;
 }
 
-.automation-warning {
-    padding: 7px 12px;
+/* 环境只读提示：紧凑 Notice（左侧细指示条 + 可关闭），不再横穿主区域 */
+.automation-notice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 6px 6px 10px;
+    border: 1px solid color-mix(in srgb, var(--color-warning) 24%, transparent);
+    border-left: 3px solid var(--color-warning);
     border-radius: 6px;
-    color: var(--color-warning-text);
-    background: var(--color-warning-bg);
+    color: var(--color-text-secondary);
+    background: color-mix(in srgb, var(--color-warning-bg) 60%, var(--color-bg-card));
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.automation-notice.is-danger {
+    border-color: color-mix(in srgb, var(--color-error) 24%, transparent);
+    border-left-color: var(--color-error);
+    background: color-mix(in srgb, var(--color-error-bg) 60%, var(--color-bg-card));
+}
+
+.automation-notice-icon {
+    flex: 0 0 auto;
+    color: var(--color-warning);
+    font-size: 13px;
+}
+
+.automation-notice.is-danger .automation-notice-icon {
+    color: var(--color-error);
+}
+
+.automation-notice-text {
+    min-width: 0;
+    flex: 1;
+}
+
+.automation-notice-close {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    color: var(--color-text-muted);
+    background: transparent;
+    cursor: pointer;
+    font-size: 11px;
+    transition:
+        color var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.automation-notice-close:hover {
+    color: var(--color-text-body);
+    background: var(--color-bg-hover);
 }
 
 .automation-editor-report {
@@ -228,6 +289,18 @@
 .automation-editor-tabs .ant-tabs-nav {
     margin: 0;
     padding: 0 12px;
+}
+
+/* 页签分隔线统一为浅灰；控制台顶边线只在失败时用 2px 红色，避免常驻高饱和横条 */
+.automation-editor-tabs .ant-tabs-nav::before,
+.automation-output-tabs .ant-tabs-nav::before {
+    border-bottom: 1px solid var(--color-divider) !important;
+}
+
+.automation-report-card.is-failed {
+    box-shadow:
+        inset 0 2px 0 var(--color-error),
+        var(--shadow-card);
 }
 .automation-editor-tabs .ant-tabs-content-holder {
     overflow: hidden;

@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { App } from 'antd';
 import { Tooltip } from 'antd';
 import {
+    BugOutlined,
     ClearOutlined,
+    CodeOutlined,
     DoubleRightOutlined,
     SendOutlined,
     SettingOutlined,
     StopOutlined,
+    ThunderboltOutlined,
 } from '@ant-design/icons';
 import { Button, Select, TextArea } from '@/components/ui/primitives';
 import type { AgentStatus } from '@/shared/agent/protocol';
@@ -105,24 +108,53 @@ function AgentHeader({
     );
 }
 
+/** 空态引导：把常见意图做成一键指令，降低首次使用的输入成本。 */
+const QUICK_PROMPTS: { icon: ReactNode; text: string }[] = [
+    { icon: <ThunderboltOutlined />, text: '根据接口文档生成断言' },
+    { icon: <BugOutlined />, text: '诊断控制台报错' },
+    { icon: <CodeOutlined />, text: '优化当前 TypeScript 脚本' },
+];
+
 function AgentConversation({
     agent,
     busy,
     onApply,
     onApplyAndRun,
     onRollback,
+    onQuickPrompt,
 }: {
     agent: AgentState;
     busy: boolean;
     onApply: (draft: AgentScriptDraft) => void;
     onApplyAndRun: (draft: AgentScriptDraft) => void;
     onRollback: (draft: AgentScriptDraft) => void;
+    onQuickPrompt?: (text: string) => void;
 }) {
     return (
         <div className="automation-agent-body">
             {agent.messages.length === 0 ? (
                 <div className="automation-agent-empty">
-                    描述你的意图，Agent 会读取现有场景、生成脚本并运行验证。
+                    <p className="automation-agent-empty-text">
+                        描述你的意图，Agent 会读取现有场景、生成脚本并运行验证。
+                    </p>
+                    {onQuickPrompt ? (
+                        <div className="automation-agent-prompts">
+                            {QUICK_PROMPTS.map((prompt) => (
+                                <button
+                                    key={prompt.text}
+                                    type="button"
+                                    className="automation-agent-prompt"
+                                    disabled={busy}
+                                    onClick={() => onQuickPrompt(prompt.text)}
+                                >
+                                    <span className="automation-agent-prompt-icon">
+                                        {prompt.icon}
+                                    </span>
+                                    {prompt.text}
+                                </button>
+                            ))}
+                        </div>
+                    ) : null}
                 </div>
             ) : (
                 agent.messages.map((item) => <AgentMessage key={item.id} message={item} />)
@@ -179,19 +211,30 @@ function AgentComposer({
                 placeholder="用自然语言描述你要做什么，例如「给场景加一个查询余额的断言」"
                 onChange={(event) => setValue(event.target.value)}
                 onKeyDown={(event) => {
-                    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
-                        event.preventDefault();
-                        submit();
-                    }
+                    // Enter 直接发送；Shift + Enter 保留换行，符合聊天输入习惯。
+                    if (event.key !== 'Enter' || event.shiftKey) return;
+                    event.preventDefault();
+                    submit();
                 }}
             />
             <div className="automation-agent-composer-actions">
+                {running ? null : (
+                    <span className="automation-agent-composer-hint">
+                        Enter 发送 · Shift + Enter 换行
+                    </span>
+                )}
                 {running ? (
                     <Button size="sm" variant="danger" icon={<StopOutlined />} onClick={onStop}>
                         停止
                     </Button>
                 ) : (
-                    <Button size="sm" variant="primary" icon={<SendOutlined />} onClick={submit}>
+                    <Button
+                        className="automation-agent-send"
+                        size="sm"
+                        variant="primary"
+                        icon={<SendOutlined />}
+                        onClick={submit}
+                    >
                         发送
                     </Button>
                 )}
@@ -250,6 +293,7 @@ export default function AutomationAgentPanel({ onCollapse }: { onCollapse?: () =
                 onApply={applyDraft}
                 onApplyAndRun={(draft) => void applyAndRun(draft)}
                 onRollback={rollbackDraft}
+                onQuickPrompt={(text) => void send(text)}
             />
             <AgentComposer
                 running={agent.running}

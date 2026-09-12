@@ -24,15 +24,35 @@
     top: 10px;
     right: 10px;
     z-index: 5;
-    padding: 8px 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 6px;
     border: 1px solid var(--color-border-secondary);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-control);
     color: var(--color-primary);
-    background: var(--color-bg-container);
+    background: var(--color-bg-card);
     box-shadow: var(--shadow-card);
     cursor: pointer;
     font-size: 12px;
     writing-mode: vertical-rl;
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.automation-agent-rail:hover {
+    border-color: var(--color-border-hover);
+    box-shadow: var(--shadow-elevated);
+}
+
+/* 竖向排布时图标保持正向，避免随文字旋转 */
+.automation-agent-rail .anticon {
+    writing-mode: horizontal-tb;
+}
+
+.automation-agent-rail-label {
+    letter-spacing: 0.08em;
 }
 
 .automation-agent {
@@ -70,27 +90,50 @@
     width: 140px;
 }
 
+/* 状态胶囊：底色 + 圆点语义化，离线/就绪/异常一眼可辨 */
 .automation-agent-status {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    color: var(--color-text-tertiary);
+    padding: 2px 8px 2px 7px;
+    border-radius: var(--radius-pill);
+    color: var(--color-text-secondary);
+    background: var(--color-bg-subtle);
     font-size: 12px;
+    font-weight: 500;
+    line-height: 18px;
+    white-space: nowrap;
 }
 
 .automation-agent-status i {
-    width: 7px;
-    height: 7px;
+    width: 6px;
+    height: 6px;
+    flex: 0 0 6px;
     border-radius: 50%;
     background: var(--color-text-muted);
+}
+
+.automation-agent-status.is-ready {
+    color: var(--color-success);
+    background: var(--color-success-bg);
 }
 
 .automation-agent-status.is-ready i {
     background: var(--color-success);
 }
 
+.automation-agent-status.is-starting {
+    color: var(--color-warning);
+    background: var(--color-warning-bg);
+}
+
 .automation-agent-status.is-starting i {
     background: var(--color-warning);
+}
+
+.automation-agent-status.is-failed {
+    color: var(--color-error);
+    background: var(--color-error-bg);
 }
 
 .automation-agent-status.is-failed i {
@@ -108,9 +151,59 @@
 }
 
 .automation-agent-empty {
+    display: grid;
+    gap: 12px;
     color: var(--color-text-tertiary);
     font-size: 13px;
     line-height: 1.7;
+}
+
+.automation-agent-empty-text {
+    margin: 0;
+}
+
+/* 空态快捷指令：把常见意图做成一键入口，减少空白区 */
+.automation-agent-prompts {
+    display: grid;
+    gap: 6px;
+}
+
+.automation-agent-prompt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--color-border-light);
+    border-radius: 8px;
+    color: var(--color-text-body);
+    background: var(--color-bg-card);
+    cursor: pointer;
+    font-size: 12px;
+    text-align: left;
+    transition:
+        border-color var(--transition-fast),
+        background var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.automation-agent-prompt:hover:not(:disabled) {
+    border-color: var(--color-border-hover);
+    color: var(--color-primary);
+    background: var(--color-primary-subtle);
+}
+
+.automation-agent-prompt:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.automation-agent-prompt-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    color: var(--color-primary);
+    font-size: 13px;
 }
 
 .automation-agent-message {
@@ -293,5 +386,16 @@
 
 .automation-agent-composer-actions {
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.automation-agent-composer-hint {
+    color: var(--color-text-muted);
+    font-size: 11px;
+}
+
+.automation-agent-send.ant-btn-primary:not(:disabled) {
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--color-primary) 28%, transparent);
 }

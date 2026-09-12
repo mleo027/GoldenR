@@ -254,7 +254,9 @@ function WorkspaceEditor({
             </Panel>
             <PanelResizeHandle className="panel-resize-handle panel-resize-handle-vertical automation-resize-handle" />
             <Panel defaultSize={40} minSize={20}>
-                <section className="automation-report-card">
+                <section
+                    className={`automation-report-card${report?.status === 'failed' ? ' is-failed' : ''}`}
+                >
                     <AutomationReportPanel
                         report={report}
                         folderReport={folderReport}
