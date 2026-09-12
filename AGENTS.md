@@ -63,10 +63,10 @@ verify-staged-guards → ipc:check → tsc -b → eslint .
 | `npm run check`          | lint + ipc:check + format:check + scan:encoding + check:complexity + typecheck + test:component + test |
 | `npm run check:delivery` | check + test:api + vite build                                                                          |
 
-> **基线说明**：`npm run check` 目前会因两类**既有问题**失败，均非单次改动引入：
-> `check:complexity` 的复杂度违规，以及 `format:check` 中约 19 个未格式化的既有文件。
-> 不要为了"全绿"而降低阈值、删除测试或放宽规则；只格式化你实际改动的文件，
-> 其余既有问题在汇报中单独列出。
+> **基线说明**：`npm run check` 目前**仅**因 `format:check` 失败（约 19 个既有未格式化文件）。
+> `check:complexity` 采用棘轮机制（实测 24 ≤ 允许基线 38），`scan:encoding`、`color:check`、
+> `lint`、`typecheck` 与全部 700 个测试均通过。不要为了"全绿"而降低阈值、删除测试或放宽规则；
+> 只格式化你实际改动的文件，其余既有问题在汇报中单独列出。
 
 ## 架构地图
 
