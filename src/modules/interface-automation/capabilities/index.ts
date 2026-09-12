@@ -27,6 +27,9 @@ export function registerAutomationCapabilities(
         namespace: AUTOMATION_CAPABILITY_NAMESPACE,
         descriptors: automationCapabilityDescriptors,
         loadHandlers: () => import('./handlers').then((module) => module.handlers),
+        // 同样懒加载：静态 import 会把 store 与运行器拉进启动包，模块懒加载就失效了。
+        createContext: () =>
+            import('./context').then((module) => module.createAutomationCapabilityContext()),
     });
 }
 

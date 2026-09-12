@@ -19,6 +19,7 @@ function contribution(
         namespace: 'tool',
         descriptors: [descriptor('tool_one'), descriptor('tool_two')],
         loadHandlers: vi.fn(loadHandlers),
+        createContext: vi.fn(async () => ({ from: 'module' })),
         ...overrides,
     };
 }
@@ -62,6 +63,13 @@ describe('capabilityRegistry 注册校验', () => {
             registry.register('demo', contribution({ namespace: 'Bad-Name' })),
         ).toThrowError(/命名空间不合法/);
     });
+
+    it('拒绝缺少上下文工厂的贡献', () => {
+        const registry = createCapabilityRegistry();
+        const broken = contribution();
+        delete (broken as Partial<CapabilityContribution>).createContext;
+        expect(() => registry.register('demo', broken)).toThrowError(/未提供能力上下文工厂/);
+    });
 });
 
 describe('capabilityRegistry 调度', () => {
@@ -80,6 +88,33 @@ describe('capabilityRegistry 调度', () => {
         expect(handler).toHaveBeenNthCalledWith(1, { a: 1 }, context);
         expect(handler).toHaveBeenNthCalledWith(2, { a: 2 }, context);
         expect(item.loadHandlers).toHaveBeenCalledTimes(1);
+    });
+
+    it('dispatch 自行向模块要上下文，供外部调用方使用', async () => {
+        const registry = createCapabilityRegistry();
+        const handler = vi.fn(async () => 'ok');
+        const createContext = vi.fn(async () => ({ from: 'module' }));
+        registry.register(
+            'demo',
+            contribution({ createContext }, async () => ({ tool_one: handler })),
+        );
+
+        await expect(registry.dispatch('tool_one', { a: 1 })).resolves.toBe('ok');
+        expect(createContext).toHaveBeenCalledTimes(1);
+        expect(handler).toHaveBeenCalledWith({ a: 1 }, { from: 'module' });
+    });
+
+    it('dispatch 未知能力时抛出', async () => {
+        const registry = createCapabilityRegistry();
+        registry.register('demo', contribution());
+        await expect(registry.dispatch('nope', {})).rejects.toThrowError(/未知能力/);
+    });
+
+    it('ownerOf 报告归属与命名空间，便于审计', () => {
+        const registry = createCapabilityRegistry();
+        registry.register('demo', contribution());
+        expect(registry.ownerOf('tool_one')).toEqual({ moduleId: 'demo', namespace: 'tool' });
+        expect(registry.ownerOf('nope')).toBeUndefined();
     });
 
     it('未知能力直接抛出', async () => {
@@ -135,6 +170,7 @@ describe('capabilityRegistry 平台无关性', () => {
             namespace: 'other',
             descriptors: [descriptor('other_ping')],
             loadHandlers: async () => ({ other_ping: async () => 'pong' }),
+            createContext: async () => ({}),
         });
         await expect(registry.invoke('other_ping', {}, {})).resolves.toBe('pong');
     });

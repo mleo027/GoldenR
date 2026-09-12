@@ -43,11 +43,20 @@ export type CapabilityHandler = (args: CapabilityArgs, context: unknown) => Prom
 
 export type CapabilityHandlerMap = Record<string, CapabilityHandler>;
 
-/** 一个模块贡献的能力包：描述静态，实现懒加载。 */
+/** 一个模块贡献的能力包：描述静态，实现与上下文都懒加载。 */
 export interface CapabilityContribution {
     /** 该模块的命名空间，也是能力名前缀；须匹配 `^[a-z][a-z0-9]*$`。 */
     namespace: string;
     descriptors: CapabilityDescriptor[];
     /** 首次调用时才真正载入实现。 */
     loadHandlers: () => Promise<CapabilityHandlerMap>;
+    /**
+     * 组装该模块能力所需的宿主上下文（平台不解释内容）。
+     *
+     * 要求：
+     * - **懒加载**：不要在模块入口静态 import，否则模块的 store / 运行器会在启动时
+     *   就被拉进主包，懒加载失效；
+     * - **不得依赖 React 挂载**：外部调用（MCP）可能发生在模块界面从未打开时。
+     */
+    createContext: () => Promise<unknown>;
 }
