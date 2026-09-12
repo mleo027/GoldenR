@@ -246,47 +246,62 @@
 }
 
 /* --- Select --- */
-.ga-select-dropdown {
-    border-radius: var(--radius-control);
-    padding-top: 4px;
-    padding-bottom: 4px;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+.ga-select-dropdown.ant-select-dropdown {
+    padding: 4px !important;
+    border: none !important;
+    border-radius: 10px !important;
+    background: var(--color-bg-elevated) !important;
+    box-shadow: var(--shadow-popover) !important;
+    overflow: hidden;
 }
 
 .ga-select-dropdown .ant-select-item {
     position: relative;
-    padding-block: 8px;
-    line-height: 1.5;
-    transition: background-color var(--transition-fast);
+    display: flex;
+    align-items: center;
+    min-height: 32px;
+    margin: 1px 0 !important;
+    padding: 0 8px !important;
+    border-radius: 6px !important;
+    color: var(--color-text-body);
+    font-size: 13px;
+    line-height: 32px;
+    transition:
+        background-color var(--transition-fast),
+        color var(--transition-fast);
 }
 
-/* hover 态与选中态明显区分：hover 用中性灰，选中用主题浅主色 */
+/* hover 用浅灰底；选中在此基础上更重一档并加粗 + 右侧对勾，避免 hover 与选中无法区分 */
 .ga-select-dropdown .ant-select-item-option-active:not(.ant-select-item-option-selected) {
-    background: var(--color-bg-hover);
+    background: var(--color-bg-subtle) !important;
 }
 
 .ga-select-dropdown .ant-select-item-option-selected {
-    background: var(--color-primary-subtle);
-    color: var(--color-primary);
+    background: var(--color-bg-group) !important;
+    color: var(--color-text-title) !important;
     font-weight: 600;
 }
 
-.ga-select-dropdown .ant-select-item-option-selected::before {
-    content: '';
-    position: absolute;
-    left: 4px;
-    top: 8px;
-    bottom: 8px;
-    width: 3px;
-    border-radius: 2px;
-    background: var(--color-primary);
+.ga-select-dropdown .ant-select-item-option-selected.ant-select-item-option-active {
+    background: var(--color-bg-hover) !important;
+}
+
+.ga-select-dropdown .ant-select-item-option-selected .ga-select-option-check {
+    color: var(--color-primary);
+}
+
+.ga-select-dropdown .ant-select-item-option-disabled {
+    color: var(--color-text-muted) !important;
+    opacity: 0.55;
 }
 
 .ga-select-option {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
 }
 
 .ga-select-option-label {

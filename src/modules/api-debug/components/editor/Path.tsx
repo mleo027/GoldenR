@@ -336,6 +336,7 @@ function PathOverflowMenu({
             <Dropdown
                 trigger={['click']}
                 placement="bottomRight"
+                overlayClassName="path-overflow-dropdown"
                 dropdownRender={() => (
                     <div
                         className="path-overflow-panel"

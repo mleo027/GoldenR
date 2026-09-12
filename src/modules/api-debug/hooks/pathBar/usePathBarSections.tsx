@@ -243,15 +243,15 @@ export function usePathOverflowMenu(config: {
     };
 }): MenuProps['items'] {
     return useMemo(() => {
-        const items: NonNullable<MenuProps['items']> = [];
+        const scriptItems: NonNullable<MenuProps['items']> = [];
         if (config.onQuickFill)
-            items.push({
+            scriptItems.push({
                 key: 'quick-fill',
                 label: '快速填充入参',
                 icon: <ThunderboltOutlined />,
                 onClick: config.onQuickFill,
             });
-        items.push(
+        scriptItems.push(
             config.isCodeEditorMode
                 ? {
                       key: 'format',
@@ -267,8 +267,7 @@ export function usePathOverflowMenu(config: {
                       onClick: config.commands.handleGenerateTestScript,
                   },
         );
-        items.push(
-            { type: 'divider' },
+        const paramItems: NonNullable<MenuProps['items']> = [
             {
                 key: 'copy',
                 label: '复制地址与参数',
@@ -287,10 +286,14 @@ export function usePathOverflowMenu(config: {
                 key: 'clear',
                 label: '清空全部参数',
                 icon: <DeleteOutlined />,
+                danger: true,
                 disabled: !config.hasParams,
                 onClick: config.commands.handleClearParams,
             },
-        );
-        return items;
+        ];
+        return [
+            { key: 'g-script', type: 'group', label: '脚本', children: scriptItems },
+            { key: 'g-params', type: 'group', label: '参数与分享', children: paramItems },
+        ];
     }, [config]);
 }

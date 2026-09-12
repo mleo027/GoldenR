@@ -93,6 +93,7 @@ export default function RequestHistoryPage({ onClose }: RequestHistoryPageProps)
         <div className="request-history-page flex flex-col h-full min-h-0">
             <HistoryToolbar
                 counts={counts}
+                filteredCount={filtered.length}
                 query={query}
                 resultFilter={resultFilter}
                 timeFilter={timeFilter}
