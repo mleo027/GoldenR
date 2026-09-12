@@ -36,6 +36,46 @@ interface CaseChildrenListProps {
     onCaseDragEnd?: () => void;
 }
 
+function useVirtualListHeight(
+    containerRef: RefObject<HTMLDivElement>,
+    caseCount: number,
+    useVirtual: boolean,
+) {
+    const [listHeight, setListHeight] = useState(CASE_SIDEBAR_ITEM_HEIGHT);
+
+    useEffect(() => {
+        if (!useVirtual) return;
+
+        const el = containerRef.current;
+        if (!el) return;
+
+        const scrollList = el.closest('.case-sidebar-list');
+        const sidebar = el.closest('.case-sidebar');
+
+        const updateHeight = () => {
+            const available = measureCaseListViewportHeight(el);
+            setListHeight(computeCaseVirtualListHeight(caseCount, available));
+        };
+
+        updateHeight();
+
+        const observer = new ResizeObserver(updateHeight);
+        if (scrollList) observer.observe(scrollList);
+        if (sidebar) observer.observe(sidebar);
+
+        scrollList?.addEventListener('scroll', updateHeight, { passive: true });
+        window.addEventListener('resize', updateHeight);
+
+        return () => {
+            observer.disconnect();
+            scrollList?.removeEventListener('scroll', updateHeight);
+            window.removeEventListener('resize', updateHeight);
+        };
+    }, [caseCount, containerRef, useVirtual]);
+
+    return listHeight;
+}
+
 function CaseCaseList({
     cases,
     projectIndex,
@@ -56,38 +96,8 @@ function CaseCaseList({
     const containerRef = useRef<HTMLDivElement>(null);
     const nonVirtualRef = useRef<HTMLDivElement>(null);
     const virtualListRef = useRef<ListRef>(null);
-    const [listHeight, setListHeight] = useState(CASE_SIDEBAR_ITEM_HEIGHT);
     const useVirtual = cases.length >= PERFORMANCE_THRESHOLDS.sidebarVirtualCases;
-
-    useEffect(() => {
-        if (!useVirtual) return;
-
-        const el = containerRef.current;
-        if (!el) return;
-
-        const scrollList = el.closest('.case-sidebar-list');
-        const sidebar = el.closest('.case-sidebar');
-
-        const updateHeight = () => {
-            const available = measureCaseListViewportHeight(el);
-            setListHeight(computeCaseVirtualListHeight(cases.length, available));
-        };
-
-        updateHeight();
-
-        const observer = new ResizeObserver(updateHeight);
-        if (scrollList) observer.observe(scrollList);
-        if (sidebar) observer.observe(sidebar);
-
-        scrollList?.addEventListener('scroll', updateHeight, { passive: true });
-        window.addEventListener('resize', updateHeight);
-
-        return () => {
-            observer.disconnect();
-            scrollList?.removeEventListener('scroll', updateHeight);
-            window.removeEventListener('resize', updateHeight);
-        };
-    }, [cases.length, useVirtual]);
+    const listHeight = useVirtualListHeight(containerRef, cases.length, useVirtual);
 
     // 激活项（本 project 内）变化时，将其滚入侧边栏可视区域并按需聚焦
     useEffect(() => {
