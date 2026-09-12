@@ -9,7 +9,6 @@ type RuntimeStorageName =
     | 'projects'
     | 'commonParams'
     | 'paramSuggestRules'
-    | 'agentGateway'
     | 'mcpSettings'
     | 'mcpAudit'
     | 'requestHistory';
@@ -96,19 +95,6 @@ export class ConfigRepository {
         this.writeStorage('requestHistory', value);
     }
 
-    /**
-     * Agent 模型网关配置。
-     *
-     * 密钥由 electron/services/agent 使用 safeStorage 加密后以字符串形式存在这里，
-     * 本仓储不感知加密细节，只负责持久化。
-     */
-    readAgentGatewayConfig(): unknown | null {
-        return this.readStorage('agentGateway');
-    }
-    writeAgentGatewayConfig(value: unknown): void {
-        this.writeStorage('agentGateway', value);
-    }
-
     /** MCP 对外开关（默认关闭；开启后才会有端口在监听）。 */
     readMcpSettings(): unknown | null {
         return this.readStorage('mcpSettings');
@@ -128,8 +114,6 @@ export class ConfigRepository {
     private readStorage(name: RuntimeStorageName): unknown | null {
         if (name === 'appEnv')
             return this.oneJson("SELECT value FROM app_preferences WHERE key='appEnv'");
-        if (name === 'agentGateway')
-            return this.oneJson("SELECT value FROM app_preferences WHERE key='agentGateway'");
         if (name === 'mcpSettings')
             return this.oneJson("SELECT value FROM app_preferences WHERE key='mcpSettings'");
         if (name === 'mcpAudit')
@@ -194,8 +178,6 @@ export class ConfigRepository {
     private writeStorage(name: RuntimeStorageName, value: unknown): void {
         const tx = this.db.transaction(() => {
             if (name === 'appEnv')
-                return this.upsert('app_preferences', 'key', name, { value: encode(value, {}) });
-            if (name === 'agentGateway')
                 return this.upsert('app_preferences', 'key', name, { value: encode(value, {}) });
             if (name === 'mcpSettings')
                 return this.upsert('app_preferences', 'key', name, { value: encode(value, {}) });

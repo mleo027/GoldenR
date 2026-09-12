@@ -6,17 +6,18 @@
 
 ## 归档清单与原因
 
-| 文件                                           | 归档原因                                                                 |
-| ---------------------------------------------- | ------------------------------------------------------------------------ |
-| `plan.md`                                      | 2026-08-15 深度修复与架构优化计划，绝大部分已落地                        |
-| `testing-plan.md`                              | 规划的 `interface-automation` 模块不存在，且超出"仅保留 api-debug"的范围 |
-| `plan-zustand-migration.md`                    | React Context → Zustand 状态迁移计划，已在 `e62d96d` 完成                |
-| `final-delivery-report.md`                     | 一次性交付报告，描述旧 `Context + Reducer` 架构与旧目录结构              |
-| `golden-api-debug-call-flow.diagram.md`        | 无代码围栏的裸 mermaid 草图，无法渲染                                    |
-| `golden-api-debug-operation-manual.diagram.md` | 同上；且持久化仍描述已废弃的 JSON 配置中心                               |
-| `2026-08-14-feature-matrix-vs-original.md`     | 拆分时的一次性功能对比快照，引用路径已不存在                             |
-| `request-history-design.md`                    | 已实现功能的设计稿，内容与 `request-and-response.md` 重叠                |
-| `superpowers/plans/*`、`superpowers/specs/*`   | AI 代理执行计划与设计稿，无索引/无引用，复选框状态未维护                 |
+| 文件                                           | 归档原因                                                                                        |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `plan.md`                                      | 2026-08-15 深度修复与架构优化计划，绝大部分已落地                                               |
+| `testing-plan.md`                              | 规划的 `interface-automation` 模块不存在，且超出"仅保留 api-debug"的范围                        |
+| `plan-zustand-migration.md`                    | React Context → Zustand 状态迁移计划，已在 `e62d96d` 完成                                       |
+| `final-delivery-report.md`                     | 一次性交付报告，描述旧 `Context + Reducer` 架构与旧目录结构                                     |
+| `golden-api-debug-call-flow.diagram.md`        | 无代码围栏的裸 mermaid 草图，无法渲染                                                           |
+| `golden-api-debug-operation-manual.diagram.md` | 同上；且持久化仍描述已废弃的 JSON 配置中心                                                      |
+| `2026-08-14-feature-matrix-vs-original.md`     | 拆分时的一次性功能对比快照，引用路径已不存在                                                    |
+| `request-history-design.md`                    | 已实现功能的设计稿，内容与 `request-and-response.md` 重叠                                       |
+| `superpowers/plans/*`、`superpowers/specs/*`   | AI 代理执行计划与设计稿，无索引/无引用，复选框状态未维护                                        |
+| `agent-integration.md`                         | 内置 Agent sidecar 已移除（`2026-09-12-mcp-server-plan.md`）：能力改由平台注册表经 MCP 对外开放 |
 
 ## 待更新（未归档，内容已过期）
 

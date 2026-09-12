@@ -12,14 +12,6 @@ import type {
     DbSuggestResponse,
     DbTestConnectionResult,
 } from '@/shared/suggest/types';
-import type { AgentGatewayConfig, AgentGatewayConfigInput } from '@/shared/agent/gateway';
-import type {
-    AgentCreateRunRequest,
-    AgentCreateRunResult,
-    AgentRunEvent,
-    AgentStatus,
-    AgentToolResultRequest,
-} from '@/shared/agent/protocol';
 import type {
     AutomationFolderRunReport,
     AutomationRunReport,
@@ -106,29 +98,6 @@ export interface AutomationApi {
     cancelSql(requestId: string): Promise<boolean>;
 }
 
-export interface AgentEventPayload {
-    runId: string;
-    event: AgentRunEvent;
-}
-
-/**
- * 应用向 Agent 开放的宿主接口。
- *
- * 这些是渲染进程能调用的通道；Agent 侧只能通过工具白名单请求同等能力，
- * 无法直接访问文件系统、数据库或网络。
- */
-export interface AgentApi {
-    status(): Promise<AgentStatus>;
-    start(): Promise<AgentStatus>;
-    stop(): Promise<void>;
-    send(request: AgentCreateRunRequest): Promise<AgentCreateRunResult>;
-    cancel(runId: string): Promise<void>;
-    submitToolResult(runId: string, result: AgentToolResultRequest): Promise<void>;
-    onEvent(callback: (payload: AgentEventPayload) => void): () => void;
-    readGatewayConfig(): Promise<AgentGatewayConfig>;
-    writeGatewayConfig(input: AgentGatewayConfigInput): Promise<AgentGatewayConfig>;
-}
-
 /**
  * 应用向外部调用方（MCP 等）开放的能力宿主接口。
  *
@@ -182,7 +151,6 @@ export interface ElectronAPI {
     kcbp: KcbpApi;
     database: DatabaseApi;
     automation: AutomationApi;
-    agent: AgentApi;
     capabilities: CapabilityHostApi;
     mcp: McpApi;
     importExport: ImportExportApi;

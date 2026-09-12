@@ -5,7 +5,6 @@ import type { ElectronAppContext } from './types';
 import { registerWindowIpc } from './window';
 import { registerImportExportIpc } from './importExport';
 import { registerAutomationIpc } from './automation';
-import { registerAgentIpc } from './agent';
 import { registerCapabilityIpc } from './capabilities';
 import { registerMcpIpc } from './mcp';
 
@@ -15,7 +14,6 @@ export function registerAllIpcHandlers(ctx: ElectronAppContext): void {
     registerKcbpIpc(ctx);
     registerSuggestIpc();
     registerAutomationIpc(ctx);
-    registerAgentIpc(ctx);
     registerCapabilityIpc();
     registerMcpIpc(ctx);
     registerWindowIpc();

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { AutomationRunReport, AutomationWorkspace } from '@/shared/automation/types';
 import type { KcxpEnvironment } from '@/shared/kcxp/types';
-import { executeAgentTool, type AgentToolContext } from './agentTools';
+import { handlers, type AutomationCapabilityContext } from './handlers';
 
 const workspace: AutomationWorkspace = {
     projects: [{ id: 'p1', name: '项目', position: 0, createdAt: 0, updatedAt: 0 }],
@@ -25,7 +25,7 @@ const environments: KcxpEnvironment[] = [
     { id: 'e1', name: '开发环境', environmentType: 'development' } as KcxpEnvironment,
 ];
 
-function createContext(overrides: Partial<AgentToolContext> = {}) {
+function createContext(overrides: Partial<AutomationCapabilityContext> = {}) {
     const createScenario = vi.fn(() => 's-new');
     const updateScenario = vi.fn();
     const runScenario = vi.fn(
@@ -42,7 +42,7 @@ function createContext(overrides: Partial<AgentToolContext> = {}) {
                 steps: [],
             }) as AutomationRunReport,
     );
-    const context: AgentToolContext = {
+    const context: AutomationCapabilityContext = {
         workspace,
         reports: {},
         environments,
@@ -56,10 +56,10 @@ function createContext(overrides: Partial<AgentToolContext> = {}) {
     return { context, createScenario, updateScenario, runScenario };
 }
 
-describe('agentTools（应用开放给 Agent 的接口）', () => {
+describe('接口自动化的能力实现（外部调用与界面共用）', () => {
     it('list_scenarios 返回场景摘要', async () => {
         const { context } = createContext();
-        const result = (await executeAgentTool('list_scenarios', {}, context)) as Array<
+        const result = (await handlers['automation_list_scenarios']({}, context)) as Array<
             Record<string, unknown>
         >;
         expect(result).toHaveLength(1);
@@ -69,24 +69,23 @@ describe('agentTools（应用开放给 Agent 的接口）', () => {
     it('read_scenario 返回脚本，场景不存在时抛错', async () => {
         const { context } = createContext();
         await expect(
-            executeAgentTool('read_scenario', { scenarioId: 's1' }, context),
+            handlers['automation_read_scenario']({ scenarioId: 's1' }, context),
         ).resolves.toMatchObject({ scenarioId: 's1', script: 'scenario();' });
         await expect(
-            executeAgentTool('read_scenario', { scenarioId: 'missing' }, context),
+            handlers['automation_read_scenario']({ scenarioId: 'missing' }, context),
         ).rejects.toThrow('场景不存在');
     });
 
     it('list_environments 返回可选环境', async () => {
         const { context } = createContext();
-        await expect(executeAgentTool('list_environments', {}, context)).resolves.toEqual([
+        await expect(handlers['automation_list_environments']({}, context)).resolves.toEqual([
             { environmentId: 'e1', name: '开发环境', environmentType: 'development' },
         ]);
     });
 
     it('write_scenario 覆盖既有场景并回传旧脚本用于回滚', async () => {
         const { context, updateScenario, createScenario } = createContext();
-        const result = await executeAgentTool(
-            'write_scenario',
+        const result = await handlers['automation_write_scenario'](
             { scenarioId: 's1', script: 'scenario({ inputs: {} }, async () => {});' },
             context,
         );
@@ -99,8 +98,7 @@ describe('agentTools（应用开放给 Agent 的接口）', () => {
 
     it('write_scenario 在无 scenarioId 时按当前选中位置新建', async () => {
         const { context, createScenario, updateScenario } = createContext();
-        const result = await executeAgentTool(
-            'write_scenario',
+        const result = await handlers['automation_write_scenario'](
             { name: '新场景', script: 'scenario();' },
             context,
         );
@@ -116,15 +114,14 @@ describe('agentTools（应用开放给 Agent 的接口）', () => {
 
     it('write_scenario 缺少脚本时抛错', async () => {
         const { context } = createContext();
-        await expect(executeAgentTool('write_scenario', {}, context)).rejects.toThrow(
+        await expect(handlers['automation_write_scenario']({}, context)).rejects.toThrow(
             '缺少参数 script',
         );
     });
 
     it('run_scenario 委托给运行器并透传环境', async () => {
         const { context, runScenario } = createContext();
-        const report = (await executeAgentTool(
-            'run_scenario',
+        const report = (await handlers['automation_run_scenario'](
             { scenarioId: 's1', environmentId: 'e1' },
             context,
         )) as AutomationRunReport;
@@ -135,7 +132,7 @@ describe('agentTools（应用开放给 Agent 的接口）', () => {
     it('read_report 未运行过时返回 never-run', async () => {
         const { context } = createContext();
         await expect(
-            executeAgentTool('read_report', { scenarioId: 's1' }, context),
+            handlers['automation_read_report']({ scenarioId: 's1' }, context),
         ).resolves.toEqual({ scenarioId: 's1', status: 'never-run' });
     });
 
@@ -167,7 +164,10 @@ describe('agentTools（应用开放给 Agent 的接口）', () => {
                 },
             },
         });
-        const result = (await executeAgentTool('read_report', { scenarioId: 's1' }, context)) as {
+        const result = (await handlers['automation_read_report'](
+            { scenarioId: 's1' },
+            context,
+        )) as {
             status: string;
             steps: Array<{ name: string; error?: string }>;
         };

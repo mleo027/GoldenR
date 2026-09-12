@@ -359,10 +359,7 @@ const storeAccessViaHooks = {
 };
 
 export default tseslint.config(
-    // `agent/` 是可整体替换的独立层，刻意不受主仓库的 lint / 分层 / 复杂度规则约束。
-    // 它与宿主的一致性由 electron/services/agent/agentContract.test.ts 的契约测试守卫，
-    // 自检入口为 `node agent/smoke.mjs`。
-    { ignores: ['dist', 'dist-electron', 'node_modules', 'coverage', 'agent'] },
+    { ignores: ['dist', 'dist-electron', 'node_modules', 'coverage'] },
     {
         files: ['**/*.{ts,tsx}'],
         extends: [js.configs.recommended, ...tseslint.configs.recommended],

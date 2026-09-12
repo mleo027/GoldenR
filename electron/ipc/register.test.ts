@@ -7,7 +7,6 @@ import { registerStorageIpc } from './storage';
 import { registerSuggestIpc } from './suggest';
 import { registerWindowIpc } from './window';
 import { registerAutomationIpc } from './automation';
-import { registerAgentIpc } from './agent';
 import { registerCapabilityIpc } from './capabilities';
 import { registerMcpIpc } from './mcp';
 
@@ -17,7 +16,6 @@ vi.mock('./kcbp', () => ({ registerKcbpIpc: vi.fn() }));
 vi.mock('./suggest', () => ({ registerSuggestIpc: vi.fn() }));
 vi.mock('./window', () => ({ registerWindowIpc: vi.fn() }));
 vi.mock('./automation', () => ({ registerAutomationIpc: vi.fn() }));
-vi.mock('./agent', () => ({ registerAgentIpc: vi.fn() }));
 vi.mock('./capabilities', () => ({ registerCapabilityIpc: vi.fn() }));
 vi.mock('./mcp', () => ({ registerMcpIpc: vi.fn() }));
 
@@ -38,8 +36,6 @@ describe('standalone IPC registry scope', () => {
         expect(registerKcbpIpc).toHaveBeenCalledWith(ctx);
         expect(registerSuggestIpc).toHaveBeenCalledTimes(1);
         expect(registerAutomationIpc).toHaveBeenCalledWith(ctx);
-        expect(registerAgentIpc).toHaveBeenCalledTimes(1);
-        expect(registerAgentIpc).toHaveBeenCalledWith(ctx);
         expect(registerCapabilityIpc).toHaveBeenCalledTimes(1);
         expect(registerMcpIpc).toHaveBeenCalledWith(ctx);
         expect(registerWindowIpc).toHaveBeenCalledTimes(1);

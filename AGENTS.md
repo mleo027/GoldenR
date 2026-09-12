@@ -5,11 +5,11 @@
 不要把原 GoldenAPI 仓库的其他模块搬回来（TCD、TCI、AutoQC、TraceCode、知识库、
 SQL Debugger、Agent Server 等）。
 
-> **边界例外：`agent/`**。接口自动化的 AI 助手以独立 sidecar 形式置于仓库根部 `agent/`：
-> 它拥有自己的 `package.json` 与依赖树，经 `extraResources` 打包为 `resources/agent`，
-> 升级时整体替换该目录即可，不进主仓库依赖与构建产物。
-> 它**不是**原仓库的 "Agent Server"；唯一耦合面是冻结契约
-> `src/shared/agent/protocol.ts`，详见 [`docs/agent-integration.md`](docs/agent-integration.md)。
+> **能力对外开放走 MCP**。应用不再内置 AI 助手：能力以 MCP 服务器的形式暴露给
+> 外部客户端（Claude Desktop / Cursor / pi 等），模型与凭据都在客户端侧。
+> 能力由各模块声明、平台注册表统一调度，详见
+> [`docs/2026-09-12-mcp-server-plan.md`](docs/2026-09-12-mcp-server-plan.md) 与
+> [`docs/mcp-clients.md`](docs/mcp-clients.md)。
 
 面向 agent 的详细规则拆分如下，本文件只做**命令与硬约束速查**：
 
@@ -48,6 +48,7 @@ SQL Debugger、Agent Server 等）。
 | IPC 一致性              | `npm run ipc:check`                                   |
 | 构建（含打包）          | `npm run build`                                       |
 | 编译原生适配器          | `npm run build:native`                                |
+| MCP 冒烟（需应用运行）  | `node scripts/mcp-smoke.mjs`                          |
 
 按域运行的目标 suite：`test:database`、`test:kcbp`、`test:import`、`test:script`、
 `test:suggest`、`test:persist`、`test:core`。
@@ -81,6 +82,7 @@ src/
   main.tsx, App.tsx              Renderer 入口
   platform/registry              模块注册（组合根）
   platform/{shell,undo}          平台壳层与撤销
+  platform/capabilities          平台能力注册表（模块无关：不得 import 任何模块）
   components/{ui,layout,theme}   通用 UI、布局、主题
   modules/api-debug              API 调试模块
     components store services hooks layout providers types constants utils
@@ -98,11 +100,8 @@ electron/
   database/                      SQLite 连接、schema、migration、repository、legacy-import
   adapter/                       原生适配器产物；native/ 为源码
 
-agent/                           ★ 可整体替换的 Agent sidecar（独立依赖树，不受主仓库 lint 约束）
-  main.mjs                       协议层（HTTP + SSE，随冻结契约稳定）
-  engine.mjs                     接入 Pi 的替换点
-  protocol.mjs                   与 src/shared/agent/protocol.ts 对应的常量
-  smoke.mjs                      端到端自检（node agent/smoke.mjs）
+electron/mcp/                     MCP 服务器（仅本机 Streamable HTTP；开关默认关闭）
+electron/services/capabilities/   能力调用通道：主进程 → 渲染层执行
 ```
 
 - Renderer 的分层依赖方向由 `eslint.config.js` 强制，`src/architecture/boundaries.test.ts`
