@@ -55,6 +55,10 @@
     --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.05);
     --shadow-btn-hover: 0 3px 10px rgba(124, 58, 237, 0.22);
     --shadow-elevated: 0 4px 16px rgba(15, 23, 42, 0.08);
+    /* 浮层投影：1px 描边环 + 由近及远的三层柔光，边缘清晰但不生硬 */
+    --shadow-popover:
+        0 0 0 1px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.04),
+        0 10px 28px -8px rgba(15, 23, 42, 0.14), 0 24px 56px -16px rgba(15, 23, 42, 0.16);
 
     /* Primitives */
     --surface-sidebar: var(--color-bg-sidebar);
@@ -91,6 +95,18 @@
     --scrollbar-radius: 3px;
     --scrollbar-thumb: #d1d5db;
     --scrollbar-thumb-hover: #9ca3af;
+
+    /* 兼容别名：接口自动化模块沿用旧仓库的 token 命名，统一映射到本仓库语义变量，
+       避免 var() 落空导致边框/底色静默失效。新增样式请直接使用左侧语义变量。 */
+    --color-bg-container: var(--color-bg-card);
+    --color-bg-layout: var(--color-bg-page);
+    --color-border-secondary: var(--color-border);
+    --color-fill-tertiary: var(--color-bg-hover);
+    --color-primary-bg: var(--color-primary-subtle);
+    --color-text: var(--color-text-body);
+    --color-text-tertiary: var(--color-text-muted);
+    --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --radius-sm: var(--radius-control);
 }
 
 [data-theme='dark'] {
@@ -141,6 +157,9 @@
     --shadow-card: 0 1px 8px rgba(0, 0, 0, 0.35);
     --shadow-btn-hover: 0 3px 12px rgba(45, 164, 78, 0.18);
     --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.45);
+    --shadow-popover:
+        0 0 0 1px rgba(255, 255, 255, 0.07), 0 1px 2px rgba(0, 0, 0, 0.5),
+        0 10px 28px -8px rgba(0, 0, 0, 0.55), 0 24px 56px -16px rgba(0, 0, 0, 0.6);
 
     --color-input-border: #404040;
     --color-input-border-hover: #525252;
