@@ -302,19 +302,37 @@ Electron 主进程  http://127.0.0.1:<随机端口>/mcp  （Bearer token）
 
 仍待定：是否要求 app 在前台。**建议不要求**，但 app 未运行时明确报错。
 
-## 9. 阶段划分与验收
+## 9. 执行顺序与阶段
+
+### 采用绞杀者模式（strangler）
+
+**先建平台与 MCP，最后删内置 Agent。** 每一步都保持可运行，避免出现"面板已删、MCP 未上线"的空窗期；也让并行开发不被打断。
+
+```text
+① 平台注册表 + 能力契约   → agentTools 迁入；面板改走注册表，照常可用
+② 泛化调用通道 + 分层登记
+③ MCP 服务器              → 外部 Agent 此时已可用
+④ stdio shim + 真实客户端验证
+⑤ 授权与审计 + 设置分区
+⑥ 移除内置 Agent          → 此时已无风险（§4.1）
+⑦ api-debug 能力集
+```
+
+代价：`agent/` 与 MCP 在 ③–⑥ 之间功能重叠，属**有意保留的临时冗余**。
+
+### 阶段与验收
 
 | 阶段 | 内容                                                                                            | 估时   | 验收                                                                                                               |
 | ---- | ----------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------ |
-| 0    | 移除内置 Agent（§4.1）                                                                          | 0.5 天 | `npm run check` 全绿；`src`/`electron` 搜不到 `agentRuntime`、`AutomationAgentPanel`、`AgentApi`                   |
-| 1    | 平台注册表 + 模块契约扩展 + 组合根注入                                                          | 1.5 天 | 注册表单测通过；**不变量测试**：`src/platform/capabilities/**` 无 `@/modules/**` 依赖；描述/实现键集合不一致时报错 |
+| 1    | 平台注册表 + 模块契约扩展 + 组合根注入；`agentTools` 迁入为模块能力；面板改走注册表             | 1.5 天 | 注册表单测通过；**不变量测试**：`src/platform/capabilities/**` 无 `@/modules/**` 依赖；描述/实现键集合不一致时报错 |
 | 2    | 泛化调用通道（`capabilities:invoke` / `result`）+ eslint 与 boundaries 登记（**登记才有关卡**） | 1 天   | 主进程能调用渲染层能力；超时与取消有测试；**登记后**探针文件（platform → module）能被 lint 拦住                    |
 | 3    | MCP 服务器（Streamable HTTP）                                                                   | 1 天   | `node scripts/mcp-smoke.mjs`：`initialize` → `tools/list` 含预期工具 → `tools/call` 返回 `isError=false`           |
 | 4    | stdio shim + 真实客户端接入                                                                     | 0.5 天 | 在 pi / Claude / Cursor 任一客户端中看到工具列表并成功调用一次                                                     |
 | 5    | 授权与审计 + **平台设置里的 MCP 分区**（总开关、端点信息、审计入口）                            | 1 天   | 总开关关闭时 `tools/call` 被拒；审计可查且无敏感明文                                                               |
-| 6    | api-debug 注册（Phase B 能力集）                                                                | 2–3 天 | 每个工具有单测；`call_case` 返回真实响应                                                                           |
+| 6    | **移除内置 Agent**（§4.1）——此时 MCP 已验证可用                                                 | 0.5 天 | `npm run check` 全绿；`src`/`electron` 搜不到 `agentRuntime`、`AutomationAgentPanel`、`AgentApi`                   |
+| 7    | api-debug 注册（Phase B 能力集）                                                                | 2–3 天 | 每个工具有单测；`call_case` 返回真实响应                                                                           |
 
-**Phase 0 与 1 可合并提交**（移除与抽离同一意图）；其余每阶段一个提交。
+每阶段一个提交。
 
 既有门禁全程保持：`typecheck`、`lint`、`check:complexity`（24/24 基线）、`style:check`、`color:budget`、`ipc:check`、`format:check`、全量 `test`。
 
@@ -337,7 +355,7 @@ Electron 主进程  http://127.0.0.1:<随机端口>/mcp  （Bearer token）
 
 ## 11. 明确不做
 
-1. 把能力开放挂在任一子模块里（必须是平台共有设施）。
+1. 把能力开放挂在任一子模块里（必须是平台共有设施，模块只注册自己的接口）。
 2. UI 自动化（让 agent 点按钮）。
 3. 主题/颜色写入。
 4. 暴露机制级 IPC（SQL 执行、原始报文调用）。
