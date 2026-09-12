@@ -1,5 +1,15 @@
-import type { ConfigStorageFileName } from '../../../src/shared/config/files';
 import type { SqliteDatabase } from '../connection';
+
+type RuntimeStorageName =
+    | 'appEnv'
+    | 'workspace'
+    | 'dbConnection'
+    | 'kcbpRuntimeConfig'
+    | 'apiDebugEnvironments'
+    | 'projects'
+    | 'commonParams'
+    | 'paramSuggestRules'
+    | 'requestHistory';
 
 const encode = (value: unknown, fallback: unknown = null): string =>
     JSON.stringify(value ?? fallback);
@@ -22,12 +32,67 @@ export class ConfigRepository {
         this.db = db;
     }
 
-    read(name: ConfigStorageFileName): unknown | null {
-        if (name === 'app.json')
-            return this.oneJson('SELECT value FROM app_preferences WHERE key=?', name);
-        if (name === 'settings.json')
+    readAppEnv(): unknown | null {
+        return this.readStorage('appEnv');
+    }
+    writeAppEnv(value: unknown): void {
+        this.writeStorage('appEnv', value);
+    }
+    readWorkspace(): unknown | null {
+        return this.readStorage('workspace');
+    }
+    writeWorkspace(value: unknown): void {
+        this.writeStorage('workspace', value);
+    }
+    readProjects(): unknown | null {
+        return this.readStorage('projects');
+    }
+    writeProjects(value: unknown): void {
+        this.writeStorage('projects', value);
+    }
+    readCommonParams(): unknown | null {
+        return this.readStorage('commonParams');
+    }
+    writeCommonParams(value: unknown): void {
+        this.writeStorage('commonParams', value);
+    }
+    readApiDebugEnvironments(): unknown | null {
+        return this.readStorage('apiDebugEnvironments');
+    }
+    writeApiDebugEnvironments(value: unknown): void {
+        this.writeStorage('apiDebugEnvironments', value);
+    }
+    readDbConnection(): unknown | null {
+        return this.readStorage('dbConnection');
+    }
+    writeDbConnection(value: unknown): void {
+        this.writeStorage('dbConnection', value);
+    }
+    readParamSuggestRules(): unknown | null {
+        return this.readStorage('paramSuggestRules');
+    }
+    writeParamSuggestRules(value: unknown): void {
+        this.writeStorage('paramSuggestRules', value);
+    }
+    readKcbpRuntimeConfig(): unknown | null {
+        return this.readStorage('kcbpRuntimeConfig');
+    }
+    writeKcbpRuntimeConfig(value: unknown): void {
+        this.writeStorage('kcbpRuntimeConfig', value);
+    }
+    readRequestHistory(): unknown | null {
+        return this.readStorage('requestHistory');
+    }
+    writeRequestHistory(value: unknown): void {
+        this.writeStorage('requestHistory', value);
+    }
+
+    private readStorage(name: RuntimeStorageName): unknown | null {
+        if (name === 'appEnv')
+            return this.oneJson("SELECT value FROM app_preferences WHERE key='appEnv'");
+        if (name === 'workspace')
             return this.oneJson("SELECT value FROM workspace_state WHERE key='snapshot'");
-        if (name === 'db.json') {
+        if (name === 'dbConnection') {
             const r = this.db
                 .prepare(
                     'SELECT server,port,database_name AS database,username AS user,password,query_timeout_ms AS queryTimeoutMs,max_rows AS maxRows FROM db_connections ORDER BY id LIMIT 1',
@@ -35,7 +100,7 @@ export class ConfigRepository {
                 .get() as Record<string, unknown> | undefined;
             return r ?? null;
         }
-        if (name === 'kcbp.env.json') {
+        if (name === 'kcbpRuntimeConfig') {
             const r = this.db
                 .prepare(
                     'SELECT executable,working_dir AS workingDir,args_json FROM kcbp_runtime_config ORDER BY id LIMIT 1',
@@ -49,29 +114,29 @@ export class ConfigRepository {
                   }
                 : null;
         }
-        if (name === 'api-debug.env.json') return this.readEnvironments();
-        if (name === 'project.json')
+        if (name === 'apiDebugEnvironments') return this.readEnvironments();
+        if (name === 'projects')
             return {
                 projects: this.db
                     .prepare('SELECT * FROM projects ORDER BY rowid')
                     .all()
                     .map((p) => this.readProject(p as Record<string, unknown>)),
             };
-        if (name === 'common-params.json')
+        if (name === 'commonParams')
             return {
                 sets: this.db
                     .prepare('SELECT * FROM common_param_sets ORDER BY rowid')
                     .all()
                     .map((s) => this.readSet(s as Record<string, unknown>)),
             };
-        if (name === 'param-suggest-rules.json')
+        if (name === 'paramSuggestRules')
             return {
                 rules: this.db
                     .prepare('SELECT * FROM param_suggest_rules ORDER BY rowid')
                     .all()
                     .map((r) => this.readRule(r as Record<string, unknown>)),
             };
-        if (name === 'request-history.json')
+        if (name === 'requestHistory')
             return {
                 version: 2,
                 entries: this.db
@@ -82,22 +147,22 @@ export class ConfigRepository {
         return null;
     }
 
-    write(name: ConfigStorageFileName, value: unknown): void {
+    private writeStorage(name: RuntimeStorageName, value: unknown): void {
         const tx = this.db.transaction(() => {
-            if (name === 'app.json')
+            if (name === 'appEnv')
                 return this.upsert('app_preferences', 'key', name, { value: encode(value, {}) });
-            if (name === 'settings.json')
+            if (name === 'workspace')
                 return this.upsert('workspace_state', 'key', 'snapshot', {
                     value: encode(value, {}),
                 });
-            if (name === 'project.json') return this.writeProjects(record(value).projects);
-            if (name === 'common-params.json') return this.writeCommonSets(record(value).sets);
-            if (name === 'api-debug.env.json')
+            if (name === 'projects') return this.writeProjectRows(record(value).projects);
+            if (name === 'commonParams') return this.writeCommonSets(record(value).sets);
+            if (name === 'apiDebugEnvironments')
                 return this.writeEnvironments(record(value).kcxpEnvironments, value);
-            if (name === 'db.json') return this.writeDb(record(value));
-            if (name === 'param-suggest-rules.json') return this.writeRules(record(value).rules);
-            if (name === 'kcbp.env.json') return this.writeKcbp(record(value));
-            if (name === 'request-history.json') return this.writeHistory(record(value).entries);
+            if (name === 'dbConnection') return this.writeDb(record(value));
+            if (name === 'paramSuggestRules') return this.writeRules(record(value).rules);
+            if (name === 'kcbpRuntimeConfig') return this.writeKcbp(record(value));
+            if (name === 'requestHistory') return this.writeHistory(record(value).entries);
         });
         tx();
     }
@@ -164,7 +229,7 @@ export class ConfigRepository {
             params,
         };
     }
-    private writeProjects(items: unknown): void {
+    private writeProjectRows(items: unknown): void {
         this.db.exec('DELETE FROM projects');
         const insertP = this.db.prepare(
             'INSERT INTO projects(id,name,common_param_set_id,created_at,updated_at) VALUES(?,?,?,?,?)',

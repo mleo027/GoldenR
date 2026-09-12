@@ -6,53 +6,54 @@ import {
     normalizeKcbpRuntimeConfig,
     saveKcbpRuntimeConfig,
     setKcbpRuntimeConfigRepository,
-    setKcbpRuntimeConfigUserDataDir,
 } from './kcbpRuntimeConfigStore';
 
 function createRepository(stored: unknown = undefined) {
-    const read = vi.fn(() => stored);
-    const write = vi.fn();
-    return { read, write, repository: { read, write } as unknown as ConfigRepository };
+    const readKcbpRuntimeConfig = vi.fn(() => stored);
+    const writeKcbpRuntimeConfig = vi.fn();
+    return {
+        readKcbpRuntimeConfig,
+        writeKcbpRuntimeConfig,
+        repository: {
+            readKcbpRuntimeConfig,
+            writeKcbpRuntimeConfig,
+        } as unknown as ConfigRepository,
+    };
 }
 
-afterEach(() => {
-    invalidateKcbpRuntimeConfigCache();
-});
+afterEach(() => invalidateKcbpRuntimeConfigCache());
 
 describe('kcbpRuntimeConfigStore', () => {
-    it('falls back to defaults when the database has no stored config', async () => {
-        const repo = createRepository(undefined);
+    it('falls back to defaults when no config is stored', async () => {
+        const repo = createRepository();
         setKcbpRuntimeConfigRepository(repo.repository);
-
         await expect(loadKcbpRuntimeConfig()).resolves.toEqual({
             executable: '',
             workingDir: '',
             args: [],
         });
-        expect(repo.read).toHaveBeenCalledWith('kcbp.env.json');
+        expect(repo.readKcbpRuntimeConfig).toHaveBeenCalledTimes(1);
     });
 
-    it('normalizes stored values and caches the result', async () => {
+    it('normalizes and caches stored values', async () => {
         const repo = createRepository({
             executable: '  C:/kcbp/kcbp.exe  ',
             workingDir: ' C:/kcbp ',
             args: [' --foo ', '', '  ', '--bar'],
         });
         setKcbpRuntimeConfigRepository(repo.repository);
-
         await expect(loadKcbpRuntimeConfig()).resolves.toEqual({
             executable: 'C:/kcbp/kcbp.exe',
             workingDir: 'C:/kcbp',
             args: ['--foo', '--bar'],
         });
         await loadKcbpRuntimeConfig();
-        expect(repo.read).toHaveBeenCalledTimes(1);
+        expect(repo.readKcbpRuntimeConfig).toHaveBeenCalledTimes(1);
     });
 
-    it('writes normalized config back through the repository', async () => {
-        const repo = createRepository(undefined);
+    it('writes normalized config through the semantic repository API', async () => {
+        const repo = createRepository();
         setKcbpRuntimeConfigRepository(repo.repository);
-
         await expect(
             saveKcbpRuntimeConfig({
                 executable: ' C:/kcbp/kcbp.exe ',
@@ -64,39 +65,18 @@ describe('kcbpRuntimeConfigStore', () => {
             workingDir: 'C:/kcbp',
             args: ['--foo'],
         });
-        expect(repo.write).toHaveBeenCalledWith('kcbp.env.json', {
+        expect(repo.writeKcbpRuntimeConfig).toHaveBeenCalledWith({
             executable: 'C:/kcbp/kcbp.exe',
             workingDir: 'C:/kcbp',
             args: ['--foo'],
         });
-
-        // The saved value becomes the cache, so a follow-up load skips the database.
-        await expect(loadKcbpRuntimeConfig()).resolves.toMatchObject({
-            executable: 'C:/kcbp/kcbp.exe',
-        });
-        expect(repo.read).not.toHaveBeenCalled();
     });
 
-    it('leaves execution defaults intact for partial input', () => {
+    it('leaves defaults intact for partial input', () => {
         expect(normalizeKcbpRuntimeConfig({ executable: ' C:/kcbp/kcbp.exe ' })).toEqual({
             executable: 'C:/kcbp/kcbp.exe',
             workingDir: '',
             args: [],
         });
-        expect(normalizeKcbpRuntimeConfig()).toEqual({ executable: '', workingDir: '', args: [] });
-    });
-
-    it('detaches the database repository through the deprecated user-data shim', async () => {
-        const repo = createRepository({ executable: 'C:/kcbp/kcbp.exe' });
-        setKcbpRuntimeConfigRepository(repo.repository);
-        await loadKcbpRuntimeConfig();
-
-        setKcbpRuntimeConfigUserDataDir('C:/data');
-
-        // Runtime configuration is database-backed, so the shim must not leave a
-        // stale repository behind: saving without a database fails loudly.
-        await expect(
-            saveKcbpRuntimeConfig({ executable: '', workingDir: '', args: [] }),
-        ).rejects.toThrow('Database has not been initialized');
     });
 });

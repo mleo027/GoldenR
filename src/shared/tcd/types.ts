@@ -35,7 +35,7 @@ export interface TcdCaseParam {
     type: 'string' | 'file' | 'disabled';
 }
 
-/** 执行层使用的 case 快照（与 project.json TabData 字段对齐） */
+/** 执行层使用的 case 快照（与 SQLite cases 记录字段对齐） */
 export interface TcdCaseTab {
     id: string;
     name: string;

@@ -6,11 +6,6 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
     applied_at INTEGER NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS data_migrations (
-    name TEXT PRIMARY KEY,
-    applied_at INTEGER NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS app_preferences (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 
 CREATE TABLE IF NOT EXISTS workspace_state (key TEXT PRIMARY KEY, value TEXT NOT NULL);

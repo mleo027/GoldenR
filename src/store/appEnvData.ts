@@ -1,30 +1,20 @@
 import type { AppEnv } from '../types';
 import { DEFAULT_APP_ENV } from '../constants/appEnv';
-import { APP_ENV_FILE, SETTINGS_FILE } from '@/config/files';
-import type { ConfigStorageFileName } from '@/shared/config/files';
 import { UI_DEBOUNCE_MS } from '../constants/ui';
 import { resolveActiveModuleId } from '../platform/registry/helpers';
 import { configStorage } from '../services/persistence/configStorage';
 import { DebounceWriter } from '../services/persistence/debounceWriter';
-const LEGACY_SETTINGS_BACKUP_FILE = 'settings.preferences.legacy-migrated.json';
 const SAVE_DEBOUNCE_MS = UI_DEBOUNCE_MS.save;
 
 const saveWriter = new DebounceWriter<AppEnv>({
-    write: (env) => configStorage.write(APP_ENV_FILE, env),
+    write: (env) => configStorage.writeAppEnv(env),
     delayMs: SAVE_DEBOUNCE_MS,
     onError: console.error,
 });
 
-interface LegacyAppEnvFields {
-    editorMode?: string;
-    kcxpEnvironments?: unknown;
-    activeKcxpEnvironmentId?: string;
-    preferences?: Partial<AppEnv & LegacyAppEnvFields>;
-}
-
-function isAppEnv(value: unknown): value is Partial<AppEnv> & LegacyAppEnvFields {
+function isAppEnv(value: unknown): value is Partial<AppEnv> {
     if (!value || typeof value !== 'object') return false;
-    const env = value as Partial<AppEnv> & LegacyAppEnvFields;
+    const env = value as Partial<AppEnv>;
     return (
         (env.compactMode === undefined || typeof env.compactMode === 'boolean') &&
         (env.showRowIndex === undefined || typeof env.showRowIndex === 'boolean') &&
@@ -54,48 +44,11 @@ function toPersistedAppEnv(env: AppEnv): AppEnv {
     return mergeAppEnv(env);
 }
 
-async function readJson(fileName: ConfigStorageFileName): Promise<unknown> {
-    return configStorage.read(fileName);
-}
-
-async function writeJson(fileName: ConfigStorageFileName, data: unknown): Promise<void> {
-    await configStorage.write(fileName, data);
-}
-
-function stripLegacyPreferences(settings: unknown): unknown {
-    if (!settings || typeof settings !== 'object') return settings;
-    const next = { ...(settings as Record<string, unknown>) };
-    delete next.preferences;
-    return next;
-}
-
-async function migrateFromLegacySettings(): Promise<AppEnv | null> {
-    const settings = await readJson(SETTINGS_FILE);
-    if (!settings || typeof settings !== 'object') return null;
-
-    const legacyPreferences = (settings as LegacyAppEnvFields).preferences;
-    if (!legacyPreferences || typeof legacyPreferences !== 'object') return null;
-
-    const env = mergeAppEnv({
-        compactMode: legacyPreferences.compactMode,
-        showRowIndex: legacyPreferences.showRowIndex,
-        autoSave: legacyPreferences.autoSave,
-        darkMode: legacyPreferences.darkMode,
-    });
-    await writeJson(LEGACY_SETTINGS_BACKUP_FILE, settings);
-    await writeJson(APP_ENV_FILE, env);
-    await writeJson(SETTINGS_FILE, stripLegacyPreferences(settings));
-    return env;
-}
-
 export async function loadAppEnv(): Promise<AppEnv> {
-    const cached = await readJson(APP_ENV_FILE);
+    const cached = await configStorage.readAppEnv();
     if (isAppEnv(cached)) {
         return mergeAppEnv(cached);
     }
-
-    const migrated = await migrateFromLegacySettings();
-    if (migrated) return migrated;
 
     return { ...DEFAULT_APP_ENV };
 }

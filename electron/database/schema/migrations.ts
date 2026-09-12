@@ -21,7 +21,7 @@ const REVERTED_AUTOMATION_TABLES = [
 export function migrateSchema(db: SqliteDatabase): void {
     db.transaction(() => {
         db.exec(
-            'CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY, applied_at INTEGER NOT NULL); CREATE TABLE IF NOT EXISTS data_migrations (name TEXT PRIMARY KEY, applied_at INTEGER NOT NULL);',
+            'CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY, applied_at INTEGER NOT NULL);',
         );
         const row = db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get() as
             | { version?: number }
@@ -203,21 +203,21 @@ function migrateV1(db: SqliteDatabase): void {
     );
     createSchema(db);
     const repo = new ConfigRepository(db);
-    const app = db.prepare('SELECT value FROM app_preferences WHERE key=?').get('app.json') as
+    const app = db.prepare("SELECT value FROM app_preferences WHERE key='appEnv'").get() as
         | { value?: string }
         | undefined;
-    if (app) repo.write('app.json', parse(app.value));
+    if (app) repo.writeAppEnv(parse(app.value));
     const settings = db.prepare("SELECT value FROM workspace_state WHERE key='snapshot'").get() as
         | { value?: string }
         | undefined;
-    if (settings) repo.write('settings.json', parse(settings.value));
-    if (projects.length) repo.write('project.json', { projects });
-    if (sets.length) repo.write('common-params.json', { sets });
-    if (envs.length) repo.write('api-debug.env.json', { kcxpEnvironments: envs });
-    if (dbConfig) repo.write('db.json', dbConfig);
-    if (rules.length) repo.write('param-suggest-rules.json', { rules });
-    if (kcbp) repo.write('kcbp.env.json', kcbp);
-    if (history.length) repo.write('request-history.json', { version: 2, entries: history });
+    if (settings) repo.writeWorkspace(parse(settings.value));
+    if (projects.length) repo.writeProjects({ projects });
+    if (sets.length) repo.writeCommonParams({ sets });
+    if (envs.length) repo.writeApiDebugEnvironments({ kcxpEnvironments: envs });
+    if (dbConfig) repo.writeDbConnection(dbConfig);
+    if (rules.length) repo.writeParamSuggestRules({ rules });
+    if (kcbp) repo.writeKcbpRuntimeConfig(kcbp);
+    if (history.length) repo.writeRequestHistory({ version: 2, entries: history });
     db.prepare('UPDATE schema_migrations SET version=?, applied_at=? WHERE version<?').run(
         SCHEMA_VERSION,
         Date.now(),

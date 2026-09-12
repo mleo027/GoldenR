@@ -36,10 +36,8 @@ function stubElectronApi(readResult: unknown) {
     vi.stubGlobal('window', {
         electronAPI: {
             config: {
-                read: vi.fn(async (fileName: string) =>
-                    fileName === 'request-history.json' ? readResult : null,
-                ),
-                write: vi.fn(async () => undefined),
+                readRequestHistory: vi.fn(async () => readResult),
+                writeRequestHistory: vi.fn(async () => undefined),
             },
         },
     });
@@ -75,12 +73,12 @@ describe('requestHistoryData', () => {
     });
 
     it('persists history through the config storage port', async () => {
-        const write = vi.fn(async () => undefined);
+        const writeRequestHistory = vi.fn(async () => undefined);
         vi.stubGlobal('window', {
             electronAPI: {
                 config: {
-                    read: vi.fn(async () => null),
-                    write,
+                    readRequestHistory: vi.fn(async () => null),
+                    writeRequestHistory,
                 },
             },
         });
@@ -88,7 +86,7 @@ describe('requestHistoryData', () => {
         saveRequestHistory([entry]);
         await flushRequestHistoryAsync();
 
-        expect(write).toHaveBeenCalledWith('request-history.json', {
+        expect(writeRequestHistory).toHaveBeenCalledWith({
             version: 2,
             entries: [entry],
         });

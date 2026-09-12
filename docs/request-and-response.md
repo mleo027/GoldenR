@@ -11,7 +11,7 @@
 | UI 模式  | 入参表格   | 可视化编辑 Key/Value                                       |
 | 脚本模式 | 脚本编辑器 | JavaScript 自动化，见 [脚本自动化](./script-automation.md) |
 
-模式偏好保存在 `api-debug.env.json` 的 `editorMode` 字段。
+模式偏好保存在 SQLite `workspace_state` 的 `api-debug` 状态中。
 
 ## 地址栏（Path）
 
@@ -58,7 +58,7 @@
 
 ## 响应区
 
-KCBP 返回结果按接口 `caseId` 缓存在内存，不写入 `project.json`。切换接口可查看各自最近一次响应。
+KCBP 返回结果按接口 `caseId` 缓存在内存，不写入 `cases` 表。切换接口可查看各自最近一次响应。
 
 ### 表格工具
 

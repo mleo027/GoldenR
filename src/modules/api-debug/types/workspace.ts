@@ -6,7 +6,7 @@ export interface TabData {
     address: string;
     params: ParamItem[];
     script?: string;
-    /** TCD 运行参数默认值（持久化于 project.json） */
+    /** TCD 运行参数默认值（持久化于 cases.run_input_json） */
     runInput?: Record<string, unknown>;
     /** @deprecated 迁移用 */
     requestScript?: string;
@@ -37,7 +37,7 @@ export interface CaseFolder {
     updatedAt: number;
 }
 
-/** project.json：持久化接口名称、地址与入参 */
+/** projects/cases 表的持久化接口记录 */
 export interface PersistedCaseRecord {
     id?: string;
     folderId?: string;
@@ -66,7 +66,7 @@ export interface ProjectFileData {
 
 export type EditorMode = 'ui' | 'script';
 
-/** settings.json：工作区导航状态 */
+/** workspace_state 表的工作区导航状态 */
 export interface AppSettings {
     activeProjectIndex: number;
     activeCaseIndex: number;

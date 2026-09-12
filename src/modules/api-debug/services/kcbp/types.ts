@@ -65,7 +65,7 @@ export interface InvokeKcbpCallOptions {
         >,
         msgtype: string,
     ) => string;
-    /** TCD：运行时 KCXP overlay 后的地址（不写回 project.json） */
+    /** TCD：运行时 KCXP overlay 后的地址（不写回 cases 表） */
     effectiveAddress?: string;
     testRunContext?: TestRunContext;
     customLib?: Record<string, unknown>;

@@ -1,6 +1,4 @@
 /** 入参智能提示 Electron 主进程：规则加载、SQL 执行、多规则 fallback 与缓存 */
-import fsSync from 'node:fs';
-import path from 'node:path';
 import type {
     DbConnectionConfig,
     DbScriptQueryRequest,
@@ -35,19 +33,12 @@ import {
 import type { ConfigRepository } from '../../database/repositories/configRepository';
 
 let rules: ParamFieldRule[] = [];
-let legacyDbConfig: DbConnectionConfig | null = null;
+let loadedDbConfig: DbConnectionConfig | null = null;
 let repository: ConfigRepository | null = null;
 
 export function setSuggestRepository(next: ConfigRepository): void {
     repository = next;
 }
-
-/** @deprecated Runtime configuration is database-backed; kept for older test/integration callers. */
-export function setSuggestAppRootDir(dir: string): void {
-    legacyRoot = dir;
-    repository = null;
-}
-let legacyRoot: string | null = null;
 
 function isDbConnectionConfig(value: unknown): value is DbConnectionConfig {
     if (!value || typeof value !== 'object') return false;
@@ -61,19 +52,9 @@ function isDbConnectionConfig(value: unknown): value is DbConnectionConfig {
 }
 
 export async function reloadSuggestConfig(): Promise<void> {
-    const readLegacy = (name: string): unknown | null => {
-        if (!legacyRoot) return null;
-        try {
-            return JSON.parse(fsSync.readFileSync(path.join(legacyRoot, name), 'utf8'));
-        } catch {
-            return null;
-        }
-    };
-    legacyDbConfig = isDbConnectionConfig(readLegacy('db.json'))
-        ? (readLegacy('db.json') as DbConnectionConfig)
-        : null;
-    const parsed = (repository?.read('param-suggest-rules.json') ??
-        readLegacy('param-suggest-rules.json')) as ParamSuggestRulesFile | null;
+    const dbConfig = repository?.readDbConnection();
+    loadedDbConfig = isDbConnectionConfig(dbConfig) ? dbConfig : null;
+    const parsed = repository?.readParamSuggestRules() as ParamSuggestRulesFile | null;
     rules = Array.isArray(parsed?.rules) ? parsed.rules : [];
 
     suggestCache.invalidate();
@@ -150,7 +131,7 @@ async function executeSuggestQuery(
     ttlSeconds: number,
 ): Promise<DbSuggestResponse> {
     if (!dbConfig) {
-        return { options: [], error: '未配置数据库连接 (db.json)', ...meta };
+        return { options: [], error: '未配置数据库连接', ...meta };
     }
 
     try {
@@ -237,7 +218,7 @@ export async function executeSuggest(request: DbSuggestRequest): Promise<DbSugge
         elapsedMs: Date.now() - startedAt,
     });
 
-    const dbConfig = request.databaseConfig ?? legacyDbConfig;
+    const dbConfig = request.databaseConfig ?? loadedDbConfig;
     if (!dbConfig || !isDbConnectionConfig(dbConfig)) {
         return withTiming({ options: [], error: '当前环境数据库配置不完整' });
     }
@@ -298,7 +279,7 @@ export async function executeSuggest(request: DbSuggestRequest): Promise<DbSugge
 export async function executeScriptQuery(
     request: DbScriptQueryRequest,
 ): Promise<DbScriptQueryResponse> {
-    const dbConfig = request.databaseConfig ?? legacyDbConfig;
+    const dbConfig = request.databaseConfig ?? loadedDbConfig;
     if (!dbConfig || !isDbConnectionConfig(dbConfig)) {
         return { rows: [], columns: [], error: '当前环境数据库配置不完整' };
     }

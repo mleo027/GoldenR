@@ -1,6 +1,6 @@
 # 入参智能提示规则
 
-Golden API 为请求参数表 Value 列提供可搜索下拉提示。规则配置在 `param-suggest-rules.json`，数据库连接在 `db.json`，由 Electron 主进程执行 SQL 并缓存结果。
+Golden API 为请求参数表 Value 列提供可搜索下拉提示。规则配置保存在 SQLite `param_suggest_rules`，数据库连接保存在 `db_connections`，由 Electron 主进程执行 SQL 并缓存结果。
 
 > **配置入口**：设置 → **提示规则**（字段侧栏、规则表、测试面板等操作流程见 [设置与偏好](./settings.md#提示规则api-调试)）。使用前须先在设置 → **数据库** 配置 SQL Server 连接。
 
@@ -35,9 +35,9 @@ flowchart LR
         Cache[suggestCache]
     end
 
-    subgraph storage["磁盘"]
-        Rules[(param-suggest-rules.json)]
-        DB[(db.json)]
+    subgraph storage["SQLite"]
+        Rules[(param_suggest_rules)]
+        DB[(db_connections)]
     end
 
     PE --> Hook --> Svc --> IPC --> Engine
@@ -213,7 +213,7 @@ sequenceDiagram
 - 仅包含**已绑定**的 SQL 参数值
 - **不含** `keyword`、规则 id、`match.when`
 - 默认 TTL 300 秒；规则级可关缓存或改 TTL
-- 重载 `db.json` / `param-suggest-rules.json` 时清空缓存
+- 重载 `db_connections` / `param_suggest_rules` 时清空缓存
 
 ## 规则文件格式
 

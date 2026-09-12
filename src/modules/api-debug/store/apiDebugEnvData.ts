@@ -1,6 +1,4 @@
 import type { ApiDebugEnv } from '../types';
-import { API_DEBUG_ENV_FILE, APP_ENV_FILE } from '@/config/files';
-import type { ConfigStorageFileName } from '@/shared/config/files';
 import { DEFAULT_API_DEBUG_ENV } from '@/config/api-debug/defaults';
 import { UI_DEBOUNCE_MS } from '../../../constants/ui';
 import {
@@ -9,20 +7,13 @@ import {
 } from '../utils/workspace/kcxpEnvironment';
 import { configStorage } from '../../../services/persistence/configStorage';
 import { DebounceWriter } from '../../../services/persistence/debounceWriter';
-const LEGACY_APP_ENV_BACKUP_FILE = 'app.api-debug.legacy-migrated.json';
 const SAVE_DEBOUNCE_MS = UI_DEBOUNCE_MS.save;
 
 const saveWriter = new DebounceWriter<ApiDebugEnv>({
-    write: (env) => configStorage.write(API_DEBUG_ENV_FILE, env),
+    write: (env) => configStorage.writeApiDebugEnvironments(env),
     delayMs: SAVE_DEBOUNCE_MS,
     onError: console.error,
 });
-
-interface LegacyAppEnvFields {
-    editorMode?: string;
-    kcxpEnvironments?: unknown;
-    activeKcxpEnvironmentId?: string;
-}
 
 function isApiDebugEnv(value: unknown): value is Partial<ApiDebugEnv> {
     if (!value || typeof value !== 'object') return false;
@@ -33,16 +24,6 @@ function isApiDebugEnv(value: unknown): value is Partial<ApiDebugEnv> {
         (env.activeKcxpEnvironmentId === undefined ||
             typeof env.activeKcxpEnvironmentId === 'string') &&
         (env.paramsRawMode === undefined || typeof env.paramsRawMode === 'boolean')
-    );
-}
-
-function isLegacyAppEnv(value: unknown): value is LegacyAppEnvFields {
-    if (!value || typeof value !== 'object') return false;
-    const env = value as LegacyAppEnvFields;
-    return (
-        env.editorMode !== undefined ||
-        env.kcxpEnvironments !== undefined ||
-        env.activeKcxpEnvironmentId !== undefined
     );
 }
 
@@ -67,51 +48,11 @@ export function mergeApiDebugEnv(partial?: Partial<ApiDebugEnv>): ApiDebugEnv {
     };
 }
 
-async function readJson(fileName: ConfigStorageFileName): Promise<unknown> {
-    return configStorage.read(fileName);
-}
-
-async function writeJson(fileName: ConfigStorageFileName, data: unknown): Promise<void> {
-    await configStorage.write(fileName, data);
-}
-
-function stripLegacyApiDebugFields(appEnv: unknown): unknown {
-    if (!appEnv || typeof appEnv !== 'object') return appEnv;
-    const next = { ...(appEnv as Record<string, unknown>) };
-    delete next.editorMode;
-    delete next.kcxpEnvironments;
-    delete next.activeKcxpEnvironmentId;
-    return next;
-}
-
-async function migrateFromAppJson(): Promise<ApiDebugEnv | null> {
-    const appEnv = await readJson(APP_ENV_FILE);
-    if (!isLegacyAppEnv(appEnv)) return null;
-
-    const env = mergeApiDebugEnv({
-        editorMode:
-            appEnv.editorMode === 'script' || appEnv.editorMode === 'ui'
-                ? appEnv.editorMode
-                : appEnv.editorMode === 'tcd'
-                  ? 'ui'
-                  : undefined,
-        kcxpEnvironments: appEnv.kcxpEnvironments as ApiDebugEnv['kcxpEnvironments'] | undefined,
-        activeKcxpEnvironmentId: appEnv.activeKcxpEnvironmentId,
-    });
-    await writeJson(LEGACY_APP_ENV_BACKUP_FILE, appEnv);
-    await writeJson(API_DEBUG_ENV_FILE, env);
-    await writeJson(APP_ENV_FILE, stripLegacyApiDebugFields(appEnv));
-    return env;
-}
-
 export async function loadApiDebugEnv(): Promise<ApiDebugEnv> {
-    const cached = await readJson(API_DEBUG_ENV_FILE);
+    const cached = await configStorage.readApiDebugEnvironments();
     if (isApiDebugEnv(cached)) {
         return mergeApiDebugEnv(cached);
     }
-
-    const migrated = await migrateFromAppJson();
-    if (migrated) return migrated;
 
     return { ...DEFAULT_API_DEBUG_ENV };
 }

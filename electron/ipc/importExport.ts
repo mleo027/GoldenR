@@ -76,6 +76,18 @@ async function saveTextFileViaDialog(
 
 export function registerImportExportIpc(): void {
     ipcMain.handle(
+        'export:saveJson',
+        withIpcError((event, payload: unknown) =>
+            saveTextFileViaDialog(event, payload, {
+                errorLabel: 'JSON export',
+                dialogTitle: '导出 JSON',
+                fallbackFilename: 'param-suggest-rules.json',
+                filterName: 'JSON',
+                extension: 'json',
+            }),
+        ),
+    );
+    ipcMain.handle(
         'import:openFile',
         withIpcError(async (event, format: 'json' | 'ini') => {
             if (format !== 'json' && format !== 'ini') {

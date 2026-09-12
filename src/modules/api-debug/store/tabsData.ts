@@ -11,26 +11,24 @@ import {
     createEmptyProject,
     createEmptyCase,
 } from '../constants/workspace';
-import { PROJECT_FILE, SETTINGS_FILE } from '@/config/files';
 import { sortCasesByMsgtype, resolveCaseIndexById } from '../utils/workspace/caseLabel';
 import { sanitizeOpenCaseIds } from '../utils/workspace/openCaseTabs';
 import { normalizeParamList } from '../utils/workspace/paramItem';
 import { resolveCaseScript } from '../utils/script/apiScript';
 import type { TabDraftSnapshot } from '../utils/workspace/tabDraftRegistry';
-import type { ConfigStorageFileName } from '@/shared/config/files';
 import { UI_DEBOUNCE_MS } from '../../../constants/ui';
 import { configStorage } from '../../../services/persistence/configStorage';
 import { DebounceWriter } from '../../../services/persistence/debounceWriter';
 const SAVE_DEBOUNCE_MS = UI_DEBOUNCE_MS.save;
 
 const projectWriter = new DebounceWriter<ProjectData[]>({
-    write: (projects) => configStorage.write(PROJECT_FILE, toProjectFileData(projects)),
+    write: (projects) => configStorage.writeProjects(toProjectFileData(projects)),
     delayMs: SAVE_DEBOUNCE_MS,
     onError: console.error,
 });
 
 const settingsWriter = new DebounceWriter<AppSettings>({
-    write: (settings) => configStorage.write(SETTINGS_FILE, settings),
+    write: (settings) => configStorage.writeWorkspace(settings),
     delayMs: SAVE_DEBOUNCE_MS,
     onError: console.error,
 });
@@ -168,13 +166,9 @@ function hydrateProjectsFromFile(data: ProjectFileData): ProjectData[] {
     }));
 }
 
-async function readJson(fileName: ConfigStorageFileName): Promise<unknown> {
-    return configStorage.read(fileName);
-}
-
 export async function loadWorkspace(): Promise<PersistedWorkspace | null> {
-    const projectResult = await readJson(PROJECT_FILE);
-    const settingsResult = await readJson(SETTINGS_FILE);
+    const projectResult = await configStorage.readProjects();
+    const settingsResult = await configStorage.readWorkspace();
 
     if (!isProjectFileData(projectResult)) {
         return null;

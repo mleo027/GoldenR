@@ -290,7 +290,7 @@ export default function RequestSettings() {
                     <div className="settings-panel-row-copy">
                         <div className="settings-panel-row-label">自动保存</div>
                         <div className="settings-panel-row-hint">
-                            修改地址与入参后自动写入 project.json
+                            修改地址与入参后自动写入 SQLite
                         </div>
                     </div>
                     <Switch

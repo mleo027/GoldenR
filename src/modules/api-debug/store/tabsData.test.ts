@@ -18,8 +18,10 @@ function stubElectronApi(files: Record<string, unknown>) {
     vi.stubGlobal('window', {
         electronAPI: {
             config: {
-                read: vi.fn(async (fileName: string) => files[fileName] ?? null),
-                write: vi.fn(async () => undefined),
+                readProjects: vi.fn(async () => files.projects ?? null),
+                writeProjects: vi.fn(async () => undefined),
+                readWorkspace: vi.fn(async () => files.workspace ?? null),
+                writeWorkspace: vi.fn(async () => undefined),
             },
         },
     });
@@ -161,9 +163,9 @@ describe('normalizeWorkspace openCaseIds', () => {
 });
 
 describe('loadWorkspace', () => {
-    it('loads workspace from project.json and settings.json', async () => {
+    it('loads workspace from semantic project and workspace storage', async () => {
         stubElectronApi({
-            'project.json': {
+            projects: {
                 projects: [
                     {
                         id: 'project-1',
@@ -184,7 +186,7 @@ describe('loadWorkspace', () => {
                     },
                 ],
             },
-            'settings.json': {
+            workspace: {
                 activeProjectIndex: 0,
                 activeCaseIndex: 1,
                 expandedProjectIds: ['project-1'],
@@ -203,9 +205,9 @@ describe('loadWorkspace', () => {
         expect(workspace?.openCaseIds).toEqual([workspace?.projects[0].cases[1].id]);
     });
 
-    it('falls back to default settings when settings.json is invalid', async () => {
+    it('falls back to default settings when workspace storage is invalid', async () => {
         stubElectronApi({
-            'project.json': {
+            projects: {
                 projects: [
                     {
                         name: 'Project 1',
@@ -218,7 +220,7 @@ describe('loadWorkspace', () => {
                     },
                 ],
             },
-            'settings.json': null,
+            workspace: null,
         });
 
         const workspace = await loadWorkspace();

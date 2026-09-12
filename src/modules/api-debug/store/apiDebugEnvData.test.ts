@@ -11,9 +11,9 @@ afterEach(() => {
 function createElectronApiMock(files: Record<string, unknown>) {
     return {
         config: {
-            read: vi.fn(async (fileName: string) => files[fileName] ?? null),
-            write: vi.fn(async (fileName: string, data: unknown) => {
-                files[fileName] = data;
+            readApiDebugEnvironments: vi.fn(async () => files.apiDebugEnvironments ?? null),
+            writeApiDebugEnvironments: vi.fn(async (data: unknown) => {
+                files.apiDebugEnvironments = data;
             }),
         },
     };
@@ -80,38 +80,13 @@ describe('mergeApiDebugEnv', () => {
         );
     });
 
-    it('migrates api debug fields out of app.json and strips legacy fields', async () => {
-        const files: Record<string, unknown> = {
-            'app.json': {
-                darkMode: true,
-                editorMode: 'script',
-                kcxpEnvironments: [
-                    { id: 'env-a', name: 'A', host: '1.1.1.1:1', queue: 'q', timeout: '30' },
-                ],
-                activeKcxpEnvironmentId: 'env-a',
-            },
-        };
+    it('returns defaults when no API debug environment is stored', async () => {
+        const files: Record<string, unknown> = {};
         const electronAPI = createElectronApiMock(files);
         vi.stubGlobal('window', { electronAPI });
 
         const loaded = await loadApiDebugEnv();
 
-        expect(loaded.editorMode).toBe('script');
-        expect(loaded.activeKcxpEnvironmentId).toBe('env-a');
-        expect(files['api-debug.env.json']).toMatchObject({
-            editorMode: 'script',
-            activeKcxpEnvironmentId: 'env-a',
-        });
-        expect(files['app.api-debug.legacy-migrated.json']).toEqual({
-            darkMode: true,
-            editorMode: 'script',
-            kcxpEnvironments: [
-                { id: 'env-a', name: 'A', host: '1.1.1.1:1', queue: 'q', timeout: '30' },
-            ],
-            activeKcxpEnvironmentId: 'env-a',
-        });
-        expect(files['app.json']).toEqual({
-            darkMode: true,
-        });
+        expect(loaded).toEqual(DEFAULT_API_DEBUG_ENV);
     });
 });

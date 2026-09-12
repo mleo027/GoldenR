@@ -17,7 +17,6 @@ const mock = vi.hoisted(() => ({
     })),
     saveKcbpRuntimeConfig: vi.fn(async (config: unknown) => config),
     setKcbpRuntimeConfigRepository: vi.fn(),
-    setKcbpRuntimeConfigUserDataDir: vi.fn(),
 }));
 
 vi.mock('electron', () => ({
@@ -43,7 +42,6 @@ vi.mock('../services/kcbp/kcbpRuntimeConfigStore', () => ({
     loadKcbpRuntimeConfig: mock.loadKcbpRuntimeConfig,
     saveKcbpRuntimeConfig: mock.saveKcbpRuntimeConfig,
     setKcbpRuntimeConfigRepository: mock.setKcbpRuntimeConfigRepository,
-    setKcbpRuntimeConfigUserDataDir: mock.setKcbpRuntimeConfigUserDataDir,
 }));
 
 import { registerKcbpIpc } from './kcbp';
@@ -80,7 +78,6 @@ describe('KCBP IPC handlers', () => {
         mock.loadKcbpRuntimeConfig.mockClear();
         mock.saveKcbpRuntimeConfig.mockClear();
         mock.setKcbpRuntimeConfigRepository.mockClear();
-        mock.setKcbpRuntimeConfigUserDataDir.mockClear();
         mock.showOpenDialog.mockClear();
         registerKcbpIpc(ctx);
     });

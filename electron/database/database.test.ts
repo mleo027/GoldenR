@@ -1,10 +1,7 @@
 import Database from 'better-sqlite3';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { initializeDatabase } from './initializeDatabase';
-import { closeDatabase, openDatabase } from './connection';
 import { ConfigRepository } from './repositories/configRepository';
 import { migrateSchema, SCHEMA_VERSION } from './schema/migrations';
 
@@ -65,37 +62,6 @@ describe('runtime database schema', () => {
             expect.arrayContaining(['project_id', 'case_id']),
         );
         db.close();
-    });
-
-    it('imports legacy JSON when the database exists but data migration is incomplete', () => {
-        const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'golden-db-test-'));
-        try {
-            const existing = openDatabase(directory);
-            migrateSchema(existing);
-            closeDatabase();
-            fs.writeFileSync(
-                path.join(directory, 'project.json'),
-                JSON.stringify({ projects: [{ id: 'p1', name: 'Imported', cases: [] }] }),
-                'utf8',
-            );
-
-            const db = initializeDatabase(directory);
-            expect(db.prepare('SELECT name FROM projects WHERE id=?').get('p1')).toEqual({
-                name: 'Imported',
-            });
-            expect(
-                db.prepare("SELECT 1 FROM data_migrations WHERE name='legacy-json-v1'").get(),
-            ).toEqual({
-                1: 1,
-            });
-            expect(
-                fs.existsSync(path.join(directory, 'legacy-config-backup', 'project.json')),
-            ).toBe(true);
-            closeDatabase();
-        } finally {
-            closeDatabase();
-            fs.rmSync(directory, { recursive: true, force: true });
-        }
     });
 
     it('downgrades a database migrated by the reverted automation schema', () => {
@@ -213,7 +179,7 @@ describe('runtime database schema', () => {
             outcome: {},
         }));
 
-        repository.write('request-history.json', { version: 2, entries });
+        repository.writeRequestHistory({ version: 2, entries });
 
         expect(db.prepare('SELECT COUNT(*) AS count FROM request_history').get()).toEqual({
             count: 500,

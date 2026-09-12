@@ -1,31 +1,87 @@
 import { ipcMain } from 'electron';
-import { invalidIpcArgument } from '../../src/shared/ipc/errors';
 import { withIpcError } from './errors';
 import type { ElectronAppContext } from './types';
-import { assertConfigStorageFileName } from '../../src/shared/config/files';
 
 export function registerStorageIpc(ctx: ElectronAppContext): void {
+    const read = (callback: () => unknown) =>
+        withIpcError((event: unknown) => {
+            void event;
+            return callback();
+        });
+    const write = (callback: (data: unknown) => void) =>
+        withIpcError((_event: unknown, data: unknown) => callback(data));
     ipcMain.handle(
-        'database:read',
-        withIpcError(async (_event, filePath: string) => {
-            if (typeof filePath !== 'string') {
-                throw invalidIpcArgument('Invalid config file path');
-            }
-            return ctx.configRepository.read(assertConfigStorageFileName(filePath));
-        }),
+        'storage:readAppEnv',
+        read(() => ctx.configRepository.readAppEnv()),
     );
     ipcMain.handle(
-        'database:write',
-        withIpcError(async (_event, filePath: string, data: unknown) => {
-            if (typeof filePath !== 'string') throw invalidIpcArgument('Invalid config file path');
-            ctx.configRepository.write(assertConfigStorageFileName(filePath), data);
-        }),
+        'storage:writeAppEnv',
+        write((data) => ctx.configRepository.writeAppEnv(data)),
     );
     ipcMain.handle(
-        'database:flush',
-        withIpcError(() => ctx.configRepository.flush()),
+        'storage:readWorkspace',
+        read(() => ctx.configRepository.readWorkspace()),
     );
-
+    ipcMain.handle(
+        'storage:writeWorkspace',
+        write((data) => ctx.configRepository.writeWorkspace(data)),
+    );
+    ipcMain.handle(
+        'storage:readProjects',
+        read(() => ctx.configRepository.readProjects()),
+    );
+    ipcMain.handle(
+        'storage:writeProjects',
+        write((data) => ctx.configRepository.writeProjects(data)),
+    );
+    ipcMain.handle(
+        'storage:readCommonParams',
+        read(() => ctx.configRepository.readCommonParams()),
+    );
+    ipcMain.handle(
+        'storage:writeCommonParams',
+        write((data) => ctx.configRepository.writeCommonParams(data)),
+    );
+    ipcMain.handle(
+        'storage:readApiDebugEnvironments',
+        read(() => ctx.configRepository.readApiDebugEnvironments()),
+    );
+    ipcMain.handle(
+        'storage:writeApiDebugEnvironments',
+        write((data) => ctx.configRepository.writeApiDebugEnvironments(data)),
+    );
+    ipcMain.handle(
+        'storage:readDbConnection',
+        read(() => ctx.configRepository.readDbConnection()),
+    );
+    ipcMain.handle(
+        'storage:writeDbConnection',
+        write((data) => ctx.configRepository.writeDbConnection(data)),
+    );
+    ipcMain.handle(
+        'storage:readParamSuggestRules',
+        read(() => ctx.configRepository.readParamSuggestRules()),
+    );
+    ipcMain.handle(
+        'storage:writeParamSuggestRules',
+        write((data) => ctx.configRepository.writeParamSuggestRules(data)),
+    );
+    ipcMain.handle(
+        'storage:readKcbpRuntimeConfig',
+        read(() => ctx.configRepository.readKcbpRuntimeConfig()),
+    );
+    ipcMain.handle(
+        'storage:writeKcbpRuntimeConfig',
+        write((data) => ctx.configRepository.writeKcbpRuntimeConfig(data)),
+    );
+    ipcMain.handle(
+        'storage:readRequestHistory',
+        read(() => ctx.configRepository.readRequestHistory()),
+    );
+    ipcMain.handle(
+        'storage:writeRequestHistory',
+        write((data) => ctx.configRepository.writeRequestHistory(data)),
+    );
     ipcMain.handle(
         'app:getUserDataDir',
         withIpcError(() => ctx.getConfigDir()),

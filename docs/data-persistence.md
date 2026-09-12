@@ -1,56 +1,31 @@
 # 数据持久化
 
-Golden API 的本地数据由配置中心统一管理。
+应用自身的运行时配置和 API 调试数据只保存在 SQLite `golden.db` 中。运行时不会读取、创建或复制 `*.json` 配置文件，也不再执行旧 JSON 配置迁移。
 
-## 配置中心
+## 主要存储
 
-| 运行方式 | 配置文件目录               |
-| -------- | -------------------------- |
-| 安装版   | Electron `userData` 根目录 |
-| portable | portable exe 所在目录      |
-| 开发模式 | 项目根目录                 |
+| SQLite 表                                               | 内容                                |
+| ------------------------------------------------------- | ----------------------------------- |
+| `app_preferences`                                       | 主题、紧凑模式、行号等应用偏好      |
+| `workspace_state`                                       | 工作区导航、页签和 API 调试偏好     |
+| `projects` / `case_folders` / `cases` / `case_params`   | 项目、目录、接口和参数              |
+| `api_debug_environments` / `api_debug_environment_vars` | KCXP/KCBP 请求环境                  |
+| `db_connections`                                        | SQL Server 连接配置                 |
+| `param_suggest_rules`                                   | 入参智能提示规则                    |
+| `common_param_sets` / `common_params`                   | 公共参数集                          |
+| `kcbp_runtime_config`                                   | KCBP 可执行文件、工作目录和启动参数 |
+| `request_history`                                       | 请求历史                            |
 
-所有持久化配置文件都通过 `src/config/registry.ts` 登记，并由
-`electron/config/configPaths.ts` 统一解析路径。旧版 `userData/data` 下的配置会在启动时迁移到新的配置中心目录。
+复杂结构会在 SQLite TEXT 字段中序列化为 JSON，这是数据库内部表示，不是运行时 JSON 文件。
 
-## 主要文件
+## 用户文件
 
-| 文件                       | 用途                                                                                                |
-| -------------------------- | --------------------------------------------------------------------------------------------------- |
-| `app.json`                 | 全局偏好：`darkMode`、`compactMode`、`showRowIndex`、`autoSave`、`sidebarVisible`、`activeModuleId` |
-| `api-debug.env.json`       | API 调试偏好：`editorMode`、`kcxpEnvironments`、`activeKcxpEnvironmentId`                           |
-| `project.json`             | API 调试接口数据：项目、接口、地址、入参、脚本、收藏                                                |
-| `settings.json`            | API 调试导航状态：`activeProjectIndex`、`activeCaseIndex`、`expandedProjectIds`、`openCaseIds`      |
-| `db.json`                  | SQL Server 连接配置                                                                                 |
-| `param-suggest-rules.json` | 入参智能提示规则                                                                                    |
-| `kcbp.env.json`            | KCBP 可执行文件、工作目录与启动参数                                                                 |
-
-## 一次性迁移
-
-当前仅保留以下历史迁移：
-
-| 旧位置                                    | 新位置               |
-| ----------------------------------------- | -------------------- |
-| `settings.json.preferences`               | `app.json`           |
-| `app.json` 中的 `editorMode` / KCXP 字段  | `api-debug.env.json` |
-| `tracecode.env.json` 中的 KCBP 运行时字段 | `kcbp.env.json`      |
-
-迁移时会写入备份文件，并从旧位置移除已迁移字段。
-
-## 不持久化
-
-- KCBP 响应缓存
-- 运行日志
-- 脚本 `console` 输出
+JSON/INI 只用于用户主动执行的导入、导出和参数文件操作，不参与运行时配置初始化。
 
 ## 相关代码
 
-| 数据                             | 代码入口                                                    |
-| -------------------------------- | ----------------------------------------------------------- |
-| `app.json`                       | `src/store/appEnvData.ts`                                   |
-| `api-debug.env.json`             | `src/modules/api-debug/store/apiDebugEnvData.ts`            |
-| `project.json` / `settings.json` | `src/modules/api-debug/store/tabsData.ts`                   |
-| `db.json` / 提示规则             | `src/modules/api-debug/store/paramSuggestData.ts`           |
-| `kcbp.env.json`                  | `electron/services/kcbp/kcbpRuntimeConfigStore.ts`          |
-| 配置中心路径                     | `src/config/registry.ts` / `electron/config/configPaths.ts` |
-| 退出前 flush                     | `src/lib/persistFlush.ts`                                   |
+- 数据库连接与初始化：`electron/database/connection.ts`、`electron/database/initializeDatabase.ts`
+- schema：`electron/database/schema/schema.sql`
+- 结构迁移：`electron/database/schema/migrations.ts`
+- 读写 repository：`electron/database/repositories/configRepository.ts`
+- renderer 持久化：`src/services/persistence` 与各领域 `*Data.ts`

@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { App, Button, Form, Typography } from 'antd';
 import { FileOutlined, FolderOpenOutlined, SaveOutlined } from '@ant-design/icons';
-import SettingsConfigPath from '../SettingsConfigPath';
 import {
     buildKcbpRuntimeConfigFromFormValues,
     kcbpRuntimeConfigToFormValues,
     type KcbpRuntimeConfigFormValues,
 } from '@/shared/kcbp/configForm';
-import { KCBP_ENV_FILE } from '@/config/files';
 import {
     getKcbpRuntimeConfig,
     pickKcbpRuntimeDirectory,
@@ -58,7 +56,9 @@ export default function KcbpRuntimeSettings() {
             <Typography.Paragraph className="settings-panel-desc">
                 配置本地 KCBP 进程的可执行文件、工作目录与启动参数
             </Typography.Paragraph>
-            <SettingsConfigPath fileName={KCBP_ENV_FILE} label="KCBP 配置保存在" />
+            <Typography.Paragraph className="settings-form-meta">
+                KCBP 配置保存在应用数据库中
+            </Typography.Paragraph>
 
             <div className="settings-panel-group">
                 <Form form={form} layout="vertical" className="settings-form" disabled={!loaded}>

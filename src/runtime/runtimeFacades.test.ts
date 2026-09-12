@@ -16,7 +16,7 @@ const bridge = vi.hoisted(() => ({
         queryScript: vi.fn(),
         reloadSuggestConfig: vi.fn(),
     },
-    config: { read: vi.fn(), write: vi.fn(), flush: vi.fn() },
+    config: {},
 }));
 
 vi.mock('@/lib/electron', () => ({
@@ -24,7 +24,6 @@ vi.mock('@/lib/electron', () => ({
     requireElectronAPI: () => bridge,
 }));
 
-import { configRuntime } from './configFacade';
 import { importExportRuntime } from './importExportFacade';
 import { suggestRuntime } from './suggestFacade';
 
@@ -44,13 +43,9 @@ describe('runtime facades', () => {
         expect(bridge.importExport.saveCsv).toHaveBeenCalledWith('csv', 'file.csv');
     });
 
-    it('forwards suggest and config calls and preserves bridge errors', async () => {
+    it('forwards suggest calls and preserves bridge errors', async () => {
         bridge.database.suggest.mockRejectedValue(new Error('db failed'));
         await expect(suggestRuntime.suggest({} as never)).rejects.toThrow('db failed');
-
-        bridge.config.read.mockResolvedValue({ value: 1 });
-        await expect(configRuntime.read('settings.json')).resolves.toEqual({ value: 1 });
-        expect(bridge.config.read).toHaveBeenCalledWith('settings.json');
     });
 
     it('reports unavailable optional bridges', async () => {

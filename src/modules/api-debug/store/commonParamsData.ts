@@ -1,5 +1,4 @@
 import type { CommonParamSet, CommonParamSetFile } from '../types/commonParams';
-import { COMMON_PARAMS_FILE } from '@/shared/config/files';
 import { configStorage } from '../../../services/persistence/configStorage';
 import { DebounceWriter } from '../../../services/persistence/debounceWriter';
 import { UI_DEBOUNCE_MS } from '../../../constants/ui';
@@ -7,7 +6,7 @@ import { UI_DEBOUNCE_MS } from '../../../constants/ui';
 const SAVE_DEBOUNCE_MS = UI_DEBOUNCE_MS.save;
 
 const setsWriter = new DebounceWriter<CommonParamSet[]>({
-    write: (sets) => configStorage.write(COMMON_PARAMS_FILE, { sets } satisfies CommonParamSetFile),
+    write: (sets) => configStorage.writeCommonParams({ sets } satisfies CommonParamSetFile),
     delayMs: SAVE_DEBOUNCE_MS,
     onError: console.error,
 });
@@ -42,7 +41,7 @@ export function isCommonParamSetFile(value: unknown): value is CommonParamSetFil
 }
 
 export async function loadCommonParams(): Promise<CommonParamSet[]> {
-    const raw: unknown = await configStorage.read(COMMON_PARAMS_FILE);
+    const raw: unknown = await configStorage.readCommonParams();
     return isCommonParamSetFile(raw) ? raw.sets : [];
 }
 

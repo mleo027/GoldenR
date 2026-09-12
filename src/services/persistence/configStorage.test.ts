@@ -7,21 +7,20 @@ afterEach(() => {
 
 describe('configStorage', () => {
     it('returns null when the Electron bridge is unavailable', async () => {
-        await expect(configStorage.read('app.json')).resolves.toBeNull();
+        await expect(configStorage.readAppEnv()).resolves.toBeNull();
     });
 
     it('rethrows read failures instead of treating them as missing files', async () => {
-        const read = vi.fn().mockRejectedValue(new Error('disk read failed'));
+        const readAppEnv = vi.fn().mockRejectedValue(new Error('database read failed'));
         vi.stubGlobal('window', {
             electronAPI: {
                 config: {
-                    read,
-                    write: vi.fn(),
+                    readAppEnv,
                 },
             },
         });
 
-        await expect(configStorage.read('app.json')).rejects.toThrow('disk read failed');
-        expect(read).toHaveBeenCalledWith('app.json');
+        await expect(configStorage.readAppEnv()).rejects.toThrow('database read failed');
+        expect(readAppEnv).toHaveBeenCalledTimes(1);
     });
 });

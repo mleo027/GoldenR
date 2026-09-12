@@ -2,7 +2,7 @@
 
 Golden API 支持在**脚本模式**下为每个接口编写 JavaScript 自动化脚本：查库预检、组装入参、发起 KCBP 调用、断言结果，并在控制台与 Toast 中统一展示测试结论。
 
-脚本保存在 `project.json` 的 `script` 字段，与 UI 模式的入参表相互独立；切换模式不会丢失数据。
+脚本保存在 SQLite `cases` 表的 `script` 字段，与 UI 模式的入参表相互独立；切换模式不会丢失数据。
 
 ---
 
@@ -275,7 +275,7 @@ type CaseScriptQueryFn = (
 
 ### 配置
 
-- 连接信息：项目根目录 **`db.json`**（与入参智能提示共用）。
+- 连接信息：SQLite `db_connections` 表（与入参智能提示共用）。
 - 执行位置：Electron 主进程，IPC `db:query`。
 - **仅允许 `SELECT`**；含 `INSERT` / `UPDATE` / `DELETE` 等关键字会被拒绝。
 
@@ -444,13 +444,13 @@ flowchart TD
 
 ## 持久化与模式切换
 
-| 数据         | 存储位置             | 说明                       |
-| ------------ | -------------------- | -------------------------- |
-| `script`     | `project.json`       | 当前接口脚本正文           |
-| `params`     | `project.json`       | UI 入参表                  |
-| `editorMode` | `api-debug.env.json` | API 调试 UI / 脚本模式偏好 |
-| 控制台记录   | 内存                 | 不持久化                   |
-| KCBP 响应    | 内存                 | 不持久化                   |
+| 数据         | 存储位置          | 说明                       |
+| ------------ | ----------------- | -------------------------- |
+| `script`     | `cases`           | 当前接口脚本正文           |
+| `params`     | `case_params`     | UI 入参表                  |
+| `editorMode` | `workspace_state` | API 调试 UI / 脚本模式偏好 |
+| 控制台记录   | 内存              | 不持久化                   |
+| KCBP 响应    | 内存              | 不持久化                   |
 
 从 UI 模式切到脚本模式时，若 `script` 为空，会自动根据当前入参表生成带 `await call({...})` 的模板。
 
@@ -510,7 +510,7 @@ async function main(ctx) {
 | ------------ | ------------------------------------------ |
 | 语法高亮     | CodeMirror + `@codemirror/lang-javascript` |
 | 格式化       | 地址栏格式化图标，或 `Ctrl+Shift+F`        |
-| 防抖保存     | 编辑后延迟写入 `project.json`              |
+| 防抖保存     | 编辑后延迟写入 SQLite                      |
 | Run 前 flush | 自动提交未保存的脚本草稿                   |
 
 格式化规则与项目 `.prettierrc` 一致（单引号、4 空格、`printWidth: 100` 等）。
@@ -521,7 +521,7 @@ async function main(ctx) {
 
 1. **非 Node 环境**：无 `require` / `import` / 文件读写 / 网络 fetch（KCBP 只能走 `call()`）。
 2. **非严格沙箱**：`new Function` 在渲染进程执行，理论上可访问 `window`；仅用于可信的接口自动化，不要运行来源不明的脚本。
-3. **`query` 只读**：禁止写操作 SQL；结果行数受 `db.json` 的 `maxRows` 限制（默认 500）。
+3. **`query` 只读**：禁止写操作 SQL；结果行数受 `db_connections.max_rows` 限制（默认 500）。
 4. **CSP 开发警告**：开发模式下 Electron 可能提示 `unsafe-eval`（脚本编译需要），打包后不影响使用。
 
 ---
@@ -536,12 +536,12 @@ async function main(ctx) {
 | Run 编排     | `src/modules/api-debug/services/kcbpCallService.ts`           |
 | 脚本 UI      | `src/modules/api-debug/components/editor/CaseScriptPanel.tsx` |
 | SQL 查询 IPC | `electron/suggestRuleEngine.ts` → `executeScriptQuery`        |
-| 数据库配置   | `db.json`                                                     |
+| 数据库配置   | `db_connections`                                              |
 
 ---
 
 ## 另见
 
 - [开发质量与验收](./quality.md) — 本地/CI 门禁、冒烟清单、测试策略
-- [入参智能提示规则](./param-suggest-rules.md) — `query()` 占位符与 `db.json` 说明
+- [入参智能提示规则](./param-suggest-rules.md) — `query()` 占位符与 `db_connections` 说明
 - 项目约定 — 根目录 `AGENTS.md`

@@ -2,9 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mock = vi.hoisted(() => ({
     handlers: new Map<string, (...args: unknown[]) => unknown>(),
-    read: vi.fn(async () => ({ projects: [] })),
-    write: vi.fn(),
-    flush: vi.fn(),
+    readProjects: vi.fn(async () => ({ projects: [] })),
+    writeProjects: vi.fn(),
 }));
 
 vi.mock('electron', () => ({
@@ -19,9 +18,8 @@ import { registerStorageIpc } from './storage';
 
 const ctx = {
     configRepository: {
-        read: mock.read,
-        write: mock.write,
-        flush: mock.flush,
+        readProjects: mock.readProjects,
+        writeProjects: mock.writeProjects,
     },
     getConfigDir: () => 'C:/data',
 } as never;
@@ -35,33 +33,19 @@ async function invoke(channel: string, ...args: unknown[]) {
 describe('storage IPC handlers', () => {
     beforeEach(() => {
         mock.handlers.clear();
-        mock.read.mockClear();
-        mock.write.mockClear();
-        mock.flush.mockClear();
+        mock.readProjects.mockClear();
+        mock.writeProjects.mockClear();
         registerStorageIpc(ctx);
     });
 
-    it('reads and writes allowlisted config files through the repository', async () => {
-        await expect(invoke('database:read', {}, 'project.json')).resolves.toEqual({
+    it('reads and writes named storage domains through the repository', async () => {
+        await expect(invoke('storage:readProjects', {})).resolves.toEqual({
             projects: [],
         });
-        expect(mock.read).toHaveBeenCalledWith('project.json');
+        expect(mock.readProjects).toHaveBeenCalledTimes(1);
 
-        await invoke('database:write', {}, 'project.json', { projects: [] });
-        expect(mock.write).toHaveBeenCalledWith('project.json', { projects: [] });
-    });
-
-    it('flushes pending writes', async () => {
-        await invoke('database:flush', {});
-        expect(mock.flush).toHaveBeenCalledTimes(1);
-    });
-
-    it('rejects non-string and non-allowlisted file names', async () => {
-        await expect(invoke('database:read', {}, 42)).rejects.toThrow();
-        await expect(invoke('database:read', {}, 'service-account.json')).rejects.toThrow();
-        await expect(invoke('database:write', {}, '../escape.json', {})).rejects.toThrow();
-        expect(mock.read).not.toHaveBeenCalled();
-        expect(mock.write).not.toHaveBeenCalled();
+        await invoke('storage:writeProjects', {}, { projects: [] });
+        expect(mock.writeProjects).toHaveBeenCalledWith({ projects: [] });
     });
 
     it('exposes the user data directory', async () => {

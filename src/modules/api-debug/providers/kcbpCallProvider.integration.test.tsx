@@ -20,9 +20,7 @@ const successRaw: KcbpResponseData = {
 
 const mockCallKcbp = vi.fn();
 const mockCancelKcbp = vi.fn();
-const mockConfigWrite = vi.fn<(name: string, data: unknown) => Promise<void>>(
-    async () => undefined,
-);
+const mockConfigWrite = vi.fn<(data: unknown) => Promise<void>>(async () => undefined);
 
 function Harness() {
     const { loading, run, cancel } = useApiCall();
@@ -45,14 +43,29 @@ function renderProviders(children: ReactNode) {
     return render(<ApiDebugProviders>{children}</ApiDebugProviders>);
 }
 
-function stubElectronApi(options: { configRead?: (fileName: string) => Promise<unknown> } = {}) {
+function stubElectronApi(options: { configRead?: () => Promise<unknown> } = {}) {
     Object.defineProperty(window, 'electronAPI', {
         configurable: true,
         value: {
             config: {
-                read: options.configRead ?? vi.fn(async () => null),
-                write: mockConfigWrite,
-                flush: vi.fn(async () => undefined),
+                readAppEnv: vi.fn(async () => null),
+                writeAppEnv: vi.fn(async () => undefined),
+                readProjects: vi.fn(async () => null),
+                writeProjects: vi.fn(async () => undefined),
+                readWorkspace: vi.fn(async () => null),
+                writeWorkspace: vi.fn(async () => undefined),
+                readCommonParams: vi.fn(async () => null),
+                writeCommonParams: vi.fn(async () => undefined),
+                readApiDebugEnvironments: options.configRead ?? vi.fn(async () => null),
+                writeApiDebugEnvironments: vi.fn(async () => undefined),
+                readDbConnection: vi.fn(async () => null),
+                writeDbConnection: vi.fn(async () => undefined),
+                readParamSuggestRules: vi.fn(async () => null),
+                writeParamSuggestRules: vi.fn(async () => undefined),
+                readKcbpRuntimeConfig: vi.fn(async () => null),
+                writeKcbpRuntimeConfig: vi.fn(async () => undefined),
+                readRequestHistory: vi.fn(async () => null),
+                writeRequestHistory: mockConfigWrite,
             },
             kcbp: {
                 call: mockCallKcbp,
@@ -120,11 +133,7 @@ describe('KcbpCallProvider integration', () => {
 
         await waitFor(() => expect(mockCallKcbp).toHaveBeenCalledTimes(1));
         await waitFor(() => expect(screen.getByText('idle')).toBeTruthy());
-        await waitFor(() =>
-            expect(
-                mockConfigWrite.mock.calls.some(([name]) => name === 'request-history.json'),
-            ).toBe(true),
-        );
+        await waitFor(() => expect(mockConfigWrite.mock.calls.length > 0).toBe(true));
     });
 
     it('cancels an in-flight call and clears loading state', async () => {
@@ -176,11 +185,7 @@ describe('KcbpCallProvider integration', () => {
 
     it('runs with a pending script from the script editor draft', async () => {
         stubElectronApi({
-            configRead: vi.fn(async (fileName: string) =>
-                fileName === 'api-debug.env.json'
-                    ? { editorMode: 'script', kcxpEnvironments: [] }
-                    : null,
-            ),
+            configRead: vi.fn(async () => ({ editorMode: 'script', kcxpEnvironments: [] })),
         });
         const unregisterDraftReader = registerTabDraftReader(() => ({
             script: `async function main(ctx) {

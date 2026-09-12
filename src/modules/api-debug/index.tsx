@@ -3,7 +3,7 @@
  *
  * 职责：KCBP 接口调试、入参编辑、脚本自动化、响应展示与运行日志。
  * 目录：components/ UI；store/ 工作区与响应状态；utils/kcbp/ 调用逻辑。
- * 持久化：project.json（接口数据）、settings.json（导航）、api-debug.env.json（KCXP 环境）。
+ * 持久化：SQLite 中的 projects、workspace_state 与 api_debug_environments 表。
  * IPC：KCBP rpc:call、入参提示 suggest、数据库脚本 query。
  */
 import {

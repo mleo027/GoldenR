@@ -11,9 +11,9 @@ afterEach(async () => {
 function createElectronApiMock(files: Record<string, unknown>) {
     return {
         config: {
-            read: vi.fn(async (fileName: string) => files[fileName] ?? null),
-            write: vi.fn(async (fileName: string, data: unknown) => {
-                files[fileName] = data;
+            readAppEnv: vi.fn(async () => files.appEnv ?? null),
+            writeAppEnv: vi.fn(async (data: unknown) => {
+                files.appEnv = data;
             }),
         },
     };
@@ -61,51 +61,13 @@ describe('mergeAppEnv', () => {
         expect(mergeAppEnv().sidebarVisible).toBe(true);
     });
 
-    it('migrates legacy settings.preferences into app.json and strips the old field', async () => {
-        const files: Record<string, unknown> = {
-            'settings.json': {
-                activeProjectIndex: 1,
-                activeCaseIndex: 2,
-                expandedProjectIds: ['p1'],
-                openCaseIds: ['c1'],
-                preferences: {
-                    darkMode: true,
-                    compactMode: true,
-                    autoSave: false,
-                    showRowIndex: false,
-                },
-            },
-        };
+    it('returns defaults when no app environment is stored', async () => {
+        const files: Record<string, unknown> = {};
         const electronAPI = createElectronApiMock(files);
         vi.stubGlobal('window', { electronAPI });
 
         const loaded = await loadAppEnv();
 
-        expect(loaded.darkMode).toBe(true);
-        expect(loaded.compactMode).toBe(true);
-        expect(files['app.json']).toMatchObject({
-            darkMode: true,
-            compactMode: true,
-            autoSave: false,
-            showRowIndex: false,
-        });
-        expect(files['settings.preferences.legacy-migrated.json']).toEqual({
-            activeProjectIndex: 1,
-            activeCaseIndex: 2,
-            expandedProjectIds: ['p1'],
-            openCaseIds: ['c1'],
-            preferences: {
-                darkMode: true,
-                compactMode: true,
-                autoSave: false,
-                showRowIndex: false,
-            },
-        });
-        expect(files['settings.json']).toEqual({
-            activeProjectIndex: 1,
-            activeCaseIndex: 2,
-            expandedProjectIds: ['p1'],
-            openCaseIds: ['c1'],
-        });
+        expect(loaded).toEqual(DEFAULT_APP_ENV);
     });
 });

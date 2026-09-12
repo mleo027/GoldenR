@@ -8,7 +8,7 @@ import { flushWorkspaceDrafts } from '../store/workspaceFlushRegistry';
 import { registerTabDraftReader } from '../utils/workspace/tabDraftRegistry';
 import { ApiDebugProviders } from './ApiDebugProviders';
 
-const mockWrite = vi.fn<(name: string, data: unknown) => Promise<void>>(async () => undefined);
+const mockWrite = vi.fn<(data: unknown) => Promise<void>>(async () => undefined);
 
 function Harness() {
     const { state } = useTabsState();
@@ -58,9 +58,24 @@ function stubElectronApi() {
         configurable: true,
         value: {
             config: {
-                read: vi.fn(async () => null),
-                write: mockWrite,
-                flush: vi.fn(async () => undefined),
+                readAppEnv: vi.fn(async () => null),
+                writeAppEnv: vi.fn(async () => undefined),
+                readProjects: vi.fn(async () => null),
+                writeProjects: mockWrite,
+                readWorkspace: vi.fn(async () => null),
+                writeWorkspace: vi.fn(async () => undefined),
+                readCommonParams: vi.fn(async () => null),
+                writeCommonParams: vi.fn(async () => undefined),
+                readApiDebugEnvironments: vi.fn(async () => null),
+                writeApiDebugEnvironments: vi.fn(async () => undefined),
+                readDbConnection: vi.fn(async () => null),
+                writeDbConnection: vi.fn(async () => undefined),
+                readParamSuggestRules: vi.fn(async () => null),
+                writeParamSuggestRules: vi.fn(async () => undefined),
+                readKcbpRuntimeConfig: vi.fn(async () => null),
+                writeKcbpRuntimeConfig: vi.fn(async () => undefined),
+                readRequestHistory: vi.fn(async () => null),
+                writeRequestHistory: vi.fn(async () => undefined),
             },
             kcbp: {
                 call: vi.fn(),
@@ -128,9 +143,7 @@ describe('TabsActions integration', () => {
         expect(screen.getByTestId('project-count').textContent).toBe('2');
         expect(screen.getByTestId('case-count').textContent).toBe('2');
         await waitFor(() => expect(screen.getByTestId('active-name').textContent).toBe('renamed'));
-        await waitFor(() =>
-            expect(mockWrite).toHaveBeenCalledWith('project.json', expect.anything()),
-        );
+        await waitFor(() => expect(mockWrite).toHaveBeenCalledWith(expect.anything()));
     });
 
     it('persists pending draft fields directly during workspace flush', async () => {
@@ -145,11 +158,8 @@ describe('TabsActions integration', () => {
             await waitFor(() => expect(screen.getByTestId('tabs-loaded').textContent).toBe('true'));
             await flushWorkspaceDrafts();
 
-            await waitFor(() =>
-                expect(mockWrite).toHaveBeenCalledWith('project.json', expect.anything()),
-            );
-            const writeCalls = mockWrite.mock.calls.filter(([name]) => name === 'project.json');
-            const lastProjectWrite = writeCalls.at(-1)?.[1] as {
+            await waitFor(() => expect(mockWrite).toHaveBeenCalledWith(expect.anything()));
+            const lastProjectWrite = mockWrite.mock.calls.at(-1)?.[0] as {
                 projects: Array<{ cases: Array<Record<string, unknown>> }>;
             };
             expect(lastProjectWrite.projects[0].cases[0]).toMatchObject({

@@ -1,4 +1,3 @@
-import { REQUEST_HISTORY_FILE } from '@/config/files';
 import { UI_DEBOUNCE_MS } from '../../../constants/ui';
 import { configStorage } from '../../../services/persistence/configStorage';
 import { DebounceWriter } from '../../../services/persistence/debounceWriter';
@@ -12,7 +11,7 @@ import type {
 export const MAX_REQUEST_HISTORY = 500;
 
 const historyWriter = new DebounceWriter<RequestHistoryFile>({
-    write: (file) => configStorage.write(REQUEST_HISTORY_FILE, file),
+    write: (file) => configStorage.writeRequestHistory(file),
     delayMs: UI_DEBOUNCE_MS.save,
     onError: console.error,
 });
@@ -108,7 +107,7 @@ function migrateHistoryEntry(entry: RequestHistoryEntry): RequestHistoryEntry {
 }
 
 export async function loadRequestHistory(): Promise<RequestHistoryEntry[]> {
-    const raw = await configStorage.read(REQUEST_HISTORY_FILE);
+    const raw = await configStorage.readRequestHistory();
     if (!isRequestHistoryFile(raw)) return [];
     return raw.entries.slice(0, MAX_REQUEST_HISTORY).map(migrateHistoryEntry);
 }

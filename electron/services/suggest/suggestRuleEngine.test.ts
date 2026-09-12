@@ -1,6 +1,3 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ParamFieldRule } from '../../../src/shared/suggest/types';
 
@@ -8,42 +5,33 @@ const mocks = vi.hoisted(() => ({
     executeSelect: vi.fn(),
     testConnection: vi.fn(),
 }));
+const dbCredential = 'test-only';
 
 vi.mock('./mssqlClient', () => mocks);
 
-import { executeSuggest, reloadSuggestConfig, setSuggestAppRootDir } from './suggestRuleEngine';
+import { executeSuggest, reloadSuggestConfig, setSuggestRepository } from './suggestRuleEngine';
 
-let tempDir: string | undefined;
+const repository = {
+    readDbConnection: vi.fn(() => ({
+        server: '127.0.0.1',
+        port: 1433,
+        database: 'kcbp',
+        user: 'sa',
+        password: dbCredential,
+    })),
+    readParamSuggestRules: vi.fn(() => ({ rules: [] as ParamFieldRule[] })),
+};
 
 async function setupRules(rules: ParamFieldRule[]): Promise<void> {
-    tempDir = await mkdtemp(path.join(os.tmpdir(), 'golden-suggest-'));
-    setSuggestAppRootDir(tempDir);
-    await writeFile(
-        path.join(tempDir, 'db.json'),
-        JSON.stringify({
-            server: '127.0.0.1',
-            port: 1433,
-            database: 'kcbp',
-            user: 'sa',
-            password: 'secret',
-        }),
-        'utf8',
-    );
-    await writeFile(
-        path.join(tempDir, 'param-suggest-rules.json'),
-        JSON.stringify({ rules }),
-        'utf8',
-    );
+    repository.readParamSuggestRules.mockReturnValue({ rules });
+    setSuggestRepository(repository as never);
     await reloadSuggestConfig();
 }
 
 afterEach(async () => {
     mocks.executeSelect.mockReset();
     mocks.testConnection.mockReset();
-    if (tempDir) {
-        await rm(tempDir, { recursive: true, force: true });
-        tempDir = undefined;
-    }
+    repository.readParamSuggestRules.mockReset();
 });
 
 describe('suggestRuleEngine', () => {

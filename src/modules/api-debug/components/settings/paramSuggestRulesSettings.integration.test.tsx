@@ -5,6 +5,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiDebugProviders } from '../../providers/ApiDebugProviders';
 import ParamSuggestRulesSettings from './ParamSuggestRulesSettings';
 
+const dbCredential = 'test-only';
+
 function renderRulesSettings() {
     return render(
         <ApiDebugProviders>
@@ -32,11 +34,29 @@ function stubElectronApi() {
         configurable: true,
         value: {
             config: {
-                read: vi.fn(async (name: string) =>
-                    name === 'param-suggest-rules.json' ? rules : null,
-                ),
-                write: vi.fn(async () => undefined),
-                flush: vi.fn(async () => undefined),
+                readAppEnv: vi.fn(async () => null),
+                writeAppEnv: vi.fn(async () => undefined),
+                readProjects: vi.fn(async () => null),
+                writeProjects: vi.fn(async () => undefined),
+                readWorkspace: vi.fn(async () => null),
+                writeWorkspace: vi.fn(async () => undefined),
+                readCommonParams: vi.fn(async () => null),
+                writeCommonParams: vi.fn(async () => undefined),
+                readApiDebugEnvironments: vi.fn(async () => null),
+                writeApiDebugEnvironments: vi.fn(async () => undefined),
+                readDbConnection: vi.fn(async () => ({
+                    server: 'localhost',
+                    database: 'db',
+                    user: 'u',
+                    password: dbCredential,
+                })),
+                writeDbConnection: vi.fn(async () => undefined),
+                readParamSuggestRules: vi.fn(async () => rules),
+                writeParamSuggestRules: vi.fn(async () => undefined),
+                readKcbpRuntimeConfig: vi.fn(async () => null),
+                writeKcbpRuntimeConfig: vi.fn(async () => undefined),
+                readRequestHistory: vi.fn(async () => null),
+                writeRequestHistory: vi.fn(async () => undefined),
             },
             kcbp: {
                 call: vi.fn(),

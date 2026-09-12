@@ -6,8 +6,7 @@ import type {
     ParamFieldRule,
     ParamSuggestRulesFile,
 } from '../../types/paramSuggest';
-import { configRuntime } from '@/runtime/configFacade';
-import { PARAM_SUGGEST_RULES_FILE } from '../../constants/paramSuggest';
+import { importExportRuntime } from '@/runtime/importExportFacade';
 import { fetchParamSuggestions } from '../../services/paramSuggestService';
 import { filterRulesByFieldSearch } from '../../utils/suggest/paramSuggestRuleDisplay';
 import {
@@ -187,8 +186,12 @@ export function useRuleTransfer(
     const [importText, setImportText] = useState('');
     const handleExportRules = useCallback(async () => {
         const payload: ParamSuggestRulesFile = { rules };
-        if (configRuntime.isAvailable()) {
-            await configRuntime.write(PARAM_SUGGEST_RULES_FILE, payload);
+        if (importExportRuntime.isAvailable()) {
+            const result = await importExportRuntime.saveJson(
+                JSON.stringify(payload, null, 2),
+                'param-suggest-rules.json',
+            );
+            if (!result.saved) return;
             message.success('已导出到 param-suggest-rules.json');
             return;
         }

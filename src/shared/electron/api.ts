@@ -1,4 +1,3 @@
-import type { ConfigStorageFileName } from '@/shared/config/files';
 import type {
     KcbpPickPathResult,
     KcbpRequestOptions,
@@ -32,9 +31,24 @@ export type SaveFileResult =
     | { saved: false; filePath?: string; error?: string };
 
 export interface ConfigStorageApi {
-    read(name: ConfigStorageFileName): Promise<unknown | null>;
-    write(name: ConfigStorageFileName, data: unknown): Promise<void>;
-    flush(): Promise<void>;
+    readAppEnv(): Promise<unknown | null>;
+    writeAppEnv(data: unknown): Promise<void>;
+    readWorkspace(): Promise<unknown | null>;
+    writeWorkspace(data: unknown): Promise<void>;
+    readProjects(): Promise<unknown | null>;
+    writeProjects(data: unknown): Promise<void>;
+    readCommonParams(): Promise<unknown | null>;
+    writeCommonParams(data: unknown): Promise<void>;
+    readApiDebugEnvironments(): Promise<unknown | null>;
+    writeApiDebugEnvironments(data: unknown): Promise<void>;
+    readDbConnection(): Promise<unknown | null>;
+    writeDbConnection(data: unknown): Promise<void>;
+    readParamSuggestRules(): Promise<unknown | null>;
+    writeParamSuggestRules(data: unknown): Promise<void>;
+    readKcbpRuntimeConfig(): Promise<unknown | null>;
+    writeKcbpRuntimeConfig(data: unknown): Promise<void>;
+    readRequestHistory(): Promise<unknown | null>;
+    writeRequestHistory(data: unknown): Promise<void>;
 }
 
 export interface KcbpApi {
@@ -61,6 +75,7 @@ export interface DatabaseApi {
 }
 
 export interface ImportExportApi {
+    saveJson(content: string, defaultFilename: string): Promise<SaveFileResult>;
     saveCsv(content: string, defaultFilename: string): Promise<SaveFileResult>;
     saveTxt(content: string, defaultFilename: string): Promise<SaveFileResult>;
     saveHtml(content: string, defaultFilename: string): Promise<SaveFileResult>;

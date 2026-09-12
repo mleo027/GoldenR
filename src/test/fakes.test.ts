@@ -24,9 +24,9 @@ describe('test fakes', () => {
         expect(sql.calls[0].sql).toBe('select 1');
 
         const config = createFakeConfigRepository();
-        await config.write('project.json', { projects: [] });
-        expect(config.files.get('project.json')).toEqual({ projects: [] });
-        expect(config.calls[0]).toEqual({ type: 'write', name: 'project.json' });
+        await config.writeProjects({ projects: [] });
+        expect(config.files.get('projects')).toEqual({ projects: [] });
+        expect(config.calls[0]).toEqual({ type: 'write', name: 'projects' });
     });
 
     it('supports workspace and lifecycle fakes', async () => {

@@ -1,6 +1,4 @@
 import { app } from 'electron';
-import path from 'path';
-import { resolveConfigStoragePath } from './configPathResolver';
 
 /**
  * 配置中心目录：
@@ -17,13 +15,4 @@ export function getConfigDir(): string {
         return app.getPath('userData');
     }
     return process.cwd();
-}
-
-export function getBundledConfigDir(): string {
-    return path.dirname(app.getPath('exe'));
-}
-
-export function resolveConfigPath(fileName: string, fromUserData = false): string {
-    const baseDir = fromUserData ? app.getPath('userData') : getConfigDir();
-    return resolveConfigStoragePath(baseDir, fileName);
 }

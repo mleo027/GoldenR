@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { App, Button, Form, InputNumber, Typography } from 'antd';
 import { DatabaseOutlined } from '@ant-design/icons';
-import SettingsConfigPath from '../../../../components/layout/SettingsConfigPath';
 import type { DbConnectionConfig } from '../../types/paramSuggest';
-import { DB_CONFIG_FILE, DEFAULT_DB_CONFIG } from '../../constants/paramSuggest';
+import { DEFAULT_DB_CONFIG } from '../../constants/paramSuggest';
 import { testDbConnection } from '../../services/paramSuggestService';
 import { useParamSuggest } from '../../store/useParamSuggest';
 import { Input, Password } from '../../../../components/ui/primitives';
@@ -99,7 +98,9 @@ export default function DbConnectionSettings() {
             <Typography.Paragraph className="settings-panel-desc">
                 配置 SQL Server 连接，供入参智能提示等功能查询字典数据
             </Typography.Paragraph>
-            <SettingsConfigPath fileName={DB_CONFIG_FILE} label="数据库配置保存在" />
+            <Typography.Paragraph className="settings-form-meta">
+                数据库连接配置保存在应用数据库中
+            </Typography.Paragraph>
 
             <div className="settings-panel-group">
                 <Form

@@ -2,7 +2,6 @@ import { contextBridge, ipcRenderer } from 'electron';
 import { isKcbpIpcCancelledResult, KCBP_CANCELLED_MESSAGE } from '../src/shared/kcbp/cancel';
 import { parseIpcError } from '../src/shared/ipc/errors';
 import type { ImportFileFormat } from '../src/shared/electron/api';
-import type { ConfigStorageFileName } from '../src/shared/config/files';
 import type { KcbpRequestOptions, KcbpResponseData } from '../src/shared/kcbp/types';
 import type {
     DbConnectionConfig,
@@ -29,9 +28,27 @@ async function invoke<T>(channel: string, ...args: unknown[]): Promise<T> {
 
 contextBridge.exposeInMainWorld('electronAPI', {
     config: {
-        read: (name: ConfigStorageFileName) => invoke<unknown>('database:read', name),
-        write: (name: string, data: unknown) => invoke<void>('database:write', name, data),
-        flush: () => invoke<void>('database:flush'),
+        readAppEnv: () => invoke<unknown>('storage:readAppEnv'),
+        writeAppEnv: (data: unknown) => invoke<void>('storage:writeAppEnv', data),
+        readWorkspace: () => invoke<unknown>('storage:readWorkspace'),
+        writeWorkspace: (data: unknown) => invoke<void>('storage:writeWorkspace', data),
+        readProjects: () => invoke<unknown>('storage:readProjects'),
+        writeProjects: (data: unknown) => invoke<void>('storage:writeProjects', data),
+        readCommonParams: () => invoke<unknown>('storage:readCommonParams'),
+        writeCommonParams: (data: unknown) => invoke<void>('storage:writeCommonParams', data),
+        readApiDebugEnvironments: () => invoke<unknown>('storage:readApiDebugEnvironments'),
+        writeApiDebugEnvironments: (data: unknown) =>
+            invoke<void>('storage:writeApiDebugEnvironments', data),
+        readDbConnection: () => invoke<unknown>('storage:readDbConnection'),
+        writeDbConnection: (data: unknown) => invoke<void>('storage:writeDbConnection', data),
+        readParamSuggestRules: () => invoke<unknown>('storage:readParamSuggestRules'),
+        writeParamSuggestRules: (data: unknown) =>
+            invoke<void>('storage:writeParamSuggestRules', data),
+        readKcbpRuntimeConfig: () => invoke<unknown>('storage:readKcbpRuntimeConfig'),
+        writeKcbpRuntimeConfig: (data: unknown) =>
+            invoke<void>('storage:writeKcbpRuntimeConfig', data),
+        readRequestHistory: () => invoke<unknown>('storage:readRequestHistory'),
+        writeRequestHistory: (data: unknown) => invoke<void>('storage:writeRequestHistory', data),
     },
     kcbp: {
         call: async (payload: KcbpRequestOptions): Promise<KcbpResponseData> => {
@@ -94,6 +111,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
         reloadSuggestConfig: (): Promise<void> => invoke('db:reloadConfig'),
     },
     importExport: {
+        saveJson: (content: string, defaultFilename: string) =>
+            invoke('export:saveJson', { content, defaultFilename }),
         saveCsv: (content: string, defaultFilename: string) =>
             invoke('export:saveCsv', { content, defaultFilename }),
         saveTxt: (content: string, defaultFilename: string) =>

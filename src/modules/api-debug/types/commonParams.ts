@@ -7,7 +7,7 @@ export interface CommonParamSet {
     params: ParamItem[];
 }
 
-/** common-params.json 文件结构。 */
+/** common_param_sets/common_params 表的传输结构。 */
 export interface CommonParamSetFile {
     sets: CommonParamSet[];
 }

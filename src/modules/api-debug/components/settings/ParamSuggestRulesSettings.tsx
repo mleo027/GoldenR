@@ -1,8 +1,6 @@
 import { Button, Modal, Space, Typography } from 'antd';
 import { ExportOutlined, ImportOutlined, PlusOutlined } from '@ant-design/icons';
-import SettingsConfigPath from '../../../../components/layout/SettingsConfigPath';
 import { useParamSuggestRulesSettings } from '../../hooks/useParamSuggestRulesSettings';
-import { PARAM_SUGGEST_RULES_FILE } from '../../constants/paramSuggest';
 import type { DbConnectionConfig, ParamFieldRule } from '../../types/paramSuggest';
 import ParamSuggestFieldSidebar from './ParamSuggestFieldSidebar';
 import ParamSuggestRuleTable from './ParamSuggestRuleTable';
@@ -141,7 +139,9 @@ function RulesSettingsIntro({ dbConfig }: { dbConfig: DbConnectionConfig }) {
                 <code>priority</code> 顺序命中；若靠前规则查询成功但无数据，会继续尝试下一条；SQL
                 需含 <code>value</code>，可选 <code>remark</code> 列。
             </Typography.Paragraph>
-            <SettingsConfigPath fileName={PARAM_SUGGEST_RULES_FILE} label="规则配置保存在" />
+            <Typography.Paragraph className="settings-form-meta">
+                参数提示规则保存在应用数据库中
+            </Typography.Paragraph>
             {dbConfig.database ? (
                 <Typography.Paragraph type="secondary" className="text-xs mb-4">
                     当前库：{dbConfig.server}

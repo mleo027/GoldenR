@@ -3,14 +3,8 @@ import type {
     ParamFieldRule,
     ParamSuggestRulesFile,
 } from '../types/paramSuggest';
-import {
-    DB_CONFIG_FILE,
-    DEFAULT_DB_CONFIG,
-    DEFAULT_PARAM_SUGGEST_RULES,
-    PARAM_SUGGEST_RULES_FILE,
-} from '../constants/paramSuggest';
+import { DEFAULT_DB_CONFIG, DEFAULT_PARAM_SUGGEST_RULES } from '../constants/paramSuggest';
 import { normalizeParamFieldRules } from '../utils/suggest/paramSuggestResolve';
-import type { ConfigStorageFileName } from '@/shared/config/files';
 import { UI_DEBOUNCE_MS } from '../../../constants/ui';
 import { suggestRuntime } from '../../../runtime/suggestFacade';
 import { getElectronAPI } from '../../../lib/electron';
@@ -20,13 +14,13 @@ import { DebounceWriter } from '../../../services/persistence/debounceWriter';
 const SAVE_DEBOUNCE_MS = UI_DEBOUNCE_MS.save;
 
 const dbConfigWriter = new DebounceWriter<DbConnectionConfig>({
-    write: (config) => configStorage.write(DB_CONFIG_FILE, config),
+    write: (config) => configStorage.writeDbConnection(config),
     delayMs: SAVE_DEBOUNCE_MS,
     onError: console.error,
 });
 
 const rulesWriter = new DebounceWriter<ParamSuggestRulesFile>({
-    write: (rules) => configStorage.write(PARAM_SUGGEST_RULES_FILE, rules),
+    write: (rules) => configStorage.writeParamSuggestRules(rules),
     delayMs: SAVE_DEBOUNCE_MS,
     onError: console.error,
 });
@@ -48,10 +42,6 @@ function isParamSuggestRulesFile(value: unknown): value is ParamSuggestRulesFile
     return Array.isArray(file.rules);
 }
 
-async function readJson(fileName: ConfigStorageFileName): Promise<unknown> {
-    return configStorage.read(fileName);
-}
-
 export function mergeDbConfig(partial?: Partial<DbConnectionConfig>): DbConnectionConfig {
     return {
         ...DEFAULT_DB_CONFIG,
@@ -66,7 +56,7 @@ export function mergeDbConfig(partial?: Partial<DbConnectionConfig>): DbConnecti
 }
 
 export async function loadDbConfig(): Promise<DbConnectionConfig> {
-    const cached = await readJson(DB_CONFIG_FILE);
+    const cached = await configStorage.readDbConnection();
     if (isDbConnectionConfig(cached)) {
         return mergeDbConfig(cached);
     }
@@ -74,7 +64,7 @@ export async function loadDbConfig(): Promise<DbConnectionConfig> {
 }
 
 export async function loadParamSuggestRules(): Promise<ParamSuggestRulesFile> {
-    const cached = await readJson(PARAM_SUGGEST_RULES_FILE);
+    const cached = await configStorage.readParamSuggestRules();
     if (isParamSuggestRulesFile(cached)) {
         return { rules: normalizeParamFieldRules([...cached.rules]) };
     }
@@ -99,13 +89,13 @@ export function saveParamSuggestRules(rules: ParamFieldRule[]): void {
 
 export async function persistParamSuggestRulesNow(rules: ParamFieldRule[]): Promise<void> {
     await rulesWriter.flush();
-    await configStorage.write(PARAM_SUGGEST_RULES_FILE, { rules });
+    await configStorage.writeParamSuggestRules({ rules });
     await reloadMainProcessSuggestConfig();
 }
 
 export async function persistDbConfigNow(config: DbConnectionConfig): Promise<void> {
     await dbConfigWriter.flush();
-    await configStorage.write(DB_CONFIG_FILE, config);
+    await configStorage.writeDbConnection(config);
     await reloadMainProcessSuggestConfig();
 }
 

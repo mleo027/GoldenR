@@ -1,7 +1,6 @@
 import { vi } from 'vitest';
 import type { KcbpRequestOptions, KcbpResponseData } from '@/types/kcbp';
 import type { DbScriptQueryRequest, DbScriptQueryResponse } from '@/shared/suggest/types';
-import type { ConfigStorageFileName } from '@/shared/config/files';
 import type { PersistedWorkspace } from '@/modules/api-debug/types/workspace';
 import { createKcbpRequest, createKcbpResponse, createWorkspace } from './factories';
 
@@ -78,18 +77,36 @@ export function createFakeSqlQueryPort() {
 export function createFakeConfigRepository(initial: Record<string, unknown> = {}) {
     const files = new Map<string, unknown>(Object.entries(initial));
     const calls: { type: 'read' | 'write'; name: string }[] = [];
+    const read = async (name: string): Promise<unknown | null> => {
+        calls.push({ type: 'read', name });
+        return files.get(name) ?? null;
+    };
+    const write = async (name: string, data: unknown): Promise<void> => {
+        calls.push({ type: 'write', name });
+        files.set(name, data);
+    };
 
     return {
         files,
         calls,
-        async read(name: ConfigStorageFileName): Promise<unknown | null> {
-            calls.push({ type: 'read', name });
-            return files.get(name) ?? null;
-        },
-        async write(name: ConfigStorageFileName, data: unknown): Promise<void> {
-            calls.push({ type: 'write', name });
-            files.set(name, data);
-        },
+        readAppEnv: () => read('appEnv'),
+        writeAppEnv: (data: unknown) => write('appEnv', data),
+        readWorkspace: () => read('workspace'),
+        writeWorkspace: (data: unknown) => write('workspace', data),
+        readProjects: () => read('projects'),
+        writeProjects: (data: unknown) => write('projects', data),
+        readCommonParams: () => read('commonParams'),
+        writeCommonParams: (data: unknown) => write('commonParams', data),
+        readApiDebugEnvironments: () => read('apiDebugEnvironments'),
+        writeApiDebugEnvironments: (data: unknown) => write('apiDebugEnvironments', data),
+        readDbConnection: () => read('dbConnection'),
+        writeDbConnection: (data: unknown) => write('dbConnection', data),
+        readParamSuggestRules: () => read('paramSuggestRules'),
+        writeParamSuggestRules: (data: unknown) => write('paramSuggestRules', data),
+        readKcbpRuntimeConfig: () => read('kcbpRuntimeConfig'),
+        writeKcbpRuntimeConfig: (data: unknown) => write('kcbpRuntimeConfig', data),
+        readRequestHistory: () => read('requestHistory'),
+        writeRequestHistory: (data: unknown) => write('requestHistory', data),
         reset() {
             files.clear();
             calls.length = 0;
