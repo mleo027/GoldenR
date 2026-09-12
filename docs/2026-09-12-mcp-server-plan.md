@@ -151,7 +151,7 @@ registerModuleCapabilities(
 | `useAutomationRun.ts` 的 `sensitiveInputNames`                | 保留（已成通用工具函数）                                                                                                                  |
 | `automationStore.createScenario`                              | 保留（`write_scenario` 需要）                                                                                                             |
 | **`utils/scriptEditorTheme.ts`**                              | **原样保留**：同时服务 `api-debug/ScriptEditor.tsx` 与 `interface-automation/AutomationScriptEditor.tsx`，**与 Agent 无关**，不在删除范围 |
-| 「主进程 → 渲染层执行 → 回填」往返链路                        | 泛化为 `capabilities:invoke` / `capabilities:result`                                                                                      |
+| 「主进程 → 渲染层执行 → 回填」往返链路                        | 泛化为 `capabilities:invoke` / `capabilities:respond`                                                                                     |
 
 ### 4.3 新增
 
@@ -175,7 +175,7 @@ Electron 主进程  http://127.0.0.1:<随机端口>/mcp  （Bearer token）
    ├─ mcp/session.ts       会话与并发
    ├─ capabilities/        清单缓存 + 调用路由 + 审计
    └─ 只认「能力名 → 模块」映射，不解释业务语义
-          │  IPC: capabilities:register / capabilities:invoke / capabilities:result
+          │  IPC: capabilities:register / capabilities:invoke / capabilities:respond
           ▼
    渲染层 平台注册表（src/platform/capabilities）
           │  按模块路由
@@ -272,13 +272,13 @@ Electron 主进程  http://127.0.0.1:<随机端口>/mcp  （Bearer token）
 
 ### 7.3 明确不暴露
 
-| 不暴露                               | 原因                                           |
-| ------------------------------------ | ---------------------------------------------- |
-| `automation:sqlExecute` 等机制级 IPC | 等于给 agent 一把没有护栏的枪，绕过 SQL 白名单 |
-| `rpc:call` 原始报文调用              | 无校验、无策略                                 |
-| `window:*`、`capabilities:result` 等 | 与能力无关，只会污染工具列表                   |
-| 主题/颜色写入                        | 改用户界面，价值低、干扰高。如需，只做只读     |
-| UI 自动化（点按钮）                  | 极脆，成本高于收益                             |
+| 不暴露                                | 原因                                           |
+| ------------------------------------- | ---------------------------------------------- |
+| `automation:sqlExecute` 等机制级 IPC  | 等于给 agent 一把没有护栏的枪，绕过 SQL 白名单 |
+| `rpc:call` 原始报文调用               | 无校验、无策略                                 |
+| `window:*`、`capabilities:respond` 等 | 与能力无关，只会污染工具列表                   |
+| 主题/颜色写入                         | 改用户界面，价值低、干扰高。如需，只做只读     |
+| UI 自动化（点按钮）                   | 极脆，成本高于收益                             |
 
 ## 8. 安全与治理
 
@@ -322,17 +322,17 @@ Electron 主进程  http://127.0.0.1:<随机端口>/mcp  （Bearer token）
 
 ### 阶段与验收
 
-| 阶段 | 内容                                                                                | 估时   | 验收                                                                                                               |
-| ---- | ----------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------ |
-| 1    | 平台注册表 + 模块契约扩展 + 组合根注入；`agentTools` 迁入为模块能力；面板改走注册表 | 1.5 天 | 注册表单测通过；**不变量测试**：`src/platform/capabilities/**` 无 `@/modules/**` 依赖；描述/实现键集合不一致时报错 |
-| 2a   | **已完成**：能力上下文工厂（不依赖 React）+ 按需 hydrate + `dispatch`               | 0.5 天 | 外部调用不再需要模块界面挂载；空工作区问题有回归测试                                                               |
-| 2b   | 泛化调用通道（`capabilities:invoke` / `result`）+ 超时与取消                        | 0.5 天 | 主进程能调用渲染层能力；超时与取消有测试                                                                           |
-| 2c   | eslint 分层登记（**须先拆分 interface-automation 的 exclusive 元素**，见下）        | 0.5 天 | 探针文件（platform → module）被 lint 拦住                                                                          |
-| 3    | MCP 服务器（Streamable HTTP）                                                       | 1 天   | `node scripts/mcp-smoke.mjs`：`initialize` → `tools/list` 含预期工具 → `tools/call` 返回 `isError=false`           |
-| 4    | stdio shim + 真实客户端接入                                                         | 0.5 天 | 在 pi / Claude / Cursor 任一客户端中看到工具列表并成功调用一次                                                     |
-| 5    | 授权与审计 + **平台设置里的 MCP 分区**（总开关、端点信息、审计入口）                | 1 天   | 总开关关闭时 `tools/call` 被拒；审计可查且无敏感明文                                                               |
-| 6    | **移除内置 Agent**（§4.1）——此时 MCP 已验证可用                                     | 0.5 天 | `npm run check` 全绿；`src`/`electron` 搜不到 `agentRuntime`、`AutomationAgentPanel`、`AgentApi`                   |
-| 7    | api-debug 注册（Phase B 能力集）                                                    | 2–3 天 | 每个工具有单测；`call_case` 返回真实响应                                                                           |
+| 阶段 | 内容                                                                                       | 估时   | 验收                                                                                                               |
+| ---- | ------------------------------------------------------------------------------------------ | ------ | ------------------------------------------------------------------------------------------------------------------ |
+| 1    | 平台注册表 + 模块契约扩展 + 组合根注入；`agentTools` 迁入为模块能力；面板改走注册表        | 1.5 天 | 注册表单测通过；**不变量测试**：`src/platform/capabilities/**` 无 `@/modules/**` 依赖；描述/实现键集合不一致时报错 |
+| 2a   | **已完成**：能力上下文工厂（不依赖 React）+ 按需 hydrate + `dispatch`                      | 0.5 天 | 外部调用不再需要模块界面挂载；空工作区问题有回归测试                                                               |
+| 2b   | **已完成**：泛化调用通道（`capabilities:invoke` / `capabilities:respond`）+ 超时与在途清理 | 0.5 天 | 主进程能调用渲染层能力；超时、渲染层失联、未装配均有测试                                                           |
+| 2c   | eslint 分层登记（**须先拆分 interface-automation 的 exclusive 元素**，见下）               | 0.5 天 | 探针文件（platform → module）被 lint 拦住                                                                          |
+| 3    | MCP 服务器（Streamable HTTP）                                                              | 1 天   | `node scripts/mcp-smoke.mjs`：`initialize` → `tools/list` 含预期工具 → `tools/call` 返回 `isError=false`           |
+| 4    | stdio shim + 真实客户端接入                                                                | 0.5 天 | 在 pi / Claude / Cursor 任一客户端中看到工具列表并成功调用一次                                                     |
+| 5    | 授权与审计 + **平台设置里的 MCP 分区**（总开关、端点信息、审计入口）                       | 1 天   | 总开关关闭时 `tools/call` 被拒；审计可查且无敏感明文                                                               |
+| 6    | **移除内置 Agent**（§4.1）——此时 MCP 已验证可用                                            | 0.5 天 | `npm run check` 全绿；`src`/`electron` 搜不到 `agentRuntime`、`AutomationAgentPanel`、`AgentApi`                   |
+| 7    | api-debug 注册（Phase B 能力集）                                                           | 2–3 天 | 每个工具有单测；`call_case` 返回真实响应                                                                           |
 
 ### 已核实：eslint 分层登记的真实成本（2026-09-12 实测）
 
@@ -344,6 +344,8 @@ Electron 主进程  http://127.0.0.1:<随机端口>/mcp  （Bearer token）
 **结论**：eslint 登记不是"加两行"，而是要先**像 api-debug 那样把 interface-automation 拆成 exclusive 子元素并定义其依赖白名单**。那是一次独立的、值得做的分层改造（顺带给 interface-automation 补上它目前完全没有的分层约束），不应塞进 MCP 迁移里。
 
 **当前状态**：`src/platform/capabilities` 的模块无关性由 `src/architecture/boundaries.test.ts` 的分区守卫（解析别名与相对路径），eslint 登记留作 2c。
+
+**当前进度**：1、2a、2b 已完成并各自提交；下一步 3（MCP 服务器）。`invokeCapabilityInRenderer` 已就绪但尚无调用方——它就是 3 的入口。
 
 每阶段一个提交。
 
