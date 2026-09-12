@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gate:
+    # 本应用是 Windows-only（KCBP/KGBP 原生 adapter 与 DLL），CI 必须与开发环境一致。
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      # 必须在 checkout 前关闭 autocrlf，否则 Windows 检出为 CRLF，prettier(endOfLine: lf) 会误报。
+      - name: Disable CRLF conversion
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Full quality gate
+        run: npm run check
+
+      - name: Coverage thresholds
+        run: npm run test:coverage
