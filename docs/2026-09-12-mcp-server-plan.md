@@ -160,7 +160,7 @@ registerModuleCapabilities(
 - `electron/mcp/`（MCP 服务器：Streamable HTTP、会话、错误映射）
 - `electron/services/capabilities/`（主进程侧调用渲染层，含超时/取消/审计）
 - `scripts/mcp-smoke.mjs`、`scripts/mcp-stdio.mjs`
-- `eslint.config.js` + `src/architecture/boundaries.test.ts` 的平台层登记
+- `eslint/boundaries.mjs`（`eslint.config.js` 展开）+ `src/architecture/boundaries.test.ts` 的平台层登记
 
 ## 5. 目标架构
 
@@ -327,7 +327,7 @@ Electron 主进程  http://127.0.0.1:<随机端口>/mcp  （Bearer token）
 | 1    | 平台注册表 + 模块契约扩展 + 组合根注入；`agentTools` 迁入为模块能力；面板改走注册表        | 1.5 天 | 注册表单测通过；**不变量测试**：`src/platform/capabilities/**` 无 `@/modules/**` 依赖；描述/实现键集合不一致时报错 |
 | 2a   | **已完成**：能力上下文工厂（不依赖 React）+ 按需 hydrate + `dispatch`                      | 0.5 天 | 外部调用不再需要模块界面挂载；空工作区问题有回归测试                                                               |
 | 2b   | **已完成**：泛化调用通道（`capabilities:invoke` / `capabilities:respond`）+ 超时与在途清理 | 0.5 天 | 主进程能调用渲染层能力；超时、渲染层失联、未装配均有测试                                                           |
-| 2c   | eslint 分层登记（**须先拆分 interface-automation 的 exclusive 元素**，见下）               | 0.5 天 | 探针文件（platform → module）被 lint 拦住                                                                          |
+| 2c   | **已完成**：eslint 分层登记（interface-automation 拆出 exclusive 元素 + 平台层登记）       | 0.5 天 | 探针实测 platform → module、capability → UI 两条越界都被 lint 拦住                                                 |
 | 3    | **已完成**：MCP 服务器（Streamable HTTP，仅本机 + 启动轮换 token）                         | 1 天   | `node scripts/mcp-smoke.mjs` 跑通 `initialize` → `tools/list` → `tools/call`（有端到端测试）                       |
 | 4    | **已完成**：stdio 垫片 + 客户端接入文档                                                    | 0.5 天 | 垫片有端到端测试（含 token 轮换自愈）；文档给出各客户端配置                                                        |
 | 5    | **已完成**：总开关 + 审计 + 平台设置里的 MCP 分区                                          | 1 天   | 关闭时不启动服务器；审计只记参数名；设置面板可查                                                                   |
@@ -343,9 +343,9 @@ Electron 主进程  http://127.0.0.1:<随机端口>/mcp  （Bearer token）
 
 **结论**：eslint 登记不是"加两行"，而是要先**像 api-debug 那样把 interface-automation 拆成 exclusive 子元素并定义其依赖白名单**。那是一次独立的、值得做的分层改造（顺带给 interface-automation 补上它目前完全没有的分层约束），不应塞进 MCP 迁移里。
 
-**当前状态**：`src/platform/capabilities` 的模块无关性由 `src/architecture/boundaries.test.ts` 的分区守卫（解析别名与相对路径），eslint 登记留作 2c。
+**当前状态**：eslint 分层登记已完成——探针实测 platform → module、capability → UI 两条越界都被 `npm run lint` 拦住。剩余已知限制：app-in-the-loop 仍需一次人工实跑、`apidebug_call_case` 不做 KCXP 环境改写、设置面板缺组件测试。
 
-**当前进度**：1、2a、2b、3 已完成并各自提交；下一步 4（stdio shim + 真实客户端接入）。
+**当前进度**：1～7 全部完成并各自提交。
 
 ### 实现时的设计修正：`tools/list` 的来源
 

@@ -104,7 +104,7 @@ electron/mcp/                     MCP 服务器（仅本机 Streamable HTTP；�
 electron/services/capabilities/   能力调用通道：主进程 → 渲染层执行
 ```
 
-- Renderer 的分层依赖方向由 `eslint.config.js` 强制，`src/architecture/boundaries.test.ts`
+- Renderer 的分层依赖方向由 `eslint/boundaries.mjs`（经 `eslint.config.js` 展开）强制，`src/architecture/boundaries.test.ts`
   作为补充守卫；相对路径与 `@/` 别名都会被解析后判定，改写法无法绕过。
 - `golden.db` 是唯一运行时配置与项目数据后端；旧 JSON 只用于一次性迁移与用户主动导入/导出。
 - KCBP 响应归一化在 `electron/services/kcbp/response.ts`。
