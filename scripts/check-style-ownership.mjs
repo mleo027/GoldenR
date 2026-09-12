@@ -104,6 +104,21 @@ const cssFiles = sources.filter(
     (s) => s.rel.startsWith('src/styles/') && s.rel.endsWith('.css') && !s.rel.endsWith('index.css'),
 );
 
+/** 扫描某个类名的消费者：是否被引用、是否被上层越界消费、是否命中已登记债务。 */
+function scanConsumers(fileRel, cls, allowed, legacy) {
+    const re = boundary(cls);
+    const result = { referenced: false, legacyHit: false, violations: [] };
+    for (const source of sources) {
+        if (source.rel === fileRel || !re.test(source.text)) continue;
+        result.referenced = true;
+        if (isStyleSpace(source.rel)) continue;
+        if (!allowed || allowed.some((prefix) => source.rel.startsWith(prefix))) continue;
+        if (legacy.has(cls)) result.legacyHit = true;
+        else result.violations.push(source.rel);
+    }
+    return result;
+}
+
 const misplaced = [];
 const crossLayer = [];
 const legacyUsed = new Set();
@@ -126,17 +141,9 @@ for (const file of cssFiles) {
     const legacy = new Set(LEGACY_CROSS_LAYER.get(rel) ?? []);
 
     for (const cls of classes) {
-        const re = boundary(cls);
-        let referenced = false;
-        for (const source of sources) {
-            if (source.rel === file.rel || !re.test(source.text)) continue;
-            referenced = true;
-            if (isStyleSpace(source.rel)) continue;
-            if (allowed && !allowed.some((prefix) => source.rel.startsWith(prefix))) {
-                if (legacy.has(cls)) legacyUsed.add(`${rel}::${cls}`);
-                else crossLayer.push({ file: rel, cls, consumer: source.rel });
-            }
-        }
+        const { referenced, legacyHit, violations } = scanConsumers(file.rel, cls, allowed, legacy);
+        if (legacyHit) legacyUsed.add(`${rel}::${cls}`);
+        for (const consumer of violations) crossLayer.push({ file: rel, cls, consumer });
         if (!referenced && ![...dynamicPrefixes].some((prefix) => cls.startsWith(prefix))) dead.push(cls);
     }
     deadByFile.set(rel, dead);
