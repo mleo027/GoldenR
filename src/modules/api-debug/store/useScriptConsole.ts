@@ -1,23 +1,19 @@
-import { useContext, useMemo } from 'react';
-import { ScriptConsoleActionsContext, ScriptConsoleStateContext } from './ScriptConsoleContext';
+import { useScriptConsoleStore } from './scriptConsoleStore';
+import { useShallow } from 'zustand/react/shallow';
 
 export function useScriptConsoleState() {
-    const context = useContext(ScriptConsoleStateContext);
-    if (!context) {
-        throw new Error('useScriptConsoleState must be used within ScriptConsoleProvider');
-    }
-    return context;
+    return useScriptConsoleStore(useShallow(({ consoles }) => ({ consoles })));
 }
 
 export function useScriptConsoleActions() {
-    const context = useContext(ScriptConsoleActionsContext);
-    if (!context) {
-        throw new Error('useScriptConsoleActions must be used within ScriptConsoleProvider');
-    }
-    return context;
+    return useScriptConsoleStore(
+        useShallow(({ setScriptConsole, clearScriptConsole }) => ({
+            setScriptConsole,
+            clearScriptConsole,
+        })),
+    );
 }
 
 export function useScriptConsole(caseId: string) {
-    const { consoles } = useScriptConsoleState();
-    return useMemo(() => consoles[caseId], [consoles, caseId]);
+    return useScriptConsoleStore((state) => state.consoles[caseId]);
 }

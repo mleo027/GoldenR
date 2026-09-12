@@ -3,8 +3,6 @@
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AppEnvProvider } from '../../../store/appEnvStore';
-import { UndoRedoProvider } from '../../../platform/undo';
 import { useTabsActions, useTabsState } from '../store/useTabs';
 import { flushWorkspaceDrafts } from '../store/workspaceFlushRegistry';
 import { registerTabDraftReader } from '../utils/workspace/tabDraftRegistry';
@@ -49,13 +47,9 @@ function Harness() {
 
 function renderHarness() {
     return render(
-        <AppEnvProvider>
-            <UndoRedoProvider>
-                <ApiDebugProviders>
-                    <Harness />
-                </ApiDebugProviders>
-            </UndoRedoProvider>
-        </AppEnvProvider>,
+        <ApiDebugProviders>
+            <Harness />
+        </ApiDebugProviders>,
     );
 }
 

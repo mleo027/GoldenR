@@ -8,7 +8,7 @@ import type { ComponentProps } from 'react';
 const exportCsv = vi.hoisted(() => vi.fn());
 const exportText = vi.hoisted(() => vi.fn());
 
-vi.mock('../../utils/exportTable', () => ({
+vi.mock('../../services/export/exportTableFiles', () => ({
     exportTableToCsv: exportCsv,
     exportTableToText: exportText,
 }));

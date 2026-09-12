@@ -2,20 +2,14 @@
 
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AppEnvProvider } from '../../../../store/appEnvStore';
-import { UndoRedoProvider } from '../../../../platform/undo';
 import { ApiDebugProviders } from '../../providers/ApiDebugProviders';
 import ParamSuggestRulesSettings from './ParamSuggestRulesSettings';
 
 function renderRulesSettings() {
     return render(
-        <AppEnvProvider>
-            <UndoRedoProvider>
-                <ApiDebugProviders>
-                    <ParamSuggestRulesSettings />
-                </ApiDebugProviders>
-            </UndoRedoProvider>
-        </AppEnvProvider>,
+        <ApiDebugProviders>
+            <ParamSuggestRulesSettings />
+        </ApiDebugProviders>,
     );
 }
 

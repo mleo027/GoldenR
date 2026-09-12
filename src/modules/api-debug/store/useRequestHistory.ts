@@ -1,18 +1,16 @@
-import { useContext } from 'react';
-import { RequestHistoryActionsContext, RequestHistoryStateContext } from './RequestHistoryContext';
+import { useRequestHistoryStore } from './requestHistoryStore';
+import { useShallow } from 'zustand/react/shallow';
 
 export function useRequestHistoryState() {
-    const context = useContext(RequestHistoryStateContext);
-    if (!context) {
-        throw new Error('useRequestHistoryState must be used within RequestHistoryProvider');
-    }
-    return context;
+    return useRequestHistoryStore(useShallow(({ entries, loaded }) => ({ entries, loaded })));
 }
 
 export function useRequestHistoryActions() {
-    const context = useContext(RequestHistoryActionsContext);
-    if (!context) {
-        throw new Error('useRequestHistoryActions must be used within RequestHistoryProvider');
-    }
-    return context;
+    return useRequestHistoryStore(
+        useShallow(({ addEntry, deleteEntry, clearHistory }) => ({
+            addEntry,
+            deleteEntry,
+            clearHistory,
+        })),
+    );
 }

@@ -1,11 +1,14 @@
-import { useContext } from 'react';
-import { AppEnvContext } from './AppEnvContext';
-import type { AppEnvContextValue } from './AppEnvContext';
+import { useAppEnvStore } from './appEnvStore';
+import { useShallow } from 'zustand/react/shallow';
 
-export function useAppEnv(): AppEnvContextValue {
-    const context = useContext(AppEnvContext);
-    if (!context) {
-        throw new Error('useAppEnv must be used within an AppEnvProvider');
-    }
-    return context;
+/** AppEnv 的公开访问入口；状态来源为 Zustand，保留原有调用 API 以降低迁移风险。 */
+export function useAppEnv() {
+    return useAppEnvStore(
+        useShallow(({ env, loaded, updateEnv, patchEnv }) => ({
+            env,
+            loaded,
+            updateEnv,
+            patchEnv,
+        })),
+    );
 }

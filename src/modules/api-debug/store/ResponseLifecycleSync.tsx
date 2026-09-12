@@ -3,7 +3,7 @@ import { useTabsState } from './useTabs';
 import { useResponseActions, useResponseState } from './useResponse';
 import { useScriptConsoleActions, useScriptConsoleState } from './useScriptConsole';
 
-/** 当接口从工作区移除时，同步清理 ResponseProvider / ScriptConsole 中的缓存 */
+/** 当接口从工作区移除时，同步清理 Response / ScriptConsole 中的缓存 */
 export function ResponseLifecycleSync() {
     const { state } = useTabsState();
     const { responses } = useResponseState();

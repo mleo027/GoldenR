@@ -7,9 +7,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { KcbpResponseData } from '../../../types/kcbp';
 import { useApiCall } from '../hooks/useApiCall';
 import { useApiDebugEnv } from '../store/useApiDebugEnv';
+import { useApiDebugEnvStore } from '../store/apiDebugEnvStore';
 import { ApiDebugProviders } from './ApiDebugProviders';
-import { AppEnvProvider } from '../../../store/appEnvStore';
-import { UndoRedoProvider } from '../../../platform/undo';
 import { registerTabDraftReader } from '../utils/workspace/tabDraftRegistry';
 
 const successRaw: KcbpResponseData = {
@@ -43,13 +42,7 @@ function Harness() {
 }
 
 function renderProviders(children: ReactNode) {
-    return render(
-        <AppEnvProvider>
-            <UndoRedoProvider>
-                <ApiDebugProviders>{children}</ApiDebugProviders>
-            </UndoRedoProvider>
-        </AppEnvProvider>,
-    );
+    return render(<ApiDebugProviders>{children}</ApiDebugProviders>);
 }
 
 function stubElectronApi(options: { configRead?: (fileName: string) => Promise<unknown> } = {}) {
@@ -105,6 +98,7 @@ function stubElectronApi(options: { configRead?: (fileName: string) => Promise<u
 
 describe('KcbpCallProvider integration', () => {
     beforeEach(() => {
+        useApiDebugEnvStore.getState().reset();
         mockCallKcbp.mockReset();
         mockCancelKcbp.mockReset();
         mockConfigWrite.mockReset();

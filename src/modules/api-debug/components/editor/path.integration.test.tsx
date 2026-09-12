@@ -3,8 +3,6 @@
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AppEnvProvider } from '../../../../store/appEnvStore';
-import { UndoRedoProvider } from '../../../../platform/undo';
 import { ApiDebugProviders } from '../../providers/ApiDebugProviders';
 import { useActiveTab, useTabsActions, useTabsState } from '../../store/useTabs';
 import { useApiDebugEnv } from '../../store/useApiDebugEnv';
@@ -119,18 +117,14 @@ function KgbpSetupProbe() {
 
 function renderPath(layout: PathBarLayout = 'full') {
     return render(
-        <AppEnvProvider>
-            <UndoRedoProvider>
-                <ApiDebugProviders>
-                    <Path layout={layout} hideRunButton />
-                    <AddressProbe />
-                    <EnvSetupProbe />
-                    <AddressListProbe />
-                    <ParamsSetupProbe />
-                    <KgbpSetupProbe />
-                </ApiDebugProviders>
-            </UndoRedoProvider>
-        </AppEnvProvider>,
+        <ApiDebugProviders>
+            <Path layout={layout} hideRunButton />
+            <AddressProbe />
+            <EnvSetupProbe />
+            <AddressListProbe />
+            <ParamsSetupProbe />
+            <KgbpSetupProbe />
+        </ApiDebugProviders>,
     );
 }
 

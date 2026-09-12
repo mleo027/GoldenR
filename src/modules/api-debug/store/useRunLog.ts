@@ -1,20 +1,12 @@
-import { useContext } from 'react';
-import { RunLogActionsContext, RunLogStateContext } from './RunLogContext';
+import { useRunLogStore } from './runLogStore';
+import { useShallow } from 'zustand/react/shallow';
 
 export function useRunLogState() {
-    const context = useContext(RunLogStateContext);
-    if (!context) {
-        throw new Error('useRunLogState must be used within RunLogProvider');
-    }
-    return context;
+    return useRunLogStore(useShallow(({ logs }) => ({ logs })));
 }
 
 export function useRunLogActions() {
-    const context = useContext(RunLogActionsContext);
-    if (!context) {
-        throw new Error('useRunLogActions must be used within RunLogProvider');
-    }
-    return context;
+    return useRunLogStore(useShallow(({ pushLog, clearLogs }) => ({ pushLog, clearLogs })));
 }
 
 /** @deprecated 优先使用 useRunLogState / useRunLogActions */

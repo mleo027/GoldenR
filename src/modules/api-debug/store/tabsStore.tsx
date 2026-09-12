@@ -18,7 +18,7 @@ import { configureTabsActionRuntime } from './tabsActionRuntime';
 import { useWorkspacePersistence } from './useWorkspacePersistence';
 export type { TabsState } from './tabsReducer';
 
-export function TabsProvider({ children }: { children: ReactNode }) {
+export function TabsRuntime({ children }: { children: ReactNode }) {
     const { env } = useAppEnv();
     const { env: apiEnv, loaded: apiEnvLoaded } = useApiDebugEnv();
     const state = useTabsStore();

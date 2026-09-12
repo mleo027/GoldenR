@@ -1,10 +1,5 @@
-import { useContext } from 'react';
-import { ApiDebugEnvContext } from './ApiDebugEnvContext';
+import { useApiDebugEnvStore } from './apiDebugEnvStore';
 
 export function useApiDebugEnv() {
-    const ctx = useContext(ApiDebugEnvContext);
-    if (!ctx) {
-        throw new Error('useApiDebugEnv must be used within ApiDebugEnvProvider');
-    }
-    return ctx;
+    return useApiDebugEnvStore();
 }

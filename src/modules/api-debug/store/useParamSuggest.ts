@@ -1,10 +1,5 @@
-import { useContext } from 'react';
-import { ParamSuggestContext, type ParamSuggestContextValue } from './ParamSuggestContext';
+import { useParamSuggestStore } from './paramSuggestStore';
 
-export function useParamSuggest(): ParamSuggestContextValue {
-    const context = useContext(ParamSuggestContext);
-    if (!context) {
-        throw new Error('useParamSuggest must be used within a ParamSuggestProvider');
-    }
-    return context;
+export function useParamSuggest() {
+    return useParamSuggestStore();
 }

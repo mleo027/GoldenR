@@ -1,15 +1,17 @@
-import { useContext } from 'react';
-import { CommonParamsActionsContext, CommonParamsStateContext } from './CommonParamsContext';
+import { useCommonParamsStore } from './commonParamsStore';
+import { useShallow } from 'zustand/react/shallow';
 
 export function useCommonParamsState() {
-    const context = useContext(CommonParamsStateContext);
-    if (!context) throw new Error('useCommonParamsState must be used within CommonParamsProvider');
-    return context;
+    return useCommonParamsStore(useShallow(({ sets, loaded }) => ({ sets, loaded })));
 }
 
 export function useCommonParamsActions() {
-    const context = useContext(CommonParamsActionsContext);
-    if (!context)
-        throw new Error('useCommonParamsActions must be used within CommonParamsProvider');
-    return context;
+    return useCommonParamsStore(
+        useShallow(({ addSet, renameSet, deleteSet, updateSetParams }) => ({
+            addSet,
+            renameSet,
+            deleteSet,
+            updateSetParams,
+        })),
+    );
 }

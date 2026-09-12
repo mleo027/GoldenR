@@ -1,23 +1,16 @@
-import { useContext, useMemo } from 'react';
-import { ResponseActionsContext, ResponseStateContext } from './ResponseContext';
+import { useResponseStore } from './responseStore';
+import { useShallow } from 'zustand/react/shallow';
 
 export function useResponseState() {
-    const context = useContext(ResponseStateContext);
-    if (!context) {
-        throw new Error('useResponseState must be used within ResponseProvider');
-    }
-    return context;
+    return useResponseStore(useShallow(({ responses }) => ({ responses })));
 }
 
 export function useResponseActions() {
-    const context = useContext(ResponseActionsContext);
-    if (!context) {
-        throw new Error('useResponseActions must be used within ResponseProvider');
-    }
-    return context;
+    return useResponseStore(
+        useShallow(({ setResponse, clearResponse }) => ({ setResponse, clearResponse })),
+    );
 }
 
 export function useResponse(caseId: string) {
-    const { responses } = useResponseState();
-    return useMemo(() => responses[caseId], [responses, caseId]);
+    return useResponseStore((state) => state.responses[caseId]);
 }
