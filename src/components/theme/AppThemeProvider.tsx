@@ -137,6 +137,8 @@ export default function AppThemeProvider({ children }: { children: ReactNode }) 
 
     useEffect(() => {
         const root = document.documentElement;
+        root.dataset.theme = isDark ? 'dark' : 'light';
+        root.style.colorScheme = isDark ? 'dark' : 'light';
         root.style.setProperty('--color-primary', accentColor);
         root.style.setProperty('--color-text-accent', accentColor);
         root.style.setProperty(
@@ -156,6 +158,8 @@ export default function AppThemeProvider({ children }: { children: ReactNode }) 
             'color-mix(in srgb, var(--color-primary) 18%, transparent)',
         );
         return () => {
+            delete root.dataset.theme;
+            root.style.removeProperty('color-scheme');
             root.style.removeProperty('--color-primary');
             root.style.removeProperty('--color-text-accent');
             root.style.removeProperty('--color-primary-hover');
@@ -163,7 +167,7 @@ export default function AppThemeProvider({ children }: { children: ReactNode }) 
             root.style.removeProperty('--color-primary-muted');
             root.style.removeProperty('--color-primary-glow');
         };
-    }, [accentColor]);
+    }, [accentColor, isDark]);
 
     const antdTheme = useMemo(
         () => ({

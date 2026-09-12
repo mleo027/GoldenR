@@ -1,5 +1,32 @@
 /* API 调试工作区：请求/响应面板层级 */
 
+.trace-view {
+    color: var(--color-text-body);
+    background: var(--color-bg-card);
+}
+
+.trace-view-header {
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.trace-view-event {
+    border: 1px solid var(--color-border);
+}
+
+.trace-view-summary:hover {
+    background: var(--color-bg-hover);
+}
+
+.trace-view-sql {
+    border-top: 1px solid var(--color-border-light);
+    color: var(--color-text-body);
+    background: var(--color-bg-subtle);
+}
+
+.trace-view-duration {
+    color: var(--color-primary);
+}
+
 .workspace-panel {
     display: flex;
     flex-direction: column;

@@ -9,7 +9,7 @@ function FormattedSql({ sql }: { sql: string }) {
     const highlighted = useMemo(() => highlightSql(formatted), [formatted]);
 
     return (
-        <pre className="px-3 py-2 border-t border-slate-200 dark:border-slate-700 whitespace-pre-wrap break-words overflow-x-auto text-sm bg-slate-50 dark:bg-slate-900 font-mono">
+        <pre className="trace-view-sql px-3 py-2 whitespace-pre-wrap break-words overflow-x-auto text-sm font-mono">
             {}
             <code dangerouslySetInnerHTML={{ __html: highlighted }} />
         </pre>
@@ -22,8 +22,8 @@ export default function TraceView() {
     if (!traceData) return null;
 
     return (
-        <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between px-4 py-2 border-b border-slate-200 dark:border-slate-700">
+        <div className="trace-view flex flex-col h-full">
+            <div className="trace-view-header flex items-center justify-between px-4 py-2">
                 <div className="flex items-center gap-2">
                     <span className="font-medium">SQL Trace</span>
                     <span className="text-xs opacity-60">— {traceCaseName}</span>
@@ -50,14 +50,14 @@ export default function TraceView() {
                     <details
                         key={`${event.timestampUtc}-${index}`}
                         open
-                        className="mb-2 border border-slate-200 dark:border-slate-700 rounded"
+                        className="trace-view-event mb-2 rounded"
                     >
-                        <summary className="cursor-pointer px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800">
+                        <summary className="trace-view-summary cursor-pointer px-3 py-2">
                             <span className="mr-3">
                                 {new Date(event.timestampUtc).toLocaleTimeString()}
                             </span>
                             <span className="mr-3 font-medium">{event.eventType}</span>
-                            <span className="text-blue-600 dark:text-blue-400">
+                            <span className="trace-view-duration">
                                 {event.durationMs.toFixed(2)} ms
                             </span>
                             {event.objectName && (
