@@ -9,7 +9,9 @@ import { SettingsModalContext } from '../../../../platform/shell/SettingsModalCo
 const openSettings = vi.fn();
 function renderBar(props: React.ComponentProps<typeof CaseActionBar>) {
     return render(
-        <SettingsModalContext.Provider value={{ open: false, openSettings, closeSettings: vi.fn() }}>
+        <SettingsModalContext.Provider
+            value={{ open: false, openSettings, closeSettings: vi.fn() }}
+        >
             <CaseActionBar {...props} />
         </SettingsModalContext.Provider>,
     );

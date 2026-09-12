@@ -1,7 +1,10 @@
 import { useApiDebugEnv } from '../../store/useApiDebugEnv';
 import { useTabsActions, useActiveTab } from '../../store/useTabs';
 import { useCommonParamsState } from '../../store/useCommonParams';
-import { resolveCommonParamsById, stripMountedCommonParams } from '../../utils/workspace/commonParams';
+import {
+    resolveCommonParamsById,
+    stripMountedCommonParams,
+} from '../../utils/workspace/commonParams';
 import { useApiCall } from '../../hooks/useApiCall';
 import type { RequestHistoryEntry } from '../../types/requestHistory';
 

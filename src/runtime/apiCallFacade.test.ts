@@ -28,14 +28,22 @@ describe('apiCallRuntime', () => {
         cancel.mockReset();
     });
 
-    it.each(['KCBP', 'KGBP', 'KUAB'] as const)('preserves the %s protocol discriminator', async (type) => {
-        call.mockResolvedValue({ code: '0', msg: 'ok', data: [], stats: { timecost: 0, rows: 0 } });
-        const request = { type, connection: {}, param: {} };
+    it.each(['KCBP', 'KGBP', 'KUAB'] as const)(
+        'preserves the %s protocol discriminator',
+        async (type) => {
+            call.mockResolvedValue({
+                code: '0',
+                msg: 'ok',
+                data: [],
+                stats: { timecost: 0, rows: 0 },
+            });
+            const request = { type, connection: {}, param: {} };
 
-        await apiCallRuntime.call(request);
+            await apiCallRuntime.call(request);
 
-        expect(call).toHaveBeenCalledWith(request);
-    });
+            expect(call).toHaveBeenCalledWith(request);
+        },
+    );
 
     it('reports availability and delegates cancellation', async () => {
         cancel.mockResolvedValue(true);

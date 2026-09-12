@@ -18,7 +18,11 @@ export default function SettingsModalGate() {
 
     return (
         <Suspense fallback={<SettingsModalSkeleton />}>
-            <SettingsModal open={open} onClose={closeSettings} initialSectionKey={initialSectionKey} />
+            <SettingsModal
+                open={open}
+                onClose={closeSettings}
+                initialSectionKey={initialSectionKey}
+            />
         </Suspense>
     );
 }

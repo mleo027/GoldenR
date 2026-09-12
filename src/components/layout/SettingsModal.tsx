@@ -206,7 +206,15 @@ export default function SettingsModal({ open, onClose, initialSectionKey }: Sett
         if (hasSearchQuery && hasVisibleNav && !visibleNavKeys.includes(activeSection)) {
             setActiveSection(visibleNavKeys[0]);
         }
-    }, [activeSection, hasSearchQuery, hasVisibleNav, initialSectionKey, navItemKeys, open, visibleNavKeys]);
+    }, [
+        activeSection,
+        hasSearchQuery,
+        hasVisibleNav,
+        initialSectionKey,
+        navItemKeys,
+        open,
+        visibleNavKeys,
+    ]);
 
     const activePlatformSection = findPlatformSettingsSection(activeSection);
     const activeModuleSection = moduleSections.find((section) => section.key === activeSection);

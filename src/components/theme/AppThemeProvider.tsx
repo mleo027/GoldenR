@@ -139,10 +139,22 @@ export default function AppThemeProvider({ children }: { children: ReactNode }) 
         const root = document.documentElement;
         root.style.setProperty('--color-primary', accentColor);
         root.style.setProperty('--color-text-accent', accentColor);
-        root.style.setProperty('--color-primary-hover', 'color-mix(in srgb, var(--color-primary) 82%, black)');
-        root.style.setProperty('--color-primary-subtle', 'color-mix(in srgb, var(--color-primary) 8%, transparent)');
-        root.style.setProperty('--color-primary-muted', 'color-mix(in srgb, var(--color-primary) 16%, transparent)');
-        root.style.setProperty('--color-primary-glow', 'color-mix(in srgb, var(--color-primary) 18%, transparent)');
+        root.style.setProperty(
+            '--color-primary-hover',
+            'color-mix(in srgb, var(--color-primary) 82%, black)',
+        );
+        root.style.setProperty(
+            '--color-primary-subtle',
+            'color-mix(in srgb, var(--color-primary) 8%, transparent)',
+        );
+        root.style.setProperty(
+            '--color-primary-muted',
+            'color-mix(in srgb, var(--color-primary) 16%, transparent)',
+        );
+        root.style.setProperty(
+            '--color-primary-glow',
+            'color-mix(in srgb, var(--color-primary) 18%, transparent)',
+        );
         return () => {
             root.style.removeProperty('--color-primary');
             root.style.removeProperty('--color-text-accent');
@@ -195,7 +207,9 @@ export default function AppThemeProvider({ children }: { children: ReactNode }) 
                 },
                 Table: {
                     ...(isDark ? DARK_COMPONENTS.Table : LIGHT_COMPONENTS.Table),
-                    headerBg: isDark ? '#141414' : 'color-mix(in srgb, var(--color-primary) 8%, white)',
+                    headerBg: isDark
+                        ? '#141414'
+                        : 'color-mix(in srgb, var(--color-primary) 8%, white)',
                 },
             },
         }),

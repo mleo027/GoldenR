@@ -9,7 +9,11 @@ import CommonParamsSettings from './CommonParamsSettings';
 
 vi.mock('../../hooks/useParamSuggestions', () => ({
     useParamSuggestions: () => ({
-        options: [], loading: false, pendingDeps: [], hasRule: false, hasFieldRule: false,
+        options: [],
+        loading: false,
+        pendingDeps: [],
+        hasRule: false,
+        hasFieldRule: false,
     }),
 }));
 
@@ -17,14 +21,22 @@ beforeAll(() => {
     Object.defineProperty(window, 'matchMedia', {
         configurable: true,
         value: vi.fn().mockImplementation((query: string) => ({
-            matches: false, media: query, addListener: vi.fn(), removeListener: vi.fn(),
-            addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),
+            matches: false,
+            media: query,
+            addListener: vi.fn(),
+            removeListener: vi.fn(),
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+            dispatchEvent: vi.fn(),
         })),
     });
-    vi.stubGlobal('ResizeObserver', class ResizeObserverMock {
-        observe() {}
-        disconnect() {}
-    });
+    vi.stubGlobal(
+        'ResizeObserver',
+        class ResizeObserverMock {
+            observe() {}
+            disconnect() {}
+        },
+    );
 });
 
 afterAll(() => vi.unstubAllGlobals());
@@ -42,7 +54,14 @@ function renderSettings(
         onUpdateParams: vi.fn(),
         ...overrides,
     };
-    return { ...render(<App><CommonParamsSettings {...props} /></App>), props };
+    return {
+        ...render(
+            <App>
+                <CommonParamsSettings {...props} />
+            </App>,
+        ),
+        props,
+    };
 }
 
 describe('CommonParamsSettings', () => {
@@ -60,7 +79,11 @@ describe('CommonParamsSettings', () => {
     it('updates the active set name and parameter values', async () => {
         const user = userEvent.setup();
         const { props } = renderSettings([
-            { id: 'set-1', name: '交易公共', params: [{ name: 'orgid', value: '', type: 'string' }] },
+            {
+                id: 'set-1',
+                name: '交易公共',
+                params: [{ name: 'orgid', value: '', type: 'string' }],
+            },
         ]);
 
         const nameInput = screen.getByDisplayValue('交易公共');
@@ -68,17 +91,18 @@ describe('CommonParamsSettings', () => {
         await user.type(nameInput, '交易参数');
         expect(props.onRename).toHaveBeenCalled();
 
-        const valueInput = document.querySelector('.param-value-input textarea') as HTMLTextAreaElement;
+        const valueInput = document.querySelector(
+            '.param-value-input textarea',
+        ) as HTMLTextAreaElement;
         await user.type(valueInput, '0101');
         await waitFor(() => expect(props.onUpdateParams).toHaveBeenCalled());
     });
 
     it('shows the number of projects using a set before deletion', async () => {
         const user = userEvent.setup();
-        const { props } = renderSettings(
-            [{ id: 'set-1', name: '交易公共', params: [] }],
-            { mountedCountBySet: { 'set-1': 2 } },
-        );
+        const { props } = renderSettings([{ id: 'set-1', name: '交易公共', params: [] }], {
+            mountedCountBySet: { 'set-1': 2 },
+        });
 
         await user.click(screen.getByRole('button', { name: '删除 交易公共' }));
         expect(await screen.findByText(/2 个项目正在使用/)).toBeTruthy();

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import {Button, Space, Tag, Tooltip, Typography} from 'antd';
+import { Button, Space, Tag, Tooltip, Typography } from 'antd';
 import { ThunderboltOutlined } from '@ant-design/icons';
 import type { DbSuggestResponse, ParamFieldRule } from '../../types/paramSuggest';
 import { formatExecutedSqlPreview } from '../../utils/suggest/paramSuggestSql';

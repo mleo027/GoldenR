@@ -21,7 +21,13 @@ export function registerStorageIpc(ctx: ElectronAppContext): void {
             ctx.configRepository.write(assertConfigStorageFileName(filePath), data);
         }),
     );
-    ipcMain.handle('database:flush', withIpcError(() => ctx.configRepository.flush()));
+    ipcMain.handle(
+        'database:flush',
+        withIpcError(() => ctx.configRepository.flush()),
+    );
 
-    ipcMain.handle('app:getUserDataDir', withIpcError(() => ctx.getConfigDir()));
+    ipcMain.handle(
+        'app:getUserDataDir',
+        withIpcError(() => ctx.getConfigDir()),
+    );
 }

@@ -1,4 +1,4 @@
-import {Button, Segmented} from 'antd';
+import { Button, Segmented } from 'antd';
 import { Select } from '../../../../components/ui/primitives';
 import type { ResultFilter, TimeFilter } from './historyFormat';
 import { Input } from '../../../../components/ui/primitives';

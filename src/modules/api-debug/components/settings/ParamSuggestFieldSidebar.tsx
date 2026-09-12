@@ -1,4 +1,4 @@
-import {Button, Tooltip, Typography} from 'antd';
+import { Button, Tooltip, Typography } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import type { RuleFieldGroup } from '../../utils/suggest/paramSuggestResolve';
 import { summarizeFieldGroup } from '../../utils/suggest/paramSuggestResolve';

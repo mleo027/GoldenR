@@ -5,7 +5,17 @@ import type { SqliteDatabase } from '../connection';
 import { ConfigRepository } from '../repositories/configRepository';
 
 const IMPORTED = 'legacy-json-v1';
-const FILES: ConfigStorageFileName[] = ['app.json','settings.json','common-params.json','project.json','db.json','param-suggest-rules.json','api-debug.env.json','kcbp.env.json','request-history.json'];
+const FILES: ConfigStorageFileName[] = [
+    'app.json',
+    'settings.json',
+    'common-params.json',
+    'project.json',
+    'db.json',
+    'param-suggest-rules.json',
+    'api-debug.env.json',
+    'kcbp.env.json',
+    'request-history.json',
+];
 
 export function importLegacyConfigOnce(db: SqliteDatabase, directory: string, log = console): void {
     if (db.prepare('SELECT 1 FROM data_migrations WHERE name=?').get(IMPORTED)) return;
@@ -24,7 +34,13 @@ export function importLegacyConfigOnce(db: SqliteDatabase, directory: string, lo
             moved.push([source, target]);
         }
     } catch (error) {
-        for (const [source, target] of moved.reverse()) { try { fs.renameSync(target, source); } catch { /* preserve original error */ } }
+        for (const [source, target] of moved.reverse()) {
+            try {
+                fs.renameSync(target, source);
+            } catch {
+                /* preserve original error */
+            }
+        }
         throw error;
     }
     const tx = db.transaction(() => {
@@ -32,23 +48,51 @@ export function importLegacyConfigOnce(db: SqliteDatabase, directory: string, lo
             const source = path.join(backup, name);
             if (!fs.existsSync(source)) continue;
             let value: unknown;
-            try { value = JSON.parse(fs.readFileSync(source, 'utf8')); }
-            catch (error) { log.warn(`Ignoring invalid legacy config ${name}:`, error); continue; }
+            try {
+                value = JSON.parse(fs.readFileSync(source, 'utf8'));
+            } catch (error) {
+                log.warn(`Ignoring invalid legacy config ${name}:`, error);
+                continue;
+            }
             repo.write(name, value);
         }
         const tracecodePath = path.join(backup, 'tracecode.env.json');
         if (fs.existsSync(tracecodePath)) {
             try {
-                const tracecode = JSON.parse(fs.readFileSync(tracecodePath, 'utf8')) as Record<string, unknown>;
-                if (tracecode.kcbpExecutable != null || tracecode.kcbpWorkingDir != null || tracecode.kcbpArgs != null) {
-                    repo.write('kcbp.env.json', { executable: tracecode.kcbpExecutable ?? '', workingDir: tracecode.kcbpWorkingDir ?? '', args: tracecode.kcbpArgs ?? [] });
+                const tracecode = JSON.parse(fs.readFileSync(tracecodePath, 'utf8')) as Record<
+                    string,
+                    unknown
+                >;
+                if (
+                    tracecode.kcbpExecutable != null ||
+                    tracecode.kcbpWorkingDir != null ||
+                    tracecode.kcbpArgs != null
+                ) {
+                    repo.write('kcbp.env.json', {
+                        executable: tracecode.kcbpExecutable ?? '',
+                        workingDir: tracecode.kcbpWorkingDir ?? '',
+                        args: tracecode.kcbpArgs ?? [],
+                    });
                 }
-            } catch (error) { log.warn('Ignoring invalid legacy tracecode.env.json:', error); }
+            } catch (error) {
+                log.warn('Ignoring invalid legacy tracecode.env.json:', error);
+            }
         }
-        db.prepare('INSERT INTO data_migrations(name, applied_at) VALUES(?,?)').run(IMPORTED, Date.now());
+        db.prepare('INSERT INTO data_migrations(name, applied_at) VALUES(?,?)').run(
+            IMPORTED,
+            Date.now(),
+        );
     });
-    try { tx(); } catch (error) {
-        for (const [source, target] of moved.reverse()) { try { fs.renameSync(target, source); } catch { /* preserve database error */ } }
+    try {
+        tx();
+    } catch (error) {
+        for (const [source, target] of moved.reverse()) {
+            try {
+                fs.renameSync(target, source);
+            } catch {
+                /* preserve database error */
+            }
+        }
         throw error;
     }
 }

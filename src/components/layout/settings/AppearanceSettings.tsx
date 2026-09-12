@@ -21,10 +21,16 @@ export default function AppearanceSettings() {
                 <div className="settings-panel-row settings-panel-row--stacked">
                     <div className="settings-panel-row-copy">
                         <div className="settings-panel-row-label">主题色</div>
-                        <div className="settings-panel-row-hint">调整按钮、选中项和交互高亮颜色</div>
+                        <div className="settings-panel-row-hint">
+                            调整按钮、选中项和交互高亮颜色
+                        </div>
                     </div>
                     <div className="appearance-accent-picker">
-                        <div className="appearance-accent-presets" role="list" aria-label="主题色预设">
+                        <div
+                            className="appearance-accent-presets"
+                            role="list"
+                            aria-label="主题色预设"
+                        >
                             {presets.map((color) => (
                                 <button
                                     key={color}
@@ -39,9 +45,19 @@ export default function AppearanceSettings() {
                         <ColorPicker
                             value={selectedAccent}
                             showText
-                            onChange={(color: Color) => updateEnv('accentColor', color.toHexString())}
+                            onChange={(color: Color) =>
+                                updateEnv('accentColor', color.toHexString())
+                            }
                         />
-                        {accentColor ? <Button type="link" size="small" onClick={() => updateEnv('accentColor', undefined)}>恢复默认</Button> : null}
+                        {accentColor ? (
+                            <Button
+                                type="link"
+                                size="small"
+                                onClick={() => updateEnv('accentColor', undefined)}
+                            >
+                                恢复默认
+                            </Button>
+                        ) : null}
                     </div>
                 </div>
                 <div className="settings-panel-row">

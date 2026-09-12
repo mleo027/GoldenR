@@ -1,5 +1,5 @@
 import { memo, useCallback, useState } from 'react';
-import {App, Modal, Typography} from 'antd';
+import { App, Modal, Typography } from 'antd';
 import { parseQuickFillText, type QuickFillPayload } from '../../utils/workspace/paramText';
 import { TextArea } from '../../../../components/ui/primitives';
 

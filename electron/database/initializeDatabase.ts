@@ -8,7 +8,9 @@ import path from 'node:path';
 export function initializeDatabase(directory: string): SqliteDatabase {
     const db = openDatabase(directory);
     migrateSchema(db);
-    const migrationDone = db.prepare("SELECT 1 FROM data_migrations WHERE name='legacy-json-v1'").get();
+    const migrationDone = db
+        .prepare("SELECT 1 FROM data_migrations WHERE name='legacy-json-v1'")
+        .get();
     const hasLegacyFiles = [
         'app.json',
         'settings.json',

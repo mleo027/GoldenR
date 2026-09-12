@@ -11,7 +11,11 @@ const flushCoordinator = new FlushCoordinator({
             console.error(`App flush timed out for request ${requestId}`);
         }
         allowWindowClose();
-        try { getDatabase().pragma('wal_checkpoint(TRUNCATE)'); } catch (error) { console.error('Database flush failed', error); }
+        try {
+            getDatabase().pragma('wal_checkpoint(TRUNCATE)');
+        } catch (error) {
+            console.error('Database flush failed', error);
+        }
         closeDatabase();
         app.exit(0);
     },
@@ -34,14 +38,17 @@ export function registerAppLifecycle(): void {
         }
     });
 
-    ipcMain.on('app:flush-storage-complete', withIpcEvent((event, requestId: string, errorMessage?: string) => {
-        const win = BrowserWindow.fromWebContents(event.sender);
-        if (!win) return;
-        if (errorMessage) {
-            console.error(`App flush failed for request ${requestId}: ${errorMessage}`);
-        }
-        flushCoordinator.complete(win.id, requestId);
-    }));
+    ipcMain.on(
+        'app:flush-storage-complete',
+        withIpcEvent((event, requestId: string, errorMessage?: string) => {
+            const win = BrowserWindow.fromWebContents(event.sender);
+            if (!win) return;
+            if (errorMessage) {
+                console.error(`App flush failed for request ${requestId}: ${errorMessage}`);
+            }
+            flushCoordinator.complete(win.id, requestId);
+        }),
+    );
 
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') {

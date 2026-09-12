@@ -30,7 +30,8 @@ function isAppEnv(value: unknown): value is Partial<AppEnv> & LegacyAppEnvFields
         (env.showRowIndex === undefined || typeof env.showRowIndex === 'boolean') &&
         (env.autoSave === undefined || typeof env.autoSave === 'boolean') &&
         (env.darkMode === undefined || typeof env.darkMode === 'boolean') &&
-        (env.accentColor === undefined || (typeof env.accentColor === 'string' && /^#[0-9a-fA-F]{6}$/.test(env.accentColor))) &&
+        (env.accentColor === undefined ||
+            (typeof env.accentColor === 'string' && /^#[0-9a-fA-F]{6}$/.test(env.accentColor))) &&
         (env.activeModuleId === undefined || typeof env.activeModuleId === 'string') &&
         (env.sidebarVisible === undefined || typeof env.sidebarVisible === 'boolean')
     );
