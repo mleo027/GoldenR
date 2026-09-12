@@ -124,10 +124,6 @@ export async function flushRequestHistoryAsync(): Promise<void> {
     await historyWriter.flush();
 }
 
-export function createRequestHistoryId(timestamp = Date.now()): string {
-    return `${timestamp}-${Math.random().toString(36).slice(2, 10)}`;
-}
-
 export function createRequestHistoryMode(mode: string): RequestHistoryMode {
     return mode === 'script' || mode === 'tcd' ? mode : 'ui';
 }

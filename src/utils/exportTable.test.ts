@@ -3,10 +3,9 @@ import {
     buildAlignedTextTable,
     buildCsvContent,
     estimateDataSize,
-    exportTableToCsv,
-    exportTableToText,
     formatDataSize,
 } from './exportTable';
+import { exportTableToCsv, exportTableToText } from '../services/export/exportTableFiles';
 
 const mockSaveCsvFile = vi.fn();
 const mockSaveTxtFile = vi.fn();

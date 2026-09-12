@@ -33,6 +33,44 @@
 - **禁止调用 `KUAB_OPTION_CONFIG_DIR`(108)**：实测在 `KUABCLI_Init` 之后调用它会把已加载的配置清空，导致连接失败。KUAB 的凭据不由环境/用例配置提供，环境只配 host、端口和队列。
 - 排障入口：同级目录下由 DLL 生成的 `KCBPCli.log` 会打印 `parse config file [路径] fail:原因` 与 `Call CKUABCli::ConnectServer(...)` 的完整参数（GBK 编码）。
 
+## Renderer 分层与依赖约束（ESLint 强制）
+
+渲染进程的依赖方向由 `eslint.config.js` 强制，`npm run lint` / `npm run check` 失败即阻断；`src/architecture/boundaries.test.ts`（路径感知）作为补充守卫。相对路径与 `@/` 别名都会被解析后判定，不能靠改写法绕过。
+
+### 分层（依赖只能单向向下）
+
+- 组合根：`src/main.tsx`、`src/App.tsx`、`src/platform/registry` 可依赖任意层。
+- 平台与共享：`src/platform/{shell,undo}`、`src/components`、`src/hooks`、`src/store`。
+- 门面与基础设施：`src/runtime`（Electron 门面）、`src/services`（持久化/导出等副作用）、`src/lib`、`src/utils`、`src/types`、`src/constants`。
+- 叶子层：`src/shared`（含 `src/config` 再导出壳），不得依赖业务模块、UI、store、platform、runtime、services、lib、hooks。
+- `electron/**` 只可依赖 `src/shared`、`src/types`、`src/constants`。
+
+### api-debug 模块内部
+
+`src/modules/api-debug` 细分为 `store / services / components / layout / providers / hooks / utils / types / constants`：
+
+- `services` 与 `utils` 不得依赖 `store`、`components`、`hooks`（避免状态实现与 UI 耦合）。
+- `utils` 不得依赖 `runtime`；副作用下沉到 `services`。
+- `components` 只能通过 `store/use*` hook 或 `*Context` 读取状态，禁止直连 `*Store` / `*Data` / `tabsReducer`。
+- `types` / `constants` 保持纯类型与常量。
+
+### 业务约束（no-restricted-imports）
+
+- 基础表单控件（`Input` / `Select` / `TextArea` / `Password`）必须使用 `@/components/ui/primitives`，禁止直连 antd。
+- 配置读写只允许出现在 `*Data.ts` 或 `src/services/persistence`。
+- KCBP 调用细节（`services/kcbp/electronClient`、`services/call/executors`）只允许 service 层引用。
+- 仅 `src/lib/electron.ts` 可访问 `window.electronAPI`；渲染进程禁止 `process` / `Buffer` / `require` / `__dirname`。
+- 类型导入由 `@typescript-eslint/consistent-type-imports` 强制显式 `import type`。
+
+> flat config 中多个配置块设置同一规则会相互覆盖。`no-restricted-imports` 已按「导入方文件」切成互斥分区，新增规则时需确保目标文件只命中一个分区。
+
+### 新增层或规则
+
+1. 在 `eslint.config.js` 的 `boundaries/elements` 登记新元素：使用 `partialMatch: false` + 完整路径，避免 `components/*` 误匹配同名目录。
+2. 在 `dependencyPolicies` 增加允许方向，或为要禁止的方向补充策略。
+3. 业务约束加入对应的互斥 `no-restricted-imports` 分区。
+4. 同步更新 `src/architecture/boundaries.test.ts` 的核心不变量。
+
 ## SQLite 持久化
 
 - `golden.db` 是唯一运行时配置来源，位置遵循开发、便携版和安装版的既有目录策略。

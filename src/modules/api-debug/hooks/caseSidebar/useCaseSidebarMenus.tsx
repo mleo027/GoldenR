@@ -17,7 +17,7 @@ import { useStableHandlerMap } from '../../../../hooks/useStableHandlerMap';
 import type { useTabsActions, useTabsNavigation } from '../../store/useTabs';
 import { applyTabDraftsToWorkspace } from '../../store/tabsData';
 import { flushAllTabDrafts } from '../../utils/workspace/tabDraftRegistry';
-import { exportProjectToIni } from '../../utils/import/configIniExport';
+import { exportProjectToIni } from '../../services/import/exportProjectIni';
 import { getCaseLabel, getCaseMsgtype } from '../../utils/workspace/caseLabel';
 
 interface Config {

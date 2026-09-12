@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons';
 import { UI_DEBOUNCE_MS, PERFORMANCE_THRESHOLDS } from '../../constants/ui';
 import { useDebouncedDraft } from '../../hooks/useDebouncedDraft';
-import { exportTableToCsv, exportTableToText } from '../../utils/exportTable';
+import { exportTableToCsv, exportTableToText } from '../../services/export/exportTableFiles';
 import { Input } from './primitives';
 import type { InputRef } from './primitives';
 

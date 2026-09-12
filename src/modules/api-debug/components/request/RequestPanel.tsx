@@ -12,7 +12,7 @@ import {
     registerTabDraftFlusher,
     registerTabDraftReader,
 } from '../../utils/workspace/tabDraftRegistry';
-import { paramsEqual } from '@/hooks/useStableHandlerMap';
+import { paramsEqual } from '@/shared/utils/paramEquals';
 import { UI_DEBOUNCE_MS } from '@/constants/ui';
 import type { ParamItem } from '../../types/workspace';
 import type { QuickFillPayload } from '../../utils/workspace/paramText';

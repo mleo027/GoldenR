@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createCaseTab, createParamItem, createProject } from '../../../../test/factories';
 import { parseConfigIni } from './configIniImport';
-import { buildConfigIniContent, exportProjectToIni } from './configIniExport';
+import { buildConfigIniContent } from './configIniExport';
+import { exportProjectToIni } from '../../services/import/exportProjectIni';
 
 const mockSaveIni = vi.hoisted(() => vi.fn());
 

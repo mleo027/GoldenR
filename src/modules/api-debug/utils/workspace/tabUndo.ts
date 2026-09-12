@@ -1,5 +1,5 @@
 import type { UndoCommand } from '@/shared/platform/undo/types';
-import { paramsEqual } from '@/hooks/useStableHandlerMap';
+import { paramsEqual } from '@/shared/utils/paramEquals';
 import type { ParamItem, TabData } from '../../types/workspace';
 
 export const UNDOABLE_TAB_FIELDS = [

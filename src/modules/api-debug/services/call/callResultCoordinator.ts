@@ -1,9 +1,9 @@
 import type { ProjectData, ResponseData, TabData, EditorMode } from '../../types/workspace';
 import type { ScriptConsoleSnapshot } from '../../types/scriptConsole';
 import type { KcbpCallOutcome } from '../kcbp/types';
-import type { RunLogEntry } from '../../store/RunLogContext';
+import type { RunLogEntry } from '../../types/runLog';
 import type { RequestHistoryEntry, RequestHistoryOutcome } from '../../types/requestHistory';
-import { createRequestHistoryId } from '../../store/requestHistoryData';
+import { createRequestHistoryId } from '../../utils/historyId';
 import { getKcbpCallFeedback } from '../kcbp/feedback';
 import { parseKcbpAddress } from '../../utils/kcbp/kcbpAddress';
 import { parseKcbpResponseStatus } from '../../utils/kcbp/kcbpResponse';

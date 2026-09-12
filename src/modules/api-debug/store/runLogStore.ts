@@ -1,15 +1,8 @@
 import { create } from 'zustand';
+import type { RunLogEntry } from '../types/runLog';
 
-export interface RunLogEntry {
-    id: string;
-    caseName: string;
-    msgtype: string;
-    success: boolean;
-    timecost?: number;
-    rows?: number;
-    message: string;
-    timestamp: number;
-}
+// 兼容既有导入路径；类型定义已上移到 types/runLog，避免 service 依赖 store。
+export type { RunLogEntry };
 
 interface RunLogStoreState {
     logs: RunLogEntry[];

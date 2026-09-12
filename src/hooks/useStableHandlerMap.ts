@@ -1,15 +1,4 @@
 import { useCallback, useMemo, useRef } from 'react';
-import type { ParamItem } from '../modules/api-debug/types/workspace';
-
-export function paramsEqual(left: ParamItem[], right: ParamItem[]): boolean {
-    if (left.length !== right.length) return false;
-    return left.every(
-        (item, index) =>
-            item.name === right[index].name &&
-            item.value === right[index].value &&
-            item.type === right[index].type,
-    );
-}
 
 export function useStableHandlerMap<Key extends string>(
     createHandler: (key: Key) => () => void,
