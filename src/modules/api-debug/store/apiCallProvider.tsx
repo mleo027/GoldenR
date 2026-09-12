@@ -77,7 +77,17 @@ export function ApiCallProvider({ children }: { children: ReactNode }) {
         });
     }
     const coordinator = coordinatorRef.current;
-    const run = useCallback(
+    const run = useCallback(() => {
+        return coordinator.run({
+            tab: activeTab,
+            project: activeProject,
+            caseIndex: activeCaseIndex,
+            commonSets,
+            env,
+            traceEnabled,
+        });
+    }, [activeCaseIndex, activeProject, activeTab, commonSets, coordinator, env, traceEnabled]);
+    const runWithTrace = useCallback(
         () =>
             coordinator.run({
                 tab: activeTab,
@@ -85,12 +95,12 @@ export function ApiCallProvider({ children }: { children: ReactNode }) {
                 caseIndex: activeCaseIndex,
                 commonSets,
                 env,
-                traceEnabled,
+                traceEnabled: true,
             }),
-        [activeCaseIndex, activeProject, activeTab, commonSets, coordinator, env, traceEnabled],
+        [activeCaseIndex, activeProject, activeTab, commonSets, coordinator, env],
     );
     const cancel = useCallback(() => coordinator.cancel(), [coordinator]);
-    const value = useMemo(() => ({ run, cancel }), [cancel, run]);
+    const value = useMemo(() => ({ run, runWithTrace, cancel }), [cancel, run, runWithTrace]);
     const feedbackBridge = useMemo(() => ({ register: registerFeedback }), [registerFeedback]);
 
     return (

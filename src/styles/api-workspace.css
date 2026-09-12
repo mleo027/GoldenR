@@ -1296,48 +1296,14 @@
     overflow: hidden;
 }
 
-.path-trace-dot {
-    width: 6px;
-    height: 6px;
-    flex: 0 0 auto;
-    border-radius: 50%;
-    background: var(--color-text-muted);
-}
-.path-trace-dot.is-active {
-    background: #55c58a;
-    box-shadow: 0 0 0 3px color-mix(in srgb, #55c58a 16%, transparent);
-}
 .path-trace-panel {
-    width: 238px;
+    display: flex;
+    width: fit-content;
+    justify-content: center;
 }
 
 .path-trace-run-btn {
-    margin-bottom: 12px;
-}
-.path-trace-panel-heading,
-.path-trace-panel-action {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-}
-.path-trace-state {
-    margin-left: auto;
-    color: var(--color-text-muted);
-    font-size: 10px;
-    letter-spacing: 0.04em;
-}
-.path-trace-panel p {
-    margin: 8px 0 12px;
-    color: var(--color-text-muted);
-    font-size: 11px;
-    line-height: 1.5;
-}
-.path-trace-panel-action {
-    justify-content: space-between;
-    padding-top: 9px;
-    border-top: 1px solid var(--color-border-light);
-    color: var(--color-text-secondary);
-    font-size: 12px;
+    margin: 0;
 }
 
 .path-run-kbd,

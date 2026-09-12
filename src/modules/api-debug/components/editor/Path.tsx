@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Dropdown, Menu, Popover, Tooltip, Switch } from 'antd';
+import { Button, Dropdown, Menu, Popover, Tooltip } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
 import { Input, Select } from '../../../../components/ui/primitives';
 import {
@@ -32,7 +32,7 @@ interface PathProps {
 }
 
 export function PathRunButton() {
-    const { loading, run, cancel, traceEnabled, setTraceEnabled } = useApiCall();
+    const { loading, run, runWithTrace, cancel } = useApiCall();
     const canRun = apiCallRuntime.isAvailable();
     const [elapsedSec, setElapsedSec] = useState(0);
     const [tracePopoverOpen, setTracePopoverOpen] = useState(false);
@@ -69,46 +69,19 @@ export function PathRunButton() {
                 content={
                     <div className="path-trace-panel">
                         <Button
-                            type={loading ? 'default' : 'primary'}
+                            type="primary"
                             size="small"
-                            block
+                            disabled={loading || !canRun}
                             onClick={() => {
-                                handleClick();
+                                void runWithTrace();
                                 setTracePopoverOpen(false);
                             }}
-                            disabled={!loading && !canRun}
-                            className={`path-trace-run-btn${loading ? ' path-run-btn-cancel' : ''}`}
+                            className="path-run-btn path-trace-run-btn"
                         >
-                            {loading ? (
-                                <span className="path-run-label path-run-label-cancel">
-                                    <LoadingOutlined spin className="path-run-cancel-spinner" />
-                                    Cancel{elapsedSec > 0 ? ` 路 ${elapsedSec}s` : ''}
-                                </span>
-                            ) : (
-                                <span className="path-run-content">
-                                    <span className="path-run-label">
-                                        <PlayCircleOutlined /> Run
-                                    </span>
-                                    <span className="path-run-kbd">Ctrl+Enter</span>
-                                </span>
-                            )}
+                            <span className="path-run-label">
+                                <PlayCircleOutlined /> Run with trace
+                            </span>
                         </Button>
-                        <div className="path-trace-panel-heading">
-                            <span className={`path-trace-dot${traceEnabled ? ' is-active' : ''}`} />
-                            <strong>SQL Trace</strong>
-                            <span className="path-trace-state">{traceEnabled ? 'ON' : 'OFF'}</span>
-                        </div>
-                        <p>仅对下一次请求生效，采集 SQL Server Extended Events。</p>
-                        <div className="path-trace-panel-action">
-                            <span>本次运行采集 SQL</span>
-                            <Switch
-                                size="small"
-                                checked={traceEnabled}
-                                onChange={setTraceEnabled}
-                                disabled={loading}
-                                aria-label="本次运行采集 SQL Trace"
-                            />
-                        </div>
                     </div>
                 }
             >

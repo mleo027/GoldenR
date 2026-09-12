@@ -4,6 +4,7 @@ export interface ApiCallContextValue {
     runningCaseId: string | null;
     loading: boolean;
     run: () => Promise<void>;
+    runWithTrace: () => Promise<void>;
     cancel: () => void;
     traceEnabled: boolean;
     setTraceEnabled: (enabled: boolean) => void;
@@ -11,6 +12,7 @@ export interface ApiCallContextValue {
 
 export interface ApiCallStoreValue {
     run: () => Promise<void>;
+    runWithTrace: () => Promise<void>;
     cancel: () => void;
 }
 

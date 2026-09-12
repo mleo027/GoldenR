@@ -13,6 +13,7 @@ beforeEach(() => {
         detailId: undefined,
         traceData: null,
         traceCaseName: '',
+        traceReturn: null,
     });
     useResponseStore.setState({ responses: {}, order: [] });
     useRunLogStore.setState({ logs: [] });
@@ -73,6 +74,34 @@ describe('Zustand runtime stores', () => {
         expect(useRequestHistoryNavigationStore.getState().detailId).toBe('entry-1');
         navigation.closeAllHistory();
         expect(useRequestHistoryNavigationStore.getState().view).toBe('editor');
+    });
+
+    it('returns to the editor after closing a trace opened from the editor', () => {
+        const navigation = useRequestHistoryNavigationStore.getState();
+        navigation.openTrace({ enabled: true, events: [] }, 'Case 1');
+        expect(useRequestHistoryNavigationStore.getState().view).toBe('trace');
+
+        navigation.closeTrace();
+
+        expect(useRequestHistoryNavigationStore.getState()).toMatchObject({
+            view: 'editor',
+            historyOpen: false,
+            traceData: null,
+        });
+    });
+
+    it('returns to the history detail after closing a trace opened from history', () => {
+        const navigation = useRequestHistoryNavigationStore.getState();
+        navigation.openHistoryDetail('entry-1');
+        navigation.openTrace({ enabled: true, events: [] }, 'Case 1');
+
+        navigation.closeTrace();
+
+        expect(useRequestHistoryNavigationStore.getState()).toMatchObject({
+            view: 'history-detail',
+            historyOpen: true,
+            detailId: 'entry-1',
+        });
     });
 
     it('updates common parameter sets through store actions', () => {
