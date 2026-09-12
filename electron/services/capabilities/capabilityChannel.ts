@@ -23,7 +23,7 @@ export function getCapabilityInvoker(): CapabilityInvoker {
  *
  * 真正的执行在渲染层：那里才有场景运行器与权威状态。
  */
-export function invokeCapabilityInRenderer(
+export async function invokeCapabilityInRenderer(
     name: string,
     args?: Record<string, unknown>,
 ): Promise<unknown> {
