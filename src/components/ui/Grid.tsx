@@ -276,6 +276,7 @@ function useGridLayout(
     tableAreaRef: RefObject<HTMLDivElement>,
     dataLength: number,
     sortedDataLength: number,
+    fixedScrollY?: number,
 ) {
     const [scrollY, setScrollY] = useState(300);
     const [tableAreaWidth, setTableAreaWidth] = useState(0);
@@ -286,6 +287,7 @@ function useGridLayout(
 
         const updateLayout = () => {
             setTableAreaWidth(tableArea.clientWidth);
+            if (fixedScrollY != null) return;
             const header = tableArea.querySelector('.ant-table-header');
             const headerHeight = header?.getBoundingClientRect().height ?? TABLE_HEADER_HEIGHT;
             setScrollY(Math.max(100, tableArea.clientHeight - headerHeight - 4));
@@ -295,9 +297,9 @@ function useGridLayout(
         const observer = new ResizeObserver(updateLayout);
         observer.observe(tableArea);
         return () => observer.disconnect();
-    }, [dataLength, sortedDataLength, tableAreaRef]);
+    }, [dataLength, fixedScrollY, sortedDataLength, tableAreaRef]);
 
-    return { scrollY, tableAreaWidth };
+    return { scrollY: fixedScrollY ?? scrollY, tableAreaWidth };
 }
 
 function useGridTableHandlers({
@@ -363,6 +365,8 @@ interface GridProps {
     showRowIndex?: boolean;
     loading?: boolean;
     footerStart?: ReactNode;
+    /** Uses a caller-controlled table body height instead of observing the container. */
+    fixedScrollY?: number;
 }
 
 export default memo(function Grid({
@@ -372,6 +376,7 @@ export default memo(function Grid({
     showRowIndex = true,
     loading = false,
     footerStart,
+    fixedScrollY,
 }: GridProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const tableAreaRef = useRef<HTMLDivElement>(null);
@@ -401,7 +406,12 @@ export default memo(function Grid({
         setRowDetail(null);
     }, [data]);
 
-    const { scrollY, tableAreaWidth } = useGridLayout(tableAreaRef, data.length, sortedData.length);
+    const { scrollY, tableAreaWidth } = useGridLayout(
+        tableAreaRef,
+        data.length,
+        sortedData.length,
+        fixedScrollY,
+    );
 
     const contentWidth = useMemo(() => {
         const indexWidth = showRowIndex ? ROW_INDEX_WIDTH : 0;

@@ -35,6 +35,7 @@ export function PathRunButton() {
     const { loading, run, cancel, traceEnabled, setTraceEnabled } = useApiCall();
     const canRun = apiCallRuntime.isAvailable();
     const [elapsedSec, setElapsedSec] = useState(0);
+    const [tracePopoverOpen, setTracePopoverOpen] = useState(false);
 
     useEffect(() => {
         if (!loading) {
@@ -59,39 +60,80 @@ export function PathRunButton() {
 
     return (
         <div className="flex items-center gap-2">
-            <div
-                className="flex items-center gap-1 text-xs whitespace-nowrap"
-                title="按次启用 SQL Server Extended Events"
+            <Popover
+                trigger={['hover', 'click']}
+                placement="bottomRight"
+                open={tracePopoverOpen}
+                onOpenChange={setTracePopoverOpen}
+                overlayClassName="path-trace-popover"
+                content={
+                    <div className="path-trace-panel">
+                        <Button
+                            type={loading ? 'default' : 'primary'}
+                            size="small"
+                            block
+                            onClick={() => {
+                                handleClick();
+                                setTracePopoverOpen(false);
+                            }}
+                            disabled={!loading && !canRun}
+                            className={`path-trace-run-btn${loading ? ' path-run-btn-cancel' : ''}`}
+                        >
+                            {loading ? (
+                                <span className="path-run-label path-run-label-cancel">
+                                    <LoadingOutlined spin className="path-run-cancel-spinner" />
+                                    Cancel{elapsedSec > 0 ? ` 路 ${elapsedSec}s` : ''}
+                                </span>
+                            ) : (
+                                <span className="path-run-content">
+                                    <span className="path-run-label">
+                                        <PlayCircleOutlined /> Run
+                                    </span>
+                                    <span className="path-run-kbd">Ctrl+Enter</span>
+                                </span>
+                            )}
+                        </Button>
+                        <div className="path-trace-panel-heading">
+                            <span className={`path-trace-dot${traceEnabled ? ' is-active' : ''}`} />
+                            <strong>SQL Trace</strong>
+                            <span className="path-trace-state">{traceEnabled ? 'ON' : 'OFF'}</span>
+                        </div>
+                        <p>仅对下一次请求生效，采集 SQL Server Extended Events。</p>
+                        <div className="path-trace-panel-action">
+                            <span>本次运行采集 SQL</span>
+                            <Switch
+                                size="small"
+                                checked={traceEnabled}
+                                onChange={setTraceEnabled}
+                                disabled={loading}
+                                aria-label="本次运行采集 SQL Trace"
+                            />
+                        </div>
+                    </div>
+                }
             >
-                <span>SQL Trace</span>
-                <Switch
+                <Button
+                    type={loading ? 'default' : 'primary'}
                     size="small"
-                    checked={traceEnabled}
-                    onChange={setTraceEnabled}
-                    disabled={loading}
-                />
-            </div>
-            <Button
-                type={loading ? 'default' : 'primary'}
-                size="small"
-                onClick={handleClick}
-                disabled={!loading && !canRun}
-                className={`path-run-btn${loading ? ' path-run-btn-cancel' : ''}`}
-            >
-                {loading ? (
-                    <span className="path-run-label path-run-label-cancel">
-                        <LoadingOutlined spin className="path-run-cancel-spinner" />
-                        Cancel{elapsedSec > 0 ? ` · ${elapsedSec}s` : ''}
-                    </span>
-                ) : (
-                    <span className="path-run-content">
-                        <span className="path-run-label">
-                            <PlayCircleOutlined /> Run
+                    onClick={handleClick}
+                    disabled={!loading && !canRun}
+                    className={`path-run-btn${loading ? ' path-run-btn-cancel' : ''}`}
+                >
+                    {loading ? (
+                        <span className="path-run-label path-run-label-cancel">
+                            <LoadingOutlined spin className="path-run-cancel-spinner" />
+                            Cancel{elapsedSec > 0 ? ` · ${elapsedSec}s` : ''}
                         </span>
-                        <span className="path-run-kbd">Ctrl+Enter</span>
-                    </span>
-                )}
-            </Button>
+                    ) : (
+                        <span className="path-run-content">
+                            <span className="path-run-label">
+                                <PlayCircleOutlined /> Run
+                            </span>
+                            <span className="path-run-kbd">Ctrl+Enter</span>
+                        </span>
+                    )}
+                </Button>
+            </Popover>
         </div>
     );
 }

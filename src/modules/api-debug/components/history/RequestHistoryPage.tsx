@@ -4,12 +4,12 @@ import HistoryList from './HistoryList';
 import HistoryToolbar from './HistoryToolbar';
 import { useHistoryActions } from './useHistoryActions';
 import { useRequestHistoryNavigation } from '../../store/useRequestHistoryNavigation';
+import type { ResultFilter, TimeFilter } from '../../utils/historyFilters';
 import {
-    getResultSummary,
-    isWithinTime,
-    type ResultFilter,
-    type TimeFilter,
-} from './historyFormat';
+    filterHistoryEntries,
+    getHistoryCounts,
+    getHistoryEnvironments,
+} from '../../utils/historyFilters';
 import type { RequestHistoryEntry } from '../../types/requestHistory';
 
 interface RequestHistoryPageProps {
@@ -67,47 +67,19 @@ export default function RequestHistoryPage({ onClose }: RequestHistoryPageProps)
     const [environment, setEnvironment] = useState<string>();
     const [mode, setMode] = useState<string>();
 
-    const environments = useMemo(
-        () => [
-            ...new Set(
-                entries
-                    .map((entry) => entry.environmentName)
-                    .filter((name): name is string => Boolean(name)),
-            ),
-        ],
-        [entries],
-    );
+    const environments = useMemo(() => getHistoryEnvironments(entries), [entries]);
 
     const filtered = useMemo(() => {
-        const keyword = query.trim().toLowerCase();
-        return entries.filter((entry) => {
-            if (resultFilter === 'failed' && entry.outcome.success) return false;
-            if (resultFilter === 'success' && !entry.outcome.success) return false;
-            if (environment && entry.environmentName !== environment) return false;
-            if (mode && entry.mode !== mode) return false;
-            if (!isWithinTime(entry, timeFilter)) return false;
-            if (!keyword) return true;
-            return [
-                entry.caseName,
-                entry.projectName,
-                entry.request.msgtype,
-                entry.request.address,
-                getResultSummary(entry),
-                entry.response.message,
-            ]
-                .filter(Boolean)
-                .some((text) => String(text).toLowerCase().includes(keyword));
+        return filterHistoryEntries(entries, {
+            resultFilter,
+            timeFilter,
+            environment,
+            mode,
+            query,
         });
     }, [entries, environment, mode, query, resultFilter, timeFilter]);
 
-    const counts = useMemo(
-        () => ({
-            all: entries.length,
-            failed: entries.filter((entry) => !entry.outcome.success).length,
-            success: entries.filter((entry) => entry.outcome.success).length,
-        }),
-        [entries],
-    );
+    const counts = useMemo(() => getHistoryCounts(entries), [entries]);
 
     const clearFilters = () => {
         setQuery('');

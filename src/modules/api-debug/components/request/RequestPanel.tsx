@@ -15,12 +15,13 @@ import {
 import { paramsEqual } from '@/hooks/useStableHandlerMap';
 import { UI_DEBOUNCE_MS } from '@/constants/ui';
 import type { ParamItem } from '../../types/workspace';
-import { parseKcbpAddress, serializeKcbpAddress } from '../../utils/kcbp/kcbpAddress';
 import type { QuickFillPayload } from '../../utils/workspace/paramText';
+import { buildQuickFillCasePatch } from '../../utils/quickFill';
 import { useCommonParamsState } from '../../store/useCommonParams';
 import { useApiDebugEnv } from '../../store/useApiDebugEnv';
 import { resolveCommonParamsById } from '../../utils/workspace/commonParams';
 import { buildParamsRawText } from '../../utils/workspace/rawText';
+import type { ReactNode } from 'react';
 
 interface RequestPanelProps {
     paramsCollapsed?: boolean;
@@ -48,6 +49,7 @@ export function ParamsSection({
     onToggleRawMode: () => void;
     rawText: string;
 }) {
+    const rawContent = useMemo(() => <RawParamsView text={rawText} />, [rawText]);
     return (
         <>
             <div className="param-section-toggle">
@@ -80,12 +82,7 @@ export function ParamsSection({
                 className={`param-section-body${collapsed ? ' param-section-body-collapsed' : ''}`}
             >
                 {rawMode ? (
-                    <textarea
-                        readOnly
-                        className="param-raw-view ui-scroll"
-                        value={rawText}
-                        spellCheck={false}
-                    />
+                    rawContent
                 ) : (
                     <div className="param-section-scroll ui-scroll flex flex-col h-full min-h-0 overflow-y-auto overflow-x-hidden">
                         <ParamEdit
@@ -97,6 +94,47 @@ export function ParamsSection({
                 )}
             </div>
         </>
+    );
+}
+
+function RawParamsView({ text }: { text: string }) {
+    const tokens: ReactNode[] = [];
+    // KCBP uses comma-separated name:value pairs. The same highlighting also
+    // makes the attribute/value structure of KGBP XML easy to scan.
+    const pattern = /([#\w.-]+)(\s*[:=]\s*)([^,\n;>]+)(?=,|\n|;|$)/g;
+    let cursor = 0;
+    let match: RegExpExecArray | null;
+    while ((match = pattern.exec(text))) {
+        if (match.index > cursor) tokens.push(text.slice(cursor, match.index));
+        const [, key, separator, value] = match;
+        const cleanKey = key.replace(/^#/, '');
+        tokens.push(
+            <span className="param-raw-entry" key={`${match.index}-${key}`}>
+                <Tooltip
+                    title={
+                        <span className="param-raw-tooltip">
+                            <strong>{cleanKey}</strong>
+                            <span>值：{value.trim() || '（空）'}</span>
+                        </span>
+                    }
+                    placement="top"
+                >
+                    <span className="param-raw-key">{key}</span>
+                </Tooltip>
+                <span className="param-raw-separator">{separator}</span>
+                <span className="param-raw-value" title={`参数值：${value.trim()}`}>
+                    {value}
+                </span>
+            </span>,
+        );
+        cursor = pattern.lastIndex;
+    }
+    if (cursor < text.length) tokens.push(text.slice(cursor));
+
+    return (
+        <pre className="param-raw-view ui-scroll" aria-label="Raw 请求参数">
+            {tokens}
+        </pre>
     );
 }
 
@@ -135,24 +173,10 @@ export default function RequestPanel({
     const handleQuickFillApply = useCallback(
         (result: QuickFillPayload) => {
             flushPending();
-            const patch: { params: ParamItem[]; address?: string; name?: string } = {
-                params: result.params,
-            };
-            if (result.msgtype || result.service || result.nodeId) {
-                const parts = parseKcbpAddress(activeTab.address);
-                patch.address = serializeKcbpAddress({
-                    ...parts,
-                    ...(result.msgtype ? { msgtype: result.msgtype } : {}),
-                    ...(result.service ? { service: result.service } : {}),
-                    ...(result.nodeId ? { nodeId: result.nodeId } : {}),
-                });
-            }
-            if (result.title) {
-                patch.name = result.title;
-            }
+            const patch = buildQuickFillCasePatch(activeTab, result);
             updateTabUndoable(patch, '快速填充参数');
         },
-        [activeTab.address, flushPending, updateTabUndoable],
+        [activeTab, flushPending, updateTabUndoable],
     );
 
     const { ref: headerRef, layout } = useRequestHeaderLayout<HTMLDivElement>();

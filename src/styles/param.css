@@ -406,6 +406,54 @@
     overflow: auto;
 }
 
+.param-raw-view {
+    margin: 0;
+    cursor: default;
+}
+
+.param-raw-entry {
+    white-space: pre-wrap;
+}
+
+.param-raw-key {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 3px;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 22%, transparent);
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--color-primary) 9%, transparent);
+    color: color-mix(in srgb, var(--color-primary) 72%, var(--color-text));
+    font-weight: 700;
+    line-height: 1.45;
+    cursor: help;
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.param-raw-key:hover {
+    border-color: color-mix(in srgb, var(--color-primary) 48%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 17%, transparent);
+    color: var(--color-primary);
+}
+
+.param-raw-separator {
+    color: var(--color-text-muted);
+}
+
+.param-raw-value {
+    color: var(--color-text);
+}
+
+.param-raw-tooltip {
+    display: flex;
+    max-width: min(420px, 70vw);
+    flex-direction: column;
+    gap: 3px;
+    word-break: break-all;
+}
+
 .param-raw-view:focus {
     outline: none;
 }

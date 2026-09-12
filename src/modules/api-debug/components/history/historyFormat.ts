@@ -36,9 +36,12 @@ export function getDayKey(timestamp: number): string {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
-export function isWithinTime(entry: RequestHistoryEntry, filter: TimeFilter): boolean {
+export function isWithinTime(
+    entry: RequestHistoryEntry,
+    filter: TimeFilter,
+    now = Date.now(),
+): boolean {
     if (filter === 'all') return true;
-    const now = Date.now();
     const limit = filter === 'hour' ? 3_600_000 : filter === 'day' ? 86_400_000 : 604_800_000;
     return now - entry.timestamp <= limit;
 }

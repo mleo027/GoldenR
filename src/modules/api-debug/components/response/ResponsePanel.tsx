@@ -11,6 +11,12 @@ import { useApiCall } from '../../hooks/useApiCall';
 import { useResponse } from '../../store/useResponse';
 import { getCaseLabel, parseMsgtypeFromAddress } from '../../utils/workspace/caseLabel';
 import { useRequestHistoryNavigation } from '../../store/useRequestHistoryNavigation';
+import {
+    getResultSetColumns,
+    getResultSetLabels,
+    getVisibleResultColumns,
+    updateResultSetColumnSelection,
+} from '../../utils/responseResults';
 
 const ResponseFullscreenModal = lazy(() => import('./ResponseFullscreenModal'));
 
@@ -94,12 +100,12 @@ const ResponseBody = memo(function ResponseBody({
                     <div className="response-result-tabs" role="tablist" aria-label="响应结果集">
                         {resultSets.map((resultSet, index) => {
                             const baseLabel = resultSet.name || `结果集 ${index + 1}`;
-                            const duplicateName =
+                            /* const duplicateName =
                                 resultSets.filter(
                                     (candidate) =>
                                         (candidate.name || `结果集 ${index + 1}`) === baseLabel,
-                                ).length > 1;
-                            const label = duplicateName ? `${baseLabel} ${index + 1}` : baseLabel;
+                                ).length > 1; */
+                            const label = getResultSetLabels(resultSets)[index] ?? baseLabel;
                             const rowCount = resultSet.rows?.length ?? 0;
                             const selected = selectedResultSetIndex === index;
                             return (
@@ -191,21 +197,20 @@ export default function ResponsePanel({
     const selectedResultSet = resultSets[selectedResultSetIndex];
     const responseData = selectedResultSet?.rows ?? EMPTY_RESPONSE_ROWS;
     const responseColumns = useMemo(
-        () => selectedResultSet?.columns ?? Object.keys(responseData[0] ?? {}),
-        [responseData, selectedResultSet?.columns],
+        () => getResultSetColumns(selectedResultSet),
+        [selectedResultSet],
     );
     const [visibleColumnsByResultSet, setVisibleColumnsByResultSet] = useState<
         Record<number, string[]>
     >({});
     const visibleColumnKeys = visibleColumnsByResultSet[selectedResultSetIndex] ?? responseColumns;
     const displayedColumnKeys = useMemo(() => {
-        return visibleColumnKeys.filter((key) => responseColumns.includes(key));
+        return getVisibleResultColumns(visibleColumnKeys, responseColumns);
     }, [responseColumns, visibleColumnKeys]);
     const setVisibleColumnKeys = (keys: string[]) => {
-        setVisibleColumnsByResultSet((current) => ({
-            ...current,
-            [selectedResultSetIndex]: keys,
-        }));
+        setVisibleColumnsByResultSet((current) =>
+            updateResultSetColumnSelection(current, selectedResultSetIndex, keys),
+        );
     };
     const traceAvailable = Boolean(response?.trace?.events.length) && !loading;
 

@@ -7,7 +7,11 @@ import { useApiDebugEnv } from '../../store/useApiDebugEnv';
 import { useTabsActions } from '../../store/useTabs';
 import type { KcxpEnvironment, KcxpProtocol } from '../../types/kcxp';
 import { DEFAULT_KCBP_TIMEOUT } from '../../utils/kcbp/kcbpAddress';
-import { createKcxpEnvironment } from '../../utils/workspace/kcxpEnvironment';
+import {
+    createKcxpEnvironment,
+    removeKcxpEnvironment,
+    replaceKcxpEnvironmentAtIndex,
+} from '../../utils/workspace/kcxpEnvironment';
 import { flushAllTabDrafts } from '../../utils/workspace/tabDraftRegistry';
 import { Input } from '../../../../components/ui/primitives';
 import { DEFAULT_DB_CONFIG } from '../../constants/paramSuggest';
@@ -230,9 +234,7 @@ export default function RequestSettings() {
 
     const handleEnvironmentChange = useCallback(
         (index: number, next: KcxpEnvironment) => {
-            const environments = kcxpEnvironments.map((item, itemIndex) =>
-                itemIndex === index ? next : item,
-            );
+            const environments = replaceKcxpEnvironmentAtIndex(kcxpEnvironments, index, next);
             patchEnv({ kcxpEnvironments: environments });
             // 编辑当前激活环境的字段时同步应用到全部接口，避免单调用使用过期连接参数
             if (next.id === activeKcxpEnvironmentId) {
@@ -250,12 +252,12 @@ export default function RequestSettings() {
 
     const handleDeleteEnvironment = useCallback(
         (id: string) => {
-            if (kcxpEnvironments.length <= 1) return;
-            const environments = kcxpEnvironments.filter((item) => item.id !== id);
+            const removal = removeKcxpEnvironment(kcxpEnvironments, id, activeKcxpEnvironmentId);
+            if (!removal.removed) return;
+            const { environments } = removal;
             patchEnv({
                 kcxpEnvironments: environments,
-                activeKcxpEnvironmentId:
-                    activeKcxpEnvironmentId === id ? environments[0].id : activeKcxpEnvironmentId,
+                activeKcxpEnvironmentId: removal.activeId,
             });
             if (activeKcxpEnvironmentId === id) {
                 flushAllTabDrafts();

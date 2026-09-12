@@ -1,5 +1,6 @@
-import { Button, Empty, Table, Tag, Typography } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import { useEffect, useRef, useState } from 'react';
+import { Button, Empty, Tag, Typography } from 'antd';
+import Grid from '../../../../components/ui/Grid';
 import {
     CheckCircleFilled,
     CloseCircleFilled,
@@ -14,6 +15,8 @@ import { ControlCharText } from '../../../../utils/ControlCharText';
 import { parseKcbpResponseStatus } from '../../utils/kcbp/kcbpResponse';
 import type { RequestHistoryEntry } from '../../types/requestHistory';
 import type { ParamItem } from '../../types/workspace';
+import { MAX_HISTORY_RESPONSE_ROWS } from '../../utils/historyResponse';
+import { serializeParamsToKcbpIni } from '../../utils/workspace/rawText';
 
 function HistoryStatus({ entry }: { entry: RequestHistoryEntry }) {
     return entry.outcome.success ? (
@@ -49,10 +52,10 @@ function OverviewPanel({ entry }: { entry: RequestHistoryEntry }) {
     ];
 
     return (
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-x-6 gap-y-1 md:grid-cols-4">
             {items.map(([label, value]) => (
                 <div key={label} className="flex gap-2 min-w-0">
-                    <Typography.Text type="secondary" className="w-20 shrink-0">
+                    <Typography.Text type="secondary" className="w-16 shrink-0 text-xs">
                         {label}
                     </Typography.Text>
                     <span
@@ -62,7 +65,7 @@ function OverviewPanel({ entry }: { entry: RequestHistoryEntry }) {
                                 : ''
                         } min-w-0 break-all`}
                     >
-                        {value}
+                        <span className="text-xs">{value}</span>
                     </span>
                 </div>
             ))}
@@ -70,14 +73,19 @@ function OverviewPanel({ entry }: { entry: RequestHistoryEntry }) {
     );
 }
 
-interface ParamTableRow {
-    key: string;
-    name: string;
-    value: string;
-    type: ParamItem['type'];
-}
-
 function ParamTable({ params }: { params: ParamItem[] }) {
+    if (params.length === 0) {
+        return <Empty description="无请求参数" />;
+    }
+
+    const rawText = serializeParamsToKcbpIni(params, { title: '', msgtype: '' });
+    return (
+        <div className="history-request-params-raw" title={rawText}>
+            <code>{rawText}</code>
+        </div>
+    );
+
+    /*
     const rows: ParamTableRow[] = params.map((param, index) => ({
         key: String(index),
         name: param.name,
@@ -118,64 +126,31 @@ function ParamTable({ params }: { params: ParamItem[] }) {
             scroll={{ x: true }}
         />
     );
+    */
 }
 
-interface RunInputRow {
-    key: string;
-    name: string;
-    value: unknown;
-}
-
-function RunInputTable({ runInput }: { runInput: Record<string, unknown> }) {
-    const rows: RunInputRow[] = Object.entries(runInput).map(([name, value], index) => ({
-        key: String(index),
-        name,
-        value,
-    }));
-    const columns: ColumnsType<RunInputRow> = [
-        {
-            title: 'Key',
-            dataIndex: 'name',
-            ellipsis: true,
-            render: (text: string) => <span>{text}</span>,
-        },
-        {
-            title: 'Value',
-            dataIndex: 'value',
-            ellipsis: true,
-            render: (value: unknown) => <span className="break-all">{formatCellValue(value)}</span>,
-        },
-    ];
-
-    if (rows.length === 0) {
-        return <Empty description="无运行参数" />;
-    }
-
-    return (
-        <Table<RunInputRow>
-            size="small"
-            rowKey="key"
-            columns={columns}
-            dataSource={rows}
-            pagination={false}
-            scroll={{ x: true }}
-        />
-    );
-}
-
-function formatCellValue(value: unknown): string {
-    if (value == null) return '';
-    if (typeof value === 'object') return JSON.stringify(value);
-    return String(value);
-}
-
-interface ResponseTableRow {
-    key: string;
-    [key: string]: unknown;
-}
-
-function ResponseDataTable({ data }: { data: Record<string, unknown>[] }) {
+function ResponseDataTable({
+    data,
+    truncated,
+    fixedScrollY,
+}: {
+    data: Record<string, unknown>[];
+    truncated: boolean;
+    fixedScrollY: number;
+}) {
     const keys = [...new Set(data.flatMap((row) => Object.keys(row)))];
+    return (
+        <div className="history-response-grid flex-1 min-h-0 flex flex-col">
+            {truncated ? (
+                <Typography.Text type="warning">
+                    应答数据已截断，仅展示前 {MAX_HISTORY_RESPONSE_ROWS} 条记录
+                </Typography.Text>
+            ) : null}
+            <Grid data={data} columnKeys={keys} showRowIndex fixedScrollY={fixedScrollY} />
+        </div>
+    );
+
+    /*
     const rows: ResponseTableRow[] = data.map((row, index) => ({
         key: String(index),
         ...row,
@@ -195,23 +170,34 @@ function ResponseDataTable({ data }: { data: Record<string, unknown>[] }) {
     }
 
     return (
-        <div className="overflow-x-auto">
+        <div className="history-detail-response space-y-2 flex-1 min-h-0 flex flex-col">
+            {truncated ? (
+                <Typography.Text type="warning">
+                    应答数据较大，仅展示前 {MAX_HISTORY_DETAIL_ROWS} 条记录
+                </Typography.Text>
+            ) : null}
             <Table<ResponseTableRow>
                 size="small"
                 rowKey="key"
                 columns={columns}
                 dataSource={rows}
-                pagination={false}
+                pagination={{
+                    defaultPageSize: 100,
+                    showSizeChanger: true,
+                    pageSizeOptions: [50, 100, 200],
+                    showTotal: (total) => `共 ${total} 条`,
+                }}
                 scroll={{ x: true }}
             />
         </div>
     );
+    */
 }
 
 function RequestDetail({ entry }: { entry: RequestHistoryEntry }) {
     return (
-        <div className="space-y-4">
-            <div className="grid gap-2 md:grid-cols-2">
+        <div className="space-y-2">
+            <div className="grid gap-x-4 gap-y-1 md:grid-cols-2 text-xs">
                 <div>
                     <Typography.Text type="secondary">地址：</Typography.Text>
                     <span>{entry.request.address}</span>
@@ -234,16 +220,32 @@ function RequestDetail({ entry }: { entry: RequestHistoryEntry }) {
                 ) : null}
             </div>
             <ParamTable params={entry.request.params} />
-            {entry.request.runInput ? <RunInputTable runInput={entry.request.runInput} /> : null}
         </div>
     );
 }
 
-function ResponseDetail({ entry }: { entry: RequestHistoryEntry }) {
-    const data = entry.response.resultSets.flatMap((resultSet) => resultSet.rows);
+function ResponseDetail({
+    entry,
+    responseHeight,
+}: {
+    entry: RequestHistoryEntry;
+    responseHeight: number;
+}) {
+    const data: Record<string, unknown>[] = [];
+    let truncated = false;
+    for (const resultSet of entry.response.resultSets) {
+        for (const row of resultSet.rows) {
+            if (data.length >= MAX_HISTORY_RESPONSE_ROWS) {
+                truncated = true;
+                break;
+            }
+            data.push(row);
+        }
+        if (truncated) break;
+    }
 
     return (
-        <div className="space-y-3">
+        <div className="history-detail-response space-y-2 flex flex-1 min-h-0 flex-col">
             <div className="flex items-center gap-2">
                 <HistoryStatus entry={entry} />
                 <Tag className="ml-2">{String(entry.response.code)}</Tag>
@@ -254,7 +256,11 @@ function ResponseDetail({ entry }: { entry: RequestHistoryEntry }) {
                     />
                 ) : null}
             </div>
-            <ResponseDataTable data={data} />
+            <ResponseDataTable
+                data={data}
+                truncated={truncated || Boolean(entry.response.historyTruncated)}
+                fixedScrollY={Math.max(120, responseHeight - 110)}
+            />
         </div>
     );
 }
@@ -272,13 +278,38 @@ export default function HistoryDetail({
     onCopy: () => void;
     onDelete: () => void;
 }) {
+    const [responseHeight, setResponseHeight] = useState(420);
+    const [resizing, setResizing] = useState(false);
+    const resizeStart = useRef({ y: 0, height: 420 });
+
+    useEffect(() => {
+        if (!resizing) return undefined;
+        const handlePointerMove = (event: PointerEvent) => {
+            const delta = event.clientY - resizeStart.current.y;
+            setResponseHeight(Math.max(240, Math.min(1200, resizeStart.current.height - delta)));
+        };
+        const handlePointerUp = () => setResizing(false);
+        window.addEventListener('pointermove', handlePointerMove);
+        window.addEventListener('pointerup', handlePointerUp);
+        return () => {
+            window.removeEventListener('pointermove', handlePointerMove);
+            window.removeEventListener('pointerup', handlePointerUp);
+        };
+    }, [resizing]);
+
+    const startResize = (event: React.PointerEvent<HTMLDivElement>) => {
+        resizeStart.current = { y: event.clientY, height: responseHeight };
+        setResizing(true);
+        event.currentTarget.setPointerCapture(event.pointerId);
+    };
+
     if (!entry) {
         return <Empty description="选择一条历史记录查看详情" />;
     }
 
     return (
         <div className="request-history-detail h-full flex flex-col min-h-0">
-            <div className="flex items-center gap-2 px-3 py-2 border-b border-[var(--color-divider)]">
+            <div className="flex items-center gap-2 px-3 py-1.5 border-b border-[var(--color-divider)]">
                 <HistoryOutlined className="text-[var(--color-text-secondary)]" />
                 <Typography.Text strong>{entry.caseName}</Typography.Text>
                 <HistoryStatus entry={entry} />
@@ -297,17 +328,26 @@ export default function HistoryDetail({
                 </Button>
             </div>
             <div className="request-history-detail-scroll flex-1 min-h-0 overflow-y-auto">
-                <section className="px-4 py-3 border-b border-[var(--color-divider)]">
+                <section className="px-3 py-2 border-b border-[var(--color-divider)]">
                     <SectionTitle>概览</SectionTitle>
                     <OverviewPanel entry={entry} />
                 </section>
-                <section className="px-4 py-3 border-b border-[var(--color-divider)]">
+                <section className="px-3 py-2 border-b border-[var(--color-divider)]">
                     <SectionTitle>请求参数</SectionTitle>
                     <RequestDetail entry={entry} />
                 </section>
-                <section className="px-4 py-3">
+                <section
+                    className={`history-detail-response-section px-3 py-2${resizing ? ' is-resizing' : ''}`}
+                    style={{ height: responseHeight }}
+                >
+                    <div
+                        className="history-response-resize-handle"
+                        role="separator"
+                        aria-label="调整响应区域高度"
+                        onPointerDown={startResize}
+                    />
                     <SectionTitle>响应</SectionTitle>
-                    <ResponseDetail entry={entry} />
+                    <ResponseDetail entry={entry} responseHeight={responseHeight} />
                 </section>
             </div>
         </div>

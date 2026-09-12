@@ -24,6 +24,30 @@
       "createdAt": 1787711454903,
       "updatedAt": 1787711454903,
       "mergeCount": 1
+    },
+    {
+      "rulePath": "D:\\KSPB\\own_tool\\new_golden\\.pi\\rules\\agents\\rules\\architecture.md",
+      "ruleRelativePath": ".pi/rules/agents/rules/architecture.md",
+      "summary": "补充 native adapter 的编译与 KUAB 头文件冲突约束",
+      "content": "## Native adapter（electron/adapter）\n\n- `electron/adapter/adapter.node` 是**编译产物**，由 `npm run build:native` 从 `electron/adapter/native/src/adapter.cpp` 生成；改了 `native/src/**` 或 `native/include/**` 后必须重新编译，否则运行时会报 `Native <TYPE> adapter not loaded`。\n- 该二进制**必须**导出 `callKCBP`、`callKGBP`、`callKUAB` 三个函数。验证方式：\n  ```bash\n  node -e \"console.log(Object.keys(require('./electron/adapter/adapter.node')))\"\n  ```\n  编译前请先关闭正在运行的 app，否则覆盖 `adapter.node` 会因文件被占用而报 `EBUSY`。\n- 依赖 DLL（`KCBPCli.dll`、`KUABCli.dll` 等）与 `adapter.node` 同级或在 `adapter/kuab` 下；单独从 `native/build/Release/` 直接 `require` 会因找不到 DLL 而 `ERR_DLOPEN_FAILED`，验证时需把这两个目录加入 `PATH`。\n- **`kuabcli.h` 与 `kcbpcli/lib/KCBPCli.h` 都在全局命名空间定义 `tagCallCtrl` 且布局不同，不能出现在同一编译单元**（MSVC C2371）。当前做法是在 `native/include/self/KUABClient.hpp` 中把 KUAB 侧类型宏改名后再 `#include \"kuabcli.h\"`。新增任何同时依赖两个 SDK 的代码时需沿用该隔离方式，或将其拆到独立编译单元。\n- 厂商 SDK 头文件（`native/include/kuabcli.h`、`native/include/kcbpcli/**`、`native/include/kgbpcli/**`）视为只读，不要在内部改类型名或结构布局。",
+      "reason": "本次排障暴露了两个反复踩的坑：(1) adapter.cpp 增加了 callKUAB 但 adapter.node 从未重新编译，导致运行时 \"Native KUAB adapter not loaded\"，且因为没有编译文档/校验入口，问题被当成\"忘了编译\"而非\"编译不过\"；(2) kuabcli.h 与 KCBPCli.h 的全局 tagCallCtrl 重定义是同 TU 硬冲突，解法（在 KUABClient.hpp 内宏改名隔离）不成文，下次新增 KUAB 相关代码极易重犯。这些属于 native adapter 的架构边界约束，适合写进 architecture 规则。",
+      "status": "pending",
+      "id": "rec_mtvdfx7p_9en7c3du",
+      "createdAt": 1789035327205,
+      "updatedAt": 1789035327205,
+      "mergeCount": 1
+    },
+    {
+      "rulePath": "D:\\KSPB\\own_tool\\new_golden\\.pi\\rules\\architecture.md",
+      "ruleRelativePath": ".pi/rules/architecture.md",
+      "summary": "KUAB 运行时配置：KCBPCli.json 必须放在 KUABCli.dll 同级目录",
+      "content": "## KUAB 协议运行时配置（已实测确认）\n\n`KUABCli.dll`（sdk 2.0.3.7）通过 `GetModuleFileNameA` **从自己所在目录**读取 JSON 配置，与 `KUABClient.hpp` 里传的 `configDir`/`configName` 选项**无关**：\n\n- 必需文件：`KCBPCli.json`（放在 `electron/adapter/kuab/`，即与 `KUABCli.dll` 同级），DLL 还会读 `KCBPCli_map.json`、写 `KCBPCli.log`。\n- `KCBPCli.json` 必须是**非空 JSON 对象**：`{}` 会报 `-900204 config is empty`，顶层为数组会报 `Json is not an object`。\n- 与该 SDK 的 .ini 版（`KCBPCli.ini` + `kcxpapi.ini`，见 KCBP）不同，KUAB 走 JSON。\n- 配置通过后仍可能停在 `-900901 InitPrivateKeyString fail`，那是 SM2 私钥/签名环节（`JZ_SIGNAPI.dll`、`splitskf.dll`、`signcfg.ini`、`EasySSL.ini` 的 `certpath`），需要 KUAB 部署环境的凭据。\n- `KUABClient.hpp` 中的 `KUAB_OPTION_WANTTRAN(103)/CONFIG_DIR(108)/LOG_DIR(109)/CONFIG_NAME(110)` 是适配器自造索引，`kuabcli.h` 的 `KUAB_OPTION_*` 只定义到 17，实测对配置文件加载**没有任何作用**；排查 KUAB 连接问题时不要依赖它们。\n\n排障入口：DLL 自己的日志（同级 `KCBPCli.log`）会打印 `parse config file [路径] fail:原因` 与 `Call CKUABCli::ConnectServer(...)` 的完整参数，是定位 KUAB 连接失败最直接的手段。",
+      "reason": "排查 KUAB 连接失败时，花了多轮实验才发现配置不是由适配器的 option 传入、而是 DLL 从自身目录读 KCBPCli.json；且该文件在本仓库中缺失，是 -900204 config is empty 的直接原因。这是一个用文档/代码都看不出来的隐性运行时契约，且与 KCBP 的 .ini 体系完全不同，极易再次踩坑。",
+      "status": "pending",
+      "id": "rec_mtvdoklz_h9sbmm6z",
+      "createdAt": 1789035730775,
+      "updatedAt": 1789035730775,
+      "mergeCount": 1
     }
   ]
 }

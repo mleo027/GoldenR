@@ -81,6 +81,33 @@ export function getActiveKcxpEnvironment(
     );
 }
 
+export function replaceKcxpEnvironmentAtIndex(
+    environments: KcxpEnvironment[],
+    index: number,
+    next: KcxpEnvironment,
+): KcxpEnvironment[] {
+    return environments.map((environment, itemIndex) => (itemIndex === index ? next : environment));
+}
+
+export interface KcxpEnvironmentRemoval {
+    environments: KcxpEnvironment[];
+    activeId: string;
+    removed: boolean;
+}
+
+export function removeKcxpEnvironment(
+    environments: KcxpEnvironment[],
+    id: string,
+    activeId: string,
+): KcxpEnvironmentRemoval {
+    if (environments.length <= 1) {
+        return { environments: [...environments], activeId, removed: false };
+    }
+    const next = environments.filter((environment) => environment.id !== id);
+    const nextActiveId = activeId === id ? next[0].id : activeId;
+    return { environments: next, activeId: nextActiveId, removed: true };
+}
+
 export const KGBP_REQUIRED_FIELDS_MESSAGE =
     'KGBP 环境 ServiceName/NodeId 未配置，请在 设置→请求→环境配置 中完善';
 

@@ -7,6 +7,8 @@ import {
     findMissingKgbpRequiredFields,
     isKgbpAddressReady,
     normalizeKcxpEnvironments,
+    removeKcxpEnvironment,
+    replaceKcxpEnvironmentAtIndex,
     resolveActiveKcxpEnvironmentId,
     resolveKcxpProtocol,
 } from './kcxpEnvironment';
@@ -60,7 +62,10 @@ describe('applyKcxpEnvironmentToAddress (KGBP)', () => {
             ...kgbpEnv,
             clientSessionId: undefined,
         };
-        const address = applyKcxpEnvironmentToAddress('/150501?queue=req1&clientsessionid=7', minimal);
+        const address = applyKcxpEnvironmentToAddress(
+            '/150501?queue=req1&clientsessionid=7',
+            minimal,
+        );
         expect(address).toBe(
             '10.0.0.2:9100/150501?service=srv-demo&nodeid=3&clientsessionid=%40custid&requesttimeout=20',
         );
@@ -156,5 +161,28 @@ describe('normalizeKcxpEnvironments', () => {
 describe('resolveActiveKcxpEnvironmentId', () => {
     it('falls back when active id is missing', () => {
         expect(resolveActiveKcxpEnvironmentId([testEnv], 'missing')).toBe('test');
+    });
+});
+
+describe('environment array transformations', () => {
+    it('replaces by index without mutating the source array', () => {
+        const environments = [testEnv, { ...testEnv, id: 'other' }];
+        const next = replaceKcxpEnvironmentAtIndex(environments, 1, { ...testEnv, id: 'new' });
+        expect(next.map((item) => item.id)).toEqual(['test', 'new']);
+        expect(environments.map((item) => item.id)).toEqual(['test', 'other']);
+    });
+
+    it('falls back to the first remaining environment when deleting active', () => {
+        const environments = [testEnv, { ...testEnv, id: 'other' }];
+        expect(removeKcxpEnvironment(environments, 'test', 'test')).toMatchObject({
+            activeId: 'other',
+            removed: true,
+            environments: [{ id: 'other' }],
+        });
+    });
+
+    it('rejects deleting the last environment', () => {
+        const result = removeKcxpEnvironment([testEnv], 'test', 'test');
+        expect(result).toEqual({ environments: [testEnv], activeId: 'test', removed: false });
     });
 });

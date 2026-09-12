@@ -2,6 +2,7 @@ import { REQUEST_HISTORY_FILE } from '@/config/files';
 import { UI_DEBOUNCE_MS } from '../../../constants/ui';
 import { configStorage } from '../../../services/persistence/configStorage';
 import { DebounceWriter } from '../../../services/persistence/debounceWriter';
+import { truncateResponseForHistory } from '../utils/historyResponse';
 import type {
     RequestHistoryEntry,
     RequestHistoryFile,
@@ -102,7 +103,7 @@ function migrateResponseData(
 function migrateHistoryEntry(entry: RequestHistoryEntry): RequestHistoryEntry {
     return {
         ...entry,
-        response: migrateResponseData(entry.response),
+        response: truncateResponseForHistory(migrateResponseData(entry.response)),
     };
 }
 

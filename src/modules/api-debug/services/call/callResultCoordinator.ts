@@ -7,6 +7,7 @@ import { createRequestHistoryId } from '../../store/requestHistoryData';
 import { getKcbpCallFeedback } from '../kcbp/feedback';
 import { parseKcbpAddress } from '../../utils/kcbp/kcbpAddress';
 import { parseKcbpResponseStatus } from '../../utils/kcbp/kcbpResponse';
+import { truncateResponseForHistory } from '../../utils/historyResponse';
 
 export interface CallResultCoordinatorDeps {
     updateTab(caseId: string, updates: Partial<TabData>): void;
@@ -65,6 +66,7 @@ export function coordinateCallSuccess(
 ): void {
     const feedback = getKcbpCallFeedback(outcome);
     const responseStatus = parseKcbpResponseStatus(outcome.response);
+    const historyResponse = truncateResponseForHistory(outcome.response);
     const msgtype = outcome.msgtype || context.msgtype;
     const success = feedback.level === 'success' || feedback.level === 'info';
 
@@ -89,12 +91,12 @@ export function coordinateCallSuccess(
     writeHistory(
         deps,
         { ...context, msgtype },
-        outcome.response,
+        historyResponse,
         {
             success,
             rows: outcome.response.stats?.rows,
             timecost: outcome.response.stats?.timecost,
-            dataSize: JSON.stringify(outcome.response.resultSets).length,
+            dataSize: JSON.stringify(historyResponse.resultSets).length,
             businessCode: responseStatus.businessCode,
             transportCode: responseStatus.transportCode,
             message: feedback.message,
