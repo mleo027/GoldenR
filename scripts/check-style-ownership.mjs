@@ -44,6 +44,15 @@ const LEGACY_CROSS_LAYER = new Map([
         ],
     ],
     ['modules/api-debug/sidebar.css', ['case-sidebar-resize']],
+    [
+        'modules/interface-automation/automation.css',
+        [
+            // ga-input 是核心 Input/Password 原语使用的类名，应在 primitives 层定义
+            'ga-input',
+            // is-disabled 被 api-debug 的 ParamSuggestRuleTable 使用
+            'is-disabled',
+        ],
+    ],
 ]);
 
 const norm = (p) => relative(root, p).split(sep).join('/');

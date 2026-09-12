@@ -51,11 +51,13 @@ interface AutomationState {
     scenarioReports: Record<string, AutomationRunReport>;
     folderReports: Record<string, AutomationFolderRunReport>;
     selectedScenarioId?: string;
+    requestedRunScenarioId?: string;
     replaceWorkspace(workspace: AutomationWorkspace): void;
     load(): Promise<void>;
     addProject(): void;
     addFolder(projectId: string, parentId?: string): void;
     addScenario(projectId: string, folderId?: string): void;
+    duplicateScenario(id: string): void;
     updateProject(id: string, name: string): void;
     updateFolder(id: string, name: string): void;
     updateScenario(id: string, patch: Partial<AutomationScenario>): void;
@@ -63,6 +65,8 @@ interface AutomationState {
     removeFolder(id: string): void;
     removeScenario(id: string): void;
     selectScenario(id: string): void;
+    requestRun(id: string): void;
+    clearRunRequest(): void;
     setScenarioReport(report: AutomationRunReport): void;
     setFolderReport(report: AutomationFolderRunReport): void;
 }
@@ -131,6 +135,25 @@ function createAddActions(set: SetState, get: GetState) {
                 script: DEFAULT_AUTOMATION_SCRIPT,
                 position,
                 enabled: true,
+                createdAt: stamp,
+                updatedAt: stamp,
+            };
+            persist(set, { ...workspace, scenarios: [...workspace.scenarios, scenario] });
+            set({ selectedScenarioId: scenario.id });
+        },
+        duplicateScenario(scenarioId: string) {
+            const workspace = get().workspace;
+            const source = workspace.scenarios.find((item) => item.id === scenarioId);
+            if (!source) return;
+            const stamp = now();
+            const position = workspace.scenarios.filter(
+                (item) => item.projectId === source.projectId && item.folderId === source.folderId,
+            ).length;
+            const scenario: AutomationScenario = {
+                ...source,
+                id: id('automation-scenario'),
+                name: `${source.name} 副本`,
+                position,
                 createdAt: stamp,
                 updatedAt: stamp,
             };
@@ -255,6 +278,9 @@ export const useAutomationStore = create<AutomationState>((set, get) => ({
     ...createUpdateActions(set, get),
     ...createRemoveActions(set, get),
     selectScenario: (selectedScenarioId) => set({ selectedScenarioId }),
+    requestRun: (requestedRunScenarioId) =>
+        set({ selectedScenarioId: requestedRunScenarioId, requestedRunScenarioId }),
+    clearRunRequest: () => set({ requestedRunScenarioId: undefined }),
     setScenarioReport: (report) =>
         set((state) => ({
             scenarioReports: { ...state.scenarioReports, [report.scenarioId]: report },

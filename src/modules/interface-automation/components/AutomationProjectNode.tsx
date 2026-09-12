@@ -1,9 +1,10 @@
-import { DeleteOutlined, FolderAddOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Switch } from 'antd';
-import { Input } from '@/components/ui/primitives';
+import { FolderAddOutlined, FolderOutlined, MoreOutlined, PlusOutlined } from '@ant-design/icons';
+import { Tooltip } from 'antd';
+import { Button } from '@/components/ui/primitives';
 import type { AutomationProject } from '@/shared/automation/types';
 import { useAutomationStore } from '../store/automationStore';
 import AutomationFolderNode from './AutomationFolderNode';
+import AutomationScenarioNode from './AutomationScenarioNode';
 
 export default function AutomationProjectNode({ project }: { project: AutomationProject }) {
     const state = useAutomationStore();
@@ -14,59 +15,36 @@ export default function AutomationProjectNode({ project }: { project: Automation
         .filter((item) => item.projectId === project.id && !item.folderId)
         .sort((a, b) => a.position - b.position);
     return (
-        <section className="automation-project">
+        <section className="automation-project" role="treeitem">
             <div className="automation-tree-row automation-project-row">
-                <Input
-                    className="automation-tree-name"
-                    variant="borderless"
+                <FolderOutlined className="automation-folder-icon" />
+                <span className="automation-tree-name">{project.name}</span>
+                <Tooltip title="添加目录">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        icon={<FolderAddOutlined />}
+                        onClick={() => state.addFolder(project.id)}
+                    />
+                </Tooltip>
+                <Tooltip title="添加场景">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        icon={<PlusOutlined />}
+                        onClick={() => state.addScenario(project.id)}
+                    />
+                </Tooltip>
+                <Button
+                    className="automation-project-more"
+                    variant="ghost"
                     size="sm"
-                    value={project.name}
-                    onChange={(event) => state.updateProject(project.id, event.target.value)}
-                />
-                <Button
-                    type="text"
-                    size="small"
-                    icon={<FolderAddOutlined />}
-                    onClick={() => state.addFolder(project.id)}
-                />
-                <Button
-                    type="text"
-                    size="small"
-                    icon={<PlusOutlined />}
-                    onClick={() => state.addScenario(project.id)}
-                />
-                <Button
-                    type="text"
-                    danger
-                    size="small"
-                    icon={<DeleteOutlined />}
-                    onClick={() => state.removeProject(project.id)}
+                    icon={<MoreOutlined />}
+                    aria-label="项目更多操作"
                 />
             </div>
             {scenarios.map((scenario) => (
-                <div
-                    key={scenario.id}
-                    className={`automation-tree-row automation-scenario-row${state.selectedScenarioId === scenario.id ? ' is-active' : ''}`}
-                    onClick={() => state.selectScenario(scenario.id)}
-                >
-                    <Switch
-                        size="small"
-                        checked={scenario.enabled}
-                        onClick={(_, event) => event.stopPropagation()}
-                        onChange={(enabled) => state.updateScenario(scenario.id, { enabled })}
-                    />
-                    <span>{scenario.name}</span>
-                    <Button
-                        type="text"
-                        danger
-                        size="small"
-                        icon={<DeleteOutlined />}
-                        onClick={(event) => {
-                            event.stopPropagation();
-                            state.removeScenario(scenario.id);
-                        }}
-                    />
-                </div>
+                <AutomationScenarioNode key={scenario.id} scenario={scenario} depth={0} />
             ))}
             {folders.map((folder) => (
                 <AutomationFolderNode key={folder.id} folder={folder} depth={0} />
