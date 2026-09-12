@@ -37,6 +37,7 @@
     "test:kcbp": "node scripts/run-unit-tests.mjs kcbp",
     "test:import": "node scripts/run-unit-tests.mjs import",
     "test:script": "node scripts/run-unit-tests.mjs script",
+    "test:automation": "node scripts/run-unit-tests.mjs automation",
     "test:suggest": "node scripts/run-unit-tests.mjs suggest",
     "test:persist": "node scripts/run-unit-tests.mjs persist",
     "test:core": "node scripts/run-unit-tests.mjs core",

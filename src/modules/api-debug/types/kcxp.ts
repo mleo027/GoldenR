@@ -1,1 +1,1 @@
-export type { KcxpEnvironment, KcxpProtocol } from '@/shared/kcxp/types';
+export type { KcxpEnvironment, KcxpEnvironmentType, KcxpProtocol } from '@/shared/kcxp/types';

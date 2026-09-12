@@ -48,6 +48,17 @@ const suites = {
         'src/modules/api-debug/utils/script/scriptConsole.test.ts',
         'src/modules/api-debug/utils/script/formatJavaScript.test.ts',
     ],
+    automation: [
+        'electron/database/database.test.ts',
+        'electron/ipc/automation.test.ts',
+        'src/shared/automation/buildApiRequest.test.ts',
+        'src/shared/automation/redaction.test.ts',
+        'src/shared/automation/sqlPolicy.test.ts',
+        'src/modules/interface-automation/utils/scenarioInputs.test.ts',
+        'src/modules/interface-automation/utils/folderScenarios.test.ts',
+        'src/modules/interface-automation/worker/automation.worker.test.ts',
+        'src/modules/interface-automation/components/ScenarioInputs.test.tsx',
+    ],
     suggest: [
         'electron/services/suggest/suggestRuleEngine.test.ts',
         'src/modules/api-debug/utils/suggest/paramSuggestResolve.test.ts',

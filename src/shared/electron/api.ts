@@ -12,6 +12,14 @@ import type {
     DbSuggestResponse,
     DbTestConnectionResult,
 } from '@/shared/suggest/types';
+import type {
+    AutomationFolderRunReport,
+    AutomationRunReport,
+    AutomationSqlExecuteRequest,
+    AutomationSqlExecuteResult,
+    AutomationStorageSnapshot,
+    AutomationWorkspace,
+} from '@/shared/automation/types';
 
 export type ImportFileFormat = 'json' | 'ini';
 
@@ -74,6 +82,15 @@ export interface DatabaseApi {
     reloadSuggestConfig(): Promise<void>;
 }
 
+export interface AutomationApi {
+    load(): Promise<AutomationStorageSnapshot>;
+    saveWorkspace(workspace: AutomationWorkspace): Promise<void>;
+    saveScenarioReport(report: AutomationRunReport): Promise<void>;
+    saveFolderReport(report: AutomationFolderRunReport): Promise<void>;
+    executeSql(request: AutomationSqlExecuteRequest): Promise<AutomationSqlExecuteResult>;
+    cancelSql(requestId: string): Promise<boolean>;
+}
+
 export interface ImportExportApi {
     saveJson(content: string, defaultFilename: string): Promise<SaveFileResult>;
     saveCsv(content: string, defaultFilename: string): Promise<SaveFileResult>;
@@ -101,6 +118,7 @@ export interface ElectronAPI {
     config: ConfigStorageApi;
     kcbp: KcbpApi;
     database: DatabaseApi;
+    automation: AutomationApi;
     importExport: ImportExportApi;
     window: WindowApi;
     app: AppLifecycleApi;

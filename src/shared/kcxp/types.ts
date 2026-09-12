@@ -1,4 +1,5 @@
 export type KcxpProtocol = 'KCBP' | 'KGBP' | 'KUAB';
+export type KcxpEnvironmentType = 'development' | 'test' | 'uat' | 'production';
 import type { DbConnectionConfig } from '../suggest/types';
 
 export interface KcxpEnvironment {
@@ -17,4 +18,8 @@ export interface KcxpEnvironment {
     clientSessionId?: string;
     /** 当前环境专属 SQL Server 连接配置。 */
     database?: DbConnectionConfig;
+    /** 自动化写库安全分级；未设置时保持只读。 */
+    environmentType?: KcxpEnvironmentType;
+    /** 仅非生产环境可开启，主进程会再次校验。 */
+    allowAutomationSqlWrite?: boolean;
 }

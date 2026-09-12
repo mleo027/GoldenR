@@ -4,17 +4,19 @@
 
 ## 主要存储
 
-| SQLite 表                                               | 内容                                |
-| ------------------------------------------------------- | ----------------------------------- |
-| `app_preferences`                                       | 主题、紧凑模式、行号等应用偏好      |
-| `workspace_state`                                       | 工作区导航、页签和 API 调试偏好     |
-| `projects` / `case_folders` / `cases` / `case_params`   | 项目、目录、接口和参数              |
-| `api_debug_environments` / `api_debug_environment_vars` | KCXP/KCBP 请求环境                  |
-| `db_connections`                                        | SQL Server 连接配置                 |
-| `param_suggest_rules`                                   | 入参智能提示规则                    |
-| `common_param_sets` / `common_params`                   | 公共参数集                          |
-| `kcbp_runtime_config`                                   | KCBP 可执行文件、工作目录和启动参数 |
-| `request_history`                                       | 请求历史                            |
+| SQLite 表                                                             | 内容                                |
+| --------------------------------------------------------------------- | ----------------------------------- |
+| `app_preferences`                                                     | 主题、紧凑模式、行号等应用偏好      |
+| `workspace_state`                                                     | 工作区导航、页签和 API 调试偏好     |
+| `automation_projects` / `automation_folders` / `automation_scenarios` | 接口自动化项目树与场景脚本          |
+| `automation_scenario_reports` / `automation_folder_reports`           | 场景和目录最近一次运行报告          |
+| `projects` / `case_folders` / `cases` / `case_params`                 | 项目、目录、接口和参数              |
+| `api_debug_environments` / `api_debug_environment_vars`               | KCXP/KCBP 请求环境                  |
+| `db_connections`                                                      | SQL Server 连接配置                 |
+| `param_suggest_rules`                                                 | 入参智能提示规则                    |
+| `common_param_sets` / `common_params`                                 | 公共参数集                          |
+| `kcbp_runtime_config`                                                 | KCBP 可执行文件、工作目录和启动参数 |
+| `request_history`                                                     | 请求历史                            |
 
 复杂结构会在 SQLite TEXT 字段中序列化为 JSON，这是数据库内部表示，不是运行时 JSON 文件。
 

@@ -5,7 +5,7 @@
 ### Renderer
 
 - 入口为 `src/main.tsx`、`src/App.tsx`，模块注册位于 `src/platform/registry/app-modules.tsx`。
-- API 调试功能全部位于 `src/modules/api-debug`，按 UI、store、service、utils、导入导出和脚本职责组织。
+- API 调试功能位于 `src/modules/api-debug`；独立接口自动化位于 `src/modules/interface-automation`。自动化模块不得反向依赖 API 调试的 UI、store 或用例实体。
 - Renderer 通过 store/context 使用数据，不直接依赖 Electron 主进程实现细节。
 
 ### Electron

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { ConfigRepository } from './repositories/configRepository';
+import { AutomationRepository } from './repositories/automationRepository';
 import { migrateSchema, SCHEMA_VERSION } from './schema/migrations';
 
 describe('runtime database schema', () => {
@@ -64,15 +65,19 @@ describe('runtime database schema', () => {
         db.close();
     });
 
-    it('downgrades a database migrated by the reverted automation schema', () => {
+    it('replaces the reverted automation schema with the v8 schema', () => {
         const db = new Database(':memory:');
         db.pragma('foreign_keys = ON');
         migrateSchema(db);
         db.prepare("INSERT INTO projects VALUES('p1', 'Project', NULL, 0, 0)").run();
         db.exec(
+            'DROP TABLE automation_folder_reports; DROP TABLE automation_scenario_reports; DROP TABLE automation_scenarios; DROP TABLE automation_folders; DROP TABLE automation_projects;',
+        );
+        db.exec(
             `CREATE TABLE automation_project_configs (id TEXT PRIMARY KEY, project_id TEXT NOT NULL, FOREIGN KEY(project_id) REFERENCES automation_projects(id) ON DELETE CASCADE);
              CREATE TABLE automation_projects (id TEXT PRIMARY KEY, default_config_id TEXT, FOREIGN KEY(default_config_id) REFERENCES automation_project_configs(id) ON DELETE SET NULL);`,
         );
+        db.prepare('DELETE FROM schema_migrations').run();
         db.prepare('INSERT INTO schema_migrations VALUES(6, 0)').run();
 
         migrateSchema(db);
@@ -80,13 +85,91 @@ describe('runtime database schema', () => {
         expect(db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get()).toEqual({
             version: SCHEMA_VERSION,
         });
-        const leftover = db
+        const tables = db
             .prepare(
                 "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'automation%'",
             )
             .all() as Array<{ name: string }>;
-        expect(leftover).toEqual([]);
+        expect(tables.map((table) => table.name)).toEqual(
+            expect.arrayContaining([
+                'automation_projects',
+                'automation_folders',
+                'automation_scenarios',
+                'automation_scenario_reports',
+                'automation_folder_reports',
+            ]),
+        );
+        expect(
+            db
+                .prepare(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='automation_project_configs'",
+                )
+                .all(),
+        ).toEqual([]);
         expect(db.prepare('SELECT id FROM projects').all()).toEqual([{ id: 'p1' }]);
+        db.close();
+    });
+
+    it('preserves and replaces the latest automation report while editing the workspace', () => {
+        const db = new Database(':memory:');
+        db.pragma('foreign_keys = ON');
+        migrateSchema(db);
+        const repository = new AutomationRepository(db);
+        const workspace = {
+            projects: [{ id: 'p', name: 'Project', position: 0, createdAt: 1, updatedAt: 1 }],
+            folders: [
+                {
+                    id: 'f',
+                    projectId: 'p',
+                    name: 'Folder',
+                    position: 0,
+                    createdAt: 1,
+                    updatedAt: 1,
+                },
+            ],
+            scenarios: [
+                {
+                    id: 's',
+                    projectId: 'p',
+                    folderId: 'f',
+                    name: 'Scenario',
+                    script: 'scenario({}, async () => {})',
+                    position: 0,
+                    enabled: true,
+                    createdAt: 1,
+                    updatedAt: 1,
+                },
+            ],
+        };
+        repository.saveWorkspace(workspace);
+        const report = {
+            id: 'run-1',
+            scenarioId: 's',
+            scenarioName: 'Scenario',
+            environmentId: 'env',
+            status: 'passed' as const,
+            startedAt: 2,
+            durationMs: 3,
+            inputs: {},
+            steps: [],
+        };
+        repository.saveScenarioReport(report);
+        repository.saveWorkspace({
+            ...workspace,
+            scenarios: [{ ...workspace.scenarios[0], name: 'Renamed', updatedAt: 4 }],
+        });
+        expect(repository.load().scenarioReports.s).toEqual(report);
+        repository.saveScenarioReport({ ...report, id: 'run-2', status: 'failed' });
+        expect(repository.load().scenarioReports.s.id).toBe('run-2');
+        expect(() =>
+            repository.saveWorkspace({
+                ...workspace,
+                folders: [{ ...workspace.folders[0], parentId: 'missing-parent', name: 'Invalid' }],
+            }),
+        ).toThrow('无效父级');
+        expect(repository.load().workspace.folders[0].name).toBe('Folder');
+        repository.saveWorkspace({ ...workspace, scenarios: [] });
+        expect(repository.load().scenarioReports).toEqual({});
         db.close();
     });
 

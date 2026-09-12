@@ -1,8 +1,34 @@
 import sql from 'mssql';
 import type { DbConnectionConfig } from '../../../src/shared/suggest/types';
+import type {
+    AutomationSqlExecuteResult,
+    AutomationSqlParams,
+} from '../../../src/shared/automation/types';
 
 let pool: sql.ConnectionPool | null = null;
 let currentConfigKey: string | null = null;
+const automationRequests = new Map<string, sql.Request>();
+
+function automationOutputNames(sqlText: string): Set<string> {
+    return new Set(
+        [...sqlText.matchAll(/@(\w+)\s+OUTPUT\b/gi)].map((match) => match[1].toLowerCase()),
+    );
+}
+
+function bindAutomationParams(
+    request: sql.Request,
+    sqlText: string,
+    bindings: AutomationSqlParams,
+): string | undefined {
+    const outputs = automationOutputNames(sqlText);
+    for (const [key, value] of Object.entries(bindings)) {
+        if (outputs.has(key.toLowerCase())) request.output(key, sql.Variant, value);
+        else request.input(key, value);
+    }
+    const returnName = /^\s*EXEC(?:UTE)?\s+@(\w+)\s*=/i.exec(sqlText)?.[1];
+    if (returnName && !(returnName in bindings)) request.output(returnName, sql.Int);
+    return returnName;
+}
 
 function configKey(config: DbConnectionConfig): string {
     return JSON.stringify({
@@ -90,6 +116,45 @@ export async function executeSelect(
     const rows = recordset.slice(0, limit);
     const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
     return { rows, columns };
+}
+
+export async function executeAutomationSql(
+    config: DbConnectionConfig,
+    requestId: string,
+    sqlText: string,
+    bindings: AutomationSqlParams,
+): Promise<AutomationSqlExecuteResult> {
+    const activePool = await getPool(config);
+    const request = activePool.request();
+    automationRequests.set(requestId, request);
+    const returnName = bindAutomationParams(request, sqlText, bindings);
+    const startedAt = Date.now();
+    try {
+        const result = await request.query(sqlText);
+        const rows = (result.recordset ?? []) as Record<string, unknown>[];
+        return {
+            rowsAffected: result.rowsAffected ?? [],
+            rows: rows.slice(0, 100),
+            columns: rows.length > 0 ? Object.keys(rows[0]) : [],
+            totalRows: rows.length,
+            truncated: rows.length > 100,
+            returnValue:
+                returnName && result.output[returnName] != null
+                    ? Number(result.output[returnName])
+                    : undefined,
+            output: result.output as Record<string, unknown>,
+            elapsedMs: Date.now() - startedAt,
+        };
+    } finally {
+        automationRequests.delete(requestId);
+    }
+}
+
+export function cancelAutomationSql(requestId: string): boolean {
+    const request = automationRequests.get(requestId);
+    if (!request) return false;
+    request.cancel();
+    return true;
 }
 
 export async function closePool(): Promise<void> {

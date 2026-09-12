@@ -12,6 +12,7 @@ import {
     SnippetsOutlined,
     SolutionOutlined,
     StarOutlined,
+    ExperimentOutlined,
 } from '@ant-design/icons';
 import type { RenameTarget } from '../../../../hooks/useInlineRename';
 import { useStableHandlerMap } from '../../../../hooks/useStableHandlerMap';
@@ -25,6 +26,8 @@ import {
     parseCaseFromClipboard,
     serializeCaseForClipboard,
 } from '../../utils/workspace/caseClipboard';
+import { generateAutomationScenario } from '../../services/automationScenarioGenerator';
+import { useAppEnvStore } from '@/store/appEnvStore';
 
 interface Config {
     modal: ReturnType<typeof App.useApp>['modal'];
@@ -215,6 +218,25 @@ function useCaseMenu(
                     : '收藏',
                 icon: <StarOutlined />,
                 onClick: () => actions.toggleCaseFavorite(projectIndex, caseIndex),
+            },
+            {
+                key: 'generate-automation',
+                label: '生成自动化场景',
+                icon: <ExperimentOutlined />,
+                onClick: () => {
+                    const caseItem = state.projects[projectIndex]?.cases[caseIndex];
+                    if (!caseItem) return;
+                    void generateAutomationScenario(caseItem)
+                        .then(() => {
+                            useAppEnvStore
+                                .getState()
+                                .updateEnv('activeModuleId', 'interface-automation');
+                            message.success('已生成自动化场景');
+                        })
+                        .catch((error: unknown) =>
+                            message.error(error instanceof Error ? error.message : String(error)),
+                        );
+                },
             },
             { type: 'divider' },
             {

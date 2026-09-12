@@ -5,7 +5,7 @@ import { Select } from '../../../../components/ui/primitives';
 import { useAppEnv } from '../../../../store/useAppEnv';
 import { useApiDebugEnv } from '../../store/useApiDebugEnv';
 import { useTabsActions } from '../../store/useTabs';
-import type { KcxpEnvironment, KcxpProtocol } from '../../types/kcxp';
+import type { KcxpEnvironment, KcxpEnvironmentType, KcxpProtocol } from '../../types/kcxp';
 import { DEFAULT_KCBP_TIMEOUT } from '../../utils/kcbp/kcbpAddress';
 import {
     createKcxpEnvironment,
@@ -20,6 +20,13 @@ const PROTOCOL_SELECT_OPTIONS = [
     { value: 'KCBP', label: 'KCBP' },
     { value: 'KGBP', label: 'KGBP' },
     { value: 'KUAB', label: 'KUAB' },
+];
+
+const ENVIRONMENT_TYPE_OPTIONS = [
+    { value: 'development', label: '开发' },
+    { value: 'test', label: '测试' },
+    { value: 'uat', label: 'UAT' },
+    { value: 'production', label: '生产' },
 ];
 
 function EnvironmentRow({
@@ -154,6 +161,34 @@ function EnvironmentRow({
                     <Typography.Text className="kcxp-env-database-title">
                         数据库配置
                     </Typography.Text>
+                    <Select
+                        value={environment.environmentType}
+                        options={ENVIRONMENT_TYPE_OPTIONS}
+                        placeholder="环境类型（未设置时禁止写库）"
+                        size="sm"
+                        onChange={(value) => {
+                            const environmentType = value as KcxpEnvironmentType;
+                            onChange({
+                                ...environment,
+                                environmentType,
+                                allowAutomationSqlWrite:
+                                    environmentType === 'production'
+                                        ? false
+                                        : environment.allowAutomationSqlWrite,
+                            });
+                        }}
+                    />
+                    <div className="kcxp-env-field">
+                        <span className="kcxp-env-field-label">允许自动化 SQL 写入</span>
+                        <Switch
+                            checked={environment.allowAutomationSqlWrite === true}
+                            disabled={
+                                !environment.environmentType ||
+                                environment.environmentType === 'production'
+                            }
+                            onChange={(value) => updateField('allowAutomationSqlWrite', value)}
+                        />
+                    </div>
                     <Input
                         value={database.server}
                         onChange={(e) =>

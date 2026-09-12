@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { apiDebugModule } from '../../modules/api-debug';
 import { API_DEBUG_MODULE_ID } from '../../modules/api-debug/constants/apiDebugEnv';
 import { APP_MODULES } from './app-modules';
+import { INTERFACE_AUTOMATION_MODULE_ID } from '../../modules/interface-automation/constants';
 
 const REMOVED_MODULE_IDS = [
     'tcd',
@@ -23,8 +24,11 @@ const REMOVED_SETTINGS_KEYS = [
 ];
 
 describe('standalone registry scope', () => {
-    it('registers only the api-debug module', () => {
-        expect(APP_MODULES.map((module) => module.id)).toEqual([API_DEBUG_MODULE_ID]);
+    it('registers only API debug and interface automation', () => {
+        expect(APP_MODULES.map((module) => module.id)).toEqual([
+            API_DEBUG_MODULE_ID,
+            INTERFACE_AUTOMATION_MODULE_ID,
+        ]);
     });
 
     it('does not register removed GoldenAPI modules', () => {

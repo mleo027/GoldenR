@@ -2,6 +2,7 @@ import fsSync from 'fs';
 import { KcbpClient } from '../kcbp';
 import { getConfigDir } from '../config/configPaths';
 import { ConfigRepository } from '../database/repositories/configRepository';
+import { AutomationRepository } from '../database/repositories/automationRepository';
 import { initializeDatabase } from '../database/initializeDatabase';
 
 export interface ElectronAppContext {
@@ -11,13 +12,16 @@ export interface ElectronAppContext {
     getLegacyDataDir: () => string;
     getApiServerUserDataDir: () => string;
     configRepository: ConfigRepository;
+    automationRepository: AutomationRepository;
 }
 
 export function createAppContext(): ElectronAppContext {
     const kcbpClient = new KcbpClient();
     const configDir = getConfigDir();
     fsSync.mkdirSync(configDir, { recursive: true });
-    const configRepository = new ConfigRepository(initializeDatabase(configDir));
+    const database = initializeDatabase(configDir);
+    const configRepository = new ConfigRepository(database);
+    const automationRepository = new AutomationRepository(database);
 
     return {
         kcbpClient,
@@ -26,5 +30,6 @@ export function createAppContext(): ElectronAppContext {
         getLegacyDataDir: () => configDir,
         getApiServerUserDataDir: () => configDir,
         configRepository,
+        automationRepository,
     };
 }

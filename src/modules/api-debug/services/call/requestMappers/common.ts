@@ -1,8 +1,8 @@
 import type { KcbpAddressParts } from '../../../utils/kcbp/kcbpAddress';
-import { splitHost } from '../../../utils/kcbp/kcbpAddress';
+import { parseKcxpInteger, resolveKcxpClientSessionId, splitKcxpHost } from '@/shared/kcxp/request';
 
 export function connectionHost(parts: KcbpAddressParts) {
-    const { ip, port } = splitHost(parts.host);
+    const { ip, port } = splitKcxpHost(parts.host);
     return { ip: ip || undefined, port: port || undefined };
 }
 
@@ -13,14 +13,12 @@ export function binaryFieldsOrUndefined(
 }
 
 export function parseOptionalInteger(value: string | undefined): number | undefined {
-    const trimmed = value?.trim();
-    return trimmed && /^-?\d+$/.test(trimmed) ? Number.parseInt(trimmed, 10) : undefined;
+    return parseKcxpInteger(value);
 }
 
 export function resolveClientSessionId(
     value: string | undefined,
     fields: Record<string, string>,
 ): number | undefined {
-    const trimmed = value?.trim();
-    return parseOptionalInteger(trimmed?.startsWith('@') ? fields[trimmed.slice(1)] : trimmed);
+    return resolveKcxpClientSessionId(value, fields);
 }

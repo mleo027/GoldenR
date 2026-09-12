@@ -11,6 +11,14 @@ import type {
     DbSuggestResponse,
     DbTestConnectionResult,
 } from '../src/shared/suggest/types';
+import type {
+    AutomationFolderRunReport,
+    AutomationRunReport,
+    AutomationSqlExecuteRequest,
+    AutomationSqlExecuteResult,
+    AutomationStorageSnapshot,
+    AutomationWorkspace,
+} from '../src/shared/automation/types';
 
 async function invoke<T>(channel: string, ...args: unknown[]): Promise<T> {
     try {
@@ -109,6 +117,19 @@ contextBridge.exposeInMainWorld('electronAPI', {
         queryScript: (request: DbScriptQueryRequest): Promise<DbScriptQueryResponse> =>
             invoke('db:query', request),
         reloadSuggestConfig: (): Promise<void> => invoke('db:reloadConfig'),
+    },
+    automation: {
+        load: (): Promise<AutomationStorageSnapshot> => invoke('automation:load'),
+        saveWorkspace: (workspace: AutomationWorkspace): Promise<void> =>
+            invoke('automation:saveWorkspace', workspace),
+        saveScenarioReport: (report: AutomationRunReport): Promise<void> =>
+            invoke('automation:saveScenarioReport', report),
+        saveFolderReport: (report: AutomationFolderRunReport): Promise<void> =>
+            invoke('automation:saveFolderReport', report),
+        executeSql: (request: AutomationSqlExecuteRequest): Promise<AutomationSqlExecuteResult> =>
+            invoke('automation:sqlExecute', request),
+        cancelSql: (requestId: string): Promise<boolean> =>
+            invoke('automation:sqlCancel', requestId),
     },
     importExport: {
         saveJson: (content: string, defaultFilename: string) =>

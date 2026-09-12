@@ -26,6 +26,11 @@ export function createKcxpEnvironment(
         nodeId: partial?.nodeId,
         clientSessionId: partial?.clientSessionId ?? (protocol === 'KGBP' ? '@custid' : undefined),
         database: { ...DEFAULT_DB_CONFIG, ...partial?.database },
+        environmentType: partial?.environmentType,
+        allowAutomationSqlWrite:
+            partial?.environmentType === 'production'
+                ? false
+                : partial?.allowAutomationSqlWrite === true,
     };
 }
 
@@ -50,13 +55,17 @@ export function isKcxpEnvironment(value: unknown): value is KcxpEnvironment {
 
 export function normalizeKcxpEnvironments(value: unknown): KcxpEnvironment[] {
     if (!Array.isArray(value)) return [...DEFAULT_KCXP_ENVIRONMENTS];
-    const valid = value
-        .filter(isKcxpEnvironment)
-        .map((environment) =>
+    const valid = value.filter(isKcxpEnvironment).map((environment) => ({
+        ...environment,
+        clientSessionId:
             environment.protocol === 'KGBP' && !environment.clientSessionId?.trim()
-                ? { ...environment, clientSessionId: '@custid' }
-                : environment,
-        );
+                ? '@custid'
+                : environment.clientSessionId,
+        allowAutomationSqlWrite:
+            environment.environmentType === 'production'
+                ? false
+                : environment.allowAutomationSqlWrite === true,
+    }));
     return valid.length > 0 ? valid : [...DEFAULT_KCXP_ENVIRONMENTS];
 }
 

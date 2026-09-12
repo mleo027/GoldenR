@@ -86,8 +86,64 @@ CREATE TABLE IF NOT EXISTS api_debug_environments (
     service TEXT,
     node_id TEXT,
     client_session_id TEXT,
-    database_json TEXT NOT NULL DEFAULT '{}'
+    database_json TEXT NOT NULL DEFAULT '{}',
+    environment_type TEXT,
+    allow_automation_sql_write INTEGER NOT NULL DEFAULT 0
 );
+
+CREATE TABLE IF NOT EXISTS automation_projects (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    position INTEGER NOT NULL,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS automation_folders (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    parent_id TEXT,
+    name TEXT NOT NULL,
+    position INTEGER NOT NULL,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    FOREIGN KEY (project_id) REFERENCES automation_projects (id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_id) REFERENCES automation_folders (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS automation_scenarios (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    folder_id TEXT,
+    name TEXT NOT NULL,
+    script TEXT NOT NULL,
+    position INTEGER NOT NULL,
+    enabled INTEGER NOT NULL DEFAULT 1,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    FOREIGN KEY (project_id) REFERENCES automation_projects (id) ON DELETE CASCADE,
+    FOREIGN KEY (folder_id) REFERENCES automation_folders (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS automation_scenario_reports (
+    scenario_id TEXT PRIMARY KEY,
+    run_id TEXT NOT NULL,
+    ran_at INTEGER NOT NULL,
+    report_json TEXT NOT NULL,
+    FOREIGN KEY (scenario_id) REFERENCES automation_scenarios (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS automation_folder_reports (
+    folder_id TEXT PRIMARY KEY,
+    run_id TEXT NOT NULL,
+    ran_at INTEGER NOT NULL,
+    report_json TEXT NOT NULL,
+    FOREIGN KEY (folder_id) REFERENCES automation_folders (id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_automation_folders_parent_position ON automation_folders (project_id, parent_id, position);
+
+CREATE INDEX IF NOT EXISTS idx_automation_scenarios_folder_position ON automation_scenarios (project_id, folder_id, position);
 
 CREATE TABLE IF NOT EXISTS api_debug_environment_vars (
     environment_id TEXT NOT NULL,

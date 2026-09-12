@@ -62,6 +62,12 @@ export class ConfigRepository {
     writeApiDebugEnvironments(value: unknown): void {
         this.writeStorage('apiDebugEnvironments', value);
     }
+    readApiDebugEnvironment(id: string): Record<string, unknown> | null {
+        const value = record(this.readEnvironments());
+        const environments = Array.isArray(value.kcxpEnvironments) ? value.kcxpEnvironments : [];
+        const match = environments.find((item) => record(item).id === id);
+        return match ? record(match) : null;
+    }
     readDbConnection(): unknown | null {
         return this.readStorage('dbConnection');
     }
@@ -339,7 +345,7 @@ export class ConfigRepository {
         ) as Record<string, unknown> | null;
         const environments = this.db
             .prepare(
-                'SELECT id,name,host,queue,timeout,protocol,service,node_id AS nodeId,client_session_id AS clientSessionId,database_json FROM api_debug_environments ORDER BY rowid',
+                'SELECT id,name,host,queue,timeout,protocol,service,node_id AS nodeId,client_session_id AS clientSessionId,database_json,environment_type AS environmentType,allow_automation_sql_write AS allowAutomationSqlWrite FROM api_debug_environments ORDER BY rowid',
             )
             .all()
             .map((environment) => {
@@ -353,6 +359,9 @@ export class ConfigRepository {
                 return {
                     ...(environment as Record<string, unknown>),
                     database,
+                    allowAutomationSqlWrite: Boolean(
+                        (environment as Record<string, unknown>).allowAutomationSqlWrite,
+                    ),
                 };
             });
         return { ...(meta ?? {}), kcxpEnvironments: environments };
@@ -363,7 +372,7 @@ export class ConfigRepository {
         this.upsert('workspace_state', 'key', 'api-env-meta', { value: encode(meta, {}) });
         this.db.exec('DELETE FROM api_debug_environments');
         const i = this.db.prepare(
-            'INSERT INTO api_debug_environments(id,name,host,queue,timeout,protocol,service,node_id,client_session_id,database_json) VALUES(?,?,?,?,?,?,?,?,?,?)',
+            'INSERT INTO api_debug_environments(id,name,host,queue,timeout,protocol,service,node_id,client_session_id,database_json,environment_type,allow_automation_sql_write) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)',
         );
         const v = this.db.prepare(
             'INSERT INTO api_debug_environment_vars(environment_id,name,value) VALUES(?,?,?)',
@@ -382,6 +391,8 @@ export class ConfigRepository {
                 e.nodeId ?? null,
                 e.clientSessionId ?? null,
                 encode(record(e.database), {}),
+                e.environmentType ?? null,
+                e.environmentType !== 'production' && e.allowAutomationSqlWrite === true ? 1 : 0,
             );
             Object.entries(record(e.vars)).forEach(([k, val]) => v.run(id, k, text(val)));
         });
