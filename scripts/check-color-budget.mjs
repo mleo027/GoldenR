@@ -3,7 +3,9 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const MAX_UNIQUE_COLORS = 36;
+// 棘轮：当前实测 36，预留少量余量以免合法新增一个语义色就报错；
+// 若调到顶格，请同时下调本值。
+const MAX_UNIQUE_COLORS = 40;
 const MAX_COLORS_PER_FILE = 14;
 const SOURCE = /^(?:src|electron)\/.+\.(?:css|tsx?|jsx?)$/i;
 const TEST = /(?:\.test\.|\.spec\.)/i;

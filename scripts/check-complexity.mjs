@@ -44,7 +44,8 @@ const violations = results.flatMap((result) =>
         })),
 );
 
-const baseline = 38;
+// 棘轮：只允许下降。修复违规后请同步下调此值，切勿上调。
+const baseline = 24;
 console.log(`Complexity baseline violations: ${violations.length} (allowed baseline: ${baseline})`);
 for (const violation of violations) {
     console.log(`${violation.file}:${violation.line} [${violation.rule}] ${violation.message}`);
@@ -52,4 +53,8 @@ for (const violation of violations) {
 if (violations.length > baseline) {
     console.error(`Complexity regression: ${violations.length - baseline} new violation(s)`);
     process.exitCode = 1;
+} else if (violations.length < baseline) {
+    console.warn(
+        `[complexity] 违规数已降至 ${violations.length}，请把 baseline 下调到 ${violations.length} 以保持棘轮不松。`,
+    );
 }
