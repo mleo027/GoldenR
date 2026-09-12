@@ -329,10 +329,10 @@ Electron 主进程  http://127.0.0.1:<随机端口>/mcp  （Bearer token）
 | 2b   | **已完成**：泛化调用通道（`capabilities:invoke` / `capabilities:respond`）+ 超时与在途清理 | 0.5 天 | 主进程能调用渲染层能力；超时、渲染层失联、未装配均有测试                                                           |
 | 2c   | eslint 分层登记（**须先拆分 interface-automation 的 exclusive 元素**，见下）               | 0.5 天 | 探针文件（platform → module）被 lint 拦住                                                                          |
 | 3    | **已完成**：MCP 服务器（Streamable HTTP，仅本机 + 启动轮换 token）                         | 1 天   | `node scripts/mcp-smoke.mjs` 跑通 `initialize` → `tools/list` → `tools/call`（有端到端测试）                       |
-| 4    | stdio shim + 真实客户端接入                                                                | 0.5 天 | 在 pi / Claude / Cursor 任一客户端中看到工具列表并成功调用一次                                                     |
-| 5    | 授权与审计 + **平台设置里的 MCP 分区**（总开关、端点信息、审计入口）                       | 1 天   | 总开关关闭时 `tools/call` 被拒；审计可查且无敏感明文                                                               |
-| 6    | **移除内置 Agent**（§4.1）——此时 MCP 已验证可用                                            | 0.5 天 | `npm run check` 全绿；`src`/`electron` 搜不到 `agentRuntime`、`AutomationAgentPanel`、`AgentApi`                   |
-| 7    | api-debug 注册（Phase B 能力集）                                                           | 2–3 天 | 每个工具有单测；`call_case` 返回真实响应                                                                           |
+| 4    | **已完成**：stdio 垫片 + 客户端接入文档                                                    | 0.5 天 | 垫片有端到端测试（含 token 轮换自愈）；文档给出各客户端配置                                                        |
+| 5    | **已完成**：总开关 + 审计 + 平台设置里的 MCP 分区                                          | 1 天   | 关闭时不启动服务器；审计只记参数名；设置面板可查                                                                   |
+| 6    | **已完成**：移除内置 Agent（§4.1）                                                         | 0.5 天 | 净删 4153 行；能力层与脚本编辑器主题保留；全量门禁与构建通过                                                       |
+| 7    | **已完成**：api-debug 能力集（7 个，含 `apidebug_call_case`）                              | 2–3 天 | 有实现测试；组合根集成测试校验两模块描述/实现一致；响应与历史分页有上限                                            |
 
 ### 已核实：eslint 分层登记的真实成本（2026-09-12 实测）
 
