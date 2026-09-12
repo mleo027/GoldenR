@@ -322,15 +322,28 @@ Electron 主进程  http://127.0.0.1:<随机端口>/mcp  （Bearer token）
 
 ### 阶段与验收
 
-| 阶段 | 内容                                                                                            | 估时   | 验收                                                                                                               |
-| ---- | ----------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------ |
-| 1    | 平台注册表 + 模块契约扩展 + 组合根注入；`agentTools` 迁入为模块能力；面板改走注册表             | 1.5 天 | 注册表单测通过；**不变量测试**：`src/platform/capabilities/**` 无 `@/modules/**` 依赖；描述/实现键集合不一致时报错 |
-| 2    | 泛化调用通道（`capabilities:invoke` / `result`）+ eslint 与 boundaries 登记（**登记才有关卡**） | 1 天   | 主进程能调用渲染层能力；超时与取消有测试；**登记后**探针文件（platform → module）能被 lint 拦住                    |
-| 3    | MCP 服务器（Streamable HTTP）                                                                   | 1 天   | `node scripts/mcp-smoke.mjs`：`initialize` → `tools/list` 含预期工具 → `tools/call` 返回 `isError=false`           |
-| 4    | stdio shim + 真实客户端接入                                                                     | 0.5 天 | 在 pi / Claude / Cursor 任一客户端中看到工具列表并成功调用一次                                                     |
-| 5    | 授权与审计 + **平台设置里的 MCP 分区**（总开关、端点信息、审计入口）                            | 1 天   | 总开关关闭时 `tools/call` 被拒；审计可查且无敏感明文                                                               |
-| 6    | **移除内置 Agent**（§4.1）——此时 MCP 已验证可用                                                 | 0.5 天 | `npm run check` 全绿；`src`/`electron` 搜不到 `agentRuntime`、`AutomationAgentPanel`、`AgentApi`                   |
-| 7    | api-debug 注册（Phase B 能力集）                                                                | 2–3 天 | 每个工具有单测；`call_case` 返回真实响应                                                                           |
+| 阶段 | 内容                                                                                | 估时   | 验收                                                                                                               |
+| ---- | ----------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------ |
+| 1    | 平台注册表 + 模块契约扩展 + 组合根注入；`agentTools` 迁入为模块能力；面板改走注册表 | 1.5 天 | 注册表单测通过；**不变量测试**：`src/platform/capabilities/**` 无 `@/modules/**` 依赖；描述/实现键集合不一致时报错 |
+| 2a   | **已完成**：能力上下文工厂（不依赖 React）+ 按需 hydrate + `dispatch`               | 0.5 天 | 外部调用不再需要模块界面挂载；空工作区问题有回归测试                                                               |
+| 2b   | 泛化调用通道（`capabilities:invoke` / `result`）+ 超时与取消                        | 0.5 天 | 主进程能调用渲染层能力；超时与取消有测试                                                                           |
+| 2c   | eslint 分层登记（**须先拆分 interface-automation 的 exclusive 元素**，见下）        | 0.5 天 | 探针文件（platform → module）被 lint 拦住                                                                          |
+| 3    | MCP 服务器（Streamable HTTP）                                                       | 1 天   | `node scripts/mcp-smoke.mjs`：`initialize` → `tools/list` 含预期工具 → `tools/call` 返回 `isError=false`           |
+| 4    | stdio shim + 真实客户端接入                                                         | 0.5 天 | 在 pi / Claude / Cursor 任一客户端中看到工具列表并成功调用一次                                                     |
+| 5    | 授权与审计 + **平台设置里的 MCP 分区**（总开关、端点信息、审计入口）                | 1 天   | 总开关关闭时 `tools/call` 被拒；审计可查且无敏感明文                                                               |
+| 6    | **移除内置 Agent**（§4.1）——此时 MCP 已验证可用                                     | 0.5 天 | `npm run check` 全绿；`src`/`electron` 搜不到 `agentRuntime`、`AutomationAgentPanel`、`AgentApi`                   |
+| 7    | api-debug 注册（Phase B 能力集）                                                    | 2–3 天 | 每个工具有单测；`call_case` 返回真实响应                                                                           |
+
+### 已核实：eslint 分层登记的真实成本（2026-09-12 实测）
+
+规划原以为"把 `src/platform/capabilities` 登记进 `boundaries/elements` 就能拦住 platform → module"。实测**不成立**，有两个机制：
+
+1. **目标未登记就没有可判定的对象。** 只登记 `src/platform/capabilities` 时，探针文件反向 import 模块，eslint **exit 0**——因为 `src/modules/interface-automation` 没有任何元素类型，规则无从判定。要让禁令生效，**目标侧也必须被登记**。
+2. **一旦源文件被赋予元素类型，它的全部 import 都要有策略。** 因此给 modules 加兜底类型后，interface-automation 的 **93 个 import 立刻全部违规**（默认 disallow）；补一条宽松的 `module` 策略后降到 21 个，剩余错误来自兜底类型把 api-debug 也标成了 `module`，与它既有的 `mod-*` 子元素冲突——正是原注释警告的"父元素污染子元素"。
+
+**结论**：eslint 登记不是"加两行"，而是要先**像 api-debug 那样把 interface-automation 拆成 exclusive 子元素并定义其依赖白名单**。那是一次独立的、值得做的分层改造（顺带给 interface-automation 补上它目前完全没有的分层约束），不应塞进 MCP 迁移里。
+
+**当前状态**：`src/platform/capabilities` 的模块无关性由 `src/architecture/boundaries.test.ts` 的分区守卫（解析别名与相对路径），eslint 登记留作 2c。
 
 每阶段一个提交。
 
