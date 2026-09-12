@@ -8,6 +8,7 @@ import { registerSuggestIpc } from './suggest';
 import { registerWindowIpc } from './window';
 import { registerAutomationIpc } from './automation';
 import { registerAgentIpc } from './agent';
+import { registerCapabilityIpc } from './capabilities';
 
 vi.mock('./storage', () => ({ registerStorageIpc: vi.fn() }));
 vi.mock('./importExport', () => ({ registerImportExportIpc: vi.fn() }));
@@ -16,6 +17,7 @@ vi.mock('./suggest', () => ({ registerSuggestIpc: vi.fn() }));
 vi.mock('./window', () => ({ registerWindowIpc: vi.fn() }));
 vi.mock('./automation', () => ({ registerAutomationIpc: vi.fn() }));
 vi.mock('./agent', () => ({ registerAgentIpc: vi.fn() }));
+vi.mock('./capabilities', () => ({ registerCapabilityIpc: vi.fn() }));
 
 const ctx = {} as ElectronAppContext;
 
@@ -36,6 +38,7 @@ describe('standalone IPC registry scope', () => {
         expect(registerAutomationIpc).toHaveBeenCalledWith(ctx);
         expect(registerAgentIpc).toHaveBeenCalledTimes(1);
         expect(registerAgentIpc).toHaveBeenCalledWith(ctx);
+        expect(registerCapabilityIpc).toHaveBeenCalledTimes(1);
         expect(registerWindowIpc).toHaveBeenCalledTimes(1);
     });
 });

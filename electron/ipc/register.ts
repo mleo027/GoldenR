@@ -6,6 +6,7 @@ import { registerWindowIpc } from './window';
 import { registerImportExportIpc } from './importExport';
 import { registerAutomationIpc } from './automation';
 import { registerAgentIpc } from './agent';
+import { registerCapabilityIpc } from './capabilities';
 
 export function registerAllIpcHandlers(ctx: ElectronAppContext): void {
     registerStorageIpc(ctx);
@@ -14,5 +15,6 @@ export function registerAllIpcHandlers(ctx: ElectronAppContext): void {
     registerSuggestIpc();
     registerAutomationIpc(ctx);
     registerAgentIpc(ctx);
+    registerCapabilityIpc();
     registerWindowIpc();
 }

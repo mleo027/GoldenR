@@ -3,6 +3,10 @@ import { isKcbpIpcCancelledResult, KCBP_CANCELLED_MESSAGE } from '../src/shared/
 import { parseIpcError } from '../src/shared/ipc/errors';
 import type { ImportFileFormat } from '../src/shared/electron/api';
 import type { AgentEventPayload } from '../src/shared/electron/api';
+import type {
+    CapabilityInvokeRequest,
+    CapabilityInvokeResponse,
+} from '../src/shared/capabilities/host';
 import type { AgentGatewayConfig, AgentGatewayConfigInput } from '../src/shared/agent/gateway';
 import type {
     AgentCreateRunRequest,
@@ -157,6 +161,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
         readGatewayConfig: (): Promise<AgentGatewayConfig> => invoke('agent:readGatewayConfig'),
         writeGatewayConfig: (input: AgentGatewayConfigInput): Promise<AgentGatewayConfig> =>
             invoke('agent:writeGatewayConfig', input),
+    },
+    capabilities: {
+        onInvoke: (callback: (request: CapabilityInvokeRequest) => void) => {
+            const handler = (_event: Electron.IpcRendererEvent, request: CapabilityInvokeRequest) =>
+                callback(request);
+            ipcRenderer.on('capabilities:invoke', handler);
+            return () => ipcRenderer.removeListener('capabilities:invoke', handler);
+        },
+        respond: (response: CapabilityInvokeResponse): Promise<void> =>
+            invoke('capabilities:respond', response),
     },
     importExport: {
         saveJson: (content: string, defaultFilename: string) =>

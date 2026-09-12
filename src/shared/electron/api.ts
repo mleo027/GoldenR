@@ -28,6 +28,7 @@ import type {
     AutomationStorageSnapshot,
     AutomationWorkspace,
 } from '@/shared/automation/types';
+import type { CapabilityInvokeRequest, CapabilityInvokeResponse } from '@/shared/capabilities/host';
 
 export type ImportFileFormat = 'json' | 'ini';
 
@@ -122,6 +123,19 @@ export interface AgentApi {
     writeGatewayConfig(input: AgentGatewayConfigInput): Promise<AgentGatewayConfig>;
 }
 
+/**
+ * 应用向外部调用方（MCP 等）开放的能力宿主接口。
+ *
+ * 这一层只把请求转发到平台能力注册表，不解释任何业务语义：能力清单与实现都由
+ * 模块提供，主进程与渲染层都不为某个模块定制通道。
+ */
+export interface CapabilityHostApi {
+    /** 订阅主进程发来的能力调用请求；返回取消订阅函数。 */
+    onInvoke(callback: (request: CapabilityInvokeRequest) => void): () => void;
+    /** 回填执行结果。失败以 `ok: false` 表达，而不是异常。 */
+    respond(response: CapabilityInvokeResponse): Promise<void>;
+}
+
 export interface ImportExportApi {
     saveJson(content: string, defaultFilename: string): Promise<SaveFileResult>;
     saveCsv(content: string, defaultFilename: string): Promise<SaveFileResult>;
@@ -151,6 +165,7 @@ export interface ElectronAPI {
     database: DatabaseApi;
     automation: AutomationApi;
     agent: AgentApi;
+    capabilities: CapabilityHostApi;
     importExport: ImportExportApi;
     window: WindowApi;
     app: AppLifecycleApi;
