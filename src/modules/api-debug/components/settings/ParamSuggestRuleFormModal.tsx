@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { App, Collapse, Form, InputNumber, Modal, Switch, Tag, Typography } from 'antd';
+import { App, Button, Collapse, Form, InputNumber, Space, Switch, Tag, Typography } from 'antd';
+import { CloseOutlined, SaveOutlined } from '@ant-design/icons';
 import { Input, Select } from '../../../../components/ui/primitives';
 import type { FormInstance, FormListFieldData } from 'antd';
 import type { ParamFieldRule, ParamSuggestBinding } from '../../types/paramSuggest';
@@ -24,7 +25,7 @@ import ParamSuggestSqlAnalysis from './ParamSuggestSqlAnalysis';
 import ParamSuggestSqlEditor from './ParamSuggestSqlEditor';
 import ParamSuggestRuleFormTest from './ParamSuggestRuleFormTest';
 
-interface ParamSuggestRuleFormModalProps {
+interface ParamSuggestRuleEditorProps {
     open: boolean;
     editingRuleId: string | null;
     createMode: 'field' | 'rule';
@@ -395,7 +396,23 @@ function useRuleFormModalState({
     };
 }
 
-export default function ParamSuggestRuleFormModal({
+function RuleEditorHeader({ title, onCancel }: { title: string; onCancel: () => void }) {
+    return (
+        <div className="param-suggest-rule-editor-header">
+            <div>
+                <Typography.Text strong>{title}</Typography.Text>
+                <Typography.Paragraph type="secondary" className="text-xs mt-1 mb-0">
+                    按顺序完成规则定义、SQL 与缓存设置，最后在下方校验规则。
+                </Typography.Paragraph>
+            </div>
+            <Button type="text" size="small" icon={<CloseOutlined />} onClick={onCancel}>
+                收起
+            </Button>
+        </div>
+    );
+}
+
+export default function ParamSuggestRuleEditor({
     open,
     editingRuleId,
     createMode,
@@ -405,7 +422,7 @@ export default function ParamSuggestRuleFormModal({
     onCancel,
     onSave,
     onViewSql,
-}: ParamSuggestRuleFormModalProps) {
+}: ParamSuggestRuleEditorProps) {
     const { message } = App.useApp();
     const fieldEditable = createMode === 'field' && !editingRuleId;
     const {
@@ -437,36 +454,58 @@ export default function ParamSuggestRuleFormModal({
         }
     };
 
-    return (
-        <Modal
-            open={open}
-            title={title}
-            centered
-            destroyOnHidden
-            width={840}
-            className="app-modal param-suggest-rule-form-modal"
-            onCancel={onCancel}
-            onOk={handleOk}
-            okText="保存"
-        >
-            <Form form={form} layout="vertical" initialValues={EMPTY_RULE_FORM}>
-                <RuleFormBasicFields fieldEditable={fieldEditable} watchedSql={watchedSql} />
-                <ParamSuggestBindings
-                    form={form}
-                    watchedBindings={watchedBindings}
-                    bindingCount={bindingCount}
-                    bindingsExpanded={bindingsExpanded}
-                    onToggleBindings={setBindingsExpanded}
-                />
-                <RuleCacheFields />
+    if (!open) return null;
 
-                <ParamSuggestRuleFormTest
-                    formValues={currentFormValues}
-                    editingRuleId={editingRuleId}
-                    onViewSql={onViewSql}
-                />
+    return (
+        <div className="param-suggest-rule-editor">
+            <RuleEditorHeader title={title} onCancel={onCancel} />
+            <Form form={form} layout="vertical" initialValues={EMPTY_RULE_FORM}>
+                <div className="param-suggest-editor-stage">
+                    <span className="param-suggest-editor-stage-index">1</span>
+                    <div className="param-suggest-editor-stage-content">
+                        <RuleFormBasicFields
+                            fieldEditable={fieldEditable}
+                            watchedSql={watchedSql}
+                        />
+                        <ParamSuggestBindings
+                            form={form}
+                            watchedBindings={watchedBindings}
+                            bindingCount={bindingCount}
+                            bindingsExpanded={bindingsExpanded}
+                            onToggleBindings={setBindingsExpanded}
+                        />
+                    </div>
+                </div>
+                <div className="param-suggest-editor-stage">
+                    <span className="param-suggest-editor-stage-index">2</span>
+                    <div className="param-suggest-editor-stage-content">
+                        <RuleCacheFields />
+                    </div>
+                </div>
+                <div className="param-suggest-editor-stage param-suggest-editor-stage-test">
+                    <span className="param-suggest-editor-stage-index">3</span>
+                    <div className="param-suggest-editor-stage-content">
+                        <ParamSuggestRuleFormTest
+                            formValues={currentFormValues}
+                            editingRuleId={editingRuleId}
+                            onViewSql={onViewSql}
+                        />
+                    </div>
+                </div>
+                <div className="param-suggest-rule-editor-actions">
+                    <Space>
+                        <Button onClick={onCancel}>取消</Button>
+                        <Button
+                            type="primary"
+                            icon={<SaveOutlined />}
+                            onClick={() => void handleOk().catch(() => undefined)}
+                        >
+                            保存规则
+                        </Button>
+                    </Space>
+                </div>
             </Form>
-        </Modal>
+        </div>
     );
 }
 

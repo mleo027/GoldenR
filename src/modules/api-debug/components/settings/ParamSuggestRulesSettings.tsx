@@ -1,34 +1,46 @@
+import type { ReactNode } from 'react';
 import { Button, Modal, Space, Typography } from 'antd';
 import { ExportOutlined, ImportOutlined, PlusOutlined } from '@ant-design/icons';
 import { useParamSuggestRulesSettings } from '../../hooks/useParamSuggestRulesSettings';
 import type { DbConnectionConfig, ParamFieldRule } from '../../types/paramSuggest';
 import ParamSuggestFieldSidebar from './ParamSuggestFieldSidebar';
 import ParamSuggestRuleTable from './ParamSuggestRuleTable';
-import ParamSuggestRuleTestPanel from './ParamSuggestRuleTestPanel';
 import ParamSuggestSqlDrawer from './ParamSuggestSqlDrawer';
-import ParamSuggestRuleFormModal from './ParamSuggestRuleFormModal';
+import ParamSuggestRuleEditor from './ParamSuggestRuleFormModal';
 import { TextArea } from '../../../../components/ui/primitives';
 
-function RuleManagementToolbar({
-    onImport,
-    onExport,
-    onCreate,
-}: {
-    onImport: () => void;
-    onExport: () => void;
-    onCreate: () => void;
-}) {
+type RulesSettings = ReturnType<typeof useParamSuggestRulesSettings>;
+
+function RuleManagementToolbar({ settings }: { settings: RulesSettings }) {
     return (
-        <div className="flex items-center justify-between mb-3 gap-3">
-            <Typography.Text strong>规则管理</Typography.Text>
-            <Space size={8}>
-                <Button size="small" icon={<ImportOutlined />} onClick={onImport}>
+        <div className="param-suggest-toolbar">
+            <div>
+                <Typography.Text strong>规则管理</Typography.Text>
+                <Typography.Paragraph type="secondary" className="text-xs mt-1 mb-0">
+                    选择字段后逐条展开规则，配置与测试只在当前规则中显示。
+                </Typography.Paragraph>
+            </div>
+            <Space size={8} wrap>
+                <Button
+                    size="small"
+                    icon={<ImportOutlined />}
+                    onClick={() => settings.setImportModalOpen(true)}
+                >
                     导入
                 </Button>
-                <Button size="small" icon={<ExportOutlined />} onClick={() => void onExport()}>
+                <Button
+                    size="small"
+                    icon={<ExportOutlined />}
+                    onClick={() => void settings.handleExportRules()}
+                >
                     导出
                 </Button>
-                <Button type="primary" size="small" icon={<PlusOutlined />} onClick={onCreate}>
+                <Button
+                    type="primary"
+                    size="small"
+                    icon={<PlusOutlined />}
+                    onClick={() => settings.openCreateRule()}
+                >
                     新建字段
                 </Button>
             </Space>
@@ -36,21 +48,25 @@ function RuleManagementToolbar({
     );
 }
 
-function ActiveRuleWorkspace({
-    activeGroup,
-    onOpenCreateRule,
-    onEditRule,
-    onToggleEnabled,
-    onDeleteRule,
-    onDepFieldClick,
-}: {
-    activeGroup: { field: string; rules: ParamFieldRule[] } | null | undefined;
-    onOpenCreateRule: (field?: string) => void;
-    onEditRule: (rule: ParamFieldRule) => void;
-    onToggleEnabled: (rule: ParamFieldRule, enabled: boolean) => void;
-    onDeleteRule: (ruleId: string) => void;
-    onDepFieldClick?: (fieldName: string) => void;
-}) {
+function RuleEditor({ settings, rule }: { settings: RulesSettings; rule?: ParamFieldRule }) {
+    const editingRuleId = rule?.id ?? null;
+    return (
+        <ParamSuggestRuleEditor
+            open={settings.ruleModalOpen && settings.editingRuleId === editingRuleId}
+            editingRuleId={editingRuleId}
+            createMode={settings.createMode}
+            initialRule={rule}
+            presetField={settings.presetField}
+            form={settings.ruleForm}
+            onCancel={() => settings.setRuleModalOpen(false)}
+            onSave={settings.handleSaveRule}
+            onViewSql={(sql, boundParams) => settings.setSqlDrawer({ sql, boundParams })}
+        />
+    );
+}
+
+function ActiveRuleWorkspace({ settings }: { settings: RulesSettings }) {
+    const activeGroup = settings.activeGroup;
     if (!activeGroup) {
         return (
             <div className="param-suggest-rule-empty">
@@ -60,6 +76,18 @@ function ActiveRuleWorkspace({
             </div>
         );
     }
+
+    const toggleRule = (rule: ParamFieldRule) => {
+        if (settings.ruleModalOpen && settings.editingRuleId === rule.id) {
+            settings.setRuleModalOpen(false);
+            return;
+        }
+        settings.openEditRule(rule);
+    };
+    const renderExpanded = (rule: ParamFieldRule): ReactNode => (
+        <RuleEditor settings={settings} rule={rule} />
+    );
+
     return (
         <>
             <div className="param-suggest-workspace-header">
@@ -72,7 +100,7 @@ function ActiveRuleWorkspace({
                 <Button
                     size="small"
                     icon={<PlusOutlined />}
-                    onClick={() => onOpenCreateRule(activeGroup.field)}
+                    onClick={() => settings.openCreateRule(activeGroup.field)}
                 >
                     添加规则
                 </Button>
@@ -80,37 +108,28 @@ function ActiveRuleWorkspace({
             <ParamSuggestRuleTable
                 fieldLabel={activeGroup.field}
                 rules={activeGroup.rules}
-                onEditRule={onEditRule}
-                onToggleEnabled={onToggleEnabled}
-                onDeleteRule={onDeleteRule}
-                onDepFieldClick={onDepFieldClick}
+                expandedRuleId={settings.ruleModalOpen ? settings.editingRuleId : null}
+                onToggleExpanded={toggleRule}
+                onToggleEnabled={(rule, enabled) =>
+                    void settings.handleToggleEnabled(rule, enabled)
+                }
+                onDeleteRule={(ruleId) => void settings.handleDeleteRule(ruleId)}
+                renderExpanded={renderExpanded}
             />
         </>
     );
 }
 
-function ImportRulesModal({
-    open,
-    onCancel,
-    onOk,
-    value,
-    onChange,
-}: {
-    open: boolean;
-    onCancel: () => void;
-    onOk: () => void;
-    value: string;
-    onChange: (value: string) => void;
-}) {
+function ImportRulesModal({ settings }: { settings: RulesSettings }) {
     return (
         <Modal
-            open={open}
+            open={settings.importModalOpen}
             title="导入规则 JSON"
             centered
-            destroyOnClose
+            destroyOnHidden
             className="app-modal"
-            onCancel={onCancel}
-            onOk={onOk}
+            onCancel={() => settings.setImportModalOpen(false)}
+            onOk={() => void settings.handleImportRules()}
             okText="导入"
         >
             <Typography.Paragraph type="secondary" className="text-xs">
@@ -118,8 +137,8 @@ function ImportRulesModal({
             </Typography.Paragraph>
             <TextArea
                 rows={12}
-                value={value}
-                onChange={(event) => onChange(event.target.value)}
+                value={settings.importText}
+                onChange={(event) => settings.setImportText(event.target.value)}
                 placeholder={
                     '{\n  "rules": [\n    {\n      "field": "bsflag",\n      "type": "select",\n      "datasource": { "type": "sql", "db": "mssql", "sql": "select ..." }\n    }\n  ]\n}'
                 }
@@ -135,12 +154,7 @@ function RulesSettingsIntro({ dbConfig }: { dbConfig: DbConnectionConfig }) {
                 入参提示规则
             </Typography.Title>
             <Typography.Paragraph type="secondary" className="settings-panel-desc">
-                为参数字段配置 SQL 下拉建议。同一字段可配多条规则，按依赖入参数量 → SQL 占位符 →{' '}
-                <code>priority</code> 顺序命中；若靠前规则查询成功但无数据，会继续尝试下一条；SQL
-                需含 <code>value</code>，可选 <code>remark</code> 列。
-            </Typography.Paragraph>
-            <Typography.Paragraph className="settings-form-meta">
-                参数提示规则保存在应用数据库中
+                每条规则独立配置匹配条件、SQL 与缓存策略，并可在保存前直接测试。
             </Typography.Paragraph>
             {dbConfig.database ? (
                 <Typography.Paragraph type="secondary" className="text-xs mb-4">
@@ -156,67 +170,37 @@ function RulesSettingsIntro({ dbConfig }: { dbConfig: DbConnectionConfig }) {
     );
 }
 
-function RulesSettingsWorkspace({
-    settings,
-}: {
-    settings: ReturnType<typeof useParamSuggestRulesSettings>;
-}) {
-    return (
-        <div className="settings-panel-group">
-            <RuleManagementToolbar
-                onImport={() => settings.setImportModalOpen(true)}
-                onExport={settings.handleExportRules}
-                onCreate={() => settings.openCreateRule()}
-            />
-            <div className="param-suggest-layout">
-                <ParamSuggestFieldSidebar
-                    groups={settings.fieldGroups}
-                    selectedKey={settings.selectedFieldKey}
-                    searchKeyword={settings.fieldSearch}
-                    onSearchChange={settings.setFieldSearch}
-                    onSelect={settings.handleSelectField}
-                    onCreateField={() => settings.openCreateRule()}
-                />
-                <div className="param-suggest-workspace">
-                    <ActiveRuleWorkspace
-                        activeGroup={settings.activeGroup}
-                        onOpenCreateRule={settings.openCreateRule}
-                        onEditRule={settings.openEditRule}
-                        onToggleEnabled={(rule, enabled) =>
-                            void settings.handleToggleEnabled(rule, enabled)
-                        }
-                        onDeleteRule={(ruleId) => void settings.handleDeleteRule(ruleId)}
-                        onDepFieldClick={settings.handleDepFieldClick}
-                    />
-                    <ParamSuggestRuleTestPanel
-                        rules={settings.rules}
-                        testField={settings.testField}
-                        testContext={settings.testContext}
-                        testKeyword={settings.testKeyword}
-                        testRunning={settings.testRunning}
-                        testResponse={settings.testResponse}
-                        testResolvedRule={settings.testResolvedRule}
-                        onTestFieldChange={settings.setTestField}
-                        onTestContextChange={settings.setTestContext}
-                        onTestKeywordChange={settings.setTestKeyword}
-                        onRunTest={() => void settings.handleRunTest()}
-                        onViewSql={(sql, boundParams) =>
-                            settings.setSqlDrawer({ sql, boundParams })
-                        }
-                    />
-                </div>
-            </div>
-        </div>
-    );
-}
-
 export default function ParamSuggestRulesSettings() {
     const settings = useParamSuggestRulesSettings();
+    const creatingRule = settings.ruleModalOpen && settings.editingRuleId == null;
 
     return (
-        <div className="settings-panel">
+        <div className="settings-panel param-suggest-settings-panel">
             <RulesSettingsIntro dbConfig={settings.dbConfig} />
-            <RulesSettingsWorkspace settings={settings} />
+            <div className="settings-panel-group">
+                <RuleManagementToolbar settings={settings} />
+                <div className="param-suggest-layout">
+                    <ParamSuggestFieldSidebar
+                        groups={settings.fieldGroups}
+                        selectedKey={settings.selectedFieldKey}
+                        searchKeyword={settings.fieldSearch}
+                        onSearchChange={settings.setFieldSearch}
+                        onSelect={(fieldKey) => {
+                            settings.setRuleModalOpen(false);
+                            settings.handleSelectField(fieldKey);
+                        }}
+                        onCreateField={() => settings.openCreateRule()}
+                    />
+                    <div className="param-suggest-workspace">
+                        {creatingRule ? (
+                            <div className="param-suggest-rule-card param-suggest-rule-card-draft is-expanded">
+                                <RuleEditor settings={settings} />
+                            </div>
+                        ) : null}
+                        <ActiveRuleWorkspace settings={settings} />
+                    </div>
+                </div>
+            </div>
 
             <ParamSuggestSqlDrawer
                 open={settings.sqlDrawer != null}
@@ -224,26 +208,7 @@ export default function ParamSuggestRulesSettings() {
                 boundParams={settings.sqlDrawer?.boundParams}
                 onClose={() => settings.setSqlDrawer(null)}
             />
-
-            <ParamSuggestRuleFormModal
-                open={settings.ruleModalOpen}
-                editingRuleId={settings.editingRuleId}
-                createMode={settings.createMode}
-                initialRule={settings.editingRule}
-                presetField={settings.presetField}
-                form={settings.ruleForm}
-                onCancel={() => settings.setRuleModalOpen(false)}
-                onSave={settings.handleSaveRule}
-                onViewSql={(sql, boundParams) => settings.setSqlDrawer({ sql, boundParams })}
-            />
-
-            <ImportRulesModal
-                open={settings.importModalOpen}
-                onCancel={() => settings.setImportModalOpen(false)}
-                onOk={() => void settings.handleImportRules()}
-                value={settings.importText}
-                onChange={settings.setImportText}
-            />
+            <ImportRulesModal settings={settings} />
         </div>
     );
 }
