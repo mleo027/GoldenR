@@ -5,6 +5,7 @@
 - [脚本自动化](./script-automation.md)
 - [独立接口自动化](./interface-automation.md)
 - [接口自动化 Agent 集成](./agent-integration.md)
+- [MCP 服务器规划](./2026-09-12-mcp-server-plan.md)
 - [参数提示规则](./param-suggest-rules.md)
 - [工作区与持久化](./workspace.md)
 - [数据持久化](./data-persistence.md)
