@@ -13,7 +13,6 @@ body,
 @import './styles/modules/api-debug/sidebar.css';
 @import './styles/shared/param.css';
 @import './styles/shell/layout.css';
-@import './styles/feature-ui.css';
 @import './styles/shell/titlebar.css';
 @import './styles/shared/modal.css';
 @import './styles/shared/settings.css';
