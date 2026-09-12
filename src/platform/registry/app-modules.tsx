@@ -1,5 +1,6 @@
 import { ApiOutlined, ExperimentOutlined } from '@ant-design/icons';
 import { API_DEBUG_MODULE_ID } from '../../modules/api-debug/constants/apiDebugEnv';
+import { registerApiDebugCapabilities } from '../../modules/api-debug/capabilities';
 import { registerAutomationCapabilities } from '../../modules/interface-automation/capabilities';
 import { createLazyAppModule } from './lazyAppModule';
 
@@ -32,3 +33,4 @@ export const APP_MODULES = [
  * 只注册描述（静态），实现仍由模块懒加载，因此模块从未被打开过也不影响能力清单。
  */
 registerAutomationCapabilities();
+registerApiDebugCapabilities();
