@@ -33,10 +33,10 @@ Context：仅保留局部 UI/命令桥接状态
 包含：
 
 ```ts
-env
-loaded
-updateEnv
-patchEnv
+env;
+loaded;
+updateEnv;
+patchEnv;
 ```
 
 这是平台级全局状态，最适合优先迁移。
@@ -45,11 +45,11 @@ patchEnv
 
 ```ts
 export interface AppEnvStore {
-    env: AppEnv;
-    loaded: boolean;
-    load: () => Promise<void>;
-    updateEnv: <K extends keyof AppEnv>(key: K, value: AppEnv[K]) => void;
-    patchEnv: (partial: Partial<AppEnv>) => void;
+  env: AppEnv;
+  loaded: boolean;
+  load: () => Promise<void>;
+  updateEnv: <K extends keyof AppEnv>(key: K, value: AppEnv[K]) => void;
+  patchEnv: (partial: Partial<AppEnv>) => void;
 }
 ```
 
@@ -175,12 +175,12 @@ deleteSet
 迁移内容：
 
 ```ts
-entries
-loaded
-addEntry
-deleteEntry
-clearHistory
-load
+entries;
+loaded;
+addEntry;
+deleteEntry;
+clearHistory;
+load;
 ```
 
 需要保证：
@@ -215,8 +215,8 @@ load
 目标 actions：
 
 ```ts
-setResponse(caseId, response)
-clearResponse(caseId)
+setResponse(caseId, response);
+clearResponse(caseId);
 ```
 
 注意事项：
@@ -239,10 +239,10 @@ clearResponse(caseId)
 迁移方式与 Response 基本一致：
 
 ```ts
-byCaseId
-order
-setScriptConsole
-clearScriptConsole
+byCaseId;
+order;
+setScriptConsole;
+clearScriptConsole;
 ```
 
 保留：
@@ -265,9 +265,9 @@ clearScriptConsole
 迁移内容：
 
 ```ts
-logs
-pushLog
-clearLogs
+logs;
+pushLog;
+clearLogs;
 ```
 
 注意：
@@ -290,11 +290,11 @@ clearLogs
 这是模块内导航状态：
 
 ```ts
-view
-historyOpen
-detailId
-traceData
-traceCaseName
+view;
+historyOpen;
+detailId;
+traceData;
+traceCaseName;
 ```
 
 建议迁移到 Zustand，原因是它被多个页面和布局组件共同使用：
@@ -357,8 +357,8 @@ WorkspaceRuntime
 当前已经部分使用 Zustand：
 
 ```ts
-runningCaseId
-traceEnabled
+runningCaseId;
+traceEnabled;
 ```
 
 但 `run/cancel` 依赖多个 store 和运行时 coordinator，因此仍使用 Context。
@@ -435,7 +435,7 @@ apiCallRuntime.ts     React 生命周期绑定
 - actions 使用稳定函数
 - 需要组件外访问时使用：
   ```ts
-  useXxxStore.getState()
+  useXxxStore.getState();
   ```
 - 异步 load 使用 store action，但不能让组件重复触发加载
 - 所有持久化状态必须有加载成功、失败和默认值路径
@@ -680,7 +680,7 @@ Response -> ScriptConsole -> RunLog
 
 ```ts
 beforeEach(() => {
-    useSomeStore.setState(createInitialState());
+  useSomeStore.setState(createInitialState());
 });
 ```
 

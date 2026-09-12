@@ -219,12 +219,12 @@ KCBP、Suggest 默认值和持久化文件名的中立契约下沉到 shared；�
 
 ```ts
 interface ElectronAPI {
-    config: ConfigStorageApi;
-    kcbp: KcbpApi;
-    database: DatabaseApi;
-    importExport: ImportExportApi;
-    window: WindowApi;
-    app: AppLifecycleApi;
+  config: ConfigStorageApi;
+  kcbp: KcbpApi;
+  database: DatabaseApi;
+  importExport: ImportExportApi;
+  window: WindowApi;
+  app: AppLifecycleApi;
 }
 ```
 
@@ -232,9 +232,9 @@ interface ElectronAPI {
 
 ```ts
 interface ConfigStorageApi {
-    read(name: ConfigStorageFileName): Promise<unknown | null>;
-    write(name: ConfigStorageFileName, data: unknown): Promise<void>;
-    flush(entries: ConfigWriteEntry[]): Promise<void>;
+  read(name: ConfigStorageFileName): Promise<unknown | null>;
+  write(name: ConfigStorageFileName, data: unknown): Promise<void>;
+  flush(entries: ConfigWriteEntry[]): Promise<void>;
 }
 ```
 
@@ -327,9 +327,9 @@ Provider 只负责加载状态、dispatch、提供 Context 和调度 repository�
 
 ```ts
 async function executeKcbpCase(
-    input: ExecuteKcbpCaseInput,
-    ports: ApiDebugExecutionPorts,
-): Promise<KcbpCallOutcome>
+  input: ExecuteKcbpCaseInput,
+  ports: ApiDebugExecutionPorts,
+): Promise<KcbpCallOutcome>;
 ```
 
 执行用例不得读取 `window.electronAPI`，nested TCD 调用必须复用同一份 ports。
@@ -480,11 +480,11 @@ createKcxpEnvironment(overrides?)
 新增 fake ports：
 
 ```ts
-createFakeKcbpPort()
-createFakeSqlQueryPort()
-createFakeConfigRepository()
-createFakeWorkspaceRepository()
-createFakeAppLifecycle()
+createFakeKcbpPort();
+createFakeSqlQueryPort();
+createFakeConfigRepository();
+createFakeWorkspaceRepository();
+createFakeAppLifecycle();
 ```
 
 每个 fake 必须提供：
@@ -795,9 +795,9 @@ npm run test:coverage
 
 至少覆盖以下两种运行形态：
 
-| 环境 | 启动方式 | 重点验证 |
-| --- | --- | --- |
-| 开发模式 | `npm run dev` | Vite URL、preload、热更新、开发配置目录 |
+| 环境     | 启动方式                                               | 重点验证                                                     |
+| -------- | ------------------------------------------------------ | ------------------------------------------------------------ |
+| 开发模式 | `npm run dev`                                          | Vite URL、preload、热更新、开发配置目录                      |
 | 打包模式 | `npx vite build` 后启动 Electron/electron-builder 产物 | `dist`、`dist-electron`、adapter、userData/portable 配置目录 |
 
 Windows 环境必须验证，因为当前文件替换、窗口生命周期和 Native adapter 依赖 Windows 行为。
@@ -1078,6 +1078,7 @@ Windows 环境必须验证，因为当前文件替换、窗口生命周期和 Na
 - 重启后工作区、环境、规则和设置数据一致。
 - 不允许有未处理 Promise rejection、永久 loading、数据丢失或配置越权读写。
 - 任一 P0/P1 场景失败，发布候选版本不得标记为通过。
+
 ## 9. Framework-level frontend quality validation (added)
 
 ### 9.1 Goals and non-goals
@@ -1660,11 +1661,11 @@ await commandBus.dispatch({
 
 ### 14.4 简化后的优先级和验收
 
-| 优先级 | 范围 | 结果 |
-| --- | --- | --- |
-| P0 | 现有 lint/typecheck、边界、错误处理、关键测试 | 降低当前缺陷和回归风险 |
-| P1 | 少量高频组件、轻量 ContextMenu、外部输入校验 | 减少明确重复，不改变架构形态 |
-| P2 | 复杂组件平台化、全量 typed IPC、统一命令系统 | 仅在真实需求出现后评估 |
+| 优先级 | 范围                                          | 结果                         |
+| ------ | --------------------------------------------- | ---------------------------- |
+| P0     | 现有 lint/typecheck、边界、错误处理、关键测试 | 降低当前缺陷和回归风险       |
+| P1     | 少量高频组件、轻量 ContextMenu、外部输入校验  | 减少明确重复，不改变架构形态 |
+| P2     | 复杂组件平台化、全量 typed IPC、统一命令系统  | 仅在真实需求出现后评估       |
 
 本轮完成标准调整为：`npm run lint`、`npm run typecheck`、`npm run test:api`、关键集成/冒烟测试和 `npx vite build` 通过；不要求一次完成所有 P1/P2 抽象，不以新增目录数量、抽象层数量或覆盖率数字作为完成标准。
 
