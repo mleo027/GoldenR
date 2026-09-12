@@ -1,24 +1,24 @@
 @import 'tailwindcss';
-@import './styles/platform-shell.css';
+@import './styles/shell/platform-shell.css';
 
 html,
 body,
 #root {
     background: var(--color-bg-elevated);
 }
-@import './styles/tokens.css';
-@import './styles/primitives.css';
-@import './styles/base.css';
-@import './styles/response.css';
-@import './styles/sidebar.css';
-@import './styles/param.css';
-@import './styles/layout.css';
+@import './styles/foundation/tokens.css';
+@import './styles/primitives/primitives.css';
+@import './styles/foundation/base.css';
+@import './styles/shared/response.css';
+@import './styles/modules/api-debug/sidebar.css';
+@import './styles/shared/param.css';
+@import './styles/shell/layout.css';
 @import './styles/feature-ui.css';
-@import './styles/titlebar.css';
-@import './styles/modal.css';
-@import './styles/settings.css';
-@import './styles/motion.css';
-@import './styles/module-skeleton.css';
-@import './styles/shared.css';
-@import './styles/activity-bar.css';
-@import './styles/api-workspace.css';
+@import './styles/shell/titlebar.css';
+@import './styles/shared/modal.css';
+@import './styles/shared/settings.css';
+@import './styles/foundation/motion.css';
+@import './styles/shared/module-skeleton.css';
+@import './styles/shared/shared.css';
+@import './styles/shell/activity-bar.css';
+@import './styles/modules/api-debug/api-workspace.css';
