@@ -2,8 +2,10 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import type {
     CapabilityInvokeRequest,
     CapabilityInvokeResponse,
+    CapabilityManifestPayload,
 } from '../../src/shared/capabilities/host';
 import { invalidIpcArgument } from '../../src/shared/ipc/errors';
+import { setCapabilityManifest } from '../mcp/manifest';
 import { configureCapabilityChannel } from '../services/capabilities/capabilityChannel';
 import { withIpcError } from './errors';
 
@@ -25,6 +27,25 @@ function isResponse(value: unknown): value is CapabilityInvokeResponse {
     return typeof candidate.requestId === 'string' && typeof candidate.ok === 'boolean';
 }
 
+function isDescriptor(value: unknown): boolean {
+    if (!value || typeof value !== 'object') return false;
+    const candidate = value as Record<string, unknown>;
+    return (
+        typeof candidate.name === 'string' &&
+        candidate.name.length > 0 &&
+        typeof candidate.description === 'string' &&
+        Boolean(candidate.inputSchema) &&
+        typeof candidate.inputSchema === 'object'
+    );
+}
+
+/** 渲染层推来的清单来自应用自身，仍按不可信输入校验：主进程不做假设。 */
+function isManifest(value: unknown): value is CapabilityManifestPayload {
+    if (!value || typeof value !== 'object') return false;
+    const { descriptors } = value as Partial<CapabilityManifestPayload>;
+    return Array.isArray(descriptors) && descriptors.every(isDescriptor);
+}
+
 export function registerCapabilityIpc(): void {
     const invoker = configureCapabilityChannel(broadcast);
 
@@ -33,6 +54,15 @@ export function registerCapabilityIpc(): void {
         withIpcError((_event, value: unknown) => {
             if (!isResponse(value)) throw invalidIpcArgument('Invalid capability response');
             invoker.settle(value);
+        }),
+    );
+
+    // 能力清单：MCP 的 tools/list 直接用缓存，不必每次往返渲染层。
+    ipcMain.handle(
+        'capabilities:manifest',
+        withIpcError((_event, value: unknown) => {
+            if (!isManifest(value)) throw invalidIpcArgument('Invalid capability manifest');
+            setCapabilityManifest(value.descriptors);
         }),
     );
 

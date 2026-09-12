@@ -6,6 +6,7 @@ import type { AgentEventPayload } from '../src/shared/electron/api';
 import type {
     CapabilityInvokeRequest,
     CapabilityInvokeResponse,
+    CapabilityManifestPayload,
 } from '../src/shared/capabilities/host';
 import type { AgentGatewayConfig, AgentGatewayConfigInput } from '../src/shared/agent/gateway';
 import type {
@@ -171,6 +172,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
         },
         respond: (response: CapabilityInvokeResponse): Promise<void> =>
             invoke('capabilities:respond', response),
+        publishManifest: (payload: CapabilityManifestPayload): Promise<void> =>
+            invoke('capabilities:manifest', payload),
     },
     importExport: {
         saveJson: (content: string, defaultFilename: string) =>

@@ -11,6 +11,7 @@
  * 通道名（`capabilities:invoke` / `capabilities:respond`）在 preload 与主进程里以
  * 字面量出现——`scripts/verify-ipc-integrity.mjs` 按字面量匹配，这里不导出常量。
  */
+import type { CapabilityDescriptor } from './types';
 
 /** 主进程发给渲染层的调用请求。 */
 export interface CapabilityInvokeRequest {
@@ -27,4 +28,14 @@ export interface CapabilityInvokeResponse {
     ok: boolean;
     result?: unknown;
     error?: string;
+}
+
+/**
+ * 渲染层启动后推给主进程的能力清单。
+ *
+ * 主进程不能 import 模块（`electron/**` 只允许依赖 `src/shared`），而 MCP 的
+ * `tools/list` 必须在模块从未被打开过时也是完整的，因此清单由渲染层主动推送并缓存。
+ */
+export interface CapabilityManifestPayload {
+    descriptors: CapabilityDescriptor[];
 }

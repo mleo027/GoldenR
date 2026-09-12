@@ -4,10 +4,15 @@ import type { CapabilityDescriptor } from '@/shared/capabilities/types';
 const mocks = vi.hoisted(() => ({
     onInvoke: vi.fn(),
     respond: vi.fn(async () => undefined),
+    publishManifest: vi.fn(async () => undefined),
 }));
 
 vi.mock('@/runtime/capabilityFacade', () => ({
-    capabilityHostBridge: { onInvoke: mocks.onInvoke, respond: mocks.respond },
+    capabilityHostBridge: {
+        onInvoke: mocks.onInvoke,
+        respond: mocks.respond,
+        publishManifest: mocks.publishManifest,
+    },
 }));
 
 import { capabilityRegistry } from './registry';
@@ -44,9 +49,34 @@ beforeEach(() => {
     mocks.onInvoke.mockReset();
     mocks.respond.mockReset();
     mocks.respond.mockResolvedValue(undefined);
+    mocks.publishManifest.mockReset();
+    mocks.publishManifest.mockResolvedValue(undefined);
 });
 
 describe('startCapabilityHost', () => {
+    it('启动时把能力清单推给主进程，供 MCP 的 tools/list 使用', async () => {
+        registerDemo({ demo_ping: async () => 'ok' });
+
+        startCapabilityHost();
+
+        await vi.waitFor(() => expect(mocks.publishManifest).toHaveBeenCalledTimes(1));
+        expect(mocks.publishManifest).toHaveBeenCalledWith({
+            descriptors: [expect.objectContaining({ name: 'demo_ping' })],
+        });
+    });
+
+    it('推送清单失败不会影响订阅调用', async () => {
+        registerDemo({ demo_ping: async () => 'ok' });
+        mocks.publishManifest.mockRejectedValueOnce(new Error('bridge down'));
+        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+        startCapabilityHost();
+        capturedOnInvoke()({ requestId: 'r0', name: 'demo_ping', args: {} });
+
+        await vi.waitFor(() => expect(mocks.respond).toHaveBeenCalledTimes(1));
+        expect(mocks.respond).toHaveBeenCalledWith({ requestId: 'r0', ok: true, result: 'ok' });
+        errorSpy.mockRestore();
+    });
     it('把请求转发到注册表，并回填成功结果', async () => {
         registerDemo({ demo_ping: async (args) => ({ pong: args.value }) });
         startCapabilityHost();

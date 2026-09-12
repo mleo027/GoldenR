@@ -28,7 +28,11 @@ import type {
     AutomationStorageSnapshot,
     AutomationWorkspace,
 } from '@/shared/automation/types';
-import type { CapabilityInvokeRequest, CapabilityInvokeResponse } from '@/shared/capabilities/host';
+import type {
+    CapabilityInvokeRequest,
+    CapabilityInvokeResponse,
+    CapabilityManifestPayload,
+} from '@/shared/capabilities/host';
 
 export type ImportFileFormat = 'json' | 'ini';
 
@@ -134,6 +138,8 @@ export interface CapabilityHostApi {
     onInvoke(callback: (request: CapabilityInvokeRequest) => void): () => void;
     /** 回填执行结果。失败以 `ok: false` 表达，而不是异常。 */
     respond(response: CapabilityInvokeResponse): Promise<void>;
+    /** 把能力清单推给主进程，供 MCP 的 tools/list 使用。 */
+    publishManifest(payload: CapabilityManifestPayload): Promise<void>;
 }
 
 export interface ImportExportApi {

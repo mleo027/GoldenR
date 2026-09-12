@@ -1,5 +1,9 @@
 import { requireElectronAPI } from '@/lib/electron';
-import type { CapabilityInvokeRequest, CapabilityInvokeResponse } from '@/shared/capabilities/host';
+import type {
+    CapabilityInvokeRequest,
+    CapabilityInvokeResponse,
+    CapabilityManifestPayload,
+} from '@/shared/capabilities/host';
 
 /**
  * 能力宿主的渲染进程门面。
@@ -12,4 +16,6 @@ export const capabilityHostBridge = {
         requireElectronAPI().capabilities.onInvoke(callback),
     respond: (response: CapabilityInvokeResponse): Promise<void> =>
         requireElectronAPI().capabilities.respond(response),
+    publishManifest: (payload: CapabilityManifestPayload): Promise<void> =>
+        requireElectronAPI().capabilities.publishManifest(payload),
 };

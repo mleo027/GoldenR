@@ -45,6 +45,9 @@ request-history.json
 exchange-workspace.json
 knowledge-nav.json
 
+# MCP 端点发现文件（含启动期轮换的 Bearer token，绝不入库）
+mcp-endpoint.json
+
 # KUAB 客户端凭据（部署资产：随 extraResources 打包到 resources/adapter/kuab，不进版本库）
 electron/adapter/kuab/KCBPCli.json
 electron/adapter/kuab/KCBPCli_map.json

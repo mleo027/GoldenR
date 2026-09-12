@@ -22,6 +22,20 @@ async function execute(request: CapabilityInvokeRequest): Promise<CapabilityInvo
 }
 
 /**
+ * 把能力清单推给主进程。
+ *
+ * 清单是静态的（模块描述不随界面状态变化），所以启动时推一次即可；这样 MCP 的
+ * `tools/list` 不必每次往返渲染层，模块从未被打开过也不影响。
+ */
+function publishManifest(): void {
+    void capabilityHostBridge
+        .publishManifest({ descriptors: capabilityRegistry.list() })
+        .catch((error: unknown) => {
+            console.error('[capability-host] 推送能力清单失败', error);
+        });
+}
+
+/**
  * 让渲染层成为外部调用的执行宿主。
  *
  * 只做转发：不绕过任何既有约束——生产环境禁写、SQL 白名单校验、报告行数限制仍在
@@ -30,6 +44,7 @@ async function execute(request: CapabilityInvokeRequest): Promise<CapabilityInvo
  * @returns 取消订阅函数
  */
 export function startCapabilityHost(): () => void {
+    publishManifest();
     return capabilityHostBridge.onInvoke((request) => {
         void execute(request)
             .then((response) => capabilityHostBridge.respond(response))
