@@ -5,6 +5,12 @@
 不要把原 GoldenAPI 仓库的其他模块搬回来（TCD、TCI、AutoQC、TraceCode、知识库、
 SQL Debugger、Agent Server 等）。
 
+> **边界例外：`agent/`**。接口自动化的 AI 助手以独立 sidecar 形式置于仓库根部 `agent/`：
+> 它拥有自己的 `package.json` 与依赖树，经 `extraResources` 打包为 `resources/agent`，
+> 升级时整体替换该目录即可，不进主仓库依赖与构建产物。
+> 它**不是**原仓库的 "Agent Server"；唯一耦合面是冻结契约
+> `src/shared/agent/protocol.ts`，详见 [`docs/agent-integration.md`](docs/agent-integration.md)。
+
 面向 agent 的详细规则拆分如下，本文件只做**命令与硬约束速查**：
 
 - [`agents/rules/development.md`](agents/rules/development.md) — 开发、TypeScript/React、IPC、UI、测试规范
@@ -91,6 +97,12 @@ electron/
   services/{kcbp,suggest}        KCBP/KGBP 调用与参数提示
   database/                      SQLite 连接、schema、migration、repository、legacy-import
   adapter/                       原生适配器产物；native/ 为源码
+
+agent/                           ★ 可整体替换的 Agent sidecar（独立依赖树，不受主仓库 lint 约束）
+  main.mjs                       协议层（HTTP + SSE，随冻结契约稳定）
+  engine.mjs                     接入 Pi 的替换点
+  protocol.mjs                   与 src/shared/agent/protocol.ts 对应的常量
+  smoke.mjs                      端到端自检（node agent/smoke.mjs）
 ```
 
 - Renderer 的分层依赖方向由 `eslint.config.js` 强制，`src/architecture/boundaries.test.ts`

@@ -4,6 +4,7 @@
 - [导入导出](./import-export.md)
 - [脚本自动化](./script-automation.md)
 - [独立接口自动化](./interface-automation.md)
+- [接口自动化 Agent 集成](./agent-integration.md)
 - [参数提示规则](./param-suggest-rules.md)
 - [工作区与持久化](./workspace.md)
 - [数据持久化](./data-persistence.md)

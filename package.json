@@ -16,7 +16,7 @@
   "scripts": {
     "prepare": "node scripts/install-git-hooks.mjs",
     "dev": "vite",
-    "build": "npm run generate:icon && npm run prepare:node && tsc && vite build && node scripts/verify-kuab-credentials.mjs && electron-builder",
+    "build": "npm run generate:icon && npm run prepare:node && npm run prepare:agent && tsc && vite build && node scripts/verify-kuab-credentials.mjs && electron-builder",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --fix --report-unused-disable-directives --max-warnings 0",
     "typecheck": "tsc -b",
@@ -55,7 +55,8 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\" \"electron/**/*.{ts,json,sql}\" \"docs/**/*.md\" \"AGENTS.md\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\" \"electron/**/*.{ts,json,sql}\" \"docs/**/*.md\" \"AGENTS.md\"",
     "generate:icon": "node scripts/generate-icon.mjs",
-    "prepare:node": "node scripts/copy-node-runtime.mjs"
+    "prepare:node": "node scripts/copy-node-runtime.mjs",
+    "prepare:agent": "node scripts/prepare-agent.mjs"
   },
   "build": {
     "appId": "com.yourcompany.golden-api-debug",
@@ -93,6 +94,10 @@
       {
         "from": "resources/node",
         "to": "node"
+      },
+      {
+        "from": "agent",
+        "to": "agent"
       }
     ],
     "files": [
