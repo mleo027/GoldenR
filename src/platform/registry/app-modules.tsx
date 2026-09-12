@@ -1,5 +1,6 @@
 import { ApiOutlined, ExperimentOutlined } from '@ant-design/icons';
 import { API_DEBUG_MODULE_ID } from '../../modules/api-debug/constants/apiDebugEnv';
+import { registerAutomationCapabilities } from '../../modules/interface-automation/capabilities';
 import { createLazyAppModule } from './lazyAppModule';
 
 export const APP_MODULES = [
@@ -25,3 +26,9 @@ export const APP_MODULES = [
             ),
     }),
 ].sort((a, b) => a.order - b.order);
+
+/**
+ * 组合根是唯一知道"有哪些模块"的地方：在这里把各模块的能力描述注入平台注册表。
+ * 只注册描述（静态），实现仍由模块懒加载，因此模块从未被打开过也不影响能力清单。
+ */
+registerAutomationCapabilities();
