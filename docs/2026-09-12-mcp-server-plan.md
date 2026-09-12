@@ -328,7 +328,7 @@ Electron 主进程  http://127.0.0.1:<随机端口>/mcp  （Bearer token）
 | 2a   | **已完成**：能力上下文工厂（不依赖 React）+ 按需 hydrate + `dispatch`                      | 0.5 天 | 外部调用不再需要模块界面挂载；空工作区问题有回归测试                                                               |
 | 2b   | **已完成**：泛化调用通道（`capabilities:invoke` / `capabilities:respond`）+ 超时与在途清理 | 0.5 天 | 主进程能调用渲染层能力；超时、渲染层失联、未装配均有测试                                                           |
 | 2c   | eslint 分层登记（**须先拆分 interface-automation 的 exclusive 元素**，见下）               | 0.5 天 | 探针文件（platform → module）被 lint 拦住                                                                          |
-| 3    | MCP 服务器（Streamable HTTP）                                                              | 1 天   | `node scripts/mcp-smoke.mjs`：`initialize` → `tools/list` 含预期工具 → `tools/call` 返回 `isError=false`           |
+| 3    | **已完成**：MCP 服务器（Streamable HTTP，仅本机 + 启动轮换 token）                         | 1 天   | `node scripts/mcp-smoke.mjs` 跑通 `initialize` → `tools/list` → `tools/call`（有端到端测试）                       |
 | 4    | stdio shim + 真实客户端接入                                                                | 0.5 天 | 在 pi / Claude / Cursor 任一客户端中看到工具列表并成功调用一次                                                     |
 | 5    | 授权与审计 + **平台设置里的 MCP 分区**（总开关、端点信息、审计入口）                       | 1 天   | 总开关关闭时 `tools/call` 被拒；审计可查且无敏感明文                                                               |
 | 6    | **移除内置 Agent**（§4.1）——此时 MCP 已验证可用                                            | 0.5 天 | `npm run check` 全绿；`src`/`electron` 搜不到 `agentRuntime`、`AutomationAgentPanel`、`AgentApi`                   |
@@ -345,7 +345,11 @@ Electron 主进程  http://127.0.0.1:<随机端口>/mcp  （Bearer token）
 
 **当前状态**：`src/platform/capabilities` 的模块无关性由 `src/architecture/boundaries.test.ts` 的分区守卫（解析别名与相对路径），eslint 登记留作 2c。
 
-**当前进度**：1、2a、2b 已完成并各自提交；下一步 3（MCP 服务器）。`invokeCapabilityInRenderer` 已就绪但尚无调用方——它就是 3 的入口。
+**当前进度**：1、2a、2b、3 已完成并各自提交；下一步 4（stdio shim + 真实客户端接入）。
+
+### 实现时的设计修正：`tools/list` 的来源
+
+规划原写"`tools/list` 由静态共享 manifest 提供，不需要渲染层"。实际实现改为**渲染层在启动时把能力清单推给主进程**（`capabilities:manifest`），原因：能力描述虽然静态，但它们由各模块的 `capabilities/manifest.ts` 声明、在**渲染层**的组合根里注册；而 `electron/**` 只能依赖 `src/shared`，主进程无法 import 模块。推送一次即可缓存，`tools/list` 仍然不依赖模块是否被打开过。
 
 每阶段一个提交。
 
