@@ -1,7 +1,13 @@
-import { BgColorsOutlined, InfoCircleOutlined, ApiOutlined } from '@ant-design/icons';
+import {
+    BgColorsOutlined,
+    InfoCircleOutlined,
+    ApiOutlined,
+    ClusterOutlined,
+} from '@ant-design/icons';
 import AppearanceSettings from '../../components/layout/settings/AppearanceSettings';
 import AboutSettings from '../../components/layout/settings/AboutSettings';
 import KcbpRuntimeSettings from '../../components/layout/settings/KcbpRuntimeSettings';
+import McpSettings from '../../components/layout/settings/McpSettings';
 import type { PlatformSettingsSection } from './types';
 
 export const PLATFORM_SETTINGS_SECTIONS: PlatformSettingsSection[] = [
@@ -23,6 +29,15 @@ export const PLATFORM_SETTINGS_SECTIONS: PlatformSettingsSection[] = [
         placement: 'main',
         hidden: true,
         Panel: KcbpRuntimeSettings,
+    },
+    {
+        key: 'mcp',
+        label: 'MCP',
+        icon: <ClusterOutlined />,
+        category: 'core',
+        searchKeywords: ['mcp', '外部调用', '能力', '客户端', 'model context protocol'],
+        placement: 'main',
+        Panel: McpSettings,
     },
     {
         key: 'about',

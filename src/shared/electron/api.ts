@@ -34,6 +34,8 @@ import type {
     CapabilityManifestPayload,
 } from '@/shared/capabilities/host';
 
+import type { McpSettings, McpState } from '@/shared/mcp/types';
+
 export type ImportFileFormat = 'json' | 'ini';
 
 export type ImportFileResult =
@@ -142,6 +144,16 @@ export interface CapabilityHostApi {
     publishManifest(payload: CapabilityManifestPayload): Promise<void>;
 }
 
+/**
+ * MCP 对外开关与审计。
+ *
+ * 只暴露开关与只读状态（含审计）；**凭据不出主进程**，因此这里没有 token 字段。
+ */
+export interface McpApi {
+    readState(): Promise<McpState>;
+    writeSettings(settings: McpSettings): Promise<McpState>;
+}
+
 export interface ImportExportApi {
     saveJson(content: string, defaultFilename: string): Promise<SaveFileResult>;
     saveCsv(content: string, defaultFilename: string): Promise<SaveFileResult>;
@@ -172,6 +184,7 @@ export interface ElectronAPI {
     automation: AutomationApi;
     agent: AgentApi;
     capabilities: CapabilityHostApi;
+    mcp: McpApi;
     importExport: ImportExportApi;
     window: WindowApi;
     app: AppLifecycleApi;

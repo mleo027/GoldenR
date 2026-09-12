@@ -14,8 +14,8 @@ export async function bootstrapElectronApp(): Promise<void> {
     await preloadGlobalConfigs(ctx);
 
     registerAllIpcHandlers(ctx);
-    // 能力通道必须先就绪：MCP 的 tools/call 要靠它把执行转给渲染层。
-    registerMcpHost({ getConfigDir: ctx.getConfigDir });
+    // 能力通道必须早于 MCP 就绪：tools/call 要靠它把执行转给渲染层。
+    registerMcpHost(ctx);
     registerAppLifecycle();
     createMainWindow();
 

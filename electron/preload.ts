@@ -8,6 +8,7 @@ import type {
     CapabilityInvokeResponse,
     CapabilityManifestPayload,
 } from '../src/shared/capabilities/host';
+import type { McpSettings, McpState } from '../src/shared/mcp/types';
 import type { AgentGatewayConfig, AgentGatewayConfigInput } from '../src/shared/agent/gateway';
 import type {
     AgentCreateRunRequest,
@@ -174,6 +175,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
             invoke('capabilities:respond', response),
         publishManifest: (payload: CapabilityManifestPayload): Promise<void> =>
             invoke('capabilities:manifest', payload),
+    },
+    mcp: {
+        readState: (): Promise<McpState> => invoke('mcp:readState'),
+        writeSettings: (settings: McpSettings): Promise<McpState> =>
+            invoke('mcp:writeSettings', settings),
     },
     importExport: {
         saveJson: (content: string, defaultFilename: string) =>
