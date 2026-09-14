@@ -704,9 +704,71 @@
 
 .kcxp-env-name-input {
     width: 160px;
+    font-weight: 600;
 }
 
+.kcxp-env-row-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.kcxp-env-delete.ant-btn:hover:not(:disabled) {
+    color: var(--color-error);
+    background: var(--color-error-bg);
+}
+
+/* 卡片内分区块：连接参数 / 数据库配置，用细分隔线区分，避免数据库表单被挤成窄栏 */
 .kcxp-env-row-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.kcxp-env-section + .kcxp-env-section {
+    padding-top: 14px;
+    border-top: 1px solid var(--color-border-light);
+}
+
+.kcxp-env-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 12px;
+    min-height: var(--control-height-sm);
+    margin-bottom: 10px;
+}
+
+.kcxp-env-section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-title);
+}
+
+.kcxp-env-section-head-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* 开关贴着文字，且作为 flex 项不参与拉伸——否则会被拉成整行宽的胶囊 */
+.kcxp-env-write-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.kcxp-env-write-toggle .ant-switch {
+    flex: 0 0 auto;
+}
+
+/* 连接参数：三列 */
+.kcxp-env-field-grid {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
     gap: 12px;
@@ -719,15 +781,51 @@
     min-width: 0;
 }
 
+/* 标签虚线 + help 光标提示可悬浮查看说明；align-self 防止被纵向 flex 拉满导致虚线贯穿整行 */
 .kcxp-env-field-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    align-self: flex-start;
     font-size: 11px;
     font-weight: 600;
     color: var(--color-text-secondary);
+    border-bottom: 1px dashed var(--color-border);
+    cursor: help;
 }
 
 .kcxp-env-field-required {
     margin-left: 2px;
-    color: var(--color-danger);
+    color: var(--color-error);
+}
+
+/* 数据库字段：两个「标签 + 控件」成对一行，标签固定 88px 保证跨行对齐 */
+.kcxp-env-pairs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 20px;
+}
+
+.kcxp-env-pair {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.kcxp-env-pair-label {
+    justify-self: start;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    border-bottom: 1px dashed var(--color-border);
+    white-space: nowrap;
+    cursor: help;
+}
+
+/* 数字类控件收窄：地址类输入更长，端口/超时/行数更短 */
+.kcxp-env-control-narrow {
+    max-width: 140px;
 }
 
 .kcxp-env-actions {
