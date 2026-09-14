@@ -6,7 +6,7 @@ import {
     type SaveDialogOptions,
 } from 'electron';
 import { readFile, stat, writeFile } from 'node:fs/promises';
-import { decodeIniBuffer } from '../readIniText';
+import { decodeIniBuffer } from '../utils/readIniText';
 import { invalidIpcArgument } from '../../src/shared/ipc/errors';
 import { withIpcError } from './errors';
 

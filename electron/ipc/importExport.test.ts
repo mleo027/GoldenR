@@ -39,7 +39,7 @@ vi.mock('node:fs/promises', () => ({
     writeFile: mock.writeFile,
 }));
 
-vi.mock('../readIniText', () => ({
+vi.mock('../utils/readIniText', () => ({
     decodeIniBuffer: mock.decodeIniBuffer,
 }));
 

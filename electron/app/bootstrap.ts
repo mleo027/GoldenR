@@ -4,7 +4,7 @@ import { registerAppLifecycle } from './lifecycle';
 import { createMainWindow } from './window';
 import { registerAllIpcHandlers } from '../ipc/register';
 import { registerMcpHost } from '../mcp';
-import { reloadSuggestConfig, setSuggestRepository } from '../suggestRuleEngine';
+import { reloadSuggestConfig, setSuggestRepository } from '../services/suggest/suggestRuleEngine';
 import { preloadGlobalConfigs } from './preloadGlobalConfigs';
 
 export async function bootstrapElectronApp(): Promise<void> {

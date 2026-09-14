@@ -9,7 +9,7 @@ import {
     executeSuggest,
     reloadSuggestConfig,
     testDbConnection,
-} from '../suggestRuleEngine';
+} from '../services/suggest/suggestRuleEngine';
 import { invalidIpcArgument } from '../../src/shared/ipc/errors';
 import { withIpcError } from './errors';
 

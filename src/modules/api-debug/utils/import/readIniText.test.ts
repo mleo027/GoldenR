@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import iconv from 'iconv-lite';
-import { decodeIniBuffer } from '../../../../../electron/readIniText';
+import { decodeIniBuffer } from '../../../../../electron/utils/readIniText';
 
 describe('decodeIniBuffer', () => {
     it('decodes utf-8 content', () => {

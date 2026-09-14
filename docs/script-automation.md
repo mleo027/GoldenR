@@ -528,15 +528,15 @@ async function main(ctx) {
 
 ## 相关源码
 
-| 模块         | 路径                                                          |
-| ------------ | ------------------------------------------------------------- |
-| 脚本编译执行 | `src/modules/api-debug/utils/script/apiScript.ts`             |
-| 测试对象     | `src/modules/api-debug/utils/script/scriptTest.ts`            |
-| 控制台捕获   | `src/modules/api-debug/utils/script/scriptConsole.ts`         |
-| Run 编排     | `src/modules/api-debug/services/kcbpCallService.ts`           |
-| 脚本 UI      | `src/modules/api-debug/components/editor/CaseScriptPanel.tsx` |
-| SQL 查询 IPC | `electron/suggestRuleEngine.ts` → `executeScriptQuery`        |
-| 数据库配置   | `db_connections`                                              |
+| 模块         | 路径                                                                    |
+| ------------ | ----------------------------------------------------------------------- |
+| 脚本编译执行 | `src/modules/api-debug/utils/script/apiScript.ts`                       |
+| 测试对象     | `src/modules/api-debug/utils/script/scriptTest.ts`                      |
+| 控制台捕获   | `src/modules/api-debug/utils/script/scriptConsole.ts`                   |
+| Run 编排     | `src/modules/api-debug/services/kcbpCallService.ts`                     |
+| 脚本 UI      | `src/modules/api-debug/components/editor/CaseScriptPanel.tsx`           |
+| SQL 查询 IPC | `electron/services/suggest/suggestRuleEngine.ts` → `executeScriptQuery` |
+| 数据库配置   | `db_connections`                                                        |
 
 ---
 

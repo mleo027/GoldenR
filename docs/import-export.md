@@ -76,7 +76,7 @@ title=msgtype;key:value,key:value,...
 | -------------------- | ------------------------------------------------------------------------- |
 | JSON 解析            | `src/modules/api-debug/utils/import/kuabImport.ts`                        |
 | INI 解析             | `src/modules/api-debug/utils/import/configIniImport.ts`                   |
-| INI 编码检测         | `electron/readIniText.ts`（主进程）                                       |
+| INI 编码检测         | `electron/utils/readIniText.ts`（主进程）                                 |
 | 导入 UI / 写入 store | `src/modules/api-debug/hooks/useProjectImport.tsx`、`store/tabsStore.tsx` |
 | 项目导出             | `src/modules/api-debug/utils/import/configIniExport.ts`                   |
 | CSV 导出             | `src/utils/exportTable.ts`                                                |

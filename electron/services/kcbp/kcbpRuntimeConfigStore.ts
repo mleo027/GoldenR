@@ -1,5 +1,5 @@
 import type { ConfigRepository } from '../../database/repositories/configRepository';
-import { createDefaultKcbpRuntimeConfig } from '../../../src/config/kcbp/defaults';
+import { createDefaultKcbpRuntimeConfig } from '../../../src/shared/kcbp/defaults';
 import type { KcbpRuntimeConfig } from '../../../src/shared/kcbp/types';
 
 let repository: ConfigRepository | null = null;

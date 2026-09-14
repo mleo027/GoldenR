@@ -16,7 +16,7 @@ vi.mock('electron', () => ({
     },
 }));
 
-vi.mock('../suggestRuleEngine', () => ({
+vi.mock('../services/suggest/suggestRuleEngine', () => ({
     testDbConnection: mock.testDbConnection,
     executeSuggest: mock.executeSuggest,
     executeScriptQuery: mock.executeScriptQuery,
