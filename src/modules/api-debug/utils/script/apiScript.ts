@@ -58,7 +58,7 @@ export interface CaseScriptContext {
     address: string;
     params: ParamItem[];
     fields: Record<string, string>;
-    /** TCD：本次 Run 传入的运行参数对象 */
+    /** 脚本运行时输入对象 */
     input: Record<string, unknown>;
     call: CaseCallFn;
 }

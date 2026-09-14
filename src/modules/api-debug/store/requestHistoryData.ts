@@ -59,7 +59,7 @@ function isRequestSnapshot(value: unknown): boolean {
 
 function isRequestHistoryMode(value: unknown): value is RequestHistoryMode {
     const mode = value;
-    return mode === 'ui' || mode === 'script' || mode === 'tcd';
+    return mode === 'ui' || mode === 'script';
 }
 
 function isRequestHistoryEntry(value: unknown): value is RequestHistoryEntry {
@@ -124,5 +124,5 @@ export async function flushRequestHistoryAsync(): Promise<void> {
 }
 
 export function createRequestHistoryMode(mode: string): RequestHistoryMode {
-    return mode === 'script' || mode === 'tcd' ? mode : 'ui';
+    return mode === 'script' ? mode : 'ui';
 }

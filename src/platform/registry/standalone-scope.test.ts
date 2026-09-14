@@ -5,10 +5,8 @@ import { APP_MODULES } from './app-modules';
 import { INTERFACE_AUTOMATION_MODULE_ID } from '../../modules/interface-automation/constants';
 
 const REMOVED_MODULE_IDS = [
-    'tcd',
     'tci',
     'autoqc',
-    'tracecode',
     'knowledge',
     'sql-debugger',
     'db-env',

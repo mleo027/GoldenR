@@ -9,28 +9,21 @@ import { applyKcxpEnvironmentToAddress } from '../../utils/workspace/kcxpEnviron
 import { apiCallRuntime } from '../../../../runtime/apiCallFacade';
 import { suggestRuntime } from '../../../../runtime/suggestFacade';
 import { invokeKcbpWithFields } from './singleCall';
-import { runScriptOrTcdCase } from './scriptRunner';
+import { runScriptCase } from './scriptRunner';
 import {
     KCBP_MSGTYPE_REQUIRED_MESSAGE,
     type InvokeKcbpCallOptions,
     type KcbpCallOutcome,
     type KcbpInvokeMode,
-    type TcdElectronDeps,
+    type ApiDebugElectronDeps,
 } from './types';
 
 type ApiCaseTab = Pick<
     TabData,
-    | 'address'
-    | 'name'
-    | 'params'
-    | 'protocol'
-    | 'script'
-    | 'requestScript'
-    | 'responseScript'
-    | 'runInput'
+    'address' | 'name' | 'params' | 'protocol' | 'script' | 'requestScript' | 'responseScript'
 >;
 
-function resolveElectronDeps(options: InvokeKcbpCallOptions): TcdElectronDeps | undefined {
+function resolveElectronDeps(options: InvokeKcbpCallOptions): ApiDebugElectronDeps | undefined {
     if (options.electronDeps) return options.electronDeps;
     const databaseConfig = options.trace?.databaseConfig;
     if (!options.trace?.enabled || !databaseConfig) return undefined;
@@ -63,7 +56,7 @@ async function executeUiCase(
     params: ParamItem[],
     address: string,
     msgtype: string,
-    electronDeps: TcdElectronDeps | undefined,
+    electronDeps: ApiDebugElectronDeps | undefined,
 ): Promise<KcbpCallOutcome> {
     const { fields, binaryFields } = buildKcbpFields(params);
     const outcome = await invokeKcbpWithFields({
@@ -96,5 +89,5 @@ export async function executeApiCase(
     if (editorMode === 'ui') {
         return executeUiCase(tab, params, address, msgtype, resolveElectronDeps(options));
     }
-    return runScriptOrTcdCase(tab, editorMode, msgtype, address, options);
+    return runScriptCase(tab, msgtype, address, options);
 }

@@ -1,22 +1,10 @@
 import type { TabData } from '../../types/workspace';
 import { resolveApiCallExecutor } from './executors';
-import type {
-    InvokeKcbpCallOptions,
-    KcbpCallOutcome,
-    KcbpInvokeMode,
-    RunNestedKcbpCase,
-} from '../kcbp/types';
+import type { InvokeKcbpCallOptions, KcbpCallOutcome, KcbpInvokeMode } from '../kcbp/types';
 
 export type ApiProtocol = 'KCBP' | 'KGBP' | 'KUAB';
 export type ApiCallOutcome = KcbpCallOutcome;
 export type ApiCallOptions = InvokeKcbpCallOptions;
-
-function withProtocolDispatcher(options: ApiCallOptions): ApiCallOptions {
-    if (options.runNestedCase) return options;
-    const runNestedCase: RunNestedKcbpCase = (tab, nestedOptions) =>
-        invokeApiCall(tab, 'tcd', { ...nestedOptions, runNestedCase });
-    return { ...options, runNestedCase };
-}
 
 /**
  * Protocol-neutral execution entry point. The request mapper and native bridge
@@ -25,17 +13,10 @@ function withProtocolDispatcher(options: ApiCallOptions): ApiCallOptions {
 export function invokeApiCall(
     tab: Pick<
         TabData,
-        | 'address'
-        | 'name'
-        | 'params'
-        | 'protocol'
-        | 'script'
-        | 'requestScript'
-        | 'responseScript'
-        | 'runInput'
+        'address' | 'name' | 'params' | 'protocol' | 'script' | 'requestScript' | 'responseScript'
     >,
     editorMode: KcbpInvokeMode = 'script',
     options: ApiCallOptions = {},
 ): Promise<ApiCallOutcome> {
-    return resolveApiCallExecutor(tab.protocol)(tab, editorMode, withProtocolDispatcher(options));
+    return resolveApiCallExecutor(tab.protocol)(tab, editorMode, options);
 }

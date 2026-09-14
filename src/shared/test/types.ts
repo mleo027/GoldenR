@@ -1,10 +1,4 @@
 import type { KcxpEnvironment } from '@/shared/kcxp/types';
-import type {
-    TcdCallStep,
-    TcdScriptConsoleSnapshot,
-    TcdScriptTestResult,
-    TcdStepResponse,
-} from '@/shared/tcd/types';
 
 export type ScriptTestStepStatus = 'pass' | 'fail';
 
@@ -75,33 +69,4 @@ export interface TestRunContext {
     caseVariables?: TestVariableMap;
     environmentId?: string;
     suiteName?: string;
-}
-
-export interface TcdRunHistoryEntry {
-    id: string;
-    ranAt: number;
-    environmentId?: string;
-    suiteName?: string;
-    passedCount: number;
-    failedCount: number;
-    durationMs: number;
-    cancelled: boolean;
-    configSnapshot?: Record<string, unknown>;
-    results: Array<{
-        caseId: string;
-        caseName: string;
-        msgtype: string;
-        address?: string;
-        passed: boolean;
-        durationMs: number;
-        error?: string;
-        response?: TcdStepResponse;
-        callSteps?: TcdCallStep[];
-        scriptTest?: TcdScriptTestResult;
-        scriptConsole?: TcdScriptConsoleSnapshot;
-    }>;
-}
-
-export interface TcdRunHistoryIndex {
-    runs: TcdRunHistoryEntry[];
 }

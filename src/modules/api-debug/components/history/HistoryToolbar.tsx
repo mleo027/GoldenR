@@ -171,7 +171,6 @@ function ToolbarFilterRow({
                 options={[
                     { value: 'ui', label: 'UI' },
                     { value: 'script', label: 'Script' },
-                    { value: 'tcd', label: 'TCD' },
                 ]}
                 className="history-toolbar-select history-toolbar-select--narrow"
                 aria-label="按类型筛选"

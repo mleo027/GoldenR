@@ -53,11 +53,11 @@ describe('createAssertApi', () => {
         expect(expectFn).toHaveBeenCalledTimes(3);
     });
 
-    it('noop assert throws outside TCD mode', async () => {
+    it('noop assert throws when unavailable', async () => {
         const assert = createNoopAssertApi();
-        expect(() => assert.eq(1, 1, 'x')).toThrow('assert 仅在 TCD 模式下可用');
+        expect(() => assert.eq(1, 1, 'x')).toThrow('assert 当前不可用');
         await expect(assert.sqlExists('select 1', undefined, 'x')).rejects.toThrow(
-            'assert 仅在 TCD 模式下可用',
+            'assert 当前不可用',
         );
     });
 });

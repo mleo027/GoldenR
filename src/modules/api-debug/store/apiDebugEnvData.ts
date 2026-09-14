@@ -32,9 +32,7 @@ export function mergeApiDebugEnv(partial?: Partial<ApiDebugEnv>): ApiDebugEnv {
     const editorMode =
         partial?.editorMode === 'script' || partial?.editorMode === 'ui'
             ? partial.editorMode
-            : partial?.editorMode === 'tcd'
-              ? 'ui'
-              : DEFAULT_API_DEBUG_ENV.editorMode;
+            : DEFAULT_API_DEBUG_ENV.editorMode;
     return {
         ...DEFAULT_API_DEBUG_ENV,
         ...partial,

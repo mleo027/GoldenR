@@ -12,7 +12,11 @@ import {
 import type { ParamItem, ResponseData } from '../../types/workspace';
 import { createScriptConsole } from './scriptConsole';
 import { createScriptTest } from './scriptTest';
-import { createNoopFlowApi } from '@/shared/tcd/flow';
+const unavailableFlow = {
+    set: () => undefined,
+    get: () => undefined,
+    runCase: async () => ({ code: '0', message: '', resultSets: [] }),
+};
 
 const baseCtx = {
     msgtype: '150501',
@@ -103,7 +107,7 @@ describe('executeCaseScript', () => {
             consoleApi: consoleCapture.api,
             queryFn: query,
             testApi: test,
-            flowApi: createNoopFlowApi(),
+            flowApi: unavailableFlow,
         });
 
         expect(calls).toEqual([{ g_serverid: '1', g_funcid: '150501' }]);

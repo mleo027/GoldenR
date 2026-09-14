@@ -1,7 +1,11 @@
 import type { TestRunContext, TestVariableMap } from '../types';
-import type { TcdCaseParam } from '@/shared/tcd/types';
+interface ScriptParam {
+    name: string;
+    value: string;
+    type?: string;
+}
 
-export function paramsToVariableMap(params: TcdCaseParam[]): TestVariableMap {
+export function paramsToVariableMap(params: ScriptParam[]): TestVariableMap {
     const map: TestVariableMap = {};
     for (const param of params) {
         const name = param.name.trim();

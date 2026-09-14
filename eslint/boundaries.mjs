@@ -180,6 +180,7 @@ const dependencyPolicies = [
             to: el(
                 'services',
                 'runtime',
+                'registry',
                 'util',
                 'constants',
                 'types',

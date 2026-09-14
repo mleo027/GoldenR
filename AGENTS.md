@@ -2,7 +2,7 @@
 
 本仓库是独立的 Golden API 接口调试桌面应用（Electron + React 18 + TypeScript + Vite），
 只保留 `api-debug`、`interface-automation` 模块及运行 KCBP/KGBP/KUAB 调用所需的 Electron/shared 代码。
-不要把原 GoldenAPI 仓库的其他模块搬回来（TCD、TCI、AutoQC、TraceCode、知识库、
+不要把原 GoldenAPI 仓库的其他模块搬回来（TCI、AutoQC、知识库、
 SQL Debugger、Agent Server 等）。
 
 面向 agent 的详细规则拆分如下，本文件只做**命令与硬约束速查**：

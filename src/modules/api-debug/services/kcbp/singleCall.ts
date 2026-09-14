@@ -4,7 +4,7 @@ import { apiCallRuntime } from '../../../../runtime/apiCallFacade';
 import { parseKcbpAddress } from '../../utils/kcbp/kcbpAddress';
 import { buildApiRequest } from '../call/requestMappers';
 import { buildKcbpCallOutcome } from './requestMapper';
-import type { KcbpCallOutcome, TcdElectronDeps } from './types';
+import type { ApiDebugElectronDeps, KcbpCallOutcome } from './types';
 
 export interface InvokeKcbpWithFieldsOptions {
     tab: Pick<TabData, 'address' | 'name' | 'params' | 'protocol'>;
@@ -12,7 +12,7 @@ export interface InvokeKcbpWithFieldsOptions {
     fields: Record<string, string>;
     binaryFields: Record<string, string>;
     baseParams: ParamItem[];
-    electronDeps?: TcdElectronDeps;
+    electronDeps?: ApiDebugElectronDeps;
     addressOverride?: string;
 }
 

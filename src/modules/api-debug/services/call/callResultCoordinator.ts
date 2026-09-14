@@ -102,7 +102,6 @@ export function coordinateCallSuccess(
             message: feedback.message,
             scriptError: outcome.scriptError,
             scriptTest: outcome.scriptTest,
-            callSteps: outcome.callSteps,
             scriptConsole: outcome.scriptConsole,
         },
         outcome.effectiveParams ?? context.tab.params,

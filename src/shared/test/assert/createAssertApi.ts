@@ -58,7 +58,7 @@ export function createAssertApi(test: ScriptTestApi, queryFn: CaseScriptQueryFn)
 
 export function createNoopAssertApi(): AssertScriptApi {
     const fail = () => {
-        throw new Error('assert 仅在 TCD 模式下可用');
+        throw new Error('assert 当前不可用');
     };
     return {
         eq: fail,

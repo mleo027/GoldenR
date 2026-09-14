@@ -1,9 +1,8 @@
 import type { EditorMode, ParamItem, ResponseData } from './workspace';
 import type { ScriptTestResult } from './scriptTest';
 import type { ScriptConsoleSnapshot } from './scriptConsole';
-import type { TcdCallStep } from '@/shared/tcd/types';
 
-export type RequestHistoryMode = EditorMode | 'tcd';
+export type RequestHistoryMode = EditorMode;
 
 export interface RequestHistoryRequestSnapshot {
     address: string;
@@ -25,7 +24,6 @@ export interface RequestHistoryOutcome {
     message?: string;
     scriptError?: string;
     scriptTest?: ScriptTestResult;
-    callSteps?: TcdCallStep[];
     scriptConsole?: ScriptConsoleSnapshot;
 }
 

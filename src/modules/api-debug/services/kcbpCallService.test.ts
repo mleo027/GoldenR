@@ -4,9 +4,6 @@ import type { KcbpResponseData } from '../../../types/kcbp';
 import { buildKcbpCallOutcome, getKcbpCallFeedback, type KcbpCallOutcome } from './kcbpCallService';
 import { invokeApiCall } from './call/callService';
 import { buildApiRequest } from './call/requestMappers';
-import { buildCaseIndex } from '@/shared/tcd/resolveCase';
-import type { TcdCaseTab } from '@/shared/tcd/types';
-import { KGBP_REQUIRED_FIELDS_MESSAGE } from '../utils/workspace/kcxpEnvironment';
 
 const mockCallKcbp = vi.fn();
 const mockQueryScriptSql = vi.fn();
@@ -287,75 +284,6 @@ describe('invokeApiCall', () => {
         expect(outcome.scriptTest?.passed).toBe(true);
     });
 
-    it('runs nested tcd flow with injected execution ports', async () => {
-        const injectedCall = vi.fn().mockResolvedValue(successRaw);
-        const injectedQuery = vi.fn().mockResolvedValue({ rows: [], columns: [] });
-        const childCase: TcdCaseTab = {
-            id: 'child-case',
-            name: 'Child',
-            address: '127.0.0.1:21000/150502',
-            params: [],
-            script: `async function main(ctx) {
-  await call({ g_funcid: '150502', market: '1' });
-  return test.pass('child ok');
-}`,
-        };
-        const parentTab = {
-            ...tab,
-            script: `async function main(ctx) {
-  flow.set('token', 'abc');
-  const child = await flow.runCase('150502', { fundid: '8' });
-  test.expect(flow.get('token') === 'abc', 'flow state');
-  test.expect(String(child.code) === '0', 'child response');
-  return test.pass('parent ok');
-}`,
-        };
-
-        const outcome = await invokeApiCall(parentTab, 'tcd', {
-            caseIndex: buildCaseIndex([
-                {
-                    id: 'p1',
-                    name: 'P',
-                    cases: [childCase],
-                },
-            ]),
-            electronDeps: {
-                callKcbp: injectedCall,
-                queryScriptSql: injectedQuery,
-            },
-        });
-
-        expect(injectedCall).toHaveBeenCalledTimes(1);
-        expect(mockCallKcbp).not.toHaveBeenCalled();
-        expect(outcome.scriptTest?.passed).toBe(true);
-    });
-
-    it('dispatches nested TCD cases through their protocol executor', async () => {
-        const childCase = {
-            id: 'kgbp-child',
-            name: 'KGBP child',
-            protocol: 'KGBP',
-            address: '127.0.0.1:21000/150502',
-            params: [],
-            script: 'async function main() { await call({}); }',
-        };
-        const parentTab = {
-            ...tab,
-            script: "async function main() { await flow.runCase('kgbp-child'); }",
-        };
-        const callKcbp = vi.fn().mockResolvedValue(successRaw);
-
-        const outcome = await invokeApiCall(parentTab, 'tcd', {
-            caseIndex: buildCaseIndex([{ id: 'p1', name: 'P', cases: [childCase] }]),
-            electronDeps: {
-                callKcbp,
-                queryScriptSql: vi.fn().mockResolvedValue({ rows: [], columns: [] }),
-            },
-        });
-
-        expect(outcome.scriptError).toContain(KGBP_REQUIRED_FIELDS_MESSAGE);
-    });
-
     it('rejects before calling when msgtype is empty', async () => {
         const emptyMsgtypeTab = {
             ...tab,
@@ -460,86 +388,5 @@ describe('invokeApiCall', () => {
         expect(injectedCall).toHaveBeenCalledTimes(1);
         expect(injectedCall.mock.calls[0][0].connection.ip).toBe('10.0.0.5');
         expect(injectedCall.mock.calls[0][0].connection.port).toBe('22000');
-    });
-
-    it('runs tcd mode with ctx.input and records call steps', async () => {
-        mockCallKcbp
-            .mockResolvedValueOnce({ ...successRaw, code: '0', msg: 'ok1' })
-            .mockResolvedValueOnce({
-                ...successRaw,
-                code: '0',
-                msg: 'ok2',
-                data: [{ name: '', rows: [{ sno: '9' }] }],
-            });
-
-        const scriptTab = {
-            ...tab,
-            script: `async function main(ctx) {
-  test.expect(ctx.input.fundid === '8', 'fundid');
-  await call({ g_funcid: '150501', market: '1' });
-  await call({ g_funcid: '150502', ordersno: '9' });
-  return test.pass('tcd ok');
-}`,
-        };
-
-        const outcome = await invokeApiCall(scriptTab, 'tcd', { runInput: { fundid: '8' } });
-
-        expect(mockCallKcbp).toHaveBeenCalledTimes(2);
-        expect(outcome.callSteps).toHaveLength(2);
-        expect(outcome.callSteps?.[0].msgtype).toBe('150501');
-        expect(outcome.callSteps?.[1].msgtype).toBe('150502');
-        expect(outcome.scriptTest?.passed).toBe(true);
-    });
-
-    it('runs tcd flow.runCase to invoke another case script', async () => {
-        mockCallKcbp.mockResolvedValue(successRaw);
-
-        const childCase: TcdCaseTab = {
-            id: 'child-case',
-            name: 'Child',
-            address: '127.0.0.1:21000/150502',
-            params: [],
-            script: `async function main(ctx) {
-  await call({ g_funcid: '150502', market: '1' });
-  return test.pass('child ok');
-}`,
-        };
-
-        const parentTab = {
-            ...tab,
-            script: `async function main(ctx) {
-  flow.set('token', 'abc');
-  const child = await flow.runCase('150502', { fundid: '8' });
-  test.expect(flow.get('token') === 'abc', 'flow state');
-  test.expect(String(child.code) === '0', 'child response');
-  return test.pass('parent ok');
-}`,
-        };
-
-        const caseIndex = buildCaseIndex([
-            {
-                id: 'p1',
-                name: 'P',
-                cases: [
-                    {
-                        id: 'parent',
-                        name: 'Parent',
-                        address: tab.address,
-                        params: tab.params,
-                        script: parentTab.script,
-                    },
-                    childCase,
-                ],
-            },
-        ]);
-
-        const outcome = await invokeApiCall(parentTab, 'tcd', {
-            runInput: { fundid: '8' },
-            caseIndex,
-        });
-
-        expect(mockCallKcbp).toHaveBeenCalledTimes(1);
-        expect(outcome.scriptTest?.passed).toBe(true);
-        expect(outcome.scriptTest?.message).toBe('parent ok');
     });
 });

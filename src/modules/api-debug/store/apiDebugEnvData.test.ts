@@ -28,10 +28,6 @@ describe('mergeApiDebugEnv', () => {
         expect(mergeApiDebugEnv({ editorMode: 'script' }).editorMode).toBe('script');
     });
 
-    it('migrates legacy tcd editor mode to ui', () => {
-        expect(mergeApiDebugEnv({ editorMode: 'tcd' as unknown as 'ui' }).editorMode).toBe('ui');
-    });
-
     it('normalizes invalid editorMode to default', () => {
         expect(mergeApiDebugEnv({ editorMode: 'invalid' as 'ui' }).editorMode).toBe('ui');
     });

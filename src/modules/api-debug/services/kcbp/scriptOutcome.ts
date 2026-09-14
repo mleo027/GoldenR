@@ -6,7 +6,7 @@ import type { createScriptConsole } from '../../utils/script/scriptConsole';
 import { isScriptTestResult, ScriptTestFailure } from '../../utils/script/scriptTest';
 import { invokeKcbpWithFields } from './singleCall';
 import type { ScriptCaseTab, ScriptExecutionState } from './scriptRuntimeTypes';
-import type { KcbpCallOutcome, TcdElectronDeps } from './types';
+import type { ApiDebugElectronDeps, KcbpCallOutcome } from './types';
 
 interface OutcomeConfig {
     tab: ScriptCaseTab;
@@ -14,16 +14,9 @@ interface OutcomeConfig {
     address: string;
     effectiveParams: ScriptCaseTab['params'];
     fallbackPayload: ReturnType<typeof buildKcbpFields>;
-    electronDeps?: TcdElectronDeps;
+    electronDeps?: ApiDebugElectronDeps;
     consoleCapture: ReturnType<typeof createScriptConsole>;
     state: ScriptExecutionState;
-}
-
-function attachCallSteps(config: OutcomeConfig, outcome: KcbpCallOutcome): KcbpCallOutcome {
-    return {
-        ...outcome,
-        callSteps: config.state.callSteps.length > 0 ? config.state.callSteps : undefined,
-    };
 }
 
 function nextScript(outcome: KcbpCallOutcome): string | undefined {
@@ -37,13 +30,13 @@ function decorateOutcome(
     outcome: KcbpCallOutcome,
     extra: Partial<KcbpCallOutcome>,
 ): KcbpCallOutcome {
-    return attachCallSteps(config, {
+    return {
         ...outcome,
         effectiveParams: config.state.activeParams,
         scriptConsole: config.consoleCapture.snapshot(),
         nextScript: nextScript(outcome),
         ...extra,
-    });
+    };
 }
 
 function noResponseOutcome(config: OutcomeConfig): KcbpCallOutcome {

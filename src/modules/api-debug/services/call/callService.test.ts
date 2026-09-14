@@ -32,27 +32,12 @@ describe('invokeApiCall dispatcher', () => {
     ] as const)('dispatches %s to its executor', async (protocol, executor) => {
         executor.mockResolvedValueOnce(outcome);
         await invokeApiCall(tab(protocol), 'ui');
-        expect(executor).toHaveBeenCalledWith(
-            tab(protocol),
-            'ui',
-            expect.objectContaining({
-                runNestedCase: expect.any(Function),
-            }),
-        );
+        expect(executor).toHaveBeenCalledWith(tab(protocol), 'ui', {});
     });
 
     it('falls back to KCBP for an unknown protocol', async () => {
         executeKcbp.mockResolvedValueOnce(outcome);
         await invokeApiCall(tab('UNKNOWN'));
         expect(executeKcbp).toHaveBeenCalled();
-    });
-
-    it('routes nested TCD cases through the dispatcher', async () => {
-        executeKcbp.mockResolvedValueOnce(outcome);
-        executeKgbp.mockResolvedValueOnce(outcome);
-        await invokeApiCall(tab('KCBP'));
-        const nested = executeKcbp.mock.calls.at(-1)?.[2].runNestedCase;
-        await nested(tab('KGBP'), {});
-        expect(executeKgbp).toHaveBeenCalledWith(tab('KGBP'), 'tcd', expect.any(Object));
     });
 });

@@ -6,7 +6,7 @@ export interface TabData {
     address: string;
     params: ParamItem[];
     script?: string;
-    /** TCD 运行参数默认值（持久化于 cases.run_input_json） */
+    /** 脚本运行参数默认值 */
     runInput?: Record<string, unknown>;
     /** @deprecated 迁移用 */
     requestScript?: string;
