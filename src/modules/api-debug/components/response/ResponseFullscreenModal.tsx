@@ -11,7 +11,6 @@ interface ResponseFullscreenModalProps {
     columnKeys?: string[];
     response?: ResponseData | null;
     searchKeyword: string;
-    showRowIndex?: boolean;
     onSearchKeywordChange: (value: string) => void;
     onClose: () => void;
     visibleColumnKeys?: string[];
@@ -24,7 +23,6 @@ export default function ResponseFullscreenModal({
     columnKeys,
     response,
     searchKeyword,
-    showRowIndex = true,
     onSearchKeywordChange,
     onClose,
     visibleColumnKeys,
@@ -74,7 +72,6 @@ export default function ResponseFullscreenModal({
                     data={data}
                     columnKeys={visibleColumnKeys ?? columnKeys}
                     searchKeyword={searchKeyword}
-                    showRowIndex={showRowIndex}
                     footerStart={response ? <ResponseMeta response={response} /> : undefined}
                 />
             </div>

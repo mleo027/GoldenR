@@ -16,8 +16,6 @@ function isAppEnv(value: unknown): value is Partial<AppEnv> {
     if (!value || typeof value !== 'object') return false;
     const env = value as Partial<AppEnv>;
     return (
-        (env.compactMode === undefined || typeof env.compactMode === 'boolean') &&
-        (env.showRowIndex === undefined || typeof env.showRowIndex === 'boolean') &&
         (env.autoSave === undefined || typeof env.autoSave === 'boolean') &&
         (env.darkMode === undefined || typeof env.darkMode === 'boolean') &&
         (env.accentColor === undefined ||
@@ -30,8 +28,6 @@ function isAppEnv(value: unknown): value is Partial<AppEnv> {
 export function mergeAppEnv(partial?: Partial<AppEnv>): AppEnv {
     return {
         ...DEFAULT_APP_ENV,
-        compactMode: partial?.compactMode ?? DEFAULT_APP_ENV.compactMode,
-        showRowIndex: partial?.showRowIndex ?? DEFAULT_APP_ENV.showRowIndex,
         autoSave: partial?.autoSave ?? DEFAULT_APP_ENV.autoSave,
         darkMode: partial?.darkMode ?? DEFAULT_APP_ENV.darkMode,
         accentColor: partial?.accentColor ?? DEFAULT_APP_ENV.accentColor,

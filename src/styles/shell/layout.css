@@ -108,35 +108,3 @@
     border-radius: var(--radius-pill);
     background: var(--color-primary-muted);
 }
-
-.app-compact .section-header:not(.section-header--compact) {
-    min-height: 46px;
-    padding-block: 4px;
-}
-
-.app-compact .case-project,
-.app-compact .case-item {
-    padding-block: 5px;
-}
-
-.app-compact .param-table .ant-table-thead > tr > th,
-.app-compact .param-table .ant-table-tbody > tr > td {
-    padding-block: 2px !important;
-}
-
-.app-compact .response-table .ant-table-cell {
-    padding-block: 6px !important;
-}
-
-.app-compact .title-bar {
-    height: 32px;
-}
-
-.app-compact .settings-modal-nav-item {
-    min-height: 30px;
-    padding-block: 6px;
-}
-
-.app-compact .settings-panel-row {
-    padding-block: 8px;
-}

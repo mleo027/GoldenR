@@ -21,6 +21,8 @@ const SHORTCUT_ROWS: { label: string; shortcut: string }[] = [
     { label: '编辑器 · 保存', shortcut: formatShortcut(PLATFORM_SHORTCUT.SAVE) },
 ];
 
+const DEVELOPER_EMAIL = 'meilingfeng@szkingdom.com';
+
 export default function AboutSettings() {
     return (
         <div className="settings-panel">
@@ -38,9 +40,13 @@ export default function AboutSettings() {
                     <div className="settings-about-version">版本 v0.1.0</div>
                     <div className="settings-about-contact">
                         开发者联系：
-                        <Typography.Link href="mailto:meilingfeng@szkingdom.com">
-                            meilingfeng@szkingdom.com
-                        </Typography.Link>
+                        <Typography.Text
+                            copyable={{ text: DEVELOPER_EMAIL, tooltips: ['复制邮箱', '已复制'] }}
+                        >
+                            <Typography.Link href={`mailto:${DEVELOPER_EMAIL}`}>
+                                {DEVELOPER_EMAIL}
+                            </Typography.Link>
+                        </Typography.Text>
                     </div>
                 </div>
             </div>

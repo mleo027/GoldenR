@@ -48,10 +48,6 @@ vi.mock('../../store/useTabs', () => ({
     }),
 }));
 
-vi.mock('../../../../store/useAppEnv', () => ({
-    useAppEnv: () => ({ env: { showRowIndex: true } }),
-}));
-
 vi.mock('../../hooks/useApiCall', () => ({
     useApiCall: () => ({ loading: callState.loading }),
 }));
@@ -124,6 +120,18 @@ describe('ResponsePanel', () => {
         expect(screen.getByText('fundid')).toBeTruthy();
         expect(screen.getByText('market')).toBeTruthy();
         expect(screen.getByText('暂无数据')).toBeTruthy();
+    });
+
+    it('always renders response row numbers', () => {
+        responseState.value = {
+            code: '0',
+            message: 'ok',
+            resultSets: [{ name: 'DATA', rows: [{ fundid: '1001' }] }],
+        };
+
+        const { container } = render(<ResponsePanel />);
+
+        expect(container.querySelector('.response-row-index')).not.toBeNull();
     });
 
     it('shows and switches between multiple result sets', () => {

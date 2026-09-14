@@ -6,7 +6,6 @@ import ResponseMeta from './ResponseMeta';
 import ResponseTableTools from '../../../../components/ui/ResponseTableTools';
 import type { ResponseData } from '../../types/workspace';
 import { useActiveTab } from '../../store/useTabs';
-import { useAppEnv } from '../../../../store/useAppEnv';
 import { useApiCall } from '../../hooks/useApiCall';
 import { useResponse } from '../../store/useResponse';
 import { getCaseLabel, parseMsgtypeFromAddress } from '../../utils/workspace/caseLabel';
@@ -32,7 +31,6 @@ interface ResponseBodyProps {
     responseData: Record<string, unknown>[];
     responseColumns?: string[];
     searchKeyword: string;
-    showRowIndex: boolean;
     loading: boolean;
     activeTabAddress: string;
     activeTabName: string;
@@ -54,7 +52,6 @@ const ResponseBody = memo(function ResponseBody({
     responseData,
     responseColumns,
     searchKeyword,
-    showRowIndex,
     loading,
     activeTabAddress,
     activeTabName,
@@ -161,7 +158,6 @@ const ResponseBody = memo(function ResponseBody({
                             data={responseData}
                             columnKeys={visibleColumnKeys}
                             searchKeyword={searchKeyword}
-                            showRowIndex={showRowIndex}
                             loading={loading}
                             footerStart={footerStart}
                         />
@@ -184,9 +180,7 @@ export default function ResponsePanel({
     onToggleResponseCollapse,
 }: ResponsePanelProps) {
     const { activeTab, activeCaseIndex } = useActiveTab();
-    const { env } = useAppEnv();
     const { loading } = useApiCall();
-    const { showRowIndex } = env;
     const response = useResponse(activeTab.id);
     const { openTrace } = useRequestHistoryNavigation();
     const [searchKeyword, setSearchKeyword] = useState('');
@@ -230,7 +224,6 @@ export default function ResponsePanel({
                 visibleColumnKeys={displayedColumnKeys}
                 onVisibleColumnKeysChange={setVisibleColumnKeys}
                 searchKeyword={searchKeyword}
-                showRowIndex={showRowIndex}
                 loading={loading}
                 activeTabAddress={activeTab.address}
                 activeTabName={activeTab.name}
@@ -261,7 +254,6 @@ export default function ResponsePanel({
                         onVisibleColumnKeysChange={setVisibleColumnKeys}
                         response={response}
                         searchKeyword={searchKeyword}
-                        showRowIndex={showRowIndex}
                         onSearchKeywordChange={setSearchKeyword}
                         onClose={() => setFullscreenOpen(false)}
                     />

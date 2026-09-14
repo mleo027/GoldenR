@@ -180,10 +180,6 @@
     opacity: 1;
 }
 
-.app-compact .case-tab-bar-title .case-tab-item-title {
-    height: 32px;
-}
-
 .case-tab-bar {
     min-width: 0;
 }

@@ -45,7 +45,7 @@ const violations = results.flatMap((result) =>
 );
 
 // 棘轮：只允许下降。修复违规后请同步下调此值，切勿上调。
-const baseline = 24;
+const baseline = 23;
 console.log(`Complexity baseline violations: ${violations.length} (allowed baseline: ${baseline})`);
 for (const violation of violations) {
     console.log(`${violation.file}:${violation.line} [${violation.rule}] ${violation.message}`);

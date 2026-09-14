@@ -24,21 +24,35 @@ describe('mergeAppEnv', () => {
         expect(mergeAppEnv()).toEqual(DEFAULT_APP_ENV);
     });
 
-    it('merges theme and layout preferences', () => {
+    it('merges current preferences', () => {
         expect(
             mergeAppEnv({
                 darkMode: true,
-                compactMode: true,
-                showRowIndex: false,
                 autoSave: false,
             }),
         ).toEqual({
             ...DEFAULT_APP_ENV,
             darkMode: true,
-            compactMode: true,
-            showRowIndex: false,
             autoSave: false,
         });
+    });
+
+    it('drops removed preferences from legacy stored data', async () => {
+        const files: Record<string, unknown> = {
+            appEnv: {
+                ...DEFAULT_APP_ENV,
+                compactMode: true,
+                showRowIndex: false,
+            },
+        };
+        const electronAPI = createElectronApiMock(files);
+        vi.stubGlobal('window', { electronAPI });
+
+        const loaded = await loadAppEnv();
+
+        expect(loaded).toEqual(DEFAULT_APP_ENV);
+        expect(loaded).not.toHaveProperty('compactMode');
+        expect(loaded).not.toHaveProperty('showRowIndex');
     });
 
     it('falls back activeModuleId when blank', () => {

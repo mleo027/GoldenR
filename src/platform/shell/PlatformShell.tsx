@@ -68,9 +68,7 @@ export default function PlatformShell({ modules }: PlatformShellProps) {
                 <PlatformSettingsShortcut />
                 <PlatformCommandPaletteShortcut onOpen={openCommandPalette} />
                 <UndoRedoHost />
-                <div
-                    className={`platform-shell flex h-screen w-screen overflow-hidden bg-[var(--color-bg-page)]${env.compactMode ? ' app-compact' : ''}`}
-                >
+                <div className="platform-shell flex h-screen w-screen overflow-hidden bg-[var(--color-bg-page)]">
                     <ActivityBar modules={modules} onOpenCommandPalette={openCommandPalette} />
                     <div className="platform-shell-main flex h-full min-h-0 min-w-0 flex-1 flex-col">
                         <TitleBar
