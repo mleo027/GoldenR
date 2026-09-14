@@ -20,13 +20,6 @@ import type {
     AutomationStorageSnapshot,
     AutomationWorkspace,
 } from '@/shared/automation/types';
-import type {
-    CapabilityInvokeRequest,
-    CapabilityInvokeResponse,
-    CapabilityManifestPayload,
-} from '@/shared/capabilities/host';
-
-import type { McpSettings, McpState } from '@/shared/mcp/types';
 
 export type ImportFileFormat = 'json' | 'ini';
 
@@ -98,31 +91,6 @@ export interface AutomationApi {
     cancelSql(requestId: string): Promise<boolean>;
 }
 
-/**
- * 应用向外部调用方（MCP 等）开放的能力宿主接口。
- *
- * 这一层只把请求转发到平台能力注册表，不解释任何业务语义：能力清单与实现都由
- * 模块提供，主进程与渲染层都不为某个模块定制通道。
- */
-export interface CapabilityHostApi {
-    /** 订阅主进程发来的能力调用请求；返回取消订阅函数。 */
-    onInvoke(callback: (request: CapabilityInvokeRequest) => void): () => void;
-    /** 回填执行结果。失败以 `ok: false` 表达，而不是异常。 */
-    respond(response: CapabilityInvokeResponse): Promise<void>;
-    /** 把能力清单推给主进程，供 MCP 的 tools/list 使用。 */
-    publishManifest(payload: CapabilityManifestPayload): Promise<void>;
-}
-
-/**
- * MCP 对外开关与审计。
- *
- * 只暴露开关与只读状态（含审计）；**凭据不出主进程**，因此这里没有 token 字段。
- */
-export interface McpApi {
-    readState(): Promise<McpState>;
-    writeSettings(settings: McpSettings): Promise<McpState>;
-}
-
 export interface ImportExportApi {
     saveJson(content: string, defaultFilename: string): Promise<SaveFileResult>;
     saveCsv(content: string, defaultFilename: string): Promise<SaveFileResult>;
@@ -151,8 +119,6 @@ export interface ElectronAPI {
     kcbp: KcbpApi;
     database: DatabaseApi;
     automation: AutomationApi;
-    capabilities: CapabilityHostApi;
-    mcp: McpApi;
     importExport: ImportExportApi;
     window: WindowApi;
     app: AppLifecycleApi;

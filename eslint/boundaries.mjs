@@ -40,12 +40,6 @@ const moduleElements = [
     { type: 'mod-util', pattern: `${MOD}/utils`, partialMatch: false, exclusive: true },
     { type: 'mod-types', pattern: `${MOD}/types`, partialMatch: false, exclusive: true },
     { type: 'mod-const', pattern: `${MOD}/constants`, partialMatch: false, exclusive: true },
-    {
-        type: 'mod-capability',
-        pattern: `${MOD}/capabilities`,
-        partialMatch: false,
-        exclusive: true,
-    },
 ];
 
 /**
@@ -67,7 +61,6 @@ const automationElements = [
     { type: 'ia-util', pattern: `${IA}/utils`, partialMatch: false, exclusive: true },
     { type: 'ia-const', pattern: `${IA}/constants`, partialMatch: false, exclusive: true },
     { type: 'ia-worker', pattern: `${IA}/worker`, partialMatch: false, exclusive: true },
-    { type: 'ia-capability', pattern: `${IA}/capabilities`, partialMatch: false, exclusive: true },
 ];
 
 /** 全局层元素。 */
@@ -75,12 +68,6 @@ const globalElements = [
     { type: 'shell', pattern: 'src/platform/shell', partialMatch: false, exclusive: true },
     { type: 'undo', pattern: 'src/platform/undo', partialMatch: false, exclusive: true },
     { type: 'registry', pattern: 'src/platform/registry', partialMatch: false, exclusive: true },
-    {
-        type: 'capabilities',
-        pattern: 'src/platform/capabilities',
-        partialMatch: false,
-        exclusive: true,
-    },
     { type: 'ui', pattern: 'src/components', partialMatch: false, exclusive: true },
     { type: 'runtime', pattern: 'src/runtime', partialMatch: false, exclusive: true },
     { type: 'services', pattern: 'src/services', partialMatch: false, exclusive: true },
@@ -376,82 +363,6 @@ const dependencyPolicies = [
     {
         from: el('mod-types', 'mod-const'),
         allow: { to: el('mod-types', 'mod-const', 'mod-util', 'shared', 'types', 'constants') },
-    },
-
-    /**
-     * 平台能力层：模块无关的能力注册表与宿主桥。
-     *
-     * 它是「模块注册能力、平台不反向依赖模块」这条不变量的机器可检查版本：一旦
-     * hostBridge 或 registry 为了省一次渲染层往返而直接 import 某个模块的 store，
-     * 这里会直接报错。
-     */
-    {
-        from: el('capabilities'),
-        allow: {
-            to: el(
-                'capabilities',
-                'runtime',
-                'util',
-                'constants',
-                'types',
-                'bridge',
-                'lifecycle',
-                'shared',
-            ),
-        },
-    },
-
-    /**
-     * 模块能力层：**必须与 React 无关**。
-     *
-     * 禁用 ui / layout / providers / hook 不是风格洁癖：外部调用（MCP）发生在模块界面
-     * 可能从未挂载的时候，一旦能力实现依赖了这些层，「不打开界面也能用」就是假的。
-     */
-    {
-        from: el('mod-capability'),
-        allow: {
-            to: el(
-                'mod-capability',
-                'mod-store',
-                'mod-service',
-                'mod-util',
-                'mod-types',
-                'mod-const',
-                'capabilities',
-                'runtime',
-                'services',
-                'store',
-                'util',
-                'constants',
-                'types',
-                'bridge',
-                'lifecycle',
-                'shared',
-            ),
-        },
-    },
-    {
-        from: el('ia-capability'),
-        allow: {
-            to: el(
-                'ia-capability',
-                'ia-store',
-                'ia-service',
-                'ia-util',
-                'ia-const',
-                'ia-worker',
-                'capabilities',
-                'runtime',
-                'services',
-                'store',
-                'util',
-                'constants',
-                'types',
-                'bridge',
-                'lifecycle',
-                'shared',
-            ),
-        },
     },
 
     // interface-automation 模块内部（形状对齐 api-debug）

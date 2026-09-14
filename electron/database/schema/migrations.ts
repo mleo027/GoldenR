@@ -1,7 +1,7 @@
 import type { SqliteDatabase } from '../connection';
 import { ConfigRepository } from '../repositories/configRepository';
 
-export const SCHEMA_VERSION = 8;
+export const SCHEMA_VERSION = 9;
 
 // Schema version 6 belonged to the reverted script-automation feature.
 // Databases migrated by that build keep its tables behind, so migration
@@ -31,6 +31,8 @@ function applyMigration(db: SqliteDatabase, currentVersion: number, hasVersion: 
     );
     if (currentVersion === REVERTED_AUTOMATION_VERSION || hasRevertedVersion) {
         downgradeRevertedAutomationSchema(db);
+    } else if (currentVersion === 8) {
+        migrateV8(db);
     } else if (currentVersion === 7) {
         migrateV7(db);
     } else if (currentVersion === 5) {
@@ -101,6 +103,14 @@ function migrateV7(db: SqliteDatabase): void {
     createAutomationSchema(db);
     db.prepare('DELETE FROM schema_migrations WHERE version < ?').run(SCHEMA_VERSION);
     db.prepare('INSERT OR REPLACE INTO schema_migrations VALUES(?,?)').run(
+        SCHEMA_VERSION,
+        Date.now(),
+    );
+}
+
+function migrateV8(db: SqliteDatabase): void {
+    db.prepare("DELETE FROM app_preferences WHERE key IN ('mcpSettings', 'mcpAudit')").run();
+    db.prepare('UPDATE schema_migrations SET version=?, applied_at=? WHERE version=8').run(
         SCHEMA_VERSION,
         Date.now(),
     );

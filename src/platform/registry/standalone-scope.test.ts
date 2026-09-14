@@ -29,8 +29,6 @@ describe('standalone registry scope', () => {
     });
 
     it('keeps interface automation unregistered while it is being decommissioned', () => {
-        // 只锁定「不再注册 UI 入口」这一条：模块源码与 MCP 能力都还在
-        // （见 capabilities.test.ts，以及 capabilities/context.ts 里“不依赖 React 挂载”的约定）。
         const registeredIds = new Set(APP_MODULES.map((module) => module.id));
         expect(registeredIds.has(INTERFACE_AUTOMATION_MODULE_ID)).toBe(false);
     });

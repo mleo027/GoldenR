@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Button, Tooltip } from 'antd';
 import { ClearOutlined, CodeOutlined } from '@ant-design/icons';
-import { ControlCharText } from '../../../../utils/ControlCharText';
+import { ControlCharText } from '../../../../components/ui/ControlCharText';
 import type { ScriptConsoleSnapshot } from '../../types/scriptConsole';
 
 interface ScriptConsolePanelProps {

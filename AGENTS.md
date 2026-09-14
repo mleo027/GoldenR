@@ -5,12 +5,6 @@
 不要把原 GoldenAPI 仓库的其他模块搬回来（TCD、TCI、AutoQC、TraceCode、知识库、
 SQL Debugger、Agent Server 等）。
 
-> **能力对外开放走 MCP**。应用不再内置 AI 助手：能力以 MCP 服务器的形式暴露给
-> 外部客户端（Claude Desktop / Cursor / pi 等），模型与凭据都在客户端侧。
-> 能力由各模块声明、平台注册表统一调度，详见
-> [`docs/2026-09-12-mcp-server-plan.md`](docs/2026-09-12-mcp-server-plan.md) 与
-> [`docs/mcp-clients.md`](docs/mcp-clients.md)。
-
 面向 agent 的详细规则拆分如下，本文件只做**命令与硬约束速查**：
 
 - [`agents/rules/development.md`](agents/rules/development.md) — 开发、TypeScript/React、IPC、UI、测试规范
@@ -48,7 +42,6 @@ SQL Debugger、Agent Server 等）。
 | IPC 一致性              | `npm run ipc:check`                                   |
 | 构建（含打包）          | `npm run build`                                       |
 | 编译原生适配器          | `npm run build:native`                                |
-| MCP 冒烟（需应用运行）  | `node scripts/mcp-smoke.mjs`                          |
 
 按域运行的目标 suite：`test:database`、`test:kcbp`、`test:import`、`test:script`、
 `test:suggest`、`test:persist`、`test:core`。
@@ -83,7 +76,6 @@ src/
   platform/registry              模块注册（组合根）
   platform/{shell,undo}          平台壳层与撤销
   platform/{bridge,hooks,lifecycle} Electron 桥接、通用 Hook 与持久化生命周期
-  platform/capabilities          平台能力注册表（模块无关：不得 import 任何模块）
   components/{ui,layout,theme}   通用 UI、布局、主题
   modules/api-debug              API 调试模块
     components store services hooks layout providers types constants utils
@@ -100,8 +92,6 @@ electron/
   database/                      SQLite 连接、schema、migration、repository、legacy-import
   adapter/                       原生适配器产物；native/ 为源码
 
-electron/mcp/                     MCP 服务器（仅本机 Streamable HTTP；开关默认关闭）
-electron/services/capabilities/   能力调用通道：主进程 → 渲染层执行
 ```
 
 - Renderer 的分层依赖方向由 `eslint/boundaries.mjs`（经 `eslint.config.js` 展开）强制，`src/test/boundaries.test.ts`

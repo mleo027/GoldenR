@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Modal, Typography } from 'antd';
-import { ControlCharText } from '../../utils/ControlCharText';
+import { ControlCharText } from './ControlCharText';
 
 interface RowDetailModalProps {
     open: boolean;

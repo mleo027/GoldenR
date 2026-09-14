@@ -41,8 +41,6 @@
 
 - 组合根：`src/main.tsx`、`src/App.tsx`、`src/platform/registry` 可依赖任意层。
 - 平台与共享：`src/platform/{shell,undo,hooks}`、`src/components`、`src/store`。
-- 模块无关的平台设施：`src/platform/capabilities`（能力注册表与宿主桥）不得依赖 `src/modules/**`，
-  否则「不打开界面也能被外部调用」不成立。
 - 门面与基础设施：`src/runtime`（Electron 门面）、`src/services`（持久化/导出等副作用）、`src/utils`、`src/types`、`src/constants`。
 - 平台桥接与生命周期：`src/platform/bridge`（Electron/IPC 客户端）、`src/platform/lifecycle`（持久化刷新）。
 - 叶子层：`src/shared`，不得依赖业务模块、UI、store、platform、runtime、services。
@@ -60,15 +58,12 @@
 ### interface-automation 模块内部
 
 `src/modules/interface-automation` 与 api-debug 使用同一套元素形状：
-`store / services / components / layout / providers / hooks / utils / constants / worker / capabilities`。
 
 - 模块元素按**目录**匹配（`partialMatch: false`）。根级散装文件落在元素模型之外、跨层依赖会被静默放行，
   因此 `constants/` 收成目录，新增文件请放进对应子目录。
 - `components` / `layout` 只能经 store 或 hook 读取状态，不得直连 `*Data`。
 - `utils`、`worker` 保持无副作用：不得依赖 `store`、`services`、`components`，也不得依赖 `runtime`。
 - `services` 不得依赖 `components` / `layout`。
-- `capabilities` 必须与 React 无关（不得依赖 `components` / `layout` / `providers` / `hooks`）：
-  外部 MCP 调用发生在模块界面可能从未挂载的时候。
 
 ### 业务约束（no-restricted-imports）
 

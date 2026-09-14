@@ -6,10 +6,10 @@ import {
 } from '@ant-design/icons';
 import type { ResponseData } from '../../types/workspace';
 import { parseKcbpResponseStatus, sumResultSetRows } from '../../utils/kcbp/kcbpResponse';
-import { formatDateTime } from '../../../../utils/formatDateTime';
+import { formatDateTime } from '../../utils/formatDateTime';
 import { formatDataSize } from '../../../../utils/exportTable';
-import { ControlCharText } from '../../../../utils/ControlCharText';
-import { formatControlCharsForTitle } from '../../../../utils/controlCharDisplay';
+import { ControlCharText } from '../../../../components/ui/ControlCharText';
+import { formatControlCharsForTitle } from '../../../../shared/controlCharDisplay';
 
 interface ResponseMetaProps {
     response: ResponseData;

@@ -69,23 +69,6 @@ const ZONES: Zone[] = [
         ],
     },
     {
-        name: 'src/platform/capabilities 是模块无关的平台设施',
-        dir: 'src/platform/capabilities',
-        forbid: ['src/modules'],
-    },
-    {
-        name: 'interface-automation capabilities 不依赖 React 层',
-        dir: 'src/modules/interface-automation/capabilities',
-        forbid: [
-            'src/components',
-            'src/modules/interface-automation/components',
-            'src/modules/interface-automation/layout',
-            'src/modules/interface-automation/providers',
-            'src/modules/interface-automation/hooks',
-            'src/modules/api-debug',
-        ],
-    },
-    {
         name: 'electron 不得依赖 renderer 分层',
         dir: 'electron',
         forbid: [

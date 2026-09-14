@@ -65,6 +65,31 @@ describe('runtime database schema', () => {
         db.close();
     });
 
+    it('removes retired external integration preferences during migration', () => {
+        const db = new Database(':memory:');
+        migrateSchema(db);
+        db.prepare('INSERT INTO app_preferences(key, value) VALUES (?, ?), (?, ?)').run(
+            'mcpSettings',
+            '{}',
+            'mcpAudit',
+            '{}',
+        );
+        db.prepare('DELETE FROM schema_migrations').run();
+        db.prepare('INSERT INTO schema_migrations VALUES(8, 0)').run();
+
+        migrateSchema(db);
+
+        expect(
+            db
+                .prepare("SELECT key FROM app_preferences WHERE key IN ('mcpSettings', 'mcpAudit')")
+                .all(),
+        ).toEqual([]);
+        expect(db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get()).toEqual({
+            version: SCHEMA_VERSION,
+        });
+        db.close();
+    });
+
     it('replaces the reverted automation schema with the v8 schema', () => {
         const db = new Database(':memory:');
         db.pragma('foreign_keys = ON');

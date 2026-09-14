@@ -11,7 +11,7 @@ import {
     ReloadOutlined,
     SendOutlined,
 } from '@ant-design/icons';
-import { formatDateTime } from '../../../../utils/formatDateTime';
+import { formatDateTime } from '../../utils/formatDateTime';
 import { formatHistoryTime, getDayKey, getDayLabel, getResultSummary } from './historyFormat';
 import type { RequestHistoryEntry } from '../../types/requestHistory';
 

@@ -1,7 +1,10 @@
 import { memo, type ClipboardEvent } from 'react';
 import {} from 'antd';
 import { PARAM_TEXT_PLACEHOLDER } from '../../utils/workspace/paramText';
-import { decodeSohMarkers, formatControlCharsForTitle } from '../../../../utils/controlCharDisplay';
+import {
+    decodeSohMarkers,
+    formatControlCharsForTitle,
+} from '../../../../shared/controlCharDisplay';
 import { TextArea } from '../../../../components/ui/primitives';
 
 interface ParamTextEditProps {

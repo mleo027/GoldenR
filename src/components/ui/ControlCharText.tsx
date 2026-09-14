@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { Tooltip } from 'antd';
-import { SOH_CHAR, containsSoh, formatControlCharsForTitle } from './controlCharDisplay';
+import { SOH_CHAR, containsSoh, formatControlCharsForTitle } from '../../shared/controlCharDisplay';
 
 interface ControlCharTextProps {
     text: string;

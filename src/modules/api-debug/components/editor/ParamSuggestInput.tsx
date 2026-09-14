@@ -24,7 +24,10 @@ import {
     isWindowsFilePath,
     trimPathQuotes,
 } from '../../utils/kcbp/kcbpFields';
-import { decodeSohMarkers, formatControlCharsForTitle } from '../../../../utils/controlCharDisplay';
+import {
+    decodeSohMarkers,
+    formatControlCharsForTitle,
+} from '../../../../shared/controlCharDisplay';
 import { TextArea } from '../../../../components/ui/primitives';
 
 interface ParamSuggestInputProps {

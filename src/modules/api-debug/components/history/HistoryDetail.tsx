@@ -10,8 +10,8 @@ import {
     ReloadOutlined,
     SendOutlined,
 } from '@ant-design/icons';
-import { formatDateTime } from '../../../../utils/formatDateTime';
-import { ControlCharText } from '../../../../utils/ControlCharText';
+import { formatDateTime } from '../../utils/formatDateTime';
+import { ControlCharText } from '../../../../components/ui/ControlCharText';
 import { parseKcbpResponseStatus } from '../../utils/kcbp/kcbpResponse';
 import type { RequestHistoryEntry } from '../../types/requestHistory';
 import type { ParamItem } from '../../types/workspace';

@@ -9,8 +9,6 @@ type RuntimeStorageName =
     | 'projects'
     | 'commonParams'
     | 'paramSuggestRules'
-    | 'mcpSettings'
-    | 'mcpAudit'
     | 'requestHistory';
 
 const encode = (value: unknown, fallback: unknown = null): string =>
@@ -95,29 +93,9 @@ export class ConfigRepository {
         this.writeStorage('requestHistory', value);
     }
 
-    /** MCP 对外开关（默认关闭；开启后才会有端口在监听）。 */
-    readMcpSettings(): unknown | null {
-        return this.readStorage('mcpSettings');
-    }
-    writeMcpSettings(value: unknown): void {
-        this.writeStorage('mcpSettings', value);
-    }
-
-    /** MCP 调用审计（近期记录，含上限）。 */
-    readMcpAudit(): unknown | null {
-        return this.readStorage('mcpAudit');
-    }
-    writeMcpAudit(value: unknown): void {
-        this.writeStorage('mcpAudit', value);
-    }
-
     private readStorage(name: RuntimeStorageName): unknown | null {
         if (name === 'appEnv')
             return this.oneJson("SELECT value FROM app_preferences WHERE key='appEnv'");
-        if (name === 'mcpSettings')
-            return this.oneJson("SELECT value FROM app_preferences WHERE key='mcpSettings'");
-        if (name === 'mcpAudit')
-            return this.oneJson("SELECT value FROM app_preferences WHERE key='mcpAudit'");
         if (name === 'workspace')
             return this.oneJson("SELECT value FROM workspace_state WHERE key='snapshot'");
         if (name === 'dbConnection') {
@@ -178,10 +156,6 @@ export class ConfigRepository {
     private writeStorage(name: RuntimeStorageName, value: unknown): void {
         const tx = this.db.transaction(() => {
             if (name === 'appEnv')
-                return this.upsert('app_preferences', 'key', name, { value: encode(value, {}) });
-            if (name === 'mcpSettings')
-                return this.upsert('app_preferences', 'key', name, { value: encode(value, {}) });
-            if (name === 'mcpAudit')
                 return this.upsert('app_preferences', 'key', name, { value: encode(value, {}) });
             if (name === 'workspace')
                 return this.upsert('workspace_state', 'key', 'snapshot', {

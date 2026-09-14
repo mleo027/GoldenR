@@ -20,7 +20,7 @@ import ResponseTableSkeleton from './ResponseTableSkeleton';
 import { useDataTable } from '../../platform/hooks/useDataTable';
 import type { SortOrder } from '../../utils/table';
 import { PERFORMANCE_THRESHOLDS } from '../../constants/ui';
-import { ControlCharText } from '../../utils/ControlCharText';
+import { ControlCharText } from './ControlCharText';
 
 const RowDetailModal = lazy(() => import('./RowDetailModal'));
 

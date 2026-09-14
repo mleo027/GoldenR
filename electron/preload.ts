@@ -2,12 +2,6 @@ import { contextBridge, ipcRenderer } from 'electron';
 import { isKcbpIpcCancelledResult, KCBP_CANCELLED_MESSAGE } from '../src/shared/kcbp/cancel';
 import { parseIpcError } from '../src/shared/ipc/errors';
 import type { ImportFileFormat } from '../src/shared/electron/api';
-import type {
-    CapabilityInvokeRequest,
-    CapabilityInvokeResponse,
-    CapabilityManifestPayload,
-} from '../src/shared/capabilities/host';
-import type { McpSettings, McpState } from '../src/shared/mcp/types';
 import type { KcbpRequestOptions, KcbpResponseData } from '../src/shared/kcbp/types';
 import type {
     DbConnectionConfig,
@@ -136,23 +130,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
             invoke('automation:sqlExecute', request),
         cancelSql: (requestId: string): Promise<boolean> =>
             invoke('automation:sqlCancel', requestId),
-    },
-    capabilities: {
-        onInvoke: (callback: (request: CapabilityInvokeRequest) => void) => {
-            const handler = (_event: Electron.IpcRendererEvent, request: CapabilityInvokeRequest) =>
-                callback(request);
-            ipcRenderer.on('capabilities:invoke', handler);
-            return () => ipcRenderer.removeListener('capabilities:invoke', handler);
-        },
-        respond: (response: CapabilityInvokeResponse): Promise<void> =>
-            invoke('capabilities:respond', response),
-        publishManifest: (payload: CapabilityManifestPayload): Promise<void> =>
-            invoke('capabilities:manifest', payload),
-    },
-    mcp: {
-        readState: (): Promise<McpState> => invoke('mcp:readState'),
-        writeSettings: (settings: McpSettings): Promise<McpState> =>
-            invoke('mcp:writeSettings', settings),
     },
     importExport: {
         saveJson: (content: string, defaultFilename: string) =>
