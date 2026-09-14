@@ -9,6 +9,7 @@
 - [工作区与持久化](./workspace.md)
 - [数据持久化](./data-persistence.md)
 - [设置](./settings.md)
+- [环境配置卡片 UI 重构（设计稿）](./2026-09-14-env-settings-ui.md)
 - [独立拆分方案](./2026-08-14-goldenapi-api-module-split.md)
 
 已完成或已废弃的历史计划、设计稿与交付报告见 [`archive/`](./archive/README.md)，仅作追溯参考。
