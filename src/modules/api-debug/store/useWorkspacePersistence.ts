@@ -9,7 +9,7 @@ import {
     saveProjects,
     saveSettings,
 } from './tabsData';
-import { flushAllPersistedState } from '../../../lib/persistFlush';
+import { flushAllPersistedState } from '../../../platform/lifecycle/persistFlush';
 import { flushAllTabDrafts } from '../utils/workspace/tabDraftRegistry';
 import { registerWorkspaceDraftFlusher } from './workspaceFlushRegistry';
 import { getActiveKcxpEnvironment } from '../utils/workspace/kcxpEnvironment';

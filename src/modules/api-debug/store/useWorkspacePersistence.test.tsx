@@ -25,7 +25,7 @@ vi.mock('./tabsData', async (importOriginal) => {
         saveSettings: vi.fn(),
     };
 });
-vi.mock('../../../lib/persistFlush', () => ({ flushAllPersistedState: vi.fn() }));
+vi.mock('../../../platform/lifecycle/persistFlush', () => ({ flushAllPersistedState: vi.fn() }));
 vi.mock('../utils/workspace/tabDraftRegistry', () => ({
     flushAllTabDrafts: mocks.flushDrafts,
 }));

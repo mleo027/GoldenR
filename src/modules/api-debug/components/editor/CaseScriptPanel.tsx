@@ -7,7 +7,7 @@ import ScriptEditor from './ScriptEditor';
 import EditorModeToggle from './EditorModeToggle';
 import ResponseMeta from '../response/ResponseMeta';
 import { useTabsActions, useActiveTab } from '../../store/useTabs';
-import { useDebouncedCommit } from '../../../../hooks/useDebouncedCommit';
+import { useDebouncedCommit } from '../../../../platform/hooks/useDebouncedCommit';
 import {
     registerTabDraftFlusher,
     registerTabDraftReader,

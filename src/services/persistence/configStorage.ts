@@ -1,4 +1,4 @@
-import { getElectronAPI } from '@/lib/electron';
+import { getElectronAPI } from '@/platform/bridge/electron';
 export interface ConfigStoragePort {
     readAppEnv(): Promise<unknown | null>;
     writeAppEnv(data: unknown): Promise<void>;

@@ -9,7 +9,7 @@ import {
     SearchOutlined,
 } from '@ant-design/icons';
 import { UI_DEBOUNCE_MS, PERFORMANCE_THRESHOLDS } from '../../constants/ui';
-import { useDebouncedDraft } from '../../hooks/useDebouncedDraft';
+import { useDebouncedDraft } from '../../platform/hooks/useDebouncedDraft';
 import { exportTableToCsv, exportTableToText } from '../../services/export/exportTableFiles';
 import { Input } from './primitives';
 import type { InputRef } from './primitives';

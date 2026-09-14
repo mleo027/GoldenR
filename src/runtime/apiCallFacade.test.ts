@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const call = vi.hoisted(() => vi.fn());
 const cancel = vi.hoisted(() => vi.fn());
 
-vi.mock('@/lib/electron', () => ({
+vi.mock('@/platform/bridge/electron', () => ({
     getElectronAPI: () => ({ kcbp: { call } }),
     requireElectronAPI: () => ({
         kcbp: {

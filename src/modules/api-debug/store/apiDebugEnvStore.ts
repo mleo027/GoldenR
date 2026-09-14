@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { ApiDebugEnv } from '../types';
-import { DEFAULT_API_DEBUG_ENV } from '@/config/api-debug/defaults';
+import { DEFAULT_API_DEBUG_ENV } from '../constants/apiDebugEnv';
 import { loadApiDebugEnv, mergeApiDebugEnv, saveApiDebugEnv } from './apiDebugEnvData';
 
 export interface ApiDebugEnvStore {

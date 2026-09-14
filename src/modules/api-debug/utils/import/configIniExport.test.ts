@@ -6,7 +6,7 @@ import { exportProjectToIni } from '../../services/import/exportProjectIni';
 
 const mockSaveIni = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../../lib/electron', () => ({
+vi.mock('../../../../platform/bridge/electron', () => ({
     getElectronAPI: () => ({
         importExport: {
             saveIni: mockSaveIni,

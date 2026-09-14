@@ -1,5 +1,5 @@
 import type { ApiDebugEnv } from '../types';
-import { DEFAULT_API_DEBUG_ENV } from '@/config/api-debug/defaults';
+import { DEFAULT_API_DEBUG_ENV } from '../constants/apiDebugEnv';
 import { UI_DEBOUNCE_MS } from '../../../constants/ui';
 import {
     normalizeKcxpEnvironments,

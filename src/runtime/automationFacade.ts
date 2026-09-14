@@ -1,4 +1,4 @@
-import { requireElectronAPI } from '@/lib/electron';
+import { requireElectronAPI } from '@/platform/bridge/electron';
 
 export const automationRuntime = {
     load: () => requireElectronAPI().automation.load(),

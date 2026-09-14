@@ -11,7 +11,7 @@ import { KGBP_REQUIRED_FIELDS_MESSAGE } from '../utils/workspace/kcxpEnvironment
 const mockCallKcbp = vi.fn();
 const mockQueryScriptSql = vi.fn();
 
-vi.mock('../../../lib/electron', () => ({
+vi.mock('../../../platform/bridge/electron', () => ({
     requireElectronAPI: () => ({
         kcbp: {
             call: mockCallKcbp,

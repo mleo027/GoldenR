@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { compareValues, filterRowsByKeyword, type SortOrder } from '../utils/table';
-import { PERFORMANCE_THRESHOLDS } from '../constants/ui';
+import { compareValues, filterRowsByKeyword, type SortOrder } from '../../utils/table';
+import { PERFORMANCE_THRESHOLDS } from '../../constants/ui';
 
 export interface SortInfo {
     field?: string;

@@ -185,7 +185,7 @@ export default tseslint.config(
 
     {
         files: ['src/**/*.{ts,tsx}'],
-        ignores: ['src/lib/electron.ts'],
+        ignores: ['src/platform/bridge/electron.ts'],
         rules: {
             'no-restricted-syntax': [
                 'error',
@@ -198,7 +198,7 @@ export default tseslint.config(
     },
 
     {
-        // 渲染进程禁止 Node 全局量，须经 runtime facade / lib 封装
+        // 渲染进程禁止 Node 全局量，须经 runtime facade / platform bridge 封装
         files: ['src/**/*.{ts,tsx}'],
         ignores: ['**/*.test.*'],
         rules: {
@@ -235,11 +235,9 @@ export default tseslint.config(
                                 '@/platform/**',
                                 '@/runtime/**',
                                 '@/services/**',
-                                '@/hooks/**',
-                                '@/lib/**',
                             ],
                             message:
-                                'electron 不得依赖 renderer 的业务、UI、store、platform、runtime、services、lib 或 hooks',
+                                'electron 不得依赖 renderer 的业务、UI、store、platform、runtime 或 services',
                         },
                     ],
                 },

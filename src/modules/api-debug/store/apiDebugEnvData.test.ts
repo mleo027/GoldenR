@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { DEFAULT_API_DEBUG_ENV } from '@/config/api-debug/defaults';
+import { DEFAULT_API_DEBUG_ENV } from '../constants/apiDebugEnv';
 import { flushPendingApiDebugEnvSave, loadApiDebugEnv, mergeApiDebugEnv } from './apiDebugEnvData';
 import { DEFAULT_KCXP_ENVIRONMENT_ID } from '../constants/kcxpEnv';
 

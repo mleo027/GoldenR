@@ -8,7 +8,7 @@ import {
     SnippetsOutlined,
     ThunderboltOutlined,
 } from '@ant-design/icons';
-import { useDebouncedCommit } from '../../../../hooks/useDebouncedCommit';
+import { useDebouncedCommit } from '../../../../platform/hooks/useDebouncedCommit';
 import { UI_DEBOUNCE_MS } from '../../../../constants/ui';
 import { importExportRuntime } from '../../../../runtime/importExportFacade';
 import type { ApiDebugEnv } from '../../types';

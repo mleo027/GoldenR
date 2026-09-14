@@ -35,8 +35,6 @@ const ZONES: Zone[] = [
             'src/platform',
             'src/runtime',
             'src/services',
-            'src/lib',
-            'src/hooks',
         ],
     },
     {
@@ -97,8 +95,6 @@ const ZONES: Zone[] = [
             'src/platform',
             'src/runtime',
             'src/services',
-            'src/lib',
-            'src/hooks',
         ],
     },
 ];
@@ -174,7 +170,7 @@ describe('architecture boundaries', () => {
         const offenders: string[] = [];
         for (const file of files) {
             const relative = path.relative(ROOT, file).split(path.sep).join('/');
-            if (relative === 'src/lib/electron.ts') continue;
+            if (relative === 'src/platform/bridge/electron.ts') continue;
             const source = await readFile(file, 'utf-8');
             if (source.includes(marker)) offenders.push(relative);
         }

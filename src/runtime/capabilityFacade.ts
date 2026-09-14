@@ -1,4 +1,4 @@
-import { requireElectronAPI } from '@/lib/electron';
+import { requireElectronAPI } from '@/platform/bridge/electron';
 import type {
     CapabilityInvokeRequest,
     CapabilityInvokeResponse,

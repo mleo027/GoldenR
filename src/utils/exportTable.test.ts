@@ -10,7 +10,7 @@ import { exportTableToCsv, exportTableToText } from '../services/export/exportTa
 const mockSaveCsvFile = vi.fn();
 const mockSaveTxtFile = vi.fn();
 
-vi.mock('../lib/electron', () => ({
+vi.mock('../platform/bridge/electron', () => ({
     getElectronAPI: () => ({
         importExport: {
             saveCsv: mockSaveCsvFile,

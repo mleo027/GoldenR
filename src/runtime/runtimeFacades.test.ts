@@ -19,7 +19,7 @@ const bridge = vi.hoisted(() => ({
     config: {},
 }));
 
-vi.mock('@/lib/electron', () => ({
+vi.mock('@/platform/bridge/electron', () => ({
     getElectronAPI: () => bridge,
     requireElectronAPI: () => bridge,
 }));

@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState, type DragEvent } from 'react';
 import { message } from 'antd';
 import type { ProjectData } from '../../types/workspace';
-import { useDragAutoScroll } from '../../../../hooks/useDragAutoScroll';
+import { useDragAutoScroll } from '../../../../platform/hooks/useDragAutoScroll';
 import { getCaseLabel } from '../../utils/workspace/caseLabel';
 import {
     isCaseDragEvent,

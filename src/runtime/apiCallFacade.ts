@@ -1,4 +1,4 @@
-import { getElectronAPI, requireElectronAPI } from '@/lib/electron';
+import { getElectronAPI, requireElectronAPI } from '@/platform/bridge/electron';
 import type {
     KcbpPickPathResult,
     KcbpRequestOptions,

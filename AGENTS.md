@@ -23,7 +23,7 @@ SQL Debugger、Agent Server 等）。
 
 - 所有改动必须留在**当前仓库内**，用仓库相对路径描述，不要读写仓库外的路径。
 - Renderer 不得直接访问文件系统、SQLite、原生模块或 `process` / `Buffer` / `require` /
-  `__dirname`；仅 `src/lib/electron.ts` 可访问 `window.electronAPI`。
+  `__dirname`；仅 `src/platform/bridge/electron.ts` 可访问 `window.electronAPI`。
 - 原生适配器源码只在 `electron/adapter/native` 维护，`electron/adapter` 只放构建产物与
   厂商 DLL；不要修改厂商 SDK 头文件的类型名或结构布局。
 - 禁止 `git reset --hard`、`git checkout --`、批量递归删除等丢弃用户改动的操作。清理前先
@@ -82,6 +82,7 @@ src/
   main.tsx, App.tsx              Renderer 入口
   platform/registry              模块注册（组合根）
   platform/{shell,undo}          平台壳层与撤销
+  platform/{bridge,hooks,lifecycle} Electron 桥接、通用 Hook 与持久化生命周期
   platform/capabilities          平台能力注册表（模块无关：不得 import 任何模块）
   components/{ui,layout,theme}   通用 UI、布局、主题
   modules/api-debug              API 调试模块
@@ -90,7 +91,6 @@ src/
   runtime                        Electron 门面（apiCall/config/kcbp/importExport/suggest）
   services/{persistence,export}  持久化、导出等副作用
   shared                         叶子层：跨端共享类型与纯逻辑
-  config                         shared 的再导出壳
   architecture                   分层不变量测试
 electron/
   main.ts                        主进程入口
@@ -104,7 +104,7 @@ electron/mcp/                     MCP 服务器（仅本机 Streamable HTTP；�
 electron/services/capabilities/   能力调用通道：主进程 → 渲染层执行
 ```
 
-- Renderer 的分层依赖方向由 `eslint/boundaries.mjs`（经 `eslint.config.js` 展开）强制，`src/architecture/boundaries.test.ts`
+- Renderer 的分层依赖方向由 `eslint/boundaries.mjs`（经 `eslint.config.js` 展开）强制，`src/test/boundaries.test.ts`
   作为补充守卫；相对路径与 `@/` 别名都会被解析后判定，改写法无法绕过。
 - `golden.db` 是唯一运行时配置与项目数据后端；旧 JSON 只用于一次性迁移与用户主动导入/导出。
 - KCBP 响应归一化在 `electron/services/kcbp/response.ts`。

@@ -11,7 +11,7 @@ import {
     pickKcbpRuntimeDirectory,
     pickKcbpRuntimeFile,
     saveKcbpRuntimeConfig,
-} from '@/lib/kcbpRuntimeConfigClient';
+} from '@/platform/bridge/kcbpRuntimeConfigClient';
 import { Input, TextArea } from '../../../components/ui/primitives';
 
 export default function KcbpRuntimeSettings() {

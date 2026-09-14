@@ -4,7 +4,7 @@
  * 纯构建逻辑见 utils/exportTable，本文件只负责 I/O，
  * 使 utils 保持无副作用、可独立单测。
  */
-import { getElectronAPI } from '../../lib/electron';
+import { getElectronAPI } from '../../platform/bridge/electron';
 import { importExportRuntime } from '../../runtime/importExportFacade';
 import { buildAlignedTextTable, buildCsvContent } from '../../utils/exportTable';
 

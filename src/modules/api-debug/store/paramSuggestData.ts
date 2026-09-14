@@ -7,7 +7,7 @@ import { DEFAULT_DB_CONFIG, DEFAULT_PARAM_SUGGEST_RULES } from '../constants/par
 import { normalizeParamFieldRules } from '../utils/suggest/paramSuggestResolve';
 import { UI_DEBOUNCE_MS } from '../../../constants/ui';
 import { suggestRuntime } from '../../../runtime/suggestFacade';
-import { getElectronAPI } from '../../../lib/electron';
+import { getElectronAPI } from '../../../platform/bridge/electron';
 import { configStorage } from '../../../services/persistence/configStorage';
 import { DebounceWriter } from '../../../services/persistence/debounceWriter';
 

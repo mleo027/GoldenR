@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { App, Switch, Tag, Typography } from 'antd';
 import type { McpAuditEntry, McpState } from '@/shared/mcp/types';
-import { readMcpState, saveMcpSettings } from '../../../lib/mcpClient';
+import { readMcpState, saveMcpSettings } from '../../../platform/bridge/mcpClient';
 
 const MAX_VISIBLE_AUDIT = 20;
 

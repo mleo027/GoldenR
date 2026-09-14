@@ -6,7 +6,7 @@
  * - 本文件负责走 runtime facade 落盘 / 浏览器下载
  */
 import type { ProjectData } from '../../types/workspace';
-import { getElectronAPI } from '../../../../lib/electron';
+import { getElectronAPI } from '../../../../platform/bridge/electron';
 import { importExportRuntime } from '../../../../runtime/importExportFacade';
 import {
     buildConfigIniContent,

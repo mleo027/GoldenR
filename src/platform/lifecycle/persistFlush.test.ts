@@ -5,11 +5,11 @@ const mocks = vi.hoisted(() => ({
     flushModule: vi.fn(),
 }));
 
-vi.mock('../store/appEnvData', () => ({
+vi.mock('../../store/appEnvData', () => ({
     flushPendingAppEnvSaveAsync: mocks.flushAppEnv,
 }));
 
-vi.mock('../platform/registry/app-modules', () => ({
+vi.mock('../registry/app-modules', () => ({
     APP_MODULES: [{ flushPersistedState: mocks.flushModule }],
 }));
 

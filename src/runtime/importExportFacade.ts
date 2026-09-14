@@ -1,4 +1,4 @@
-import { getElectronAPI } from '@/lib/electron';
+import { getElectronAPI } from '@/platform/bridge/electron';
 import type {
     ImportFileFormat,
     ImportFileResult,

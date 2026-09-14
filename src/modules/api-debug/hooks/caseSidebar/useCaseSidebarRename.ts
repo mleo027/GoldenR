@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useInlineRename, type RenameTarget } from '../../../../hooks/useInlineRename';
+import { useInlineRename, type RenameTarget } from '../../../../platform/hooks/useInlineRename';
 import type { ProjectData } from '../../types/workspace';
 
 interface Config {

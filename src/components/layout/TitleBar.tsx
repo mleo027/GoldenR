@@ -3,7 +3,7 @@ import { Button, Space, Tooltip } from 'antd';
 import { CloseOutlined, MinusOutlined, BorderOutlined, BlockOutlined } from '@ant-design/icons';
 import { TITLE_BAR_SLOT_ID } from '../../platform/shell/TitleBarSlotPortal';
 import GoldenBrandLogo from '../ui/GoldenBrandLogo';
-import { getElectronAPI } from '@/lib/electron';
+import { getElectronAPI } from '@/platform/bridge/electron';
 
 interface TitleBarProps {
     moduleLabel: string;

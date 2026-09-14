@@ -1,6 +1,6 @@
-import { APP_MODULES } from '../platform/registry/app-modules';
-import { flushPendingAppEnvSaveAsync } from '../store/appEnvData';
-import { getElectronAPI } from './electron';
+import { APP_MODULES } from '../registry/app-modules';
+import { flushPendingAppEnvSaveAsync } from '../../store/appEnvData';
+import { getElectronAPI } from '../bridge/electron';
 
 export async function flushAllPersistedState(): Promise<void> {
     const results = await Promise.allSettled([

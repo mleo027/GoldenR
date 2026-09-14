@@ -17,7 +17,7 @@ import type { SorterResult } from 'antd/es/table/interface';
 import ResizableHeaderCell from './ResizableHeaderCell';
 import PanelEmptyState from './PanelEmptyState';
 import ResponseTableSkeleton from './ResponseTableSkeleton';
-import { useDataTable } from '../../hooks/useDataTable';
+import { useDataTable } from '../../platform/hooks/useDataTable';
 import type { SortOrder } from '../../utils/table';
 import { PERFORMANCE_THRESHOLDS } from '../../constants/ui';
 import { ControlCharText } from '../../utils/ControlCharText';

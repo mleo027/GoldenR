@@ -160,7 +160,7 @@ registerModuleCapabilities(
 - `electron/mcp/`（MCP 服务器：Streamable HTTP、会话、错误映射）
 - `electron/services/capabilities/`（主进程侧调用渲染层，含超时/取消/审计）
 - `scripts/mcp-smoke.mjs`、`scripts/mcp-stdio.mjs`
-- `eslint/boundaries.mjs`（`eslint.config.js` 展开）+ `src/architecture/boundaries.test.ts` 的平台层登记
+- `eslint/boundaries.mjs`（`eslint.config.js` 展开）+ `src/test/boundaries.test.ts` 的平台层登记
 
 ## 5. 目标架构
 

@@ -1,4 +1,4 @@
-import type { ElectronAPI } from '../types/electron';
+import type { ElectronAPI } from '../../types/electron';
 
 export function getElectronAPI(): ElectronAPI | undefined {
     if (typeof window === 'undefined') return undefined;

@@ -7,7 +7,7 @@ import ParamQuickFillModal from './ParamQuickFillModal';
 import SectionHeader from '@/components/layout/SectionHeader';
 import { useRequestHeaderLayout } from '../../hooks/useRequestHeaderLayout';
 import { useTabsActions, useActiveTab } from '../../store/useTabs';
-import { useDebouncedCommit } from '@/hooks/useDebouncedCommit';
+import { useDebouncedCommit } from '@/platform/hooks/useDebouncedCommit';
 import {
     registerTabDraftFlusher,
     registerTabDraftReader,

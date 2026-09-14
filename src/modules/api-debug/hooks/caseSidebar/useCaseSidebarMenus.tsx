@@ -14,8 +14,8 @@ import {
     StarOutlined,
     ExperimentOutlined,
 } from '@ant-design/icons';
-import type { RenameTarget } from '../../../../hooks/useInlineRename';
-import { useStableHandlerMap } from '../../../../hooks/useStableHandlerMap';
+import type { RenameTarget } from '../../../../platform/hooks/useInlineRename';
+import { useStableHandlerMap } from '../../../../platform/hooks/useStableHandlerMap';
 import type { useTabsActions, useTabsNavigation } from '../../store/useTabs';
 import { applyTabDraftsToWorkspace } from '../../store/tabsData';
 import { flushAllTabDrafts } from '../../utils/workspace/tabDraftRegistry';

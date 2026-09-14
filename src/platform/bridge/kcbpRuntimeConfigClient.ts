@@ -1,4 +1,4 @@
-import { requireElectronAPI } from '@/lib/electron';
+import { requireElectronAPI } from './electron';
 import type { KcbpRuntimeConfig } from '@/shared/kcbp/types';
 
 let cachedConfig: KcbpRuntimeConfig | null = null;

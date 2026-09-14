@@ -35,16 +35,17 @@
 
 ## Renderer 分层与依赖约束（ESLint 强制）
 
-渲染进程的依赖方向由 `eslint/boundaries.mjs`（经 `eslint.config.js` 展开）强制，`npm run lint` / `npm run check` 失败即阻断；`src/architecture/boundaries.test.ts`（路径感知）作为补充守卫。相对路径与 `@/` 别名都会被解析后判定，不能靠改写法绕过。
+渲染进程的依赖方向由 `eslint/boundaries.mjs`（经 `eslint.config.js` 展开）强制，`npm run lint` / `npm run check` 失败即阻断；`src/test/boundaries.test.ts`（路径感知）作为补充守卫。相对路径与 `@/` 别名都会被解析后判定，不能靠改写法绕过。
 
 ### 分层（依赖只能单向向下）
 
 - 组合根：`src/main.tsx`、`src/App.tsx`、`src/platform/registry` 可依赖任意层。
-- 平台与共享：`src/platform/{shell,undo}`、`src/components`、`src/hooks`、`src/store`。
+- 平台与共享：`src/platform/{shell,undo,hooks}`、`src/components`、`src/store`。
 - 模块无关的平台设施：`src/platform/capabilities`（能力注册表与宿主桥）不得依赖 `src/modules/**`，
   否则「不打开界面也能被外部调用」不成立。
-- 门面与基础设施：`src/runtime`（Electron 门面）、`src/services`（持久化/导出等副作用）、`src/lib`、`src/utils`、`src/types`、`src/constants`。
-- 叶子层：`src/shared`（含 `src/config` 再导出壳），不得依赖业务模块、UI、store、platform、runtime、services、lib、hooks。
+- 门面与基础设施：`src/runtime`（Electron 门面）、`src/services`（持久化/导出等副作用）、`src/utils`、`src/types`、`src/constants`。
+- 平台桥接与生命周期：`src/platform/bridge`（Electron/IPC 客户端）、`src/platform/lifecycle`（持久化刷新）。
+- 叶子层：`src/shared`，不得依赖业务模块、UI、store、platform、runtime、services。
 - `electron/**` 只可依赖 `src/shared`、`src/types`、`src/constants`。
 
 ### api-debug 模块内部
@@ -74,7 +75,7 @@
 - 基础表单控件（`Input` / `Select` / `TextArea` / `Password`）必须使用 `@/components/ui/primitives`，禁止直连 antd。
 - 配置读写只允许出现在 `*Data.ts` 或 `src/services/persistence`。
 - KCBP 调用细节（`services/kcbp/electronClient`、`services/call/executors`）只允许 service 层引用。
-- 仅 `src/lib/electron.ts` 可访问 `window.electronAPI`；渲染进程禁止 `process` / `Buffer` / `require` / `__dirname`。
+- 仅 `src/platform/bridge/electron.ts` 可访问 `window.electronAPI`；渲染进程禁止 `process` / `Buffer` / `require` / `__dirname`。
 - 类型导入由 `@typescript-eslint/consistent-type-imports` 强制显式 `import type`。
 
 > flat config 中多个配置块设置同一规则会相互覆盖。`no-restricted-imports` 已按「导入方文件」切成互斥分区，新增规则时需确保目标文件只命中一个分区。
@@ -84,7 +85,7 @@
 1. 在 `eslint/boundaries.mjs` 的 `boundaries/elements` 登记新元素：使用 `partialMatch: false` + 完整路径，避免 `components/*` 误匹配同名目录。
 2. 在 `dependencyPolicies` 增加允许方向，或为要禁止的方向补充策略。
 3. 业务约束加入对应的互斥 `no-restricted-imports` 分区。
-4. 同步更新 `src/architecture/boundaries.test.ts` 的核心不变量。
+4. 同步更新 `src/test/boundaries.test.ts` 的核心不变量。
 
 ## SQLite 持久化
 

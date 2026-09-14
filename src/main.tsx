@@ -2,10 +2,10 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.tsx';
-import { setupPersistFlushListener } from './lib/persistFlush';
-import { preloadKcbpRuntimeConfig } from './lib/kcbpRuntimeConfigClient';
+import { setupPersistFlushListener } from './platform/lifecycle/persistFlush';
+import { preloadKcbpRuntimeConfig } from './platform/bridge/kcbpRuntimeConfigClient';
 import { preloadAppEnv } from './store/appEnvData';
-import { getElectronAPI } from './lib/electron';
+import { getElectronAPI } from './platform/bridge/electron';
 import { startCapabilityHost } from './platform/capabilities/hostBridge';
 
 setupPersistFlushListener();
